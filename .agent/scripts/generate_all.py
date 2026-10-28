@@ -1,7 +1,8 @@
 import os
 import sys
+import subprocess
 
-from diagram_builder import build_drawio_svg
+from diagram_builder import build_drawio_svg, write_catalog
 
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "01_Diagram", "01_Usecase_Diagram"))
 
@@ -15,7 +16,7 @@ build_drawio_svg(
     actor_left="Student",
     actor_right="Operator",
     usecases=[
-        {"id": "uc_s1", "text": "Search Mobility Hubs", "x": 260, "y": 80, "w": 180, "h": 50, "fill": "#bae6fd", "is_bold": True},
+        {"id": "uc_s1", "text": "Search Mobility Hub", "x": 260, "y": 80, "w": 180, "h": 50, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_s2", "text": "View Available Vehicles", "x": 260, "y": 158, "w": 180, "h": 50, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_s3", "text": "Reserve Vehicle", "x": 260, "y": 236, "w": 180, "h": 50, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_s4", "text": "Pick Up Vehicle", "x": 260, "y": 314, "w": 180, "h": 50, "fill": "#bae6fd", "is_bold": True},
@@ -115,7 +116,7 @@ build_drawio_svg(
     system_title="Smart E-Mobility Hub System",
     actor_left="Student", actor_right=None,
     usecases=[
-        {"id": "uc_base", "text": "Return vehicle", "x": 250, "y": 200, "w": 160, "h": 70, "fill": "#bae6fd", "is_bold": True},
+        {"id": "uc_base", "text": "Return Vehicle", "x": 250, "y": 200, "w": 160, "h": 70, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_inc1", "text": "Check Hub Space\nAvailability", "x": 560, "y": 80, "w": 180, "h": 70},
         {"id": "uc_inc2", "text": "Verify Vehicle &\nBattery Status", "x": 560, "y": 200, "w": 180, "h": 70},
         {"id": "uc_inc3", "text": "Confirm Vehicle\nReturn", "x": 560, "y": 320, "w": 180, "h": 70},
@@ -138,7 +139,7 @@ build_drawio_svg(
         {"id": "uc_cancel", "text": "Cancel Parking\nReservation", "x": 260, "y": 90, "w": 160, "h": 60},
         {"id": "uc_base", "text": "Reserve Parking\nSpace", "x": 260, "y": 250, "w": 160, "h": 65, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_inc1", "text": "Confirm Parking\nReservation", "x": 570, "y": 100, "w": 170, "h": 60},
-        {"id": "uc_inc2", "text": "Validate vehicle\nInformation", "x": 570, "y": 220, "w": 170, "h": 60},
+        {"id": "uc_inc2", "text": "Validate Vehicle\nInformation", "x": 570, "y": 220, "w": 170, "h": 60},
         {"id": "uc_inc3", "text": "Check Parking\nAvailability", "x": 570, "y": 340, "w": 170, "h": 60},
     ],
     edges=[
@@ -176,7 +177,7 @@ build_drawio_svg(
 build_drawio_svg(
     filepath=os.path.join(base_dir, "OPERATOR", "UC8-Monitor_Mobility_Hub_Network.drawio.svg"),
     width=900, height=520,
-    system_title="Smart E-Mobility Hub",
+    system_title="Smart E-Mobility Hub System",
     actor_left="Operator", actor_right=None,
     usecases=[
         {"id": "uc_ext", "text": "Inspect Selected Hub", "x": 370, "y": 80, "w": 180, "h": 55},
@@ -198,7 +199,7 @@ build_drawio_svg(
 build_drawio_svg(
     filepath=os.path.join(base_dir, "OPERATOR", "UC9-Manage_Mobility_Resources.drawio.svg"),
     width=940, height=480,
-    system_title="Smart E-Mobility Hub",
+    system_title="Smart E-Mobility Hub System",
     actor_left="Operator", actor_right=None,
     usecases=[
         {"id": "uc_child1", "text": "Suspend Resource", "x": 200, "y": 90, "w": 150, "h": 55},
@@ -223,7 +224,7 @@ build_drawio_svg(
 build_drawio_svg(
     filepath=os.path.join(base_dir, "OPERATOR", "UC10-Redistribute_Vehicles.drawio.svg"),
     width=900, height=520,
-    system_title="Smart E-Mobility Hub",
+    system_title="Smart E-Mobility Hub System",
     actor_left="Operator", actor_right=None,
     usecases=[
         {"id": "uc_ext", "text": "Find Alternative\nDestination Hub", "x": 360, "y": 80, "w": 180, "h": 55},
@@ -245,7 +246,7 @@ build_drawio_svg(
 build_drawio_svg(
     filepath=os.path.join(base_dir, "OPERATOR", "UC11-Handle_Operational_Incident.drawio.svg"),
     width=920, height=520,
-    system_title="Smart E-Mobility Hub",
+    system_title="Smart E-Mobility Hub System",
     actor_left="Operator", actor_right=None,
     usecases=[
         {"id": "uc_ext1", "text": "Isolate Faulty Resource", "x": 240, "y": 80, "w": 170, "h": 55},
@@ -257,8 +258,8 @@ build_drawio_svg(
     ],
     edges=[
         {"id": "e1", "source": "actor_left", "target": "uc_base", "type": "assoc"},
-        {"id": "e2", "source": "uc_ext1", "target": "uc_base", "type": "extend", "label": "<<extend>>"},
-        {"id": "e3", "source": "uc_ext2", "target": "uc_base", "type": "extend", "label": "<<extend>>"},
+        {"id": "e2", "source": "uc_base", "target": "uc_ext1", "type": "include", "label": "<<include>>"},
+        {"id": "e3", "source": "uc_base", "target": "uc_ext2", "type": "include", "label": "<<include>>"},
         {"id": "e4", "source": "uc_base", "target": "uc_inc1", "type": "include", "label": "<<include>>"},
         {"id": "e5", "source": "uc_base", "target": "uc_inc2", "type": "include", "label": "<<include>>"},
         {"id": "e6", "source": "uc_base", "target": "uc_inc3", "type": "include", "label": "<<include>>"},
@@ -274,7 +275,7 @@ build_drawio_svg(
     usecases=[
         {"id": "uc_ext1", "text": "Reassign on Port\nMalfunction", "x": 270, "y": 70, "w": 180, "h": 55},
         {"id": "uc_base", "text": "Manage Charging\nSchedule", "x": 280, "y": 210, "w": 180, "h": 65, "fill": "#bae6fd", "is_bold": True},
-        {"id": "uc_ext2", "text": "Manual Override\nSchedule", "x": 270, "y": 370, "w": 180, "h": 55},
+        {"id": "uc_ext2", "text": "Override Charging\nSchedule", "x": 270, "y": 370, "w": 180, "h": 55},
         {"id": "uc_inc1", "text": "Monitor Charging\nQueue", "x": 610, "y": 90, "w": 170, "h": 60},
         {"id": "uc_inc2", "text": "Prioritize Charging\nOrder", "x": 610, "y": 210, "w": 170, "h": 60},
         {"id": "uc_inc3", "text": "Allocate Charging\nPoints", "x": 610, "y": 330, "w": 170, "h": 60},
@@ -341,4 +342,6 @@ build_drawio_svg(
     ]
 )
 
-print("Regeneration completed with dynamic padding!")
+write_catalog(base_dir)
+subprocess.run(["node", os.path.join(os.path.dirname(__file__), "render_usecases.cjs")], check=True)
+print("Regeneration completed: native Draw.io, verified editable SVG/PNG exports, and code catalog.")

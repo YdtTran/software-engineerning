@@ -8,7 +8,7 @@
 **Đề tài:** Smart E-Mobility Hub – Hệ thống Điều phối Phương tiện Điện Khu đô thị ĐHQG-HCM  
 **Loại tài liệu:** Hồ sơ Đặc tả Yêu cầu Kỹ thuật Phần mềm (Software Requirements Specification - SRS)  
 **Cột mốc thực hiện:** Đợt nộp 1 (Submission #1 Detail)  
-**Tài liệu tham chiếu:** Đề bài `03_BTL_SoftwareEngineering_HK261.pdf`, Bộ sơ đồ `01_Diagram/01_Usecase_Diagram/`, Bộ quy tắc `02_Rules/`  
+**Tài liệu tham chiếu:** Đề bài `04_BTL_SoftwareEngineering_HK261.pdf`, Bộ sơ đồ `01_Diagram/01_Usecase_Diagram/`, Bộ quy tắc `02_Rules/`
 
 ---
 
@@ -113,7 +113,7 @@ Tuân thủ nghiêm ngặt chuẩn UML:
 
 1. **Primary Actors (Khởi xướng hành động):**
    - **Student (Sinh viên - Đặt bên TRÁI):** Tác nhân sử dụng dịch vụ trên thiết bị di động.
-   - **Operator (Đơn vị Vận hành - Đặt bên PHẢI):** Tác nhân quản trị điều phối mạng lưới và thực hiện mô phỏng kịch bản.
+   - **Operator (Đơn vị Vận hành - Đặt bên TRÁI):** Tác nhân chính khởi xướng quản trị điều phối mạng lưới và thực hiện mô phỏng kịch bản.
 2. **Secondary / External Actors (Hỗ trợ / Nhận phản hồi - Đặt bên PHẢI):**
    - **IoT Sensor Stream / Simulated Telemetry:** Luồng cấp phát dữ liệu cảm biến định kỳ về mức pin, chốt khóa, trạng thái cổng sạc.
    - **Notification Service:** Cổng dịch vụ đẩy thông báo (Push/SMS) về trạng thái đặt xe hoặc cảnh báo sự cố.
@@ -162,6 +162,7 @@ Toàn bộ 14 Use Cases nằm trọn vẹn trong System Boundary, phân rã làm
 flowchart LR
     subgraph LeftActors [" "]
         Student(["👤 Student\n(Primary Actor)"])
+        Operator(["👤 Operator\n(Primary Actor)"])
     end
 
     subgraph SystemBoundary ["Smart E-Mobility Hub System"]
@@ -186,10 +187,6 @@ flowchart LR
         end
     end
 
-    subgraph RightActors [" "]
-        Operator(["👤 Operator\n(Primary Actor)"])
-    end
-
     Student --- UC01
     Student --- UC02
     Student --- UC03
@@ -198,17 +195,16 @@ flowchart LR
     Student --- UC06
     Student --- UC07
 
-    UC08 --- Operator
-    UC09 --- Operator
-    UC10 --- Operator
-    UC11 --- Operator
-    UC12 --- Operator
-    UC13 --- Operator
-    UC14 --- Operator
+    Operator --- UC08
+    Operator --- UC09
+    Operator --- UC10
+    Operator --- UC11
+    Operator --- UC12
+    Operator --- UC13
+    Operator --- UC14
 
     style LeftActors fill:none,stroke:none
-    style RightActors fill:none,stroke:none
-    style SystemBoundary fill:#f0f9ff,stroke:#0284c7,stroke-width:2px
+    style SystemBoundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
     style StudentModule fill:#ffffff,stroke:#38bdf8,stroke-dasharray: 4 4
     style OperatorModule fill:#ffffff,stroke:#38bdf8,stroke-dasharray: 4 4
 ```
@@ -485,7 +481,7 @@ Luồng ngoại lệ (Exception Flows):
   2. Đề xuất các khung giờ khác hoặc gợi ý Hub kế bên còn chỗ đỗ.
 
 Quy tắc nghiệp vụ (Business Rules):
-- BR08: Vị trí đỗ chỉ được giữ trước tối đa 30 phút so với giờ hẹn đăng ký. Quá 30 phút không check-in, hệ thống tự hủy đặt chỗ.
+- BR08: Đặt chỗ đỗ hết hạn tại `ScheduledArrivalTime + 30 phút` nếu chưa check-in. Thời điểm hết hạn tính từ giờ đến đã đăng ký, không tính từ lúc tạo phiếu. Quy tắc giữ xe 15 phút của UC03 không áp dụng cho đặt chỗ đỗ.
 ================================================================================
 ```
 
@@ -673,9 +669,9 @@ Luồng sự kiện chính (Main Flow):
 4. Hệ thống kích hoạt: Assess Incident Impact (include).
    - Đánh giá mức độ: Khẩn cấp (nguy cơ cháy nổ/chập điện), Nghiêm trọng (ảnh hưởng >30% năng lực Hub), hoặc Thông thường (xẹp lốp, trầy sơn).
 5. Operator bấm nút xác nhận xử lý.
-6. Hệ thống kích hoạt: Isolate Faulty Resource (extend).
+6. Hệ thống kích hoạt: Isolate Faulty Resource (include, bắt buộc).
    - Ngắt điện cổng sạc bị chập hoặc khóa xe hỏng sang trạng thái `Out of Order`.
-7. Hệ thống kích hoạt: Schedule Maintenance (extend).
+7. Hệ thống kích hoạt: Schedule Maintenance (include, bắt buộc).
    - Phân công kỹ thuật viên đến hiện trường kèm thời hạn xử lý (SLA).
 8. Hệ thống kích hoạt: Update Incident Status (include) sang `Investigating/In Progress`.
 9. Hệ thống gửi thông báo nhiệm vụ đến kỹ thuật viên. Use Case kết thúc.
@@ -727,7 +723,7 @@ Luồng rẽ nhánh (Alternative Flows):
 - 4a. Cổng sạc đang cấp điện bị ngắt nguồn đột ngột (Reassign on Port Malfunction - extend):
   1. Hệ thống phát hiện cổng số 3 mất điện.
   2. Tự động tìm cổng sạc trống khác và phân bổ lại xe mà không làm gián đoạn lịch trình tổng thể.
-- 5a. Can thiệp thủ công (Manual Override Schedule - extend):
+- 5a. Can thiệp thủ công (Override Charging Schedule - extend):
   1. Operator có quyền kéo thả đổi chỗ thứ tự ưu tiên của một phương tiện trong trường hợp đặc biệt.
 
 Luồng ngoại lệ (Exception Flows):
@@ -747,7 +743,7 @@ KỊCH BẢN CA SỬ DỤNG: UC13 - CHẠY MÔ PHỎNG KỊCH BẢN WHAT-IF (RUN
 Mã Use Case: UC13
 Tên Use Case: Chạy mô phỏng kịch bản What-if (Run What-if Simulation)
 Tác nhân chính: Operator
-Tác nhân phụ: What-if Simulation Engine (Internal Component)
+Tác nhân phụ: Không có. What-if Simulation Engine là thành phần nội bộ, không phải tác nhân.
 Mô tả tóm tắt: Operator thiết lập các thông số giả định (tăng đột biến sinh viên, hỏng trụ sạc, dồn ứ xe) để máy tính mô phỏng diễn biến động của mạng lưới Hub và xuất khuyến nghị điều phối.
 Tiền điều kiện: Mạng lưới đang hoạt động hoặc đang có dữ liệu trạng thái hiện tại.
 Hậu điều kiện: Kịch bản được thực thi hoàn tất, tự động chuyển sang UC14 để xem kết quả phân tích.
@@ -792,7 +788,7 @@ KỊCH BẢN CA SỬ DỤNG: UC14 - XEM KẾT QUẢ MÔ PHỎNG (VIEW SIMULATION
 Mã Use Case: UC14
 Tên Use Case: Xem kết quả mô phỏng (View Simulation Results)
 Tác nhân chính: Operator
-Tác nhân phụ: What-if Simulation Engine
+Tác nhân phụ: Không có. What-if Simulation Engine là thành phần nội bộ, không phải tác nhân.
 Mô tả tóm tắt: Hiển thị bảng so sánh chỉ số đo lường hiệu năng (trước và sau mô phỏng) và danh sách các giải pháp khuyến nghị điều phối tối ưu.
 Tiền điều kiện: Ca sử dụng UC13 đã được thực thi thành công và có dữ liệu kết quả trong bộ nhớ.
 Hậu điều kiện: Operator nắm bắt đầy đủ rủi ro nghẽn mạng lưới và các giải pháp can thiệp.
@@ -840,7 +836,7 @@ Các dịch vụ chạy ngầm tự động (Background Daemons / Automated Jobs
 
 ### 5.1. FR-NI01: Tiến trình Tự động Hủy Đặt chỗ Quá hạn
 - **Cơ chế hoạt động:** Một daemon tiến trình nền quét bảng dữ liệu `VehicleReservation` và `ParkingReservation` định kỳ mỗi **30 giây**.
-- **Điều kiện kích hoạt:** `Current_Time > Reservation_Time + 15 phút` và trạng thái vẫn là `Pending/Reserved`.
+- **Điều kiện kích hoạt:** Trạng thái vẫn là `Pending/Reserved` và `Current_Time >= ExpiresAt`. Với `VehicleReservation`, `ExpiresAt = Reservation_Time + 15 phút`; với `ParkingReservation`, `ExpiresAt = ScheduledArrivalTime + 30 phút` theo BR08. Phiếu đã nhận xe/check-in hoặc đã hủy không bị xử lý lại.
 - **Hành động tự động:**
   1. Chuyển trạng thái bản ghi đặt chỗ sang `Expired`.
   2. Mở khóa phương tiện hoặc slot đỗ, trả về trạng thái `Available`.

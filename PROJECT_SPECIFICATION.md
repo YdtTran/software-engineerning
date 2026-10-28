@@ -88,7 +88,7 @@ Theo quy chuẩn UML và kỹ nghệ phần mềm phân tán, hệ thống phân
 
 1. **Primary Actors (Tác nhân chính - Khởi xướng hành vi):**
    - **Student (Sinh viên - Đặt bên TRÁI):** Người dùng cuối trong khuôn viên ĐHQG. Thực hiện các nhu cầu di chuyển: tìm kiếm Hub, kiểm tra phương tiện khả dụng, đặt trước xe/chỗ đỗ, nhận và trả xe, gửi yêu cầu sạc cho xe dùng chung hoặc phương tiện cá nhân.
-   - **Operator (Đơn vị Vận hành - Đặt bên PHẢI):** Người quản trị chịu trách nhiệm vận hành toàn mạng lưới. Theo dõi dashboard thời gian thực, quản lý tài nguyên xe và hạ tầng, điều chuyển tái cân bằng xe giữa các Hub, xử lý sự cố thiết bị, tối ưu hóa lịch sạc và **chạy các kịch bản mô phỏng What-if**.
+   - **Operator (Đơn vị Vận hành - Đặt bên TRÁI):** Tác nhân chính khởi xướng vận hành toàn mạng lưới. Theo dõi dashboard thời gian thực, quản lý tài nguyên xe và hạ tầng, điều chuyển tái cân bằng xe giữa các Hub, xử lý sự cố thiết bị, tối ưu hóa lịch sạc và **chạy các kịch bản mô phỏng What-if**.
 
 2. **Secondary / External Actors (Tác nhân hỗ trợ / Hệ thống ngoài - Đặt bên PHẢI):**
    - **IoT Sensor Stream / Simulated Telemetry:** Hệ thống cảm biến telemetry (hoặc luồng dữ liệu giả lập) cung cấp dữ liệu định kỳ gần thời gian thực về mức pin, tọa độ xe, tình trạng chiếm dụng slot đỗ và trạng thái hoạt động của cổng sạc.
@@ -107,11 +107,12 @@ Toàn bộ hệ thống được chuẩn hóa thành **14 Use Cases cốt lõi**
 flowchart LR
     subgraph LeftActors [" "]
         Student(["👤 Student\n(Primary Actor)"])
+        Operator(["👤 Operator\n(Primary Actor)"])
     end
 
     subgraph SystemBoundary ["Smart E-Mobility Hub System"]
         subgraph StudentModule ["Phân hệ Sinh viên"]
-            UC01(["UC01: Search Mobility Hubs"])
+            UC01(["UC01: Search Mobility Hub"])
             UC02(["UC02: View Available Vehicles"])
             UC03(["UC03: Reserve Vehicle"])
             UC04(["UC04: Pick Up Vehicle"])
@@ -131,10 +132,6 @@ flowchart LR
         end
     end
 
-    subgraph RightActors [" "]
-        Operator(["👤 Operator\n(Primary Actor)"])
-    end
-
     Student --- UC01
     Student --- UC02
     Student --- UC03
@@ -143,17 +140,16 @@ flowchart LR
     Student --- UC06
     Student --- UC07
 
-    UC08 --- Operator
-    UC09 --- Operator
-    UC10 --- Operator
-    UC11 --- Operator
-    UC12 --- Operator
-    UC13 --- Operator
-    UC14 --- Operator
+    Operator --- UC08
+    Operator --- UC09
+    Operator --- UC10
+    Operator --- UC11
+    Operator --- UC12
+    Operator --- UC13
+    Operator --- UC14
 
     style LeftActors fill:none,stroke:none
-    style RightActors fill:none,stroke:none
-    style SystemBoundary fill:#f0f9ff,stroke:#0284c7,stroke-width:2px
+    style SystemBoundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
     style StudentModule fill:#ffffff,stroke:#38bdf8,stroke-dasharray: 5 5
     style OperatorModule fill:#ffffff,stroke:#38bdf8,stroke-dasharray: 5 5
 ```
@@ -281,8 +277,8 @@ flowchart LR
   - `Handle Operational Incident` $\xrightarrow{\ll include \gg}$ `Review Incident Details`: Xem chi tiết báo cáo sự cố (ảnh hỏng hóc, nhật ký lỗi từ cảm biến).
   - `Handle Operational Incident` $\xrightarrow{\ll include \gg}$ `Assess Incident Impact`: Đánh giá mức độ ảnh hưởng đến an toàn và năng lực phục vụ của Hub.
   - `Handle Operational Incident` $\xrightarrow{\ll include \gg}$ `Update Incident Status`: Cập nhật trạng thái xử lý sự cố (`Open` $\rightarrow$ `Investigating` $\rightarrow$ `Resolved`).
-  - `Isolate Faulty Resource` $\xrightarrow{\ll extend \gg}$ `Handle Operational Incident`: Lập tức ngắt kết nối và khóa thiết bị hỏng trên ứng dụng để người dùng không chọn nhầm.
-  - `Schedule Maintenance` $\xrightarrow{\ll extend \gg}$ `Handle Operational Incident`: Lên lịch phân công kỹ thuật viên đến bảo trì hiện trường.
+  - `Handle Operational Incident` $\xrightarrow{\ll include \gg}$ `Isolate Faulty Resource`: Bắt buộc cách ly và khóa thiết bị hỏng để người dùng không chọn nhầm, phù hợp luồng chính và hậu điều kiện UC11.
+  - `Handle Operational Incident` $\xrightarrow{\ll include \gg}$ `Schedule Maintenance`: Bắt buộc phân công kỹ thuật viên bảo trì, phù hợp luồng chính và hậu điều kiện UC11.
 - **Sơ đồ chi tiết:** Xem file [`UC11-Handle_Operational_Incident.drawio.svg`](./01_Diagram/01_Usecase_Diagram/OPERATOR/UC11-Handle_Operational_Incident.drawio.svg).
 
 #### UC12: Quản lý & Lập lịch sạc (`Manage Charging Schedule`)
@@ -293,7 +289,7 @@ flowchart LR
   - `Manage Charging Schedule` $\xrightarrow{\ll include \gg}$ `Prioritize Charging Order`: Thuật toán ưu tiên tự động (xe có pin khẩn cấp $<20\%$ hoặc xe có lịch đặt cho chuyến đi sắp diễn ra).
   - `Manage Charging Schedule` $\xrightarrow{\ll include \gg}$ `Allocate Charging Points`: Phân bổ xe vào cổng sạc phù hợp.
   - `Reassign on Port Malfunction` $\xrightarrow{\ll extend \gg}$ `Manage Charging Schedule`: Tự động tái phân bổ xe sang cổng sạc khác nếu cổng đang sạc gặp lỗi ngắt nguồn.
-  - `Manual Override Schedule` $\xrightarrow{\ll extend \gg}$ `Manage Charging Schedule`: Cho phép Operator can thiệp bằng tay thay đổi thứ tự ưu tiên trong trường hợp khẩn cấp.
+  - `Override Charging Schedule` $\xrightarrow{\ll extend \gg}$ `Manage Charging Schedule`: Cho phép Operator can thiệp bằng tay thay đổi thứ tự ưu tiên trong trường hợp khẩn cấp.
 - **Sơ đồ chi tiết:** Xem file [`UC12-Manage_Charging_Schedule.drawio.svg`](./01_Diagram/01_Usecase_Diagram/OPERATOR/UC12-Manage_Charging_Schedule.drawio.svg).
 
 #### UC13: Chạy mô phỏng kịch bản What-if (`Run What-if Simulation`)
@@ -375,7 +371,7 @@ flowchart TD
 
 1. **FR-NI01: Cơ chế Tự động Hủy Đặt chỗ Quá hạn (Auto-cancel Overdue Reservation Daemon):**
    - Định kỳ mỗi 30 giây, tiến trình nền quét toàn bộ các bản ghi `VehicleReservation` và `ParkingReservation`.
-   - Nếu thời gian hiện tại vượt quá thời hạn giữ chỗ ($>15$ phút) mà sinh viên chưa check-in mở khóa, hệ thống tự động:
+   - Mỗi phiếu có `ExpiresAt`: đặt xe là `Reservation_Time + 15 phút`; đặt chỗ đỗ là `ScheduledArrivalTime + 30 phút` theo BR08 trong báo cáo Submission #1. Khi `Current_Time >= ExpiresAt` và phiếu vẫn ở trạng thái `Pending/Reserved` (chưa nhận xe/check-in), hệ thống tự động:
      + Chuyển trạng thái đặt chỗ sang `Expired`.
      + Trả trạng thái xe/chỗ đỗ về `Available`.
      + Gửi thông báo nhắc nhở đến tài khoản sinh viên.
@@ -638,15 +634,16 @@ Dự án được cấu trúc chuyên nghiệp, tích hợp sẵn bộ quy chu�
 │       ├── verify.cjs & export.cjs     # Script kiểm định Playwright và xuất bản tự động
 │       ├── verification.json           # Báo cáo kết quả kiểm định 9 tiêu chí giao diện (Passed)
 │       └── README.md                   # Hướng dẫn chi tiết về bộ giao diện UI/UX
-├── .agent/                             # Cấu hình AI Assistant & UML Designer Skill
+├── .agent/                             # Quy tắc kích hoạt & script hỗ trợ
 │   ├── rules/                          # Bộ quy tắc tự động kích hoạt
-│   ├── scripts/                        # Python Script vẽ tự động Draw.io SVG chuẩn xác
-│   └── skills/uml-designer/            # Skill thiết kế UML và render vector
+│   └── scripts/                        # Python Script vẽ tự động Draw.io SVG chuẩn xác
+├── .agents/
+│   └── skills/uml-designer/            # Skill UML; quy chuẩn dùng chung tại 02_Rules/
 ├── .vscode/
 │   └── extensions.json                 # Cấu hình gợi ý cài đặt extension Draw.io cho VS Code
-├── 03_BTL_SoftwareEngineering_HK261.pdf # Đề bài chính thức từ Giảng viên
+├── 04_BTL_SoftwareEngineering_HK261.pdf # Đề bài chính thức từ Giảng viên
 ├── AGENTS.md                           # Bộ quy tắc dành cho Agent phát triển hệ thống
-├── GEMINI.md                           # Quy chuẩn kỹ thuật chi tiết
+├── GEMINI.md                           # Tham chiếu AGENTS.md và skill UML
 └── README.md                           # Tài liệu master đặc tả dự án (File này)
 ```
 

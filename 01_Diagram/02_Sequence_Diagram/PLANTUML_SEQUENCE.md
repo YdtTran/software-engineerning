@@ -2,7 +2,7 @@
 > **Chuẩn mực bài giảng (Supreme Law):** Môn **Software Engineering (CO3001) - ĐHQG-HCM** & **Ian Sommerville (10th Ed) Ch6 p.21-26 (Hình mẫu Slide 22/23 "SEQUENCE DIAGRAMS - EXAMPLE")**.  
 > **Đặc trưng quy chuẩn:**
 > - Actor stick figure đại diện người dùng khởi xướng.
-> - Hộp đối tượng / thành phần ở đỉnh Lifeline tô màu pastel phân biệt (UI, Controller, Service/IoT, Database).
+> - Hộp đối tượng / thành phần ở đỉnh Lifeline tô màu đậm hơn phân biệt (UI, Controller, Service/IoT, Database).
 > - Khung kích hoạt (*Activation Bar*) liên tục biểu thị chính xác thời gian xử lý của đối tượng.
 > - Thông điệp yêu cầu (*Request Message*): Nét liền đầu mũi tên đặc (`──►`), đặt tên theo hành động nghiệp vụ rõ ràng (VD: `select vehicle`, `insert card`, `verify card`).
 > - Thông điệp phản hồi (*Return Message*): Nét đứt đầu mũi tên mở (`< - - -`), nhãn in nghiêng (VD: `reservation approved`, `reject card`, `display active ticket`).
@@ -30,81 +30,93 @@
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam sequenceMessageAlign center
-skinparam responseMessageBelowArrow false
-skinparam roundcorner 10
-skinparam ParticipantPadding 25
-skinparam BoxPadding 15
-
-actor "User" as User #f3e8ff
-participant "Mobile App" as App #dbeafe
-participant "Reservation Hub" as Hub #dcfce7
-participant "Vehicle Service" as Fleet #ffe4e6
-participant "Database" as DB #fef3c7
-
-User -> App: select vehicle
-activate User #f3e8ff
-activate App #dbeafe
-
-App -> Hub: request reservation
-activate Hub #dcfce7
-
-Hub -> Fleet: check availability & battery
-activate Fleet #ffe4e6
-
-Fleet -> Fleet: validate battery level (>= 20%)
-activate Fleet #ffe4e6
-deactivate Fleet
-
-Fleet -> DB: lock vehicle (15-min hold)
-activate DB #fef3c7
-
-DB --> Fleet: lock confirmed
-deactivate DB
-
-Fleet --> Hub: reservation approved
-deactivate Fleet
-
-Hub --> App: issue reservation ticket (QR & timer)
-deactivate Hub
-
-App --> User: display active ticket (15:00 countdown)
-deactivate App
-deactivate User
-
-note over User, App: Duration Constraint: {b - a < 5 sec}
+hide footbox
+skinparam backgroundColor #ffffff
+skinparam defaultFontName Segoe UI
+skinparam defaultFontColor #000000
+skinparam defaultFontSize 16
+skinparam sequence {
+  ParticipantBorderColor #000000
+  ParticipantFontColor #000000
+  ParticipantFontSize 18
+  ActorBorderColor #000000
+  ActorFontColor #000000
+  ActorFontSize 18
+  LifeLineBorderColor #000000
+}
+skinparam ArrowFontColor #000000
+skinparam ArrowFontSize 16
+skinparam noteFontColor #000000
+skinparam noteFontSize 14
+skinparam noteBorderColor #000000
+skinparam noteBackgroundColor #fcd34d
+skinparam titleFontColor #000000
+skinparam titleFontSize 22
+actor "User" as P0 #d8b4fe
+participant ":MobileApp" as P1 #93c5fd
+participant ":ReservationHub" as P2 #86efac
+participant ":VehicleService" as P3 #fda4af
+participant "<<datastore>> Database" as P4 #fcd34d
+activate P0 #d8b4fe
+P0->P1: 1: select vehicle
+activate P1 #93c5fd
+note left of P0: {a}
+P1->P2: 1.1: request reservation
+activate P2 #86efac
+P2->P3: 1.2: check availability & battery
+activate P3 #fda4af
+P3->P3: 1.3: validate battery level (>= 20%)
+activate P3 #fda4af
+deactivate P3
+P3->P4: 1.4: lock vehicle (15-min hold)
+activate P4 #fcd34d
+P4-->P3: 1.5: lock confirmed
+deactivate P4
+P3-->P2: 1.6: reservation approved
+deactivate P3
+P2-->P1: 1.7: issue reservation ticket (QR & timer)
+deactivate P2
+P1-->P0: 1.8: display active ticket (15:00 countdown)
+note left of P0: {b}
+deactivate P0
+deactivate P1
+note left of P0: {b - a < 5 sec} (scenario assumption)
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
-sequenceDiagram
-    actor User as User
-    participant App as Mobile App
-    participant Hub as Reservation Hub
-    participant Fleet as Vehicle Service
-    participant DB as Database
-
-    User->>App: select vehicle
-    activate User
-    activate App
-    App->>Hub: request reservation
-    activate Hub
-    Hub->>Fleet: check availability & battery
-    activate Fleet
-    Fleet->>Fleet: validate battery level (>= 20%)
-    Fleet->>DB: lock vehicle (15-min hold)
-    activate DB
-    DB-->>Fleet: lock confirmed
-    deactivate DB
-    Fleet-->>Hub: reservation approved
-    deactivate Fleet
-    Hub-->>App: issue reservation ticket (QR & timer)
-    deactivate Hub
-    App-->>User: display active ticket (15:00 countdown)
-    deactivate App
-    deactivate User
-    Note over User,App: Duration Constraint: {b - a < 5 sec}
+%%{init: {"theme":"base","fontFamily":"Segoe UI","themeVariables":{"fontSize":"16px","textColor":"#000000","primaryTextColor":"#000000","actorTextColor":"#000000","signalTextColor":"#000000","noteTextColor":"#000000","labelTextColor":"#000000","loopTextColor":"#000000","actorBkg":"#93c5fd","actorBorder":"#000000","activationBkgColor":"#86efac","activationBorderColor":"#000000","noteBkgColor":"#fcd34d","noteBorderColor":"#000000","labelBoxBorderColor":"#000000","labelBoxBkgColor":"#93c5fd","background":"#ffffff"},"sequence":{"actorFontSize":18,"messageFontSize":16,"noteFontSize":14,"mirrorActors":false}}}%%
+    sequenceDiagram
+        actor P0 as User
+        participant P1 as :MobileApp
+        participant P2 as :ReservationHub
+        participant P3 as :VehicleService
+        participant P4 as <<datastore>> Database
+    activate P0
+    P0->>P1: 1: select vehicle
+    activate P1
+    Note left of P0: {a}
+    P1->>P2: 1.1: request reservation
+    activate P2
+    P2->>P3: 1.2: check availability & battery
+    activate P3
+    P3->>P3: 1.3: validate battery level (>= 20%)
+    activate P3
+    deactivate P3
+    P3->>P4: 1.4: lock vehicle (15-min hold)
+    activate P4
+    P4-->>P3: 1.5: lock confirmed
+    deactivate P4
+    P3-->>P2: 1.6: reservation approved
+    deactivate P3
+    P2-->>P1: 1.7: issue reservation ticket (QR & timer)
+    deactivate P2
+    P1-->>P0: 1.8: display active ticket (15:00 countdown)
+    Note left of P0: {b}
+    deactivate P0
+    deactivate P1
+    Note left of P0: {b - a < 5 sec} (scenario assumption)
 ```
 
 ---
@@ -118,91 +130,101 @@ sequenceDiagram
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam sequenceMessageAlign center
-skinparam responseMessageBelowArrow false
-skinparam roundcorner 10
-skinparam ParticipantPadding 25
-skinparam BoxPadding 15
-
-actor "User" as User #f3e8ff
-participant "Mobile App" as App #dbeafe
-participant "Pickup Controller" as Ctrl #dcfce7
-participant "Station IoT Dock" as Dock #ffe4e6
-participant "Database" as DB #fef3c7
-
-User -> App: scan QR code at vehicle dock
-activate User #f3e8ff
-activate App #dbeafe
-
-App -> Ctrl: submit pickup request
-activate Ctrl #dcfce7
-
-Ctrl -> DB: validate reservation ticket
-activate DB #fef3c7
-
-DB --> Ctrl: reservation verified
-deactivate DB
-
-Ctrl -> Dock: send unlock command
-activate Dock #ffe4e6
-
-Dock -> Dock: release physical lock mechanism
-activate Dock #ffe4e6
-deactivate Dock
-
-Dock --> Ctrl: dock unlocked & vehicle released
-deactivate Dock
-
-Ctrl -> DB: update vehicle state to 'In-Use'
-activate DB #fef3c7
-
-DB --> Ctrl: trip record initiated
-deactivate DB
-
-Ctrl --> App: confirm unlock & start trip timer
-deactivate Ctrl
-
-App --> User: display trip active & safety tips
-deactivate App
-deactivate User
-
-note over User, App: Duration Constraint: {b - a < 8 sec}
+hide footbox
+skinparam backgroundColor #ffffff
+skinparam defaultFontName Segoe UI
+skinparam defaultFontColor #000000
+skinparam defaultFontSize 16
+skinparam sequence {
+  ParticipantBorderColor #000000
+  ParticipantFontColor #000000
+  ParticipantFontSize 18
+  ActorBorderColor #000000
+  ActorFontColor #000000
+  ActorFontSize 18
+  LifeLineBorderColor #000000
+}
+skinparam ArrowFontColor #000000
+skinparam ArrowFontSize 16
+skinparam noteFontColor #000000
+skinparam noteFontSize 14
+skinparam noteBorderColor #000000
+skinparam noteBackgroundColor #fcd34d
+skinparam titleFontColor #000000
+skinparam titleFontSize 22
+actor "User" as P0 #d8b4fe
+participant ":MobileApp" as P1 #93c5fd
+participant ":PickupController" as P2 #86efac
+participant ":StationIoTDock" as P3 #fda4af
+participant "<<datastore>> Database" as P4 #fcd34d
+activate P0 #d8b4fe
+P0->P1: 1: scan QR code at vehicle dock
+activate P1 #93c5fd
+note left of P0: {a}
+P1->P2: 1.1: submit pickup request
+activate P2 #86efac
+P2->P4: 1.2: validate reservation ticket
+activate P4 #fcd34d
+P4-->P2: 1.3: reservation verified
+deactivate P4
+P2->P3: 1.4: send unlock command
+activate P3 #fda4af
+P3->P3: 1.5: release physical lock mechanism
+activate P3 #fda4af
+deactivate P3
+P3-->P2: 1.6: dock unlocked & vehicle released
+deactivate P3
+P2->P4: 1.7: update vehicle state to 'In-Use'
+activate P4 #fcd34d
+P4-->P2: 1.8: trip record initiated
+deactivate P4
+P2-->P1: 1.9: confirm unlock & start trip timer
+deactivate P2
+P1-->P0: 1.10: display trip active & safety tips
+note left of P0: {b}
+deactivate P0
+deactivate P1
+note left of P0: {b - a < 8 sec} (scenario assumption)
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
-sequenceDiagram
-    actor User as User
-    participant App as Mobile App
-    participant Ctrl as Pickup Controller
-    participant Dock as Station IoT Dock
-    participant DB as Database
-
-    User->>App: scan QR code at vehicle dock
-    activate User
-    activate App
-    App->>Ctrl: submit pickup request
-    activate Ctrl
-    Ctrl->>DB: validate reservation ticket
-    activate DB
-    DB-->>Ctrl: reservation verified
-    deactivate DB
-    Ctrl->>Dock: send unlock command
-    activate Dock
-    Dock->>Dock: release physical lock mechanism
-    Dock-->>Ctrl: dock unlocked & vehicle released
-    deactivate Dock
-    Ctrl->>DB: update vehicle state to 'In-Use'
-    activate DB
-    DB-->>Ctrl: trip record initiated
-    deactivate DB
-    Ctrl-->>App: confirm unlock & start trip timer
-    deactivate Ctrl
-    App-->>User: display trip active & safety tips
-    deactivate App
-    deactivate User
-    Note over User,App: Duration Constraint: {b - a < 8 sec}
+%%{init: {"theme":"base","fontFamily":"Segoe UI","themeVariables":{"fontSize":"16px","textColor":"#000000","primaryTextColor":"#000000","actorTextColor":"#000000","signalTextColor":"#000000","noteTextColor":"#000000","labelTextColor":"#000000","loopTextColor":"#000000","actorBkg":"#93c5fd","actorBorder":"#000000","activationBkgColor":"#86efac","activationBorderColor":"#000000","noteBkgColor":"#fcd34d","noteBorderColor":"#000000","labelBoxBorderColor":"#000000","labelBoxBkgColor":"#93c5fd","background":"#ffffff"},"sequence":{"actorFontSize":18,"messageFontSize":16,"noteFontSize":14,"mirrorActors":false}}}%%
+    sequenceDiagram
+        actor P0 as User
+        participant P1 as :MobileApp
+        participant P2 as :PickupController
+        participant P3 as :StationIoTDock
+        participant P4 as <<datastore>> Database
+    activate P0
+    P0->>P1: 1: scan QR code at vehicle dock
+    activate P1
+    Note left of P0: {a}
+    P1->>P2: 1.1: submit pickup request
+    activate P2
+    P2->>P4: 1.2: validate reservation ticket
+    activate P4
+    P4-->>P2: 1.3: reservation verified
+    deactivate P4
+    P2->>P3: 1.4: send unlock command
+    activate P3
+    P3->>P3: 1.5: release physical lock mechanism
+    activate P3
+    deactivate P3
+    P3-->>P2: 1.6: dock unlocked & vehicle released
+    deactivate P3
+    P2->>P4: 1.7: update vehicle state to 'In-Use'
+    activate P4
+    P4-->>P2: 1.8: trip record initiated
+    deactivate P4
+    P2-->>P1: 1.9: confirm unlock & start trip timer
+    deactivate P2
+    P1-->>P0: 1.10: display trip active & safety tips
+    Note left of P0: {b}
+    deactivate P0
+    deactivate P1
+    Note left of P0: {b - a < 8 sec} (scenario assumption)
 ```
 
 ---
@@ -216,92 +238,103 @@ sequenceDiagram
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam sequenceMessageAlign center
-skinparam responseMessageBelowArrow false
-skinparam roundcorner 10
-skinparam ParticipantPadding 25
-skinparam BoxPadding 15
-
-actor "User" as User #f3e8ff
-participant "Station IoT Dock" as Dock #ffe4e6
-participant "Return Controller" as Ctrl #dcfce7
-participant "Telemetry Service" as Tele #f3e8ff
-participant "Database" as DB #fef3c7
-participant "Mobile App" as App #dbeafe
-
-User -> Dock: insert vehicle into dock & latch
-activate User #f3e8ff
-activate Dock #ffe4e6
-
-Dock -> Ctrl: report vehicle plugged in
-activate Ctrl #dcfce7
-
-Ctrl -> Tele: read odometer & battery level
-activate Tele #f3e8ff
-
-Tele --> Ctrl: return final telemetry data
-deactivate Tele
-
-Ctrl -> DB: close trip & calculate usage fee
-activate DB #fef3c7
-
-DB -> DB: deduct balance & generate receipt
-activate DB #fef3c7
-deactivate DB
-
-DB --> Ctrl: trip closed & payment confirmed
-deactivate DB
-
-Ctrl -> Dock: engage lock & flash green LED
-Dock --> Ctrl: dock locked securely
-deactivate Dock
-
-Ctrl --> App: send trip invoice & notification
-activate App #dbeafe
-deactivate Ctrl
-
-App --> User: display trip summary & receipt
-deactivate App
-deactivate User
-
-note over User, Dock: Duration Constraint: {b - a < 6 sec}
+hide footbox
+skinparam backgroundColor #ffffff
+skinparam defaultFontName Segoe UI
+skinparam defaultFontColor #000000
+skinparam defaultFontSize 16
+skinparam sequence {
+  ParticipantBorderColor #000000
+  ParticipantFontColor #000000
+  ParticipantFontSize 18
+  ActorBorderColor #000000
+  ActorFontColor #000000
+  ActorFontSize 18
+  LifeLineBorderColor #000000
+}
+skinparam ArrowFontColor #000000
+skinparam ArrowFontSize 16
+skinparam noteFontColor #000000
+skinparam noteFontSize 14
+skinparam noteBorderColor #000000
+skinparam noteBackgroundColor #fcd34d
+skinparam titleFontColor #000000
+skinparam titleFontSize 22
+actor "User" as P0 #d8b4fe
+participant ":StationIoTDock" as P1 #fda4af
+participant ":ReturnController" as P2 #86efac
+participant ":TelemetryService" as P3 #d8b4fe
+participant "<<datastore>> Database" as P4 #fcd34d
+participant ":MobileApp" as P5 #93c5fd
+activate P0 #d8b4fe
+P0->P1: 1: insert vehicle into dock & latch
+activate P1 #fda4af
+note left of P0: {a}
+P1->P2: 1.1: report vehicle plugged in
+activate P2 #86efac
+P2->P3: 1.2: read odometer & battery level
+activate P3 #d8b4fe
+P3-->P2: 1.3: return final telemetry data
+deactivate P3
+P2->P4: 1.4: close trip & calculate usage fee
+activate P4 #fcd34d
+P4->P4: 1.5: deduct balance & generate receipt
+activate P4 #fcd34d
+deactivate P4
+P4-->P2: 1.6: trip closed & payment confirmed
+deactivate P4
+P2->P1: 1.7: engage lock & flash green LED
+P1-->P2: 1.8: dock locked securely
+deactivate P1
+P2-->P5: 1.9: send trip invoice & notification
+activate P5 #93c5fd
+deactivate P2
+P5-->P0: 1.10: display trip summary & receipt
+note left of P0: {b}
+deactivate P0
+deactivate P5
+note left of P0: {b - a < 6 sec} (scenario assumption)
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
-sequenceDiagram
-    actor User as User
-    participant Dock as Station IoT Dock
-    participant Ctrl as Return Controller
-    participant Tele as Telemetry Service
-    participant DB as Database
-    participant App as Mobile App
-
-    User->>Dock: insert vehicle into dock & latch
-    activate User
-    activate Dock
-    Dock->>Ctrl: report vehicle plugged in
-    activate Ctrl
-    Ctrl->>Tele: read odometer & battery level
-    activate Tele
-    Tele-->>Ctrl: return final telemetry data
-    deactivate Tele
-    Ctrl->>DB: close trip & calculate usage fee
-    activate DB
-    DB->>DB: deduct balance & generate receipt
-    DB-->>Ctrl: trip closed & payment confirmed
-    deactivate DB
-    Ctrl->>Dock: engage lock & flash green LED
-    Dock-->>Ctrl: dock locked securely
-    deactivate Dock
-    Ctrl-->>App: send trip invoice & notification
-    activate App
-    deactivate Ctrl
-    App-->>User: display trip summary & receipt
-    deactivate App
-    deactivate User
-    Note over User,Dock: Duration Constraint: {b - a < 6 sec}
+%%{init: {"theme":"base","fontFamily":"Segoe UI","themeVariables":{"fontSize":"16px","textColor":"#000000","primaryTextColor":"#000000","actorTextColor":"#000000","signalTextColor":"#000000","noteTextColor":"#000000","labelTextColor":"#000000","loopTextColor":"#000000","actorBkg":"#93c5fd","actorBorder":"#000000","activationBkgColor":"#86efac","activationBorderColor":"#000000","noteBkgColor":"#fcd34d","noteBorderColor":"#000000","labelBoxBorderColor":"#000000","labelBoxBkgColor":"#93c5fd","background":"#ffffff"},"sequence":{"actorFontSize":18,"messageFontSize":16,"noteFontSize":14,"mirrorActors":false}}}%%
+    sequenceDiagram
+        actor P0 as User
+        participant P1 as :StationIoTDock
+        participant P2 as :ReturnController
+        participant P3 as :TelemetryService
+        participant P4 as <<datastore>> Database
+        participant P5 as :MobileApp
+    activate P0
+    P0->>P1: 1: insert vehicle into dock & latch
+    activate P1
+    Note left of P0: {a}
+    P1->>P2: 1.1: report vehicle plugged in
+    activate P2
+    P2->>P3: 1.2: read odometer & battery level
+    activate P3
+    P3-->>P2: 1.3: return final telemetry data
+    deactivate P3
+    P2->>P4: 1.4: close trip & calculate usage fee
+    activate P4
+    P4->>P4: 1.5: deduct balance & generate receipt
+    activate P4
+    deactivate P4
+    P4-->>P2: 1.6: trip closed & payment confirmed
+    deactivate P4
+    P2->>P1: 1.7: engage lock & flash green LED
+    P1-->>P2: 1.8: dock locked securely
+    deactivate P1
+    P2-->>P5: 1.9: send trip invoice & notification
+    activate P5
+    deactivate P2
+    P5-->>P0: 1.10: display trip summary & receipt
+    Note left of P0: {b}
+    deactivate P0
+    deactivate P5
+    Note left of P0: {b - a < 6 sec} (scenario assumption)
 ```
 
 ---
@@ -315,96 +348,103 @@ sequenceDiagram
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam sequenceMessageAlign center
-skinparam responseMessageBelowArrow false
-skinparam roundcorner 10
-skinparam ParticipantPadding 25
-skinparam BoxPadding 15
-
-actor "User" as User #f3e8ff
-participant "Mobile App" as App #dbeafe
-participant "Charging Controller" as Ctrl #dcfce7
-participant "Smart Charger IoT" as Charger #ffe4e6
-participant "Database" as DB #fef3c7
-
-User -> App: select charging slot & power tier
-activate User #f3e8ff
-activate App #dbeafe
-
-App -> Ctrl: submit charging session request
-activate Ctrl #dcfce7
-
-Ctrl -> DB: verify student wallet & subscription
-activate DB #fef3c7
-
-DB --> Ctrl: account verified
-deactivate DB
-
-Ctrl -> Charger: check charger port status & grid load
-activate Charger #ffe4e6
-
-Charger --> Ctrl: port ready & power allocated
-deactivate Charger
-
-Ctrl -> Charger: activate charging port & energize cable
-activate Charger #ffe4e6
-
-Charger --> Ctrl: charging power delivered
-deactivate Charger
-
-Ctrl -> DB: create charging session record
-activate DB #fef3c7
-
-DB --> Ctrl: session record saved
-deactivate DB
-
-Ctrl --> App: notify charging started & live power feed
-deactivate Ctrl
-
-App --> User: display charging progress & energy delivered
-deactivate App
-deactivate User
-
-note over User, App: Duration Constraint: {b - a < 7 sec}
+hide footbox
+skinparam backgroundColor #ffffff
+skinparam defaultFontName Segoe UI
+skinparam defaultFontColor #000000
+skinparam defaultFontSize 16
+skinparam sequence {
+  ParticipantBorderColor #000000
+  ParticipantFontColor #000000
+  ParticipantFontSize 18
+  ActorBorderColor #000000
+  ActorFontColor #000000
+  ActorFontSize 18
+  LifeLineBorderColor #000000
+}
+skinparam ArrowFontColor #000000
+skinparam ArrowFontSize 16
+skinparam noteFontColor #000000
+skinparam noteFontSize 14
+skinparam noteBorderColor #000000
+skinparam noteBackgroundColor #fcd34d
+skinparam titleFontColor #000000
+skinparam titleFontSize 22
+actor "User" as P0 #d8b4fe
+participant ":MobileApp" as P1 #93c5fd
+participant ":ChargingController" as P2 #86efac
+participant ":SmartChargerIoT" as P3 #fda4af
+participant "<<datastore>> Database" as P4 #fcd34d
+activate P0 #d8b4fe
+P0->P1: 1: select charging slot & power tier
+activate P1 #93c5fd
+note left of P0: {a}
+P1->P2: 1.1: submit charging session request
+activate P2 #86efac
+P2->P4: 1.2: verify student wallet & subscription
+activate P4 #fcd34d
+P4-->P2: 1.3: account verified
+deactivate P4
+P2->P3: 1.4: check charger port status & grid load
+activate P3 #fda4af
+P3-->P2: 1.5: port ready & power allocated
+deactivate P3
+P2->P3: 1.6: activate charging port & energize cable
+activate P3 #fda4af
+P3-->P2: 1.7: charging power delivered
+deactivate P3
+P2->P4: 1.8: create charging session record
+activate P4 #fcd34d
+P4-->P2: 1.9: session record saved
+deactivate P4
+P2-->P1: 1.10: notify charging started & live power feed
+deactivate P2
+P1-->P0: 1.11: display charging progress & energy delivered
+note left of P0: {b}
+deactivate P0
+deactivate P1
+note left of P0: {b - a < 7 sec} (scenario assumption)
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
-sequenceDiagram
-    actor User as User
-    participant App as Mobile App
-    participant Ctrl as Charging Controller
-    participant Charger as Smart Charger IoT
-    participant DB as Database
-
-    User->>App: select charging slot & power tier
-    activate User
-    activate App
-    App->>Ctrl: submit charging session request
-    activate Ctrl
-    Ctrl->>DB: verify student wallet & subscription
-    activate DB
-    DB-->>Ctrl: account verified
-    deactivate DB
-    Ctrl->>Charger: check charger port status & grid load
-    activate Charger
-    Charger-->>Ctrl: port ready & power allocated
-    deactivate Charger
-    Ctrl->>Charger: activate charging port & energize cable
-    activate Charger
-    Charger-->>Ctrl: charging power delivered
-    deactivate Charger
-    Ctrl->>DB: create charging session record
-    activate DB
-    DB-->>Ctrl: session record saved
-    deactivate DB
-    Ctrl-->>App: notify charging started & live power feed
-    deactivate Ctrl
-    App-->>User: display charging progress & energy delivered
-    deactivate App
-    deactivate User
-    Note over User,App: Duration Constraint: {b - a < 7 sec}
+%%{init: {"theme":"base","fontFamily":"Segoe UI","themeVariables":{"fontSize":"16px","textColor":"#000000","primaryTextColor":"#000000","actorTextColor":"#000000","signalTextColor":"#000000","noteTextColor":"#000000","labelTextColor":"#000000","loopTextColor":"#000000","actorBkg":"#93c5fd","actorBorder":"#000000","activationBkgColor":"#86efac","activationBorderColor":"#000000","noteBkgColor":"#fcd34d","noteBorderColor":"#000000","labelBoxBorderColor":"#000000","labelBoxBkgColor":"#93c5fd","background":"#ffffff"},"sequence":{"actorFontSize":18,"messageFontSize":16,"noteFontSize":14,"mirrorActors":false}}}%%
+    sequenceDiagram
+        actor P0 as User
+        participant P1 as :MobileApp
+        participant P2 as :ChargingController
+        participant P3 as :SmartChargerIoT
+        participant P4 as <<datastore>> Database
+    activate P0
+    P0->>P1: 1: select charging slot & power tier
+    activate P1
+    Note left of P0: {a}
+    P1->>P2: 1.1: submit charging session request
+    activate P2
+    P2->>P4: 1.2: verify student wallet & subscription
+    activate P4
+    P4-->>P2: 1.3: account verified
+    deactivate P4
+    P2->>P3: 1.4: check charger port status & grid load
+    activate P3
+    P3-->>P2: 1.5: port ready & power allocated
+    deactivate P3
+    P2->>P3: 1.6: activate charging port & energize cable
+    activate P3
+    P3-->>P2: 1.7: charging power delivered
+    deactivate P3
+    P2->>P4: 1.8: create charging session record
+    activate P4
+    P4-->>P2: 1.9: session record saved
+    deactivate P4
+    P2-->>P1: 1.10: notify charging started & live power feed
+    deactivate P2
+    P1-->>P0: 1.11: display charging progress & energy delivered
+    Note left of P0: {b}
+    deactivate P0
+    deactivate P1
+    Note left of P0: {b - a < 7 sec} (scenario assumption)
 ```
 
 ---
@@ -418,98 +458,105 @@ sequenceDiagram
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam sequenceMessageAlign center
-skinparam responseMessageBelowArrow false
-skinparam roundcorner 10
-skinparam ParticipantPadding 25
-skinparam BoxPadding 15
-
-actor "Operator" as Op #f3e8ff
-participant "Operator Dashboard" as Dash #dbeafe
-participant "Rebalance Controller" as Ctrl #dcfce7
-participant "Optimization Engine" as Opt #f3e8ff
-participant "Database" as DB #fef3c7
-participant "Field Staff App" as Staff #ffe4e6
-
-Op -> Dash: trigger rebalance analysis
-activate Op #f3e8ff
-activate Dash #dbeafe
-
-Dash -> Ctrl: request fleet distribution report
-activate Ctrl #dcfce7
-
-Ctrl -> DB: fetch hub inventory & demand forecast
-activate DB #fef3c7
-
-DB --> Ctrl: return surplus & shortage data
-deactivate DB
-
-Ctrl -> Opt: compute optimal transfer routes
-activate Opt #f3e8ff
-
-Opt --> Ctrl: return dispatch plan
-deactivate Opt
-
-Ctrl -> DB: save dispatch orders & reserve transit slots
-activate DB #fef3c7
-
-DB --> Ctrl: dispatch orders confirmed
-deactivate DB
-
-Ctrl -> Staff: assign transfer missions to drivers
-activate Staff #ffe4e6
-
-Staff --> Ctrl: acknowledge mission receipt
-deactivate Staff
-
-Ctrl --> Dash: return active dispatch plan & live tracking
-deactivate Ctrl
-
-Dash --> Op: display transfer missions & ETA on map
-deactivate Dash
-deactivate Op
-
-note over Op, Dash: Duration Constraint: {b - a < 10 sec}
+hide footbox
+skinparam backgroundColor #ffffff
+skinparam defaultFontName Segoe UI
+skinparam defaultFontColor #000000
+skinparam defaultFontSize 16
+skinparam sequence {
+  ParticipantBorderColor #000000
+  ParticipantFontColor #000000
+  ParticipantFontSize 18
+  ActorBorderColor #000000
+  ActorFontColor #000000
+  ActorFontSize 18
+  LifeLineBorderColor #000000
+}
+skinparam ArrowFontColor #000000
+skinparam ArrowFontSize 16
+skinparam noteFontColor #000000
+skinparam noteFontSize 14
+skinparam noteBorderColor #000000
+skinparam noteBackgroundColor #fcd34d
+skinparam titleFontColor #000000
+skinparam titleFontSize 22
+actor "Operator" as P0 #d8b4fe
+participant ":OperatorDashboard" as P1 #93c5fd
+participant ":RebalanceController" as P2 #86efac
+participant ":OptimizationEngine" as P3 #d8b4fe
+participant "<<datastore>> Database" as P4 #fcd34d
+participant ":FieldStaffApp" as P5 #fda4af
+activate P0 #d8b4fe
+P0->P1: 1: trigger rebalance analysis
+activate P1 #93c5fd
+note left of P0: {a}
+P1->P2: 1.1: request fleet distribution report
+activate P2 #86efac
+P2->P4: 1.2: fetch hub inventory & demand forecast
+activate P4 #fcd34d
+P4-->P2: 1.3: return surplus & shortage data
+deactivate P4
+P2->P3: 1.4: compute optimal transfer routes
+activate P3 #d8b4fe
+P3-->P2: 1.5: return dispatch plan
+deactivate P3
+P2->P4: 1.6: save dispatch orders & reserve transit slots
+activate P4 #fcd34d
+P4-->P2: 1.7: dispatch orders confirmed
+deactivate P4
+P2->P5: 1.8: assign transfer missions to drivers
+activate P5 #fda4af
+P5-->P2: 1.9: acknowledge mission receipt
+deactivate P5
+P2-->P1: 1.10: return active dispatch plan & live tracking
+deactivate P2
+P1-->P0: 1.11: display transfer missions & ETA on map
+note left of P0: {b}
+deactivate P0
+deactivate P1
+note left of P0: {b - a < 10 sec} (scenario assumption)
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
-sequenceDiagram
-    actor Op as Operator
-    participant Dash as Operator Dashboard
-    participant Ctrl as Rebalance Controller
-    participant Opt as Optimization Engine
-    participant DB as Database
-    participant Staff as Field Staff App
-
-    Op->>Dash: trigger rebalance analysis
-    activate Op
-    activate Dash
-    Dash->>Ctrl: request fleet distribution report
-    activate Ctrl
-    Ctrl->>DB: fetch hub inventory & demand forecast
-    activate DB
-    DB-->>Ctrl: return surplus & shortage data
-    deactivate DB
-    Ctrl->>Opt: compute optimal transfer routes
-    activate Opt
-    Opt-->>Ctrl: return dispatch plan
-    deactivate Opt
-    Ctrl->>DB: save dispatch orders & reserve transit slots
-    activate DB
-    DB-->>Ctrl: dispatch orders confirmed
-    deactivate DB
-    Ctrl->>Staff: assign transfer missions to drivers
-    activate Staff
-    Staff-->>Ctrl: acknowledge mission receipt
-    deactivate Staff
-    Ctrl-->>Dash: return active dispatch plan & live tracking
-    deactivate Ctrl
-    Dash-->>Op: display transfer missions & ETA on map
-    deactivate Dash
-    deactivate Op
-    Note over Op,Dash: Duration Constraint: {b - a < 10 sec}
+%%{init: {"theme":"base","fontFamily":"Segoe UI","themeVariables":{"fontSize":"16px","textColor":"#000000","primaryTextColor":"#000000","actorTextColor":"#000000","signalTextColor":"#000000","noteTextColor":"#000000","labelTextColor":"#000000","loopTextColor":"#000000","actorBkg":"#93c5fd","actorBorder":"#000000","activationBkgColor":"#86efac","activationBorderColor":"#000000","noteBkgColor":"#fcd34d","noteBorderColor":"#000000","labelBoxBorderColor":"#000000","labelBoxBkgColor":"#93c5fd","background":"#ffffff"},"sequence":{"actorFontSize":18,"messageFontSize":16,"noteFontSize":14,"mirrorActors":false}}}%%
+    sequenceDiagram
+        actor P0 as Operator
+        participant P1 as :OperatorDashboard
+        participant P2 as :RebalanceController
+        participant P3 as :OptimizationEngine
+        participant P4 as <<datastore>> Database
+        participant P5 as :FieldStaffApp
+    activate P0
+    P0->>P1: 1: trigger rebalance analysis
+    activate P1
+    Note left of P0: {a}
+    P1->>P2: 1.1: request fleet distribution report
+    activate P2
+    P2->>P4: 1.2: fetch hub inventory & demand forecast
+    activate P4
+    P4-->>P2: 1.3: return surplus & shortage data
+    deactivate P4
+    P2->>P3: 1.4: compute optimal transfer routes
+    activate P3
+    P3-->>P2: 1.5: return dispatch plan
+    deactivate P3
+    P2->>P4: 1.6: save dispatch orders & reserve transit slots
+    activate P4
+    P4-->>P2: 1.7: dispatch orders confirmed
+    deactivate P4
+    P2->>P5: 1.8: assign transfer missions to drivers
+    activate P5
+    P5-->>P2: 1.9: acknowledge mission receipt
+    deactivate P5
+    P2-->>P1: 1.10: return active dispatch plan & live tracking
+    deactivate P2
+    P1-->>P0: 1.11: display transfer missions & ETA on map
+    Note left of P0: {b}
+    deactivate P0
+    deactivate P1
+    Note left of P0: {b - a < 10 sec} (scenario assumption)
 ```
 
 ---
@@ -523,86 +570,99 @@ sequenceDiagram
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam sequenceMessageAlign center
-skinparam responseMessageBelowArrow false
-skinparam roundcorner 10
-skinparam ParticipantPadding 25
-skinparam BoxPadding 15
-
-actor "Technician" as Tech #f3e8ff
-participant "Monitoring Dashboard" as Dash #dbeafe
-participant "Incident Controller" as Ctrl #dcfce7
-participant "Station IoT Dock" as Dock #ffe4e6
-participant "Database" as DB #fef3c7
-
-Tech -> Dash: report dock hardware malfunction
-activate Tech #f3e8ff
-activate Dash #dbeafe
-
-Dash -> Ctrl: submit incident report & dock ID
-activate Ctrl #dcfce7
-
-Ctrl -> Dock: send emergency disable command
-activate Dock #ffe4e6
-
-Dock -> Dock: de-energize port & engage safety lock
-activate Dock #ffe4e6
-deactivate Dock
-
-Dock --> Ctrl: dock isolated & safety lock engaged
-deactivate Dock
-
-Ctrl -> DB: update dock state to 'Under Maintenance'
-activate DB #fef3c7
-
-DB -> DB: reroute incoming reservations to adjacent docks
-activate DB #fef3c7
-deactivate DB
-
-DB --> Ctrl: reroute complete & incident ticket logged
-deactivate DB
-
-Ctrl --> Dash: confirm dock isolation & issue repair ticket
-deactivate Ctrl
-
-Dash --> Tech: display maintenance ticket #INC-892
-deactivate Dash
-deactivate Tech
-
-note over Tech, Dash: Duration Constraint: {b - a < 5 sec}
+hide footbox
+skinparam backgroundColor #ffffff
+skinparam defaultFontName Segoe UI
+skinparam defaultFontColor #000000
+skinparam defaultFontSize 16
+skinparam sequence {
+  ParticipantBorderColor #000000
+  ParticipantFontColor #000000
+  ParticipantFontSize 18
+  ActorBorderColor #000000
+  ActorFontColor #000000
+  ActorFontSize 18
+  LifeLineBorderColor #000000
+}
+skinparam ArrowFontColor #000000
+skinparam ArrowFontSize 16
+skinparam noteFontColor #000000
+skinparam noteFontSize 14
+skinparam noteBorderColor #000000
+skinparam noteBackgroundColor #fcd34d
+skinparam titleFontColor #000000
+skinparam titleFontSize 22
+actor "Technician" as P0 #d8b4fe
+participant ":MonitoringDashboard" as P1 #93c5fd
+participant ":IncidentController" as P2 #86efac
+participant ":StationIoTDock" as P3 #fda4af
+participant "<<datastore>> Database" as P4 #fcd34d
+activate P0 #d8b4fe
+P0->P1: 1: report dock hardware malfunction
+activate P1 #93c5fd
+note left of P0: {a}
+P1->P2: 1.1: submit incident report & dock ID
+activate P2 #86efac
+P2->P3: 1.2: send emergency disable command
+activate P3 #fda4af
+P3->P3: 1.3: de-energize port & engage safety lock
+activate P3 #fda4af
+deactivate P3
+P3-->P2: 1.4: dock isolated & safety lock engaged
+deactivate P3
+P2->P4: 1.5: update dock state to 'Under Maintenance'
+activate P4 #fcd34d
+P4->P4: 1.6: reroute incoming reservations to adjacent docks
+activate P4 #fcd34d
+deactivate P4
+P4-->P2: 1.7: reroute complete & incident ticket logged
+deactivate P4
+P2-->P1: 1.8: confirm dock isolation & issue repair ticket
+deactivate P2
+P1-->P0: 1.9: display maintenance ticket #INC-892
+note left of P0: {b}
+deactivate P0
+deactivate P1
+note left of P0: {b - a < 5 sec} (scenario assumption)
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
-sequenceDiagram
-    actor Tech as Technician
-    participant Dash as Monitoring Dashboard
-    participant Ctrl as Incident Controller
-    participant Dock as Station IoT Dock
-    participant DB as Database
-
-    Tech->>Dash: report dock hardware malfunction
-    activate Tech
-    activate Dash
-    Dash->>Ctrl: submit incident report & dock ID
-    activate Ctrl
-    Ctrl->>Dock: send emergency disable command
-    activate Dock
-    Dock->>Dock: de-energize port & engage safety lock
-    Dock-->>Ctrl: dock isolated & safety lock engaged
-    deactivate Dock
-    Ctrl->>DB: update dock state to 'Under Maintenance'
-    activate DB
-    DB->>DB: reroute incoming reservations to adjacent docks
-    DB-->>Ctrl: reroute complete & incident ticket logged
-    deactivate DB
-    Ctrl-->>Dash: confirm dock isolation & issue repair ticket
-    deactivate Ctrl
-    Dash-->>Tech: display maintenance ticket #INC-892
-    deactivate Dash
-    deactivate Tech
-    Note over Tech,Dash: Duration Constraint: {b - a < 5 sec}
+%%{init: {"theme":"base","fontFamily":"Segoe UI","themeVariables":{"fontSize":"16px","textColor":"#000000","primaryTextColor":"#000000","actorTextColor":"#000000","signalTextColor":"#000000","noteTextColor":"#000000","labelTextColor":"#000000","loopTextColor":"#000000","actorBkg":"#93c5fd","actorBorder":"#000000","activationBkgColor":"#86efac","activationBorderColor":"#000000","noteBkgColor":"#fcd34d","noteBorderColor":"#000000","labelBoxBorderColor":"#000000","labelBoxBkgColor":"#93c5fd","background":"#ffffff"},"sequence":{"actorFontSize":18,"messageFontSize":16,"noteFontSize":14,"mirrorActors":false}}}%%
+    sequenceDiagram
+        actor P0 as Technician
+        participant P1 as :MonitoringDashboard
+        participant P2 as :IncidentController
+        participant P3 as :StationIoTDock
+        participant P4 as <<datastore>> Database
+    activate P0
+    P0->>P1: 1: report dock hardware malfunction
+    activate P1
+    Note left of P0: {a}
+    P1->>P2: 1.1: submit incident report & dock ID
+    activate P2
+    P2->>P3: 1.2: send emergency disable command
+    activate P3
+    P3->>P3: 1.3: de-energize port & engage safety lock
+    activate P3
+    deactivate P3
+    P3-->>P2: 1.4: dock isolated & safety lock engaged
+    deactivate P3
+    P2->>P4: 1.5: update dock state to 'Under Maintenance'
+    activate P4
+    P4->>P4: 1.6: reroute incoming reservations to adjacent docks
+    activate P4
+    deactivate P4
+    P4-->>P2: 1.7: reroute complete & incident ticket logged
+    deactivate P4
+    P2-->>P1: 1.8: confirm dock isolation & issue repair ticket
+    deactivate P2
+    P1-->>P0: 1.9: display maintenance ticket #INC-892
+    Note left of P0: {b}
+    deactivate P0
+    deactivate P1
+    Note left of P0: {b - a < 5 sec} (scenario assumption)
 ```
 
 ---
@@ -616,89 +676,99 @@ sequenceDiagram
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam sequenceMessageAlign center
-skinparam responseMessageBelowArrow false
-skinparam roundcorner 10
-skinparam ParticipantPadding 25
-skinparam BoxPadding 15
-
-actor "Planner" as Plan #f3e8ff
-participant "Simulation Web UI" as UI #dbeafe
-participant "Simulation Controller" as Ctrl #dcfce7
-participant "Simulation Engine" as Engine #f3e8ff
-participant "Database" as DB #fef3c7
-
-Plan -> UI: select scenario (Metro Surge + Charger Failure)
-activate Plan #f3e8ff
-activate UI #dbeafe
-
-UI -> Ctrl: submit simulation parameters & duration
-activate Ctrl #dcfce7
-
-Ctrl -> DB: load historical trip & charging data
-activate DB #fef3c7
-
-DB --> Ctrl: historical dataset loaded (50,000 trips)
-deactivate DB
-
-Ctrl -> Engine: execute Monte Carlo simulation run
-activate Engine #f3e8ff
-
-Engine -> Engine: model vehicle depletion & grid peak demand
-activate Engine #f3e8ff
-deactivate Engine
-
-Engine --> Ctrl: return simulation results & bottlenecks
-deactivate Engine
-
-Ctrl -> DB: save simulation run & AI recommendations
-activate DB #fef3c7
-
-DB --> Ctrl: run record saved
-deactivate DB
-
-Ctrl --> UI: render comparative charts & recommendations
-deactivate Ctrl
-
-UI --> Plan: display bottleneck heatmaps & fleet buffer advice
-deactivate UI
-deactivate Plan
-
-note over Plan, UI: Duration Constraint: {b - a < 15 sec}
+hide footbox
+skinparam backgroundColor #ffffff
+skinparam defaultFontName Segoe UI
+skinparam defaultFontColor #000000
+skinparam defaultFontSize 16
+skinparam sequence {
+  ParticipantBorderColor #000000
+  ParticipantFontColor #000000
+  ParticipantFontSize 18
+  ActorBorderColor #000000
+  ActorFontColor #000000
+  ActorFontSize 18
+  LifeLineBorderColor #000000
+}
+skinparam ArrowFontColor #000000
+skinparam ArrowFontSize 16
+skinparam noteFontColor #000000
+skinparam noteFontSize 14
+skinparam noteBorderColor #000000
+skinparam noteBackgroundColor #fcd34d
+skinparam titleFontColor #000000
+skinparam titleFontSize 22
+actor "Planner" as P0 #d8b4fe
+participant ":SimulationWebUI" as P1 #93c5fd
+participant ":SimulationController" as P2 #86efac
+participant ":SimulationEngine" as P3 #d8b4fe
+participant "<<datastore>> Database" as P4 #fcd34d
+activate P0 #d8b4fe
+P0->P1: 1: select scenario (Metro Surge + Charger Failure)
+activate P1 #93c5fd
+note left of P0: {a}
+P1->P2: 1.1: submit simulation parameters & duration
+activate P2 #86efac
+P2->P4: 1.2: load historical trip & charging data
+activate P4 #fcd34d
+P4-->P2: 1.3: historical dataset loaded (50,000 trips)
+deactivate P4
+P2->P3: 1.4: execute Monte Carlo simulation run
+activate P3 #d8b4fe
+P3->P3: 1.5: model vehicle depletion & grid peak demand
+activate P3 #d8b4fe
+deactivate P3
+P3-->P2: 1.6: return simulation results & bottlenecks
+deactivate P3
+P2->P4: 1.7: save simulation run & AI recommendations
+activate P4 #fcd34d
+P4-->P2: 1.8: run record saved
+deactivate P4
+P2-->P1: 1.9: render comparative charts & recommendations
+deactivate P2
+P1-->P0: 1.10: display bottleneck heatmaps & fleet buffer advice
+note left of P0: {b}
+deactivate P0
+deactivate P1
+note left of P0: {b - a < 15 sec} (scenario assumption)
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
-sequenceDiagram
-    actor Plan as Planner
-    participant UI as Simulation Web UI
-    participant Ctrl as Simulation Controller
-    participant Engine as Simulation Engine
-    participant DB as Database
-
-    Plan->>UI: select scenario (Metro Surge + Charger Failure)
-    activate Plan
-    activate UI
-    UI->>Ctrl: submit simulation parameters & duration
-    activate Ctrl
-    Ctrl->>DB: load historical trip & charging data
-    activate DB
-    DB-->>Ctrl: historical dataset loaded (50,000 trips)
-    deactivate DB
-    Ctrl->>Engine: execute Monte Carlo simulation run
-    activate Engine
-    Engine->>Engine: model vehicle depletion & grid peak demand
-    Engine-->>Ctrl: return simulation results & bottlenecks
-    deactivate Engine
-    Ctrl->>DB: save simulation run & AI recommendations
-    activate DB
-    DB-->>Ctrl: run record saved
-    deactivate DB
-    Ctrl-->>UI: render comparative charts & recommendations
-    deactivate Ctrl
-    UI-->>Plan: display bottleneck heatmaps & fleet buffer advice
-    deactivate UI
-    deactivate Plan
-    Note over Plan,UI: Duration Constraint: {b - a < 15 sec}
+%%{init: {"theme":"base","fontFamily":"Segoe UI","themeVariables":{"fontSize":"16px","textColor":"#000000","primaryTextColor":"#000000","actorTextColor":"#000000","signalTextColor":"#000000","noteTextColor":"#000000","labelTextColor":"#000000","loopTextColor":"#000000","actorBkg":"#93c5fd","actorBorder":"#000000","activationBkgColor":"#86efac","activationBorderColor":"#000000","noteBkgColor":"#fcd34d","noteBorderColor":"#000000","labelBoxBorderColor":"#000000","labelBoxBkgColor":"#93c5fd","background":"#ffffff"},"sequence":{"actorFontSize":18,"messageFontSize":16,"noteFontSize":14,"mirrorActors":false}}}%%
+    sequenceDiagram
+        actor P0 as Planner
+        participant P1 as :SimulationWebUI
+        participant P2 as :SimulationController
+        participant P3 as :SimulationEngine
+        participant P4 as <<datastore>> Database
+    activate P0
+    P0->>P1: 1: select scenario (Metro Surge + Charger Failure)
+    activate P1
+    Note left of P0: {a}
+    P1->>P2: 1.1: submit simulation parameters & duration
+    activate P2
+    P2->>P4: 1.2: load historical trip & charging data
+    activate P4
+    P4-->>P2: 1.3: historical dataset loaded (50,000 trips)
+    deactivate P4
+    P2->>P3: 1.4: execute Monte Carlo simulation run
+    activate P3
+    P3->>P3: 1.5: model vehicle depletion & grid peak demand
+    activate P3
+    deactivate P3
+    P3-->>P2: 1.6: return simulation results & bottlenecks
+    deactivate P3
+    P2->>P4: 1.7: save simulation run & AI recommendations
+    activate P4
+    P4-->>P2: 1.8: run record saved
+    deactivate P4
+    P2-->>P1: 1.9: render comparative charts & recommendations
+    deactivate P2
+    P1-->>P0: 1.10: display bottleneck heatmaps & fleet buffer advice
+    Note left of P0: {b}
+    deactivate P0
+    deactivate P1
+    Note left of P0: {b - a < 15 sec} (scenario assumption)
 ```

@@ -1,279 +1,254 @@
 import os
 import html
-import fitz
+import textwrap
+import argparse
+import re
+import math
+import json
+from pathlib import Path
 
 def escape_xml(s):
     return html.escape(str(s), quote=True)
 
-def create_slide_sequence_diagram(
-    filepath,
-    title,
-    participants,
-    messages,
-    active_ranges,
-    duration_constraint=None
-):
-    """
-    Creates a Sequence Diagram .drawio.svg adhering strictly to
-    Slide Ch6 p.22-26 'SEQUENCE DIAGRAMS - EXAMPLE'.
-    """
-    num_p = len(participants)
-    spacing = 180
-    start_x = 135          # Ample space on left for dimension constraint
-    top_y = 65
-    header_w = 140
-    header_h = 44
-    step_y = 48
-    msg_start_y = top_y + 115
-    
-    total_messages = len(messages)
-    diagram_h = msg_start_y + (total_messages + 1) * step_y + 50
-    diagram_w = start_x + (num_p - 1) * spacing + header_w + 50
-    
-    # Calculate message Y coordinates
-    msg_y_coords = [msg_start_y + i * step_y for i in range(total_messages)]
-    
-    # mxGraph cells
-    mx_cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
-    svg_elems = []
-    
-    # Header bar
-    svg_elems.append(f'<rect x="20" y="15" width="{diagram_w - 40}" height="32" rx="4" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>')
-    svg_elems.append(f'<text x="35" y="36" font-family="Segoe UI, sans-serif" font-size="14" font-weight="bold" fill="#0369a1">{escape_xml(title)}</text>')
-    svg_elems.append(f'<text x="{diagram_w - 35}" y="36" font-family="Segoe UI, sans-serif" font-size="11" fill="#64748b" text-anchor="end">Slide Ch6 p.22-26 Standard (Sommerville)</text>')
-    
-    p_centers = []
-    for i, p in enumerate(participants):
-        cx = start_x + i * spacing + (header_w // 2)
-        p_centers.append(cx)
-        px = cx - (header_w // 2)
-        p_name = p['name']
-        p_type = p.get('type', 'service')
-        fill_c = p.get('fill', '#dbeafe')
-        stroke_c = p.get('stroke', '#3b82f6')
-        text_c = p.get('text_c', '#1e40af')
-        
-        if p_type == 'actor':
-            # Actor Stickman
-            mx_cells.append(
-                f'<mxCell id="p_{i}" value="{escape_xml(p_name)}" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontFamily=Segoe UI;fontSize=12;fontStyle=1;fillColor={fill_c};strokeColor={stroke_c};" vertex="1" parent="1">'
-                f'<mxGeometry x="{cx - 15}" y="{top_y}" width="30" height="55" as="geometry"/>'
-                f'</mxCell>'
-            )
-            # Lifeline
-            mx_cells.append(
-                f'<mxCell id="line_{i}" value="" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#94a3b8;strokeWidth=1.5;html=1;endArrow=none;" edge="1" parent="1">'
-                f'<mxGeometry relative="1" as="geometry">'
-                f'<mxPoint x="{cx}" y="{top_y + 65}" as="sourcePoint"/>'
-                f'<mxPoint x="{cx}" y="{diagram_h - 35}" as="targetPoint"/>'
-                f'</mxGeometry>'
-                f'</mxCell>'
-            )
-            # SVG Actor Stickman
-            svg_elems.append(f'<circle cx="{cx}" cy="{top_y + 10}" r="9" fill="{fill_c}" stroke="{stroke_c}" stroke-width="2"/>')
-            svg_elems.append(f'<line x1="{cx}" y1="{top_y + 19}" x2="{cx}" y2="{top_y + 40}" stroke="{stroke_c}" stroke-width="2"/>')
-            svg_elems.append(f'<line x1="{cx - 12}" y1="{top_y + 26}" x2="{cx + 12}" y2="{top_y + 26}" stroke="{stroke_c}" stroke-width="2"/>')
-            svg_elems.append(f'<line x1="{cx}" y1="{top_y + 40}" x2="{cx - 9}" y2="{top_y + 55}" stroke="{stroke_c}" stroke-width="2"/>')
-            svg_elems.append(f'<line x1="{cx}" y1="{top_y + 40}" x2="{cx + 9}" y2="{top_y + 55}" stroke="{stroke_c}" stroke-width="2"/>')
-            svg_elems.append(f'<text x="{cx}" y="{top_y + 72}" font-family="Segoe UI" font-size="12" font-weight="bold" fill="{stroke_c}" text-anchor="middle">{escape_xml(p_name)}</text>')
-            svg_elems.append(f'<line x1="{cx}" y1="{top_y + 80}" x2="{cx}" y2="{diagram_h - 35}" stroke="#94a3b8" stroke-dasharray="4 4" stroke-width="1.5"/>')
-            
+def typed_name(participant):
+    if participant.get('type') == 'actor':
+        return participant['name']
+    name = participant['name'].replace(' ', '')
+    return ('<<datastore>> ' if participant.get('type') == 'datastore' else ':') + name
+
+
+def message_label(index, message):
+    return ('1' if index == 0 else f'1.{index}') + ': ' + message['text']
+
+
+PALETTE = {'#dbeafe':'#93c5fd', '#e0f2fe':'#93c5fd', '#dcfce7':'#86efac',
+           '#ffe4e6':'#fda4af', '#f3e8ff':'#d8b4fe', '#fef3c7':'#fcd34d'}
+MESSAGE_SIZE, HEADER_SIZE, TITLE_SIZE, ANNOTATION_SIZE = 16, 18, 22, 14
+
+
+def line_height(size):
+    return math.ceil(size * 1.5)
+
+
+def text_width(lines, size):
+    return math.ceil(max(map(len, lines)) * size * .65)
+
+
+def header_lines(p):
+    return textwrap.wrap(typed_name(p), width=24, break_long_words=False)
+
+
+def header_width(p):
+    return max(200, text_width(header_lines(p), HEADER_SIZE) + 24)
+
+
+def header_height(p):
+    return max(72, len(header_lines(p)) * line_height(HEADER_SIZE) + 24)
+
+
+def layout(participants, messages, title=''):
+    labels = [textwrap.wrap(message_label(i, m), width=31, break_long_words=False,
+                            break_on_hyphens=False) for i, m in enumerate(messages)]
+    gaps = [(header_width(a)+header_width(b))/2+32 for a,b in zip(participants, participants[1:])]
+    for m, lines in zip(messages, labels):
+        column = m['src'] if m.get('is_self') else min(m['src'], m['dst'])
+        required = text_width(lines, MESSAGE_SIZE) + (82 if m.get('is_self') else 44)
+        if column < len(gaps): gaps[column] = max(gaps[column], required)
+    centers = [max(280, 24+header_width(participants[0])/2)]
+    for gap in gaps: centers.append(centers[-1] + gap)
+    rows, y = [], max(190, max(96+header_height(p) for p in participants)) + 24
+    for m, lines in zip(messages, labels):
+        y += len(lines) * line_height(MESSAGE_SIZE) + 22
+        rows.append(y)
+        y += max(52, len(lines)*line_height(MESSAGE_SIZE)+12) if m.get('is_self') else 12
+    right = centers[-1] + header_width(participants[-1])/2
+    for m, lines in zip(messages, labels):
+        if m.get('is_self'):
+            right = max(right, centers[m['src']] + 60 + text_width(lines, MESSAGE_SIZE))
+    width = max(right+32, text_width([title],TITLE_SIZE)+72,
+                text_width(['Timing: existing scenario assumption; not a measured performance guarantee.'],ANNOTATION_SIZE)+56)
+    return centers, rows, labels, width, y + 100
+
+
+def create_slide_sequence_diagram(filepath, title, participants, messages,
+                                  active_ranges, duration_constraint=None):
+    centers, rows, labels, width, height = layout(participants, messages, title)
+    cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
+    svg = []
+
+    def vertex(id, x, y, w, h, value='', fill='none', stroke='none', style=''):
+        fill = PALETTE.get(fill, fill)
+        stroke = '#000000' if stroke != 'none' else 'none'
+        cells.append(f'<mxCell id="{id}" value="{escape_xml(value).replace(chr(10), "&#xa;")}" '
+                     f'style="html=0;fontFamily=Segoe UI;fontSize=16;fillColor={fill};'
+                     f'strokeColor={stroke};whiteSpace=wrap;{style}" vertex="1" parent="1">'
+                     f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
+        svg.append(f'<rect id="{id}" x="{x}" y="{y}" width="{w}" height="{h}" '
+                   f'fill="{fill}" stroke="{stroke}" stroke-width="1.5"/>')
+
+    def text(id, x, y, w, lines, bold=False, size=MESSAGE_SIZE, italic=False, center=False):
+        color = '#000000'
+        # Explicit text vertices avoid draw.io edge-label placement defaults.
+        h = len(lines) * line_height(size)
+        vertex(id, x, y, w, h, '\n'.join(lines), style=f'text;align={"center" if center else "left"};verticalAlign=top;'
+               f'spacing=0;fontColor={color};fontSize={size};fontStyle={int(bold)+2*int(italic)};')
+        tx = x+w/2 if center else x
+        svg.append(f'<text text-anchor="{"middle" if center else "start"}" id="text_{id}" x="{tx}" y="{y+size+1}" font-family="Segoe UI" '
+                   f'font-size="{size}" fill="{color}" font-weight="{600 if bold else 400}" font-style="{"italic" if italic else "normal"}">')
+        for i, line in enumerate(lines):
+            svg.append(f'<tspan x="{tx}" dy="{0 if i == 0 else line_height(size)}">{escape_xml(line)}</tspan>')
+        svg.append('</text>')
+
+    def edge(id, points, response=False, kind='message', arrow=True, color=None):
+        color = color or ('#2563eb' if response else '#1e293b')
+        dash = '1' if response or kind == 'lifeline' else '0'
+        head = ('open' if response else 'block') if arrow else 'none'
+        timing = 'startArrow=open;endArrow=open;' if kind == 'timing' else ''
+        cells.append(f'<mxCell id="{id}" value="" edge="1" parent="1" '
+                     f'style="html=0;noEdgeStyle=1;rounded=0;strokeColor={color};strokeWidth=1.5;'
+                     f'endArrow={head};endFill={0 if response else 1};dashed={dash};{timing}">'
+                     '<mxGeometry relative="1" as="geometry">'
+                     f'<mxPoint x="{points[0][0]}" y="{points[0][1]}" as="sourcePoint"/>'
+                     f'<mxPoint x="{points[-1][0]}" y="{points[-1][1]}" as="targetPoint"/>'
+                     + ('<Array as="points">' + ''.join(f'<mxPoint x="{x}" y="{y}"/>' for x,y in points[1:-1]) + '</Array>' if len(points)>2 else '')
+                     + '</mxGeometry></mxCell>')
+        dashed = ' stroke-dasharray="5 4"' if dash == '1' else ''
+        if len(points) == 2:
+            (x1,y1),(x2,y2) = points
+            svg.append(f'<line id="{id}" data-kind="{kind}" x1="{x1}" y1="{y1}" '
+                       f'x2="{x2}" y2="{y2}" stroke="{color}" stroke-width="1.5"{dashed}/>')
         else:
-            # Participant Box
-            mx_cells.append(
-                f'<mxCell id="p_{i}" value="{escape_xml(p_name)}" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Segoe UI;fontSize=12;fontStyle=1;fillColor={fill_c};strokeColor={stroke_c};strokeWidth=2;fontColor={text_c};" vertex="1" parent="1">'
-                f'<mxGeometry x="{px}" y="{top_y + 15}" width="{header_w}" height="{header_h}" as="geometry"/>'
-                f'</mxCell>'
-            )
-            # Lifeline
-            mx_cells.append(
-                f'<mxCell id="line_{i}" value="" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#94a3b8;strokeWidth=1.5;html=1;endArrow=none;" edge="1" parent="1">'
-                f'<mxGeometry relative="1" as="geometry">'
-                f'<mxPoint x="{cx}" y="{top_y + 15 + header_h}" as="sourcePoint"/>'
-                f'<mxPoint x="{cx}" y="{diagram_h - 35}" as="targetPoint"/>'
-                f'</mxGeometry>'
-                f'</mxCell>'
-            )
-            # SVG Participant Box
-            svg_elems.append(f'<rect x="{px}" y="{top_y + 15}" width="{header_w}" height="{header_h}" rx="5" fill="{fill_c}" stroke="{stroke_c}" stroke-width="2"/>')
-            svg_elems.append(f'<text x="{cx}" y="{top_y + 43}" font-family="Segoe UI" font-size="12" font-weight="bold" fill="{text_c}" text-anchor="middle">{escape_xml(p_name)}</text>')
-            svg_elems.append(f'<line x1="{cx}" y1="{top_y + 15 + header_h}" x2="{cx}" y2="{diagram_h - 35}" stroke="#94a3b8" stroke-dasharray="4 4" stroke-width="1.5"/>')
+            path = 'M ' + ' L '.join(f'{x} {y}' for x,y in points)
+            svg.append(f'<path id="{id}" data-kind="self" d="{path}" fill="none" '
+                       f'stroke="{color}" stroke-width="1.5"/>')
+        if kind == 'timing':
+            (x,a),(_,b)=points
+            svg.append(f'<path d="M {x-4} {a+8} L {x} {a} L {x+4} {a+8} M {x-4} {b-8} L {x} {b} L {x+4} {b-8}" fill="none" stroke="{color}"/>')
+        if arrow:
+            x,y = points[-1]; prev = points[-2]; sign = 1 if x>prev[0] else -1
+            shape = f'{x-sign*8},{y-4} {x},{y} {x-sign*8},{y+4}'
+            svg.append(f'<polyline points="{shape}" fill="{"none" if response else color}" '
+                       f'stroke="{color}" stroke-width="1.5"/>')
 
-    # Continuous Activation Bars
-    act_w = 12
-    act_cell_id = 100
-    for p_idx, ranges in active_ranges.items():
-        cx = p_centers[p_idx]
-        p = participants[p_idx]
-        fill_c = p.get('fill', '#dbeafe')
-        stroke_c = p.get('stroke', '#3b82f6')
-        
-        for (start_m, end_m) in ranges:
-            act_y1 = msg_y_coords[start_m] - 5
-            act_y2 = msg_y_coords[end_m] + 15
-            act_h = max(24, act_y2 - act_y1)
-            
-            # mxGraph activation cell
-            mx_cells.append(
-                f'<mxCell id="act_{act_cell_id}" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor={fill_c};strokeColor={stroke_c};strokeWidth=1.5;" vertex="1" parent="1">'
-                f'<mxGeometry x="{cx - act_w // 2}" y="{act_y1}" width="{act_w}" height="{act_h}" as="geometry"/>'
-                f'</mxCell>'
-            )
-            act_cell_id += 1
-            
-            # SVG visual activation bar
-            svg_elems.append(
-                f'<rect x="{cx - act_w // 2}" y="{act_y1}" width="{act_w}" height="{act_h}" rx="1" fill="{fill_c}" stroke="{stroke_c}" stroke-width="1.5"/>'
-            )
-
-    # Message Arrows & Labels
-    for m_idx, m in enumerate(messages):
-        src = m['src']
-        dst = m['dst']
-        text = m['text']
-        is_resp = m.get('is_resp', False)
-        is_self = m.get('is_self', False)
-        time_mark = m.get('time_mark', None)
-        
-        y = msg_y_coords[m_idx]
-        x_src = p_centers[src]
-        x_dst = p_centers[dst]
-        
-        if is_self:
-            # Self-call loop (Slide 40 Validate())
-            mx_cells.append(
-                f'<mxCell id="msg_{m_idx}" value="{escape_xml(text)}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1e293b;strokeWidth=1.5;fontFamily=Segoe UI;fontSize=11;fontColor=#0f172a;endArrow=block;endFill=1;" edge="1" parent="1">'
-                f'<mxGeometry relative="1" as="geometry">'
-                f'<mxPoint x="{x_src + act_w // 2}" y="{y - 8}" as="sourcePoint"/>'
-                f'<mxPoint x="{x_src + act_w // 2}" y="{y + 14}" as="targetPoint"/>'
-                f'<Array as="points">'
-                f'<mxPoint x="{x_src + 35}" y="{y - 8}"/>'
-                f'<mxPoint x="{x_src + 35}" y="{y + 14}"/>'
-                f'</Array>'
-                f'</mxGeometry>'
-                f'</mxCell>'
-            )
-            svg_elems.append(f'<path d="M {x_src + act_w // 2} {y - 8} L {x_src + 35} {y - 8} L {x_src + 35} {y + 14} L {x_src + act_w // 2 + 4} {y + 14}" fill="none" stroke="#1e293b" stroke-width="1.5"/>')
-            svg_elems.append(f'<polygon points="{x_src + act_w // 2},{y+14} {x_src + act_w // 2 + 7},{y+10} {x_src + act_w // 2 + 7},{y+18}" fill="#1e293b"/>')
-            svg_elems.append(f'<text x="{x_src + 42}" y="{y + 5}" font-family="Segoe UI" font-size="11" font-weight="600" fill="#0f172a">{escape_xml(text)}</text>')
-            
-        elif not is_resp:
-            # Solid Call Message (Request)
-            x1 = x_src + (act_w // 2 if x_dst > x_src else -act_w // 2)
-            x2 = x_dst + (-act_w // 2 if x_dst > x_src else act_w // 2)
-            mid_x = (x1 + x2) // 2
-            
-            mx_cells.append(
-                f'<mxCell id="msg_{m_idx}" value="{escape_xml(text)}" style="html=1;verticalAlign=bottom;endArrow=block;endFill=1;dashed=0;strokeColor=#1e293b;strokeWidth=1.5;fontFamily=Segoe UI;fontSize=11;fontColor=#0f172a;fontStyle=1;" edge="1" parent="1">'
-                f'<mxGeometry relative="1" as="geometry">'
-                f'<mxPoint x="{x1}" y="{y}" as="sourcePoint"/>'
-                f'<mxPoint x="{x2}" y="{y}" as="targetPoint"/>'
-                f'</mxGeometry>'
-                f'</mxCell>'
-            )
-            # Solid line
-            svg_elems.append(f'<line x1="{x1}" y1="{y}" x2="{x2}" stroke="#1e293b" stroke-width="1.5"/>')
-            # Solid Arrow Head
-            if x2 > x1:
-                svg_elems.append(f'<polygon points="{x2},{y} {x2-8},{y-4} {x2-8},{y+4}" fill="#1e293b"/>')
-            else:
-                svg_elems.append(f'<polygon points="{x2},{y} {x2+8},{y-4} {x2+8},{y+4}" fill="#1e293b"/>')
-            
-            # Badge background for label
-            label_len = len(text) * 6.6
-            svg_elems.append(f'<rect x="{mid_x - label_len//2}" y="{y - 17}" width="{label_len}" height="14" fill="#ffffff" fill-opacity="0.95"/>')
-            svg_elems.append(f'<text x="{mid_x}" y="{y - 6}" font-family="Segoe UI" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">{escape_xml(text)}</text>')
-            
+    vertex('title_box', 25, 25, width-50, 48, fill='#e0f2fe', stroke='#0284c7')
+    text('title', 36, 31, width-72, [title], True, size=TITLE_SIZE)
+    for i,p in enumerate(participants):
+        p = dict(p, fill=PALETTE[p['fill']], stroke='#000000', text_c='#000000')
+        cx=centers[i]
+        if p.get('type') == 'actor':
+            cells.append(f'<mxCell id="p_{i}" value="" style="shape=umlActor;fillColor={p["fill"]};'
+                         f'strokeColor={p["stroke"]};" vertex="1" parent="1">'
+                         f'<mxGeometry x="{cx-15}" y="92" width="30" height="55" as="geometry"/></mxCell>')
+            svg.append(f'<g id="p_{i}" fill="{p["fill"]}" stroke="{p["stroke"]}" stroke-width="1.5">'
+                       f'<circle cx="{cx}" cy="101" r="9"/><path d="M {cx} 110 L {cx} 127 '
+                       f'M {cx-15} 118 L {cx+15} 118 M {cx-15} 147 L {cx} 127 L {cx+15} 147" fill="none"/></g>')
+            text(f'header_{i}', cx-header_width(p)/2, 156, header_width(p), [typed_name(p)], True, size=HEADER_SIZE, center=True)
+            top=190
         else:
-            # Dashed Return Message (Response)
-            x1 = x_src + (act_w // 2 if x_dst > x_src else -act_w // 2)
-            x2 = x_dst + (-act_w // 2 if x_dst > x_src else act_w // 2)
-            mid_x = (x1 + x2) // 2
-            
-            mx_cells.append(
-                f'<mxCell id="msg_{m_idx}" value="{escape_xml(text)}" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;strokeColor=#2563eb;strokeWidth=1.5;fontFamily=Segoe UI;fontSize=11;fontColor=#1e40af;fontStyle=2;" edge="1" parent="1">'
-                f'<mxGeometry relative="1" as="geometry">'
-                f'<mxPoint x="{x1}" y="{y}" as="sourcePoint"/>'
-                f'<mxPoint x="{x2}" y="{y}" as="targetPoint"/>'
-                f'</mxGeometry>'
-                f'</mxCell>'
-            )
-            # Dashed line
-            svg_elems.append(f'<line x1="{x1}" y1="{y}" x2="{x2}" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.5"/>')
-            # Open Arrow Head
-            if x2 > x1:
-                svg_elems.append(f'<line x1="{x2}" y1="{y}" x2="{x2-7}" y2="{y-4}" stroke="#2563eb" stroke-width="1.5"/>')
-                svg_elems.append(f'<line x1="{x2}" y1="{y}" x2="{x2-7}" y2="{y+4}" stroke="#2563eb" stroke-width="1.5"/>')
-            else:
-                svg_elems.append(f'<line x1="{x2}" y1="{y}" x2="{x2+7}" y2="{y-4}" stroke="#2563eb" stroke-width="1.5"/>')
-                svg_elems.append(f'<line x1="{x2}" y1="{y}" x2="{x2+7}" y2="{y+4}" stroke="#2563eb" stroke-width="1.5"/>')
-            
-            # Badge background for label
-            label_len = len(text) * 6.6
-            svg_elems.append(f'<rect x="{mid_x - label_len//2}" y="{y - 17}" width="{label_len}" height="14" fill="#ffffff" fill-opacity="0.95"/>')
-            svg_elems.append(f'<text x="{mid_x}" y="{y - 6}" font-family="Segoe UI" font-size="11" font-style="italic" fill="#1e40af" text-anchor="middle">{escape_xml(text)}</text>')
-            
-        # Time Mark if present (e.g. {a} or {b})
-        if time_mark:
-            tx = p_centers[0] - 22
-            svg_elems.append(f'<text x="{tx}" y="{y + 4}" font-family="Segoe UI" font-size="11" font-weight="bold" fill="#dc2626">{time_mark}</text>')
-
-    # Duration Constraint (Slide 22/23 Feature: {b - a < X sec})
+            lines=header_lines(p)
+            vertex(f'p_{i}',cx-header_width(p)/2,96,header_width(p),header_height(p),fill=p['fill'],stroke=p['stroke'])
+            text(f'header_{i}',cx-header_width(p)/2+12,108,header_width(p)-24,lines,True,size=HEADER_SIZE)
+            top=96+header_height(p)
+        edge(f'line_{i}',[(cx,top),(cx,height-48)],kind='lifeline',arrow=False,color='#94a3b8')
+    for p,ranges in active_ranges.items():
+        for j,(start,end) in enumerate(ranges):
+            vertex(f'act_{p}_{j}',centers[p]-6,rows[start],12,rows[end]-rows[start],
+                   fill=participants[p]['fill'],stroke=participants[p]['stroke'])
+    for i,(m,lines,y) in enumerate(zip(messages,labels,rows)):
+        a,b=centers[m['src']],centers[m['dst']]
+        if m.get('is_self'):
+            vertex(f'nested_{i}',a, y+24, 12, 16, fill=participants[m['src']]['fill'],stroke=participants[m['src']]['stroke'])
+            points=[(a+6,y),(a+42,y),(a+42,y+24),(a+12,y+24)]
+            lx=a+54; ly=y-4; lw=text_width(lines, MESSAGE_SIZE)
+        else:
+            direction=1 if b>a else -1
+            points=[(a+direction*6,y),(b-direction*6,y)]
+            left=min(m['src'],m['dst'])
+            lx=centers[left]+22; ly=y-len(lines)*line_height(MESSAGE_SIZE)-8
+            lw=centers[left+1]-centers[left]-44
+        edge(f'msg_{i}',points,m.get('is_resp',False))
+        text(f'label_{i}',lx,ly,lw,lines,italic=m.get('is_resp',False))
+        if m.get('time_mark'):
+            text(f'time_{i}',centers[0]-48,y-10,36,[m['time_mark']],True,size=ANNOTATION_SIZE)
     if duration_constraint:
-        p_idx = duration_constraint.get('p_idx', 0)
-        s_idx = duration_constraint['start_msg_idx']
-        e_idx = duration_constraint['end_msg_idx']
-        d_label = duration_constraint['label']
-        
-        y_a = msg_y_coords[s_idx]
-        y_b = msg_y_coords[e_idx]
-        dim_x = p_centers[p_idx] - 38
-        
-        # Dimension line with double-headed arrow
-        svg_elems.append(f'<line x1="{dim_x}" y1="{y_a}" x2="{dim_x}" y2="{y_b}" stroke="#dc2626" stroke-dasharray="3 3" stroke-width="1.5"/>')
-        # Arrowhead at top
-        svg_elems.append(f'<polygon points="{dim_x},{y_a} {dim_x-3},{y_a+6} {dim_x+3},{y_a+6}" fill="#dc2626"/>')
-        # Arrowhead at bottom
-        svg_elems.append(f'<polygon points="{dim_x},{y_b} {dim_x-3},{y_b-6} {dim_x+3},{y_b-6}" fill="#dc2626"/>')
-        
-        # Text label badge
-        mid_dim_y = (y_a + y_b) // 2
-        lbl_w = len(d_label) * 6.5
-        svg_elems.append(f'<rect x="{dim_x - lbl_w - 6}" y="{mid_dim_y - 8}" width="{lbl_w}" height="16" fill="#ffffff" fill-opacity="0.95" stroke="#fca5a5" stroke-width="1" rx="3"/>')
-        svg_elems.append(f'<text x="{dim_x - 10}" y="{mid_dim_y + 4}" font-family="Segoe UI" font-size="10" font-weight="bold" fill="#dc2626" text-anchor="end">{escape_xml(d_label)}</text>')
-        
-        # Guide dashed lines from lifeline to dimension line
-        svg_elems.append(f'<line x1="{dim_x}" y1="{y_a}" x2="{p_centers[p_idx] - act_w//2}" y2="{y_a}" stroke="#dc2626" stroke-dasharray="2 2" stroke-width="1"/>')
-        svg_elems.append(f'<line x1="{dim_x}" y1="{y_b}" x2="{p_centers[p_idx] - act_w//2}" y2="{y_b}" stroke="#dc2626" stroke-dasharray="2 2" stroke-width="1"/>')
+        a=rows[duration_constraint['start_msg_idx']]; b=rows[duration_constraint['end_msg_idx']]
+        edge('duration_line',[(210,a),(210,b)],True,kind='timing',arrow=False,color='#dc2626')
+        text('duration',28,(a+b)//2,174,[duration_constraint['label']],True,size=ANNOTATION_SIZE)
+        text('assumption',28,height-32-line_height(ANNOTATION_SIZE),width-56,['Timing: existing scenario assumption; not a measured performance guarantee.'],size=ANNOTATION_SIZE)
+    xml=('<mxfile host="drawio"><diagram id="diagram_1" name="Page-1">'
+         f'<mxGraphModel background="#ffffff" page="1" pageWidth="{width}" pageHeight="{height}"><root>'
+         + ''.join(cells) + '</root></mxGraphModel></diagram></mxfile>')
+    output=(f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+            f'viewBox="0 0 {width} {height}" content="{escape_xml(xml)}">'
+            f'<rect width="{width}" height="{height}" fill="white"/>' + ''.join(svg) + '</svg>')
+    os.makedirs(os.path.dirname(filepath),exist_ok=True)
+    with open(filepath,'w',encoding='utf-8') as f:
+        f.write(output)
+    print(f'Created: {filepath}')
 
-    # Build XML & SVG
-    mxgraph_xml = (
-        '<mxfile host="Electron" modified="2026-10-28T10:00:00.000Z" agent="Antigravity UML Designer" version="21.6.8" type="device">'
-        '<diagram id="diagram_1" name="Page-1">'
-        f'<mxGraphModel dx="{diagram_w}" dy="{diagram_h}" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="{diagram_w}" pageHeight="{diagram_h}" math="0" shadow="0">'
-        '<root>'
-        + "".join(mx_cells) +
-        '</root>'
-        '</mxGraphModel>'
-        '</diagram>'
-        '</mxfile>'
-    )
-    content_escaped = escape_xml(mxgraph_xml)
-    
-    svg = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="{diagram_w}px" height="{diagram_h}px" viewBox="-0.5 -0.5 {diagram_w} {diagram_h}" content="{content_escaped}">',
-        f'<defs/>',
-        f'<g>',
-        f'<rect x="0" y="0" width="{diagram_w}" height="{diagram_h}" fill="#ffffff" stroke="none"/>',
-        "".join(svg_elems),
-        f'</g>',
-        f'</svg>'
-    ]
-    
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write("".join(svg))
-    print(f"Created: {filepath}")
+
+def catalog_block(d, mermaid=False):
+    if mermaid:
+        config = {'theme':'base', 'fontFamily':'Segoe UI',
+                  'themeVariables':{'fontSize':f'{MESSAGE_SIZE}px', 'textColor':'#000000',
+                    'primaryTextColor':'#000000', 'actorTextColor':'#000000',
+                    'signalTextColor':'#000000', 'noteTextColor':'#000000',
+                    'labelTextColor':'#000000', 'loopTextColor':'#000000',
+                    'actorBkg':PALETTE['#dbeafe'], 'actorBorder':'#000000',
+                    'activationBkgColor':PALETTE['#dcfce7'], 'activationBorderColor':'#000000',
+                    'noteBkgColor':PALETTE['#fef3c7'], 'noteBorderColor':'#000000',
+                    'labelBoxBorderColor':'#000000', 'labelBoxBkgColor':PALETTE['#dbeafe'],
+                    'background':'#ffffff'},
+                  'sequence':{'actorFontSize':HEADER_SIZE, 'messageFontSize':MESSAGE_SIZE,
+                              'noteFontSize':ANNOTATION_SIZE, 'mirrorActors':False}}
+        lines = ['%%{init: ' + json.dumps(config, separators=(',',':')) + '}%%', 'sequenceDiagram']
+    else:
+        lines = ['@startuml', 'hide footbox', 'skinparam backgroundColor #ffffff',
+                 'skinparam defaultFontName Segoe UI', 'skinparam defaultFontColor #000000',
+                 f'skinparam defaultFontSize {MESSAGE_SIZE}',
+                 'skinparam sequence {', '  ParticipantBorderColor #000000',
+                 '  ParticipantFontColor #000000', f'  ParticipantFontSize {HEADER_SIZE}',
+                 '  ActorBorderColor #000000', '  ActorFontColor #000000',
+                 f'  ActorFontSize {HEADER_SIZE}', '  LifeLineBorderColor #000000',
+                 '}', 'skinparam ArrowFontColor #000000',
+                 f'skinparam ArrowFontSize {MESSAGE_SIZE}',
+                 'skinparam noteFontColor #000000', f'skinparam noteFontSize {ANNOTATION_SIZE}',
+                 'skinparam noteBorderColor #000000', 'skinparam noteBackgroundColor '+PALETTE['#fef3c7'],
+                 'skinparam titleFontColor #000000', f'skinparam titleFontSize {TITLE_SIZE}']
+    def activate(p):
+        return f'activate P{p}' + ('' if mermaid else ' '+PALETTE[d['participants'][p]['fill']])
+    for i,p in enumerate(d['participants']):
+        kind = 'actor' if p.get('type') == 'actor' else 'participant'
+        name = typed_name(p)
+        lines.append(f'    {kind} P{i} as {name}' if mermaid else f'{kind} "{name}" as P{i} {PALETTE[p["fill"]]}')
+    for i,m in enumerate(d['messages']):
+        starts=[p for p,ranges in d['active_ranges'].items() for start,end in ranges if start==i]
+        # A receiver starts execution at message arrival; a sender at dispatch.
+        before=[p for p in starts if p != m['dst']]
+        after=[p for p in starts if p == m['dst']]
+        lines.extend(activate(p) for p in before)
+        arrow = ('-->>' if m.get('is_resp') else '->>') if mermaid else ('-->' if m.get('is_resp') else '->')
+        lines.append(f'P{m["src"]}{arrow}P{m["dst"]}: {message_label(i,m)}')
+        lines.extend(activate(p) for p in after)
+        if m.get('is_self'):
+            lines.extend([activate(m['src']),f'deactivate P{m["src"]}'])
+        if m.get('time_mark'):
+            lines.append(f'{"Note" if mermaid else "note"} left of P0: {m["time_mark"]}')
+        lines.extend(f'deactivate P{p}' for p,ranges in d['active_ranges'].items() for start,end in ranges if end==i)
+    lines.append(f'{"Note" if mermaid else "note"} left of P0: {d["duration_constraint"]["label"]} (scenario assumption)')
+    if not mermaid:
+        lines.append('@enduml')
+    return '\n'.join(('    '+line if mermaid and i else line) for i,line in enumerate(lines))
+
+
+def write_catalog(directory):
+    source = Path(__file__).resolve().parents[2] / '01_Diagram/02_Sequence_Diagram/PLANTUML_SEQUENCE.md'
+    content = source.read_text(encoding='utf-8').replace('tô màu pastel phân biệt', 'tô màu đậm hơn phân biệt')
+    for language in ('plantuml','mermaid'):
+        blocks=iter(catalog_block(d,language=='mermaid') for d in DIAGRAMS)
+        content,count=re.subn(r'```'+language+r'\n.*?```',lambda _: '```'+language+'\n'+next(blocks)+'\n```',content,flags=re.S)
+        assert count == 7, f'Expected seven {language} blocks, found {count}'
+    (directory/'PLANTUML_SEQUENCE.md').write_text(content,encoding='utf-8')
 
 # ==============================================================================
 # CONFIGURATION FOR ALL 7 SEQUENCE DIAGRAMS
@@ -545,13 +520,17 @@ DIAGRAMS = [
 ]
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Regenerate only SQ01–SQ07.')
+    parser.add_argument('--output-dir', type=Path, default=Path(__file__).resolve().parents[2] / '01_Diagram/02_Sequence_Diagram')
+    args = parser.parse_args()
     for d in DIAGRAMS:
         create_slide_sequence_diagram(
-            filepath=d["filepath"],
+            filepath=str(args.output_dir / Path(d['filepath']).name),
             title=d["title"],
             participants=d["participants"],
             messages=d["messages"],
             active_ranges=d["active_ranges"],
             duration_constraint=d.get("duration_constraint")
         )
+    write_catalog(args.output_dir)
     print("All 7 Sequence Diagrams regenerated with slide style!")

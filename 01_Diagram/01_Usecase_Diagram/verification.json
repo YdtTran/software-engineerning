@@ -1,0 +1,166 @@
+{
+  "renderer": "Installed Draw.io viewer-static in headless Edge",
+  "checkedAt": "2026-10-28T14:02:35.991Z",
+  "passed": true,
+  "checks": [
+    "rendered edge crossings, T junctions and collinear overlaps",
+    "edges through unrelated nodes",
+    "labels against nodes, other labels and unrelated edges",
+    "use-case label clipping",
+    "dynamic system boundary padding",
+    "primary actors outside on left",
+    "all 15 diagrams rendered"
+  ],
+  "diagrams": [
+    {
+      "file": "GENERAL/general_usecase_diagram.drawio",
+      "nodes": 16,
+      "edges": 14,
+      "labels": 0,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "OPERATOR/UC10-Redistribute_Vehicles.drawio",
+      "nodes": 6,
+      "edges": 5,
+      "labels": 4,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "OPERATOR/UC11-Handle_Operational_Incident.drawio",
+      "nodes": 7,
+      "edges": 6,
+      "labels": 5,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "OPERATOR/UC12-Manage_Charging_Schedule.drawio",
+      "nodes": 7,
+      "edges": 6,
+      "labels": 5,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "OPERATOR/UC13-Run_What-if_Simulation.drawio",
+      "nodes": 8,
+      "edges": 7,
+      "labels": 6,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "OPERATOR/UC14-View_Simulation_Results.drawio",
+      "nodes": 8,
+      "edges": 7,
+      "labels": 6,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "OPERATOR/UC8-Monitor_Mobility_Hub_Network.drawio",
+      "nodes": 6,
+      "edges": 5,
+      "labels": 4,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "OPERATOR/UC9-Manage_Mobility_Resources.drawio",
+      "nodes": 7,
+      "edges": 7,
+      "labels": 2,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "STUDENTS/UC01-Search_Mobility_Hub.drawio",
+      "nodes": 4,
+      "edges": 3,
+      "labels": 2,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "STUDENTS/UC02-View_Available_Vehicles.drawio",
+      "nodes": 3,
+      "edges": 2,
+      "labels": 1,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "STUDENTS/UC03-Reserve_Vehicle.drawio",
+      "nodes": 3,
+      "edges": 2,
+      "labels": 1,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "STUDENTS/UC04-Pick_Up_Vehicle.drawio",
+      "nodes": 5,
+      "edges": 4,
+      "labels": 3,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "STUDENTS/UC05-Return_Vehicle.drawio",
+      "nodes": 5,
+      "edges": 4,
+      "labels": 3,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "STUDENTS/UC06-Reserve_Parking_Space.drawio",
+      "nodes": 6,
+      "edges": 5,
+      "labels": 3,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    },
+    {
+      "file": "STUDENTS/UC07-Request_Charging.drawio",
+      "nodes": 6,
+      "edges": 5,
+      "labels": 3,
+      "crossings": 0,
+      "overlappingSegments": 0,
+      "edgeThroughNode": 0,
+      "labelCollisions": 0
+    }
+  ]
+}

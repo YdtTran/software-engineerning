@@ -1,6 +1,6 @@
 # Smart E-Mobility Hub — UI/UX mẫu
 
-Thiết kế dựa trên `refs/pdfs/BTL_SoftwareEngineering_HK261.pdf`, sơ đồ use case trong `refs/uc_uml/USE_CASE/` và năm ảnh giao diện trong `refs/uc_uml/REF/`.
+Thiết kế dựa trên [đề bài tham khảo](../../refs/pdfs/BTL_SoftwareEngineering_HK261.pdf), [sơ đồ use case gốc](../../refs/uc_uml/USE_CASE/) và [năm ảnh giao diện tham khảo](../00_Ref/).
 
 ## Mở và sử dụng
 
