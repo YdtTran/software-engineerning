@@ -1,0 +1,15 @@
+{
+  "screens": 26,
+  "checks": [
+    "reserve → wrong code rejected → pickup → return",
+    "charging without a free port rejected",
+    "dispatch capacity validation and confirmation",
+    "simulation responds to parameters",
+    "all screens render without JavaScript errors",
+    "mobile and desktop overflow checks",
+    "user and operator route separation",
+    "operator app navigation, dispatch and incident handling",
+    "separate entry points hide design controls"
+  ],
+  "passed": true
+}
