@@ -10,26 +10,38 @@
 
 ---
 
-## II. CÁC THÀNH PHẦN KÝ HIỆU CHUẨN MẪU (SLIDE CH6 P.22, P.40, P.50)
+## II. CÁC THÀNH PHẦN KÝ HIỆU CHUẨN MẪU (HÌNH MẪU SLIDE CH6 P.22-26 "SEQUENCE DIAGRAMS - EXAMPLE")
 
 ```text
-    옷 User        ┌──────────┐     ┌─────────────┐     ┌───────────┐
-     :Student      │ regForm  │     │ :LoginForm  │     │ :Database │
-        │          └─────┬────┘     └──────┬──────┘     └─────┬─────┘
-        │   1: submit()  │                 │                  │
-        ├───────────────►│                 │                  │
-        │                │  1.1: verify()  │                  │
-        │                ├────────────────►│  verify query    │
-        │                │                 ├─────────────────►│
-        │                │                 │                  │
-        │                │                 │  account ok      │
-        │                │  1.2: welcome   │◄ - - - - - - - - ┤
-        │                │◄ - - - - - - - -┤                  │
-        │   success()    │                 │                  │
-        │◄ - - - - - - - ┤                 │                  │
-        │                │                 │                  │
-        ▼ [Lifeline]     ▼                 ▼                  ▼
+    옷 Actor (User)        ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+       [Stick figure]      │     ATM      │     │  Consortium  │     │     Bank     │
+         │                 └──────┬───────┘     └──────┬───────┘     └──────┬───────┘
+         │  insert card           │                    │                    │
+         ├───────────────────────►│ {a} [Time Mark]    │                    │
+         │                        │  verify card       │                    │
+         │                        ├───────────────────►│                    │
+         │                        │                    │  verify account    │
+         │                        │                    ├───────────────────►│
+         │   Duration Constraint  │                    │                    │
+         │   {b - a < 10 sec}     │                    │  account not ok    │
+         │  ◄ - - - - - - - - - - │                    │◄ - - - - - - - - - ┤
+         │                        │  reject card       │                    │
+         │                        │◄ - - - - - - - - - ┤                    │
+         │  eject card            │                    │                    │
+     {b} │◄ - - - - - - - - - - - ┤                    │                    │
+         │                        │                    │                    │
+         ▼ [Lifeline]             ▼                    ▼                    ▼
 ```
+
+### Các đặc trưng bắt buộc theo hình mẫu Slide Ch6 p.22/23:
+1. **Actor (Tác nhân):** Đặt ở phía ngoài cùng bên trái, vẽ bằng hình người que (*Stick figure*).
+2. **Object Lifelines (Thành phần hệ thống):** Các hộp chữ nhật bo góc nhẹ ở đỉnh, tô màu pastel dịu nhẹ phân biệt từng vai trò (UI/App màu lam, Controller màu lục, Service/IoT màu hồng, Database màu hổ phách).
+3. **Activation (Khung kích hoạt):** Hình chữ nhật đứng liên tục biểu thị khoảng thời gian đối tượng tích cực xử lý nghiệp vụ.
+4. **Message (Thông điệp yêu cầu):** Mũi tên nét liền có đầu mũi tên đặc (`──►`), đặt tên theo hành động rõ ràng không rườm rà.
+5. **Return Message (Thông điệp phản hồi):** Mũi tên nét đứt có đầu mũi tên mở (`< - - -`), nhãn in nghiêng biểu thị kết quả trả về.
+6. **Time Constraint & Duration Constraint (Ràng buộc thời gian & thời lượng):**
+   - Đánh dấu mốc thời gian `{a}` tại điểm bắt đầu giao dịch và `{b}` tại điểm kết thúc giao dịch.
+   - Kẻ đường kích thước hai đầu mũi tên màu đỏ kèm nhãn `{b - a < X sec}` đo lường thời gian phản hồi tối đa của hệ thống.
 
 ### 1. Đối tượng và Tác nhân ở đỉnh sơ đồ (Actors & Lifelines - Slide Ch6 p.22, 40, 50)
 - **Actor (Tác nhân):** Đặt ở phía ngoài cùng bên trái (hoặc bên phải nếu là hệ thống thứ ba như `Supplier` trong slide 40). Biểu diễn bằng hình người que (*Stick figure*).

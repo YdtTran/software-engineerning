@@ -1,6 +1,12 @@
 # TỔNG HỢP MÃ NGUỒN PLANTUML & MERMAID SƠ ĐỒ TUẦN TỰ (SEQUENCE DIAGRAM)
-> **Chuẩn mực bài giảng (Supreme Law):** Môn **Software Engineering (CO3001) - ĐHQG-HCM** & **Ian Sommerville (10th Ed) Ch6 p.21-26, 40, 50**.
-> Định dạng chuẩn: Actor stickman, Lifelines (`:ClassName`, `name:ClassName`, `<<datastore>>`), đánh số thứ tự phân cấp (`1:`, `1.1:`, `1.2:`), Guard condition `[guard]`, Request (`->`), Response (`-->`), Self-call (`Validate()`) và khung `alt`.
+> **Chuẩn mực bài giảng (Supreme Law):** Môn **Software Engineering (CO3001) - ĐHQG-HCM** & **Ian Sommerville (10th Ed) Ch6 p.21-26 (Hình mẫu Slide 22/23 "SEQUENCE DIAGRAMS - EXAMPLE")**.  
+> **Đặc trưng quy chuẩn:**
+> - Actor stick figure đại diện người dùng khởi xướng.
+> - Hộp đối tượng / thành phần ở đỉnh Lifeline tô màu pastel phân biệt (UI, Controller, Service/IoT, Database).
+> - Khung kích hoạt (*Activation Bar*) liên tục biểu thị chính xác thời gian xử lý của đối tượng.
+> - Thông điệp yêu cầu (*Request Message*): Nét liền đầu mũi tên đặc (`──►`), đặt tên theo hành động nghiệp vụ rõ ràng (VD: `select vehicle`, `insert card`, `verify card`).
+> - Thông điệp phản hồi (*Return Message*): Nét đứt đầu mũi tên mở (`< - - -`), nhãn in nghiêng (VD: `reservation approved`, `reject card`, `display active ticket`).
+> - Ràng buộc thời gian & thời lượng (*Time & Duration Constraints*): Mốc `{a}`, `{b}` và mũi tên hai đầu `{b - a < X sec}` (Slide Ch6 p.22/23).
 
 ---
 
@@ -17,592 +23,682 @@
 
 ## SQ01: Reserve Vehicle
 - **Tương ứng Use Case:** `UC03 - Reserve Vehicle`
-- **File Draw.io:** `01_Diagram/02_Sequence_Diagram/SQ01-Reserve_Vehicle.drawio.svg`
+- **File Draw.io SVG:** [`SQ01-Reserve_Vehicle.drawio.svg`](./SQ01-Reserve_Vehicle.drawio.svg)
+- **File Ảnh PNG:** [`SQ01-Reserve_Vehicle.png`](./SQ01-Reserve_Vehicle.png)
+- **Ràng buộc thời gian:** `{a}` tại lúc chọn xe, `{b}` tại lúc nhận vé giữ xe; `{b - a < 5 sec}`.
 
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam responseMessageBelowArrow true
-autonumber "1:"
-actor ":Student" as User
-participant ":MobileApp" as UI
-participant ":ReservationController" as Ctrl
-participant ":VehicleService" as Svc
-database "<<datastore>>\n:Database" as DB
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow false
+skinparam roundcorner 10
+skinparam ParticipantPadding 25
+skinparam BoxPadding 15
 
-User -> UI: selectVehicle(vehicleId)
-activate UI
-UI -> Ctrl: requestReservation(userId, vehicleId)
-activate Ctrl
-Ctrl -> Svc: checkAvailabilityAndLock(vehicleId)
-activate Svc
+actor "User" as User #f3e8ff
+participant "Mobile App" as App #dbeafe
+participant "Reservation Hub" as Hub #dcfce7
+participant "Vehicle Service" as Fleet #ffe4e6
+participant "Database" as DB #fef3c7
 
-Svc -> Svc: validateBatteryLevel()
-activate Svc
-deactivate Svc
+User -> App: select vehicle
+activate User #f3e8ff
+activate App #dbeafe
 
-alt Xe còn trống & Pin >= 20%
-    Svc -> DB: saveReservation(userId, vehicleId, 15_MIN)
-    activate DB
-    DB --> Svc: reservationSaved(resId, qrCode)
-    deactivate DB
-    Svc --> Ctrl: return reservationSuccess(ticket)
-    Ctrl --> UI: displayReservationTicket(timer 15:00)
-    UI --> User: showActiveTicketScreen()
-else Xe đã được giữ hoặc Pin < 20%
-    Svc --> Ctrl: return error(VEHICLE_UNAVAILABLE)
-    deactivate Svc
-    Ctrl --> UI: displayErrorNotification("Xe không khả dụng")
-    deactivate Ctrl
-    UI --> User: showRetryOrSuggestOtherVehicles()
-    deactivate UI
-end
+App -> Hub: request reservation
+activate Hub #dcfce7
+
+Hub -> Fleet: check availability & battery
+activate Fleet #ffe4e6
+
+Fleet -> Fleet: validate battery level (>= 20%)
+activate Fleet #ffe4e6
+deactivate Fleet
+
+Fleet -> DB: lock vehicle (15-min hold)
+activate DB #fef3c7
+
+DB --> Fleet: lock confirmed
+deactivate DB
+
+Fleet --> Hub: reservation approved
+deactivate Fleet
+
+Hub --> App: issue reservation ticket (QR & timer)
+deactivate Hub
+
+App --> User: display active ticket (15:00 countdown)
+deactivate App
+deactivate User
+
+note over User, App: Duration Constraint: {b - a < 5 sec}
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor User as :Student
-    participant UI as :MobileApp
-    participant Ctrl as :ReservationController
-    participant Svc as :VehicleService
-    participant DB as <<datastore>><br/>:Database
+    actor User as User
+    participant App as Mobile App
+    participant Hub as Reservation Hub
+    participant Fleet as Vehicle Service
+    participant DB as Database
 
-    User->>UI: selectVehicle(vehicleId)
-    activate UI
-    UI->>Ctrl: requestReservation(userId, vehicleId)
-    activate Ctrl
-    Ctrl->>Svc: checkAvailabilityAndLock(vehicleId)
-    activate Svc
-    Svc->>Svc: validateBatteryLevel()
-    alt Xe còn trống & Pin >= 20%
-        Svc->>DB: saveReservation(userId, vehicleId, 15_MIN)
-        activate DB
-        DB-->>Svc: reservationSaved(resId, qrCode)
-        deactivate DB
-        Svc-->>Ctrl: return reservationSuccess(ticket)
-        Ctrl-->>UI: displayReservationTicket(timer 15:00)
-        UI-->>User: showActiveTicketScreen()
-    else Xe không khả dụng
-        Svc-->>Ctrl: return error(VEHICLE_UNAVAILABLE)
-        deactivate Svc
-        Ctrl-->>UI: displayErrorNotification("Xe không khả dụng")
-        deactivate Ctrl
-        UI-->>User: showRetryOrSuggestOtherVehicles()
-        deactivate UI
-    end
+    User->>App: select vehicle
+    activate User
+    activate App
+    App->>Hub: request reservation
+    activate Hub
+    Hub->>Fleet: check availability & battery
+    activate Fleet
+    Fleet->>Fleet: validate battery level (>= 20%)
+    Fleet->>DB: lock vehicle (15-min hold)
+    activate DB
+    DB-->>Fleet: lock confirmed
+    deactivate DB
+    Fleet-->>Hub: reservation approved
+    deactivate Fleet
+    Hub-->>App: issue reservation ticket (QR & timer)
+    deactivate Hub
+    App-->>User: display active ticket (15:00 countdown)
+    deactivate App
+    deactivate User
+    Note over User,App: Duration Constraint: {b - a < 5 sec}
 ```
 
 ---
 
 ## SQ02: Pick Up Vehicle
 - **Tương ứng Use Case:** `UC04 - Pick Up Vehicle`
-- **File Draw.io:** `01_Diagram/02_Sequence_Diagram/SQ02-Pick_Up_Vehicle.drawio.svg`
+- **File Draw.io SVG:** [`SQ02-Pick_Up_Vehicle.drawio.svg`](./SQ02-Pick_Up_Vehicle.drawio.svg)
+- **File Ảnh PNG:** [`SQ02-Pick_Up_Vehicle.png`](./SQ02-Pick_Up_Vehicle.png)
+- **Ràng buộc thời gian:** `{a}` tại lúc quét mã QR, `{b}` tại lúc bắt đầu chuyến đi; `{b - a < 8 sec}`.
 
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam responseMessageBelowArrow true
-autonumber "1:"
-actor ":Student" as User
-participant ":MobileApp" as UI
-participant ":PickupController" as Ctrl
-participant ":IoTStation" as IoT
-database "<<datastore>>\n:Database" as DB
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow false
+skinparam roundcorner 10
+skinparam ParticipantPadding 25
+skinparam BoxPadding 15
 
-User -> UI: scanQRCode(qrData) / enterCode()
-activate UI
-UI -> Ctrl: validatePickup(userId, vehicleId)
-activate Ctrl
-Ctrl -> DB: verifyReservationTicket(userId, vehicleId)
-activate DB
-DB --> Ctrl: ticketStatus(VALID, within 15 mins)
+actor "User" as User #f3e8ff
+participant "Mobile App" as App #dbeafe
+participant "Pickup Controller" as Ctrl #dcfce7
+participant "Station IoT Dock" as Dock #ffe4e6
+participant "Database" as DB #fef3c7
+
+User -> App: scan QR code at vehicle dock
+activate User #f3e8ff
+activate App #dbeafe
+
+App -> Ctrl: submit pickup request
+activate Ctrl #dcfce7
+
+Ctrl -> DB: validate reservation ticket
+activate DB #fef3c7
+
+DB --> Ctrl: reservation verified
 deactivate DB
 
-alt Phiếu hợp lệ & Khớp vị trí trạm
-    Ctrl -> IoT: sendUnlockCommand(slotId, vehicleId)
-    activate IoT
-    IoT --> Ctrl: unlockConfirmed(electronicPinReleased)
-    deactivate IoT
-    Ctrl -> DB: updateVehicleStatus(IN_USE) & startTrip()
-    activate DB
-    DB --> Ctrl: tripStarted(tripId, startTime)
-    deactivate DB
-    Ctrl --> UI: return pickupSuccess(tripId)
-    UI --> User: displayActiveTripScreen(liveTimer)
-else Sai mã hoặc Hết hạn 15 phút
-    Ctrl --> UI: return pickupFailed(EXPIRED_OR_INVALID)
-    UI --> User: displayErrorAndRetryCounter()
-end
+Ctrl -> Dock: send unlock command
+activate Dock #ffe4e6
+
+Dock -> Dock: release physical lock mechanism
+activate Dock #ffe4e6
+deactivate Dock
+
+Dock --> Ctrl: dock unlocked & vehicle released
+deactivate Dock
+
+Ctrl -> DB: update vehicle state to 'In-Use'
+activate DB #fef3c7
+
+DB --> Ctrl: trip record initiated
+deactivate DB
+
+Ctrl --> App: confirm unlock & start trip timer
 deactivate Ctrl
-deactivate UI
+
+App --> User: display trip active & safety tips
+deactivate App
+deactivate User
+
+note over User, App: Duration Constraint: {b - a < 8 sec}
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor User as :Student
-    participant UI as :MobileApp
-    participant Ctrl as :PickupController
-    participant IoT as :IoTStation
-    participant DB as <<datastore>><br/>:Database
+    actor User as User
+    participant App as Mobile App
+    participant Ctrl as Pickup Controller
+    participant Dock as Station IoT Dock
+    participant DB as Database
 
-    User->>UI: scanQRCode(qrData) / enterCode()
-    activate UI
-    UI->>Ctrl: validatePickup(userId, vehicleId)
+    User->>App: scan QR code at vehicle dock
+    activate User
+    activate App
+    App->>Ctrl: submit pickup request
     activate Ctrl
-    Ctrl->>DB: verifyReservationTicket(userId, vehicleId)
+    Ctrl->>DB: validate reservation ticket
     activate DB
-    DB-->>Ctrl: ticketStatus(VALID, within 15 mins)
+    DB-->>Ctrl: reservation verified
     deactivate DB
-    alt Phiếu hợp lệ
-        Ctrl->>IoT: sendUnlockCommand(slotId, vehicleId)
-        activate IoT
-        IoT-->>Ctrl: unlockConfirmed(electronicPinReleased)
-        deactivate IoT
-        Ctrl->>DB: updateVehicleStatus(IN_USE) & startTrip()
-        activate DB
-        DB-->>Ctrl: tripStarted(tripId, startTime)
-        deactivate DB
-        Ctrl-->>UI: return pickupSuccess(tripId)
-        UI-->>User: displayActiveTripScreen(liveTimer)
-    else Quá hạn hoặc Sai mã
-        Ctrl-->>UI: return pickupFailed(EXPIRED_OR_INVALID)
-        UI-->>User: displayErrorAndRetryCounter()
-    end
+    Ctrl->>Dock: send unlock command
+    activate Dock
+    Dock->>Dock: release physical lock mechanism
+    Dock-->>Ctrl: dock unlocked & vehicle released
+    deactivate Dock
+    Ctrl->>DB: update vehicle state to 'In-Use'
+    activate DB
+    DB-->>Ctrl: trip record initiated
+    deactivate DB
+    Ctrl-->>App: confirm unlock & start trip timer
     deactivate Ctrl
-    deactivate UI
+    App-->>User: display trip active & safety tips
+    deactivate App
+    deactivate User
+    Note over User,App: Duration Constraint: {b - a < 8 sec}
 ```
 
 ---
 
 ## SQ03: Return Vehicle
 - **Tương ứng Use Case:** `UC05 - Return Vehicle`
-- **File Draw.io:** `01_Diagram/02_Sequence_Diagram/SQ03-Return_Vehicle.drawio.svg`
+- **File Draw.io SVG:** [`SQ03-Return_Vehicle.drawio.svg`](./SQ03-Return_Vehicle.drawio.svg)
+- **File Ảnh PNG:** [`SQ03-Return_Vehicle.png`](./SQ03-Return_Vehicle.png)
+- **Ràng buộc thời gian:** `{a}` tại lúc cắm xe vào dock, `{b}` tại lúc nhận hóa đơn thanh toán; `{b - a < 6 sec}`.
 
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam responseMessageBelowArrow true
-autonumber "1:"
-actor ":Student" as User
-participant ":MobileApp" as UI
-participant ":ReturnController" as Ctrl
-participant ":TripService" as Svc
-participant ":IoTStation" as IoT
-database "<<datastore>>\n:Database" as DB
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow false
+skinparam roundcorner 10
+skinparam ParticipantPadding 25
+skinparam BoxPadding 15
 
-User -> IoT: dockVehicleIntoSlot(slotId)
-activate IoT
-IoT -> Svc: notifyPhysicalDocked(slotId, vehicleId, batteryLevel)
-activate Svc
-deactivate IoT
+actor "User" as User #f3e8ff
+participant "Station IoT Dock" as Dock #ffe4e6
+participant "Return Controller" as Ctrl #dcfce7
+participant "Telemetry Service" as Tele #f3e8ff
+participant "Database" as DB #fef3c7
+participant "Mobile App" as App #dbeafe
 
-User -> UI: confirmReturnClicked()
-activate UI
-UI -> Ctrl: processReturn(tripId, destHubId, slotId)
-activate Ctrl
-Ctrl -> IoT: verifyLockerStatus(slotId)
-activate IoT
-IoT --> Ctrl: lockConfirmed(pinLocked = TRUE)
-deactivate IoT
+User -> Dock: insert vehicle into dock & latch
+activate User #f3e8ff
+activate Dock #ffe4e6
 
-Ctrl -> Svc: calculateFareAndSettle(tripId, finalBattery)
-Svc -> DB: closeTripRecord(endTime, fare, finalBattery)
-activate DB
-DB --> Svc: tripClosedSuccess()
+Dock -> Ctrl: report vehicle plugged in
+activate Ctrl #dcfce7
+
+Ctrl -> Tele: read odometer & battery level
+activate Tele #f3e8ff
+
+Tele --> Ctrl: return final telemetry data
+deactivate Tele
+
+Ctrl -> DB: close trip & calculate usage fee
+activate DB #fef3c7
+
+DB -> DB: deduct balance & generate receipt
+activate DB #fef3c7
 deactivate DB
 
-Svc -> DB: updateVehicleStatus(Available / Needs_Charging)
-activate DB
-DB --> Svc: statusUpdated()
+DB --> Ctrl: trip closed & payment confirmed
 deactivate DB
 
-Svc --> Ctrl: return receiptData(fare, duration, distance)
-Ctrl --> UI: return returnSummary(receiptData)
+Ctrl -> Dock: engage lock & flash green LED
+Dock --> Ctrl: dock locked securely
+deactivate Dock
+
+Ctrl --> App: send trip invoice & notification
+activate App #dbeafe
 deactivate Ctrl
-UI --> User: displayInvoiceAndCompleteTrip()
-deactivate UI
-deactivate Svc
+
+App --> User: display trip summary & receipt
+deactivate App
+deactivate User
+
+note over User, Dock: Duration Constraint: {b - a < 6 sec}
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor User as :Student
-    participant UI as :MobileApp
-    participant Ctrl as :ReturnController
-    participant Svc as :TripService
-    participant IoT as :IoTStation
-    participant DB as <<datastore>><br/>:Database
+    actor User as User
+    participant Dock as Station IoT Dock
+    participant Ctrl as Return Controller
+    participant Tele as Telemetry Service
+    participant DB as Database
+    participant App as Mobile App
 
-    User->>IoT: dockVehicleIntoSlot(slotId)
-    activate IoT
-    IoT->>Svc: notifyPhysicalDocked(slotId, vehicleId, batteryLevel)
-    activate Svc
-    deactivate IoT
-    User->>UI: confirmReturnClicked()
-    activate UI
-    UI->>Ctrl: processReturn(tripId, destHubId, slotId)
+    User->>Dock: insert vehicle into dock & latch
+    activate User
+    activate Dock
+    Dock->>Ctrl: report vehicle plugged in
     activate Ctrl
-    Ctrl->>IoT: verifyLockerStatus(slotId)
-    activate IoT
-    IoT-->>Ctrl: lockConfirmed(pinLocked = TRUE)
-    deactivate IoT
-    Ctrl->>Svc: calculateFareAndSettle(tripId, finalBattery)
-    Svc->>DB: closeTripRecord(endTime, fare, finalBattery)
+    Ctrl->>Tele: read odometer & battery level
+    activate Tele
+    Tele-->>Ctrl: return final telemetry data
+    deactivate Tele
+    Ctrl->>DB: close trip & calculate usage fee
     activate DB
-    DB-->>Svc: tripClosedSuccess()
+    DB->>DB: deduct balance & generate receipt
+    DB-->>Ctrl: trip closed & payment confirmed
     deactivate DB
-    Svc->>DB: updateVehicleStatus(Available / Needs_Charging)
-    activate DB
-    DB-->>Svc: statusUpdated()
-    deactivate DB
-    Svc-->>Ctrl: return receiptData(fare, duration, distance)
-    Ctrl-->>UI: return returnSummary(receiptData)
+    Ctrl->>Dock: engage lock & flash green LED
+    Dock-->>Ctrl: dock locked securely
+    deactivate Dock
+    Ctrl-->>App: send trip invoice & notification
+    activate App
     deactivate Ctrl
-    UI-->>User: displayInvoiceAndCompleteTrip()
-    deactivate UI
-    deactivate Svc
+    App-->>User: display trip summary & receipt
+    deactivate App
+    deactivate User
+    Note over User,Dock: Duration Constraint: {b - a < 6 sec}
 ```
 
 ---
 
 ## SQ04: Request Charging
 - **Tương ứng Use Case:** `UC07 - Request Charging`
-- **File Draw.io:** `01_Diagram/02_Sequence_Diagram/SQ04-Request_Charging.drawio.svg`
+- **File Draw.io SVG:** [`SQ04-Request_Charging.drawio.svg`](./SQ04-Request_Charging.drawio.svg)
+- **File Ảnh PNG:** [`SQ04-Request_Charging.png`](./SQ04-Request_Charging.png)
+- **Ràng buộc thời gian:** `{a}` tại lúc chọn gói sạc, `{b}` tại lúc dòng sạc bắt đầu cấp năng lượng; `{b - a < 7 sec}`.
 
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam responseMessageBelowArrow true
-autonumber "1:"
-actor ":Student" as User
-participant ":MobileApp" as UI
-participant ":ChargingController" as Ctrl
-participant ":ChargingService" as Svc
-participant ":PowerHubIoT" as IoT
-database "<<datastore>>\n:Database" as DB
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow false
+skinparam roundcorner 10
+skinparam ParticipantPadding 25
+skinparam BoxPadding 15
 
-User -> UI: submitChargingRequest(hubId, currBattery, targetBattery, pickupTime)
-activate UI
-UI -> Ctrl: scheduleChargingSession(userId, hubId, params)
-activate Ctrl
-Ctrl -> Svc: evaluatePortAvailability(hubId)
-activate Svc
-Svc --> Ctrl: portAssigned(portId, maxKW = 7.4)
+actor "User" as User #f3e8ff
+participant "Mobile App" as App #dbeafe
+participant "Charging Controller" as Ctrl #dcfce7
+participant "Smart Charger IoT" as Charger #ffe4e6
+participant "Database" as DB #fef3c7
 
-Ctrl -> DB: createChargingSessionRecord(userId, portId, params)
-activate DB
-DB --> Ctrl: sessionSaved(sessionId)
+User -> App: select charging slot & power tier
+activate User #f3e8ff
+activate App #dbeafe
+
+App -> Ctrl: submit charging session request
+activate Ctrl #dcfce7
+
+Ctrl -> DB: verify student wallet & subscription
+activate DB #fef3c7
+
+DB --> Ctrl: account verified
 deactivate DB
 
-Ctrl -> IoT: activatePowerRelay(portId)
-activate IoT
-IoT --> Ctrl: relayActive(currentFlowing = TRUE)
-deactivate IoT
+Ctrl -> Charger: check charger port status & grid load
+activate Charger #ffe4e6
 
-Ctrl --> UI: return chargingConfirmed(portId, sessionId)
-deactivate Svc
+Charger --> Ctrl: port ready & power allocated
+deactivate Charger
+
+Ctrl -> Charger: activate charging port & energize cable
+activate Charger #ffe4e6
+
+Charger --> Ctrl: charging power delivered
+deactivate Charger
+
+Ctrl -> DB: create charging session record
+activate DB #fef3c7
+
+DB --> Ctrl: session record saved
+deactivate DB
+
+Ctrl --> App: notify charging started & live power feed
 deactivate Ctrl
-UI --> User: displayPlugInInstructions(portId, estimatedFull)
-deactivate UI
+
+App --> User: display charging progress & energy delivered
+deactivate App
+deactivate User
+
+note over User, App: Duration Constraint: {b - a < 7 sec}
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor User as :Student
-    participant UI as :MobileApp
-    participant Ctrl as :ChargingController
-    participant Svc as :ChargingService
-    participant IoT as :PowerHubIoT
-    participant DB as <<datastore>><br/>:Database
+    actor User as User
+    participant App as Mobile App
+    participant Ctrl as Charging Controller
+    participant Charger as Smart Charger IoT
+    participant DB as Database
 
-    User->>UI: submitChargingRequest(hubId, currBattery, targetBattery, pickupTime)
-    activate UI
-    UI->>Ctrl: scheduleChargingSession(userId, hubId, params)
+    User->>App: select charging slot & power tier
+    activate User
+    activate App
+    App->>Ctrl: submit charging session request
     activate Ctrl
-    Ctrl->>Svc: evaluatePortAvailability(hubId)
-    activate Svc
-    Svc-->>Ctrl: portAssigned(portId, maxKW = 7.4)
-    Ctrl->>DB: createChargingSessionRecord(userId, portId, params)
+    Ctrl->>DB: verify student wallet & subscription
     activate DB
-    DB-->>Ctrl: sessionSaved(sessionId)
+    DB-->>Ctrl: account verified
     deactivate DB
-    Ctrl->>IoT: activatePowerRelay(portId)
-    activate IoT
-    IoT-->>Ctrl: relayActive(currentFlowing = TRUE)
-    deactivate IoT
-    Ctrl-->>UI: return chargingConfirmed(portId, sessionId)
-    deactivate Svc
+    Ctrl->>Charger: check charger port status & grid load
+    activate Charger
+    Charger-->>Ctrl: port ready & power allocated
+    deactivate Charger
+    Ctrl->>Charger: activate charging port & energize cable
+    activate Charger
+    Charger-->>Ctrl: charging power delivered
+    deactivate Charger
+    Ctrl->>DB: create charging session record
+    activate DB
+    DB-->>Ctrl: session record saved
+    deactivate DB
+    Ctrl-->>App: notify charging started & live power feed
     deactivate Ctrl
-    UI-->>User: displayPlugInInstructions(portId, estimatedFull)
-    deactivate UI
+    App-->>User: display charging progress & energy delivered
+    deactivate App
+    deactivate User
+    Note over User,App: Duration Constraint: {b - a < 7 sec}
 ```
 
 ---
 
 ## SQ05: Redistribute Vehicles
 - **Tương ứng Use Case:** `UC10 - Redistribute Vehicles`
-- **File Draw.io:** `01_Diagram/02_Sequence_Diagram/SQ05-Redistribute_Vehicles.drawio.svg`
+- **File Draw.io SVG:** [`SQ05-Redistribute_Vehicles.drawio.svg`](./SQ05-Redistribute_Vehicles.drawio.svg)
+- **File Ảnh PNG:** [`SQ05-Redistribute_Vehicles.png`](./SQ05-Redistribute_Vehicles.png)
+- **Ràng buộc thời gian:** `{a}` tại lúc kích hoạt phân tích, `{b}` tại lúc nhiệm vụ hiển thị trên bản đồ; `{b - a < 10 sec}`.
 
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam responseMessageBelowArrow true
-autonumber "1:"
-actor ":Operator" as Admin
-participant ":WebDashboard" as UI
-participant ":DispatchController" as Ctrl
-participant ":RebalanceService" as Svc
-database "<<datastore>>\n:Database" as DB
-participant ":FieldDriverApp" as DriverApp
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow false
+skinparam roundcorner 10
+skinparam ParticipantPadding 25
+skinparam BoxPadding 15
 
-Admin -> UI: createTransferOrder(srcHub, dstHub, qty=20)
-activate UI
-UI -> Ctrl: validateAndPlanTransfer(srcHub, dstHub, qty)
-activate Ctrl
-Ctrl -> Svc: queryEligibleVehicles(srcHub, minBattery=80%)
-activate Svc
-Svc -> DB: getAvailableVehicles(srcHub, battery >= 80%)
-activate DB
-DB --> Svc: return vehicleList(qty = 20)
+actor "Operator" as Op #f3e8ff
+participant "Operator Dashboard" as Dash #dbeafe
+participant "Rebalance Controller" as Ctrl #dcfce7
+participant "Optimization Engine" as Opt #f3e8ff
+participant "Database" as DB #fef3c7
+participant "Field Staff App" as Staff #ffe4e6
+
+Op -> Dash: trigger rebalance analysis
+activate Op #f3e8ff
+activate Dash #dbeafe
+
+Dash -> Ctrl: request fleet distribution report
+activate Ctrl #dcfce7
+
+Ctrl -> DB: fetch hub inventory & demand forecast
+activate DB #fef3c7
+
+DB --> Ctrl: return surplus & shortage data
 deactivate DB
 
-Svc -> DB: checkDestinationCapacity(dstHub)
-activate DB
-DB --> Svc: return freeDocks(docks >= 20)
+Ctrl -> Opt: compute optimal transfer routes
+activate Opt #f3e8ff
+
+Opt --> Ctrl: return dispatch plan
+deactivate Opt
+
+Ctrl -> DB: save dispatch orders & reserve transit slots
+activate DB #fef3c7
+
+DB --> Ctrl: dispatch orders confirmed
 deactivate DB
 
-Svc -> DB: lockVehiclesToStatus(IN_TRANSIT, vehicleIds)
-activate DB
-DB --> Svc: lockedSuccess()
-deactivate DB
+Ctrl -> Staff: assign transfer missions to drivers
+activate Staff #ffe4e6
 
-Svc -> DriverApp: dispatchOrderToDriver(orderId, route, vehicleIds)
-activate DriverApp
-DriverApp --> Svc: driverAcknowledge(accepted = TRUE)
-deactivate DriverApp
+Staff --> Ctrl: acknowledge mission receipt
+deactivate Staff
 
-Svc --> Ctrl: orderCreatedSuccess(orderId)
-deactivate Svc
-Ctrl --> UI: return transferManifest(orderId, ETA)
+Ctrl --> Dash: return active dispatch plan & live tracking
 deactivate Ctrl
-UI --> Admin: displayLiveTransferTracking()
-deactivate UI
+
+Dash --> Op: display transfer missions & ETA on map
+deactivate Dash
+deactivate Op
+
+note over Op, Dash: Duration Constraint: {b - a < 10 sec}
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Admin as :Operator
-    participant UI as :WebDashboard
-    participant Ctrl as :DispatchController
-    participant Svc as :RebalanceService
-    participant DB as <<datastore>><br/>:Database
-    participant DriverApp as :FieldDriverApp
+    actor Op as Operator
+    participant Dash as Operator Dashboard
+    participant Ctrl as Rebalance Controller
+    participant Opt as Optimization Engine
+    participant DB as Database
+    participant Staff as Field Staff App
 
-    Admin->>UI: createTransferOrder(srcHub, dstHub, qty=20)
-    activate UI
-    UI->>Ctrl: validateAndPlanTransfer(srcHub, dstHub, qty)
+    Op->>Dash: trigger rebalance analysis
+    activate Op
+    activate Dash
+    Dash->>Ctrl: request fleet distribution report
     activate Ctrl
-    Ctrl->>Svc: queryEligibleVehicles(srcHub, minBattery=80%)
-    activate Svc
-    Svc->>DB: getAvailableVehicles(srcHub, battery >= 80%)
+    Ctrl->>DB: fetch hub inventory & demand forecast
     activate DB
-    DB-->>Svc: return vehicleList(qty = 20)
+    DB-->>Ctrl: return surplus & shortage data
     deactivate DB
-    Svc->>DB: checkDestinationCapacity(dstHub)
+    Ctrl->>Opt: compute optimal transfer routes
+    activate Opt
+    Opt-->>Ctrl: return dispatch plan
+    deactivate Opt
+    Ctrl->>DB: save dispatch orders & reserve transit slots
     activate DB
-    DB-->>Svc: return freeDocks(docks >= 20)
+    DB-->>Ctrl: dispatch orders confirmed
     deactivate DB
-    Svc->>DB: lockVehiclesToStatus(IN_TRANSIT, vehicleIds)
-    activate DB
-    DB-->>Svc: lockedSuccess()
-    deactivate DB
-    Svc->>DriverApp: dispatchOrderToDriver(orderId, route, vehicleIds)
-    activate DriverApp
-    DriverApp-->>Svc: driverAcknowledge(accepted = TRUE)
-    deactivate DriverApp
-    Svc-->>Ctrl: orderCreatedSuccess(orderId)
-    deactivate Svc
-    Ctrl-->>UI: return transferManifest(orderId, ETA)
+    Ctrl->>Staff: assign transfer missions to drivers
+    activate Staff
+    Staff-->>Ctrl: acknowledge mission receipt
+    deactivate Staff
+    Ctrl-->>Dash: return active dispatch plan & live tracking
     deactivate Ctrl
-    UI-->>Admin: displayLiveTransferTracking()
-    deactivate UI
+    Dash-->>Op: display transfer missions & ETA on map
+    deactivate Dash
+    deactivate Op
+    Note over Op,Dash: Duration Constraint: {b - a < 10 sec}
 ```
 
 ---
 
 ## SQ06: Handle Operational Incident
 - **Tương ứng Use Case:** `UC11 - Handle Operational Incident`
-- **File Draw.io:** `01_Diagram/02_Sequence_Diagram/SQ06-Handle_Operational_Incident.drawio.svg`
+- **File Draw.io SVG:** [`SQ06-Handle_Operational_Incident.drawio.svg`](./SQ06-Handle_Operational_Incident.drawio.svg)
+- **File Ảnh PNG:** [`SQ06-Handle_Operational_Incident.png`](./SQ06-Handle_Operational_Incident.png)
+- **Ràng buộc thời gian:** `{a}` tại lúc báo cáo sự cố, `{b}` tại lúc nhận mã ticket bảo trì; `{b - a < 5 sec}`.
 
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam responseMessageBelowArrow true
-autonumber "1:"
-actor ":Operator" as Admin
-participant ":WebDashboard" as UI
-participant ":IncidentController" as Ctrl
-participant ":IoTStation" as IoT
-database "<<datastore>>\n:Database" as DB
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow false
+skinparam roundcorner 10
+skinparam ParticipantPadding 25
+skinparam BoxPadding 15
 
-Admin -> UI: selectIncident(incidentId)
-activate UI
-UI -> Ctrl: getIncidentDetails(incidentId)
-activate Ctrl
-Ctrl -> DB: queryTelemetryLog(incidentId)
-activate DB
-DB --> Ctrl: incidentData(faultyPortId, severity=CRITICAL)
+actor "Technician" as Tech #f3e8ff
+participant "Monitoring Dashboard" as Dash #dbeafe
+participant "Incident Controller" as Ctrl #dcfce7
+participant "Station IoT Dock" as Dock #ffe4e6
+participant "Database" as DB #fef3c7
+
+Tech -> Dash: report dock hardware malfunction
+activate Tech #f3e8ff
+activate Dash #dbeafe
+
+Dash -> Ctrl: submit incident report & dock ID
+activate Ctrl #dcfce7
+
+Ctrl -> Dock: send emergency disable command
+activate Dock #ffe4e6
+
+Dock -> Dock: de-energize port & engage safety lock
+activate Dock #ffe4e6
+deactivate Dock
+
+Dock --> Ctrl: dock isolated & safety lock engaged
+deactivate Dock
+
+Ctrl -> DB: update dock state to 'Under Maintenance'
+activate DB #fef3c7
+
+DB -> DB: reroute incoming reservations to adjacent docks
+activate DB #fef3c7
 deactivate DB
-Ctrl --> UI: displayImpactReport(nearbyHubs, affectedUsers)
 
-Admin -> UI: confirmIsolateAndMaintenance()
-UI -> Ctrl: executeIsolation(faultyPortId)
-Ctrl -> IoT: sendEmergencyPowerCut(faultyPortId)
-activate IoT
-IoT --> Ctrl: powerCutConfirmed(relayOpened = TRUE)
-deactivate IoT
-
-Ctrl -> DB: updateStatus(OUT_OF_ORDER) & createTicket()
-activate DB
-DB --> Ctrl: ticketCreated(ticketId, techAssigned)
+DB --> Ctrl: reroute complete & incident ticket logged
 deactivate DB
 
-Ctrl --> UI: return isolationSuccess(ticketId)
+Ctrl --> Dash: confirm dock isolation & issue repair ticket
 deactivate Ctrl
-UI --> Admin: displayIncidentResolvedNotification()
-deactivate UI
+
+Dash --> Tech: display maintenance ticket #INC-892
+deactivate Dash
+deactivate Tech
+
+note over Tech, Dash: Duration Constraint: {b - a < 5 sec}
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Admin as :Operator
-    participant UI as :WebDashboard
-    participant Ctrl as :IncidentController
-    participant IoT as :IoTStation
-    participant DB as <<datastore>><br/>:Database
+    actor Tech as Technician
+    participant Dash as Monitoring Dashboard
+    participant Ctrl as Incident Controller
+    participant Dock as Station IoT Dock
+    participant DB as Database
 
-    Admin->>UI: selectIncident(incidentId)
-    activate UI
-    UI->>Ctrl: getIncidentDetails(incidentId)
+    Tech->>Dash: report dock hardware malfunction
+    activate Tech
+    activate Dash
+    Dash->>Ctrl: submit incident report & dock ID
     activate Ctrl
-    Ctrl->>DB: queryTelemetryLog(incidentId)
+    Ctrl->>Dock: send emergency disable command
+    activate Dock
+    Dock->>Dock: de-energize port & engage safety lock
+    Dock-->>Ctrl: dock isolated & safety lock engaged
+    deactivate Dock
+    Ctrl->>DB: update dock state to 'Under Maintenance'
     activate DB
-    DB-->>Ctrl: incidentData(faultyPortId, severity=CRITICAL)
+    DB->>DB: reroute incoming reservations to adjacent docks
+    DB-->>Ctrl: reroute complete & incident ticket logged
     deactivate DB
-    Ctrl-->>UI: displayImpactReport(nearbyHubs, affectedUsers)
-    Admin->>UI: confirmIsolateAndMaintenance()
-    UI->>Ctrl: executeIsolation(faultyPortId)
-    Ctrl->>IoT: sendEmergencyPowerCut(faultyPortId)
-    activate IoT
-    IoT-->>Ctrl: powerCutConfirmed(relayOpened = TRUE)
-    deactivate IoT
-    Ctrl->>DB: updateStatus(OUT_OF_ORDER) & createTicket()
-    activate DB
-    DB-->>Ctrl: ticketCreated(ticketId, techAssigned)
-    deactivate DB
-    Ctrl-->>UI: return isolationSuccess(ticketId)
+    Ctrl-->>Dash: confirm dock isolation & issue repair ticket
     deactivate Ctrl
-    UI-->>Admin: displayIncidentResolvedNotification()
-    deactivate UI
+    Dash-->>Tech: display maintenance ticket #INC-892
+    deactivate Dash
+    deactivate Tech
+    Note over Tech,Dash: Duration Constraint: {b - a < 5 sec}
 ```
 
 ---
 
 ## SQ07: Run What-if Simulation
-- **Tương ứng Use Case:** `UC13 - Run What-if Simulation` & `UC14 - View Simulation Results`
-- **File Draw.io:** `01_Diagram/02_Sequence_Diagram/SQ07-Run_What_if_Simulation.drawio.svg`
+- **Tương ứng Use Case:** `UC13 - Run What-if Simulation & UC14 - View Results`
+- **File Draw.io SVG:** [`SQ07-Run_What_if_Simulation.drawio.svg`](./SQ07-Run_What_if_Simulation.drawio.svg)
+- **File Ảnh PNG:** [`SQ07-Run_What_if_Simulation.png`](./SQ07-Run_What_if_Simulation.png)
+- **Ràng buộc thời gian:** `{a}` tại lúc nhấn chạy mô phỏng, `{b}` tại lúc bản đồ nhiệt và khuyến nghị xuất hiện; `{b - a < 15 sec}`.
 
 ### Mã PlantUML
 ```plantuml
 @startuml
-skinparam responseMessageBelowArrow true
-autonumber "1:"
-actor ":Operator" as Admin
-participant ":WebDashboard" as UI
-participant ":SimulationController" as Ctrl
-participant ":WhatIfEngine" as Engine
-database "<<datastore>>\n:NetworkCache" as Cache
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow false
+skinparam roundcorner 10
+skinparam ParticipantPadding 25
+skinparam BoxPadding 15
 
-Admin -> UI: selectScenario(PEAK_METRO_SURGE, +300%)
-activate UI
-UI -> Ctrl: runSimulation(scenarioId, params, duration=120m)
-activate Ctrl
-Ctrl -> Engine: initializeSandbox(params)
-activate Engine
-Engine -> Cache: getNetworkTopologySnapshot()
-activate Cache
-Cache --> Engine: snapshotData(10_Hubs, 1000_Vehicles, 200_Ports)
-deactivate Cache
+actor "Planner" as Plan #f3e8ff
+participant "Simulation Web UI" as UI #dbeafe
+participant "Simulation Controller" as Ctrl #dcfce7
+participant "Simulation Engine" as Engine #f3e8ff
+participant "Database" as DB #fef3c7
 
-Engine -> Engine: executeDiscreteEventLoop(timeline)
-Engine -> Engine: evaluateBottlenecksAndWaitTimes()
+Plan -> UI: select scenario (Metro Surge + Charger Failure)
+activate Plan #f3e8ff
+activate UI #dbeafe
 
-Engine --> Ctrl: return simulationResults(kpis, recommendations)
+UI -> Ctrl: submit simulation parameters & duration
+activate Ctrl #dcfce7
+
+Ctrl -> DB: load historical trip & charging data
+activate DB #fef3c7
+
+DB --> Ctrl: historical dataset loaded (50,000 trips)
+deactivate DB
+
+Ctrl -> Engine: execute Monte Carlo simulation run
+activate Engine #f3e8ff
+
+Engine -> Engine: model vehicle depletion & grid peak demand
+activate Engine #f3e8ff
 deactivate Engine
-Ctrl --> UI: return simulationResults(kpis, recommendations)
-deactivate Ctrl
-UI --> Admin: displayComparativeDashboard(UC14)
 
-Admin -> UI: applyRecommendationClicked(rebalanceOrder)
-UI -> Ctrl: dispatchAutomatedRebalance(rebalanceOrder)
-activate Ctrl
-Ctrl --> UI: return dispatchSuccess()
+Engine --> Ctrl: return simulation results & bottlenecks
+deactivate Engine
+
+Ctrl -> DB: save simulation run & AI recommendations
+activate DB #fef3c7
+
+DB --> Ctrl: run record saved
+deactivate DB
+
+Ctrl --> UI: render comparative charts & recommendations
 deactivate Ctrl
-UI --> Admin: showExecutionConfirmation()
+
+UI --> Plan: display bottleneck heatmaps & fleet buffer advice
 deactivate UI
+deactivate Plan
+
+note over Plan, UI: Duration Constraint: {b - a < 15 sec}
 @enduml
 ```
 
 ### Mã Mermaid Preview
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Admin as :Operator
-    participant UI as :WebDashboard
-    participant Ctrl as :SimulationController
-    participant Engine as :WhatIfEngine
-    participant Cache as <<datastore>><br/>:NetworkCache
+    actor Plan as Planner
+    participant UI as Simulation Web UI
+    participant Ctrl as Simulation Controller
+    participant Engine as Simulation Engine
+    participant DB as Database
 
-    Admin->>UI: selectScenario(PEAK_METRO_SURGE, +300%)
+    Plan->>UI: select scenario (Metro Surge + Charger Failure)
+    activate Plan
     activate UI
-    UI->>Ctrl: runSimulation(scenarioId, params, duration=120m)
+    UI->>Ctrl: submit simulation parameters & duration
     activate Ctrl
-    Ctrl->>Engine: initializeSandbox(params)
+    Ctrl->>DB: load historical trip & charging data
+    activate DB
+    DB-->>Ctrl: historical dataset loaded (50,000 trips)
+    deactivate DB
+    Ctrl->>Engine: execute Monte Carlo simulation run
     activate Engine
-    Engine->>Cache: getNetworkTopologySnapshot()
-    activate Cache
-    Cache-->>Engine: snapshotData(10_Hubs, 1000_Vehicles, 200_Ports)
-    deactivate Cache
-    Engine->>Engine: executeDiscreteEventLoop(timeline)
-    Engine->>Engine: evaluateBottlenecksAndWaitTimes()
-    Engine-->>Ctrl: return simulationResults(kpis, recommendations)
+    Engine->>Engine: model vehicle depletion & grid peak demand
+    Engine-->>Ctrl: return simulation results & bottlenecks
     deactivate Engine
-    Ctrl-->>UI: return simulationResults(kpis, recommendations)
+    Ctrl->>DB: save simulation run & AI recommendations
+    activate DB
+    DB-->>Ctrl: run record saved
+    deactivate DB
+    Ctrl-->>UI: render comparative charts & recommendations
     deactivate Ctrl
-    UI-->>Admin: displayComparativeDashboard(UC14)
-    Admin->>UI: applyRecommendationClicked(rebalanceOrder)
-    UI->>Ctrl: dispatchAutomatedRebalance(rebalanceOrder)
-    activate Ctrl
-    Ctrl-->>UI: return dispatchSuccess()
-    deactivate Ctrl
-    UI-->>Admin: showExecutionConfirmation()
+    UI-->>Plan: display bottleneck heatmaps & fleet buffer advice
     deactivate UI
+    deactivate Plan
+    Note over Plan,UI: Duration Constraint: {b - a < 15 sec}
 ```

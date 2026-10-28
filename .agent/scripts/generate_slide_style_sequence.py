@@ -1,5 +1,6 @@
 import os
 import html
+import fitz
 
 def escape_xml(s):
     return html.escape(str(s), quote=True)
@@ -15,46 +16,19 @@ def create_slide_sequence_diagram(
     """
     Creates a Sequence Diagram .drawio.svg adhering strictly to
     Slide Ch6 p.22-26 'SEQUENCE DIAGRAMS - EXAMPLE'.
-    
-    participants: list of dicts:
-      {
-        'name': str,
-        'type': 'actor' | 'ui' | 'controller' | 'service' | 'iot' | 'datastore',
-        'fill': str,
-        'stroke': str,
-        'text_c': str
-      }
-    messages: list of dicts:
-      {
-        'src': int,
-        'dst': int,
-        'text': str,
-        'is_resp': bool,
-        'is_self': bool,
-        'time_mark': str (e.g. '{a}' or '{b}')
-      }
-    active_ranges: dict of {participant_index: [(start_msg_idx, end_msg_idx), ...]}
-    duration_constraint: dict of {
-      'p_idx': int,
-      'start_msg_idx': int,
-      'end_msg_idx': int,
-      'label': str, # e.g. '{b - a < 5 sec}'
-      'mark_a': '{a}',
-      'mark_b': '{b}'
-    }
     """
     num_p = len(participants)
-    spacing = 175
-    start_x = 80
+    spacing = 180
+    start_x = 135          # Ample space on left for dimension constraint
     top_y = 65
-    header_w = 135
-    header_h = 45
+    header_w = 140
+    header_h = 44
     step_y = 48
-    msg_start_y = top_y + 110
+    msg_start_y = top_y + 115
     
     total_messages = len(messages)
-    diagram_h = msg_start_y + (total_messages + 1) * step_y + 60
-    diagram_w = start_x + (num_p - 1) * spacing + header_w + 90
+    diagram_h = msg_start_y + (total_messages + 1) * step_y + 50
+    diagram_w = start_x + (num_p - 1) * spacing + header_w + 50
     
     # Calculate message Y coordinates
     msg_y_coords = [msg_start_y + i * step_y for i in range(total_messages)]
@@ -91,7 +65,7 @@ def create_slide_sequence_diagram(
                 f'<mxCell id="line_{i}" value="" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#94a3b8;strokeWidth=1.5;html=1;endArrow=none;" edge="1" parent="1">'
                 f'<mxGeometry relative="1" as="geometry">'
                 f'<mxPoint x="{cx}" y="{top_y + 65}" as="sourcePoint"/>'
-                f'<mxPoint x="{cx}" y="{diagram_h - 40}" as="targetPoint"/>'
+                f'<mxPoint x="{cx}" y="{diagram_h - 35}" as="targetPoint"/>'
                 f'</mxGeometry>'
                 f'</mxCell>'
             )
@@ -102,7 +76,7 @@ def create_slide_sequence_diagram(
             svg_elems.append(f'<line x1="{cx}" y1="{top_y + 40}" x2="{cx - 9}" y2="{top_y + 55}" stroke="{stroke_c}" stroke-width="2"/>')
             svg_elems.append(f'<line x1="{cx}" y1="{top_y + 40}" x2="{cx + 9}" y2="{top_y + 55}" stroke="{stroke_c}" stroke-width="2"/>')
             svg_elems.append(f'<text x="{cx}" y="{top_y + 72}" font-family="Segoe UI" font-size="12" font-weight="bold" fill="{stroke_c}" text-anchor="middle">{escape_xml(p_name)}</text>')
-            svg_elems.append(f'<line x1="{cx}" y1="{top_y + 80}" x2="{cx}" y2="{diagram_h - 40}" stroke="#94a3b8" stroke-dasharray="4 4" stroke-width="1.5"/>')
+            svg_elems.append(f'<line x1="{cx}" y1="{top_y + 80}" x2="{cx}" y2="{diagram_h - 35}" stroke="#94a3b8" stroke-dasharray="4 4" stroke-width="1.5"/>')
             
         else:
             # Participant Box
@@ -116,14 +90,14 @@ def create_slide_sequence_diagram(
                 f'<mxCell id="line_{i}" value="" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#94a3b8;strokeWidth=1.5;html=1;endArrow=none;" edge="1" parent="1">'
                 f'<mxGeometry relative="1" as="geometry">'
                 f'<mxPoint x="{cx}" y="{top_y + 15 + header_h}" as="sourcePoint"/>'
-                f'<mxPoint x="{cx}" y="{diagram_h - 40}" as="targetPoint"/>'
+                f'<mxPoint x="{cx}" y="{diagram_h - 35}" as="targetPoint"/>'
                 f'</mxGeometry>'
                 f'</mxCell>'
             )
             # SVG Participant Box
-            svg_elems.append(f'<rect x="{px}" y="{top_y + 15}" width="{header_w}" height="{header_h}" rx="6" fill="{fill_c}" stroke="{stroke_c}" stroke-width="2"/>')
+            svg_elems.append(f'<rect x="{px}" y="{top_y + 15}" width="{header_w}" height="{header_h}" rx="5" fill="{fill_c}" stroke="{stroke_c}" stroke-width="2"/>')
             svg_elems.append(f'<text x="{cx}" y="{top_y + 43}" font-family="Segoe UI" font-size="12" font-weight="bold" fill="{text_c}" text-anchor="middle">{escape_xml(p_name)}</text>')
-            svg_elems.append(f'<line x1="{cx}" y1="{top_y + 15 + header_h}" x2="{cx}" y2="{diagram_h - 40}" stroke="#94a3b8" stroke-dasharray="4 4" stroke-width="1.5"/>')
+            svg_elems.append(f'<line x1="{cx}" y1="{top_y + 15 + header_h}" x2="{cx}" y2="{diagram_h - 35}" stroke="#94a3b8" stroke-dasharray="4 4" stroke-width="1.5"/>')
 
     # Continuous Activation Bars
     act_w = 12
@@ -206,8 +180,8 @@ def create_slide_sequence_diagram(
                 svg_elems.append(f'<polygon points="{x2},{y} {x2+8},{y-4} {x2+8},{y+4}" fill="#1e293b"/>')
             
             # Badge background for label
-            label_len = len(text) * 6.5
-            svg_elems.append(f'<rect x="{mid_x - label_len//2}" y="{y - 17}" width="{label_len}" height="14" fill="#ffffff" fill-opacity="0.9"/>')
+            label_len = len(text) * 6.6
+            svg_elems.append(f'<rect x="{mid_x - label_len//2}" y="{y - 17}" width="{label_len}" height="14" fill="#ffffff" fill-opacity="0.95"/>')
             svg_elems.append(f'<text x="{mid_x}" y="{y - 6}" font-family="Segoe UI" font-size="11" font-weight="600" fill="#0f172a" text-anchor="middle">{escape_xml(text)}</text>')
             
         else:
@@ -235,15 +209,13 @@ def create_slide_sequence_diagram(
                 svg_elems.append(f'<line x1="{x2}" y1="{y}" x2="{x2+7}" y2="{y+4}" stroke="#2563eb" stroke-width="1.5"/>')
             
             # Badge background for label
-            label_len = len(text) * 6.5
-            svg_elems.append(f'<rect x="{mid_x - label_len//2}" y="{y - 17}" width="{label_len}" height="14" fill="#ffffff" fill-opacity="0.9"/>')
+            label_len = len(text) * 6.6
+            svg_elems.append(f'<rect x="{mid_x - label_len//2}" y="{y - 17}" width="{label_len}" height="14" fill="#ffffff" fill-opacity="0.95"/>')
             svg_elems.append(f'<text x="{mid_x}" y="{y - 6}" font-family="Segoe UI" font-size="11" font-style="italic" fill="#1e40af" text-anchor="middle">{escape_xml(text)}</text>')
             
         # Time Mark if present (e.g. {a} or {b})
         if time_mark:
-            tx = x_src - 20 if x_src < x_dst else x_dst - 20
-            # If on the left actor/UI
-            tx = p_centers[0] - 28
+            tx = p_centers[0] - 22
             svg_elems.append(f'<text x="{tx}" y="{y + 4}" font-family="Segoe UI" font-size="11" font-weight="bold" fill="#dc2626">{time_mark}</text>')
 
     # Duration Constraint (Slide 22/23 Feature: {b - a < X sec})
@@ -255,7 +227,7 @@ def create_slide_sequence_diagram(
         
         y_a = msg_y_coords[s_idx]
         y_b = msg_y_coords[e_idx]
-        dim_x = p_centers[p_idx] - 42
+        dim_x = p_centers[p_idx] - 38
         
         # Dimension line with double-headed arrow
         svg_elems.append(f'<line x1="{dim_x}" y1="{y_a}" x2="{dim_x}" y2="{y_b}" stroke="#dc2626" stroke-dasharray="3 3" stroke-width="1.5"/>')
@@ -264,7 +236,7 @@ def create_slide_sequence_diagram(
         # Arrowhead at bottom
         svg_elems.append(f'<polygon points="{dim_x},{y_b} {dim_x-3},{y_b-6} {dim_x+3},{y_b-6}" fill="#dc2626"/>')
         
-        # Text label rotated or centered
+        # Text label badge
         mid_dim_y = (y_a + y_b) // 2
         lbl_w = len(d_label) * 6.5
         svg_elems.append(f'<rect x="{dim_x - lbl_w - 6}" y="{mid_dim_y - 8}" width="{lbl_w}" height="16" fill="#ffffff" fill-opacity="0.95" stroke="#fca5a5" stroke-width="1" rx="3"/>')
@@ -303,3 +275,283 @@ def create_slide_sequence_diagram(
         f.write("".join(svg))
     print(f"Created: {filepath}")
 
+# ==============================================================================
+# CONFIGURATION FOR ALL 7 SEQUENCE DIAGRAMS
+# ==============================================================================
+
+DIAGRAMS = [
+    {
+        "filepath": "01_Diagram/02_Sequence_Diagram/SQ01-Reserve_Vehicle.drawio.svg",
+        "title": "Sequence Diagram: SQ01 - Reserve Vehicle (UC03)",
+        "participants": [
+            {"name": "User", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
+            {"name": "Mobile App", "type": "ui", "fill": "#dbeafe", "stroke": "#3b82f6", "text_c": "#1e40af"},
+            {"name": "Reservation Hub", "type": "controller", "fill": "#dcfce7", "stroke": "#22c55e", "text_c": "#166534"},
+            {"name": "Vehicle Service", "type": "service", "fill": "#ffe4e6", "stroke": "#f43f5e", "text_c": "#9f1239"},
+            {"name": "Database", "type": "datastore", "fill": "#fef3c7", "stroke": "#f59e0b", "text_c": "#b45309"},
+        ],
+        "messages": [
+            {"src": 0, "dst": 1, "text": "select vehicle", "is_resp": False, "is_self": False, "time_mark": "{a}"},
+            {"src": 1, "dst": 2, "text": "request reservation", "is_resp": False, "is_self": False},
+            {"src": 2, "dst": 3, "text": "check availability & battery", "is_resp": False, "is_self": False},
+            {"src": 3, "dst": 3, "text": "validate battery level (>= 20%)", "is_resp": False, "is_self": True},
+            {"src": 3, "dst": 4, "text": "lock vehicle (15-min hold)", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 3, "text": "lock confirmed", "is_resp": True, "is_self": False},
+            {"src": 3, "dst": 2, "text": "reservation approved", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 1, "text": "issue reservation ticket (QR & timer)", "is_resp": True, "is_self": False},
+            {"src": 1, "dst": 0, "text": "display active ticket (15:00 countdown)", "is_resp": True, "is_self": False, "time_mark": "{b}"},
+        ],
+        "active_ranges": {
+            0: [(0, 8)],
+            1: [(0, 8)],
+            2: [(1, 7)],
+            3: [(2, 6)],
+            4: [(4, 5)],
+        },
+        "duration_constraint": {
+            "p_idx": 0,
+            "start_msg_idx": 0,
+            "end_msg_idx": 8,
+            "label": "{b - a < 5 sec}",
+        }
+    },
+    {
+        "filepath": "01_Diagram/02_Sequence_Diagram/SQ02-Pick_Up_Vehicle.drawio.svg",
+        "title": "Sequence Diagram: SQ02 - Pick Up Vehicle (UC04)",
+        "participants": [
+            {"name": "User", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
+            {"name": "Mobile App", "type": "ui", "fill": "#dbeafe", "stroke": "#3b82f6", "text_c": "#1e40af"},
+            {"name": "Pickup Controller", "type": "controller", "fill": "#dcfce7", "stroke": "#22c55e", "text_c": "#166534"},
+            {"name": "Station IoT Dock", "type": "iot", "fill": "#ffe4e6", "stroke": "#f43f5e", "text_c": "#9f1239"},
+            {"name": "Database", "type": "datastore", "fill": "#fef3c7", "stroke": "#f59e0b", "text_c": "#b45309"},
+        ],
+        "messages": [
+            {"src": 0, "dst": 1, "text": "scan QR code at vehicle dock", "is_resp": False, "is_self": False, "time_mark": "{a}"},
+            {"src": 1, "dst": 2, "text": "submit pickup request", "is_resp": False, "is_self": False},
+            {"src": 2, "dst": 4, "text": "validate reservation ticket", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 2, "text": "reservation verified", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 3, "text": "send unlock command", "is_resp": False, "is_self": False},
+            {"src": 3, "dst": 3, "text": "release physical lock mechanism", "is_resp": False, "is_self": True},
+            {"src": 3, "dst": 2, "text": "dock unlocked & vehicle released", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 4, "text": "update vehicle state to 'In-Use'", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 2, "text": "trip record initiated", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 1, "text": "confirm unlock & start trip timer", "is_resp": True, "is_self": False},
+            {"src": 1, "dst": 0, "text": "display trip active & safety tips", "is_resp": True, "is_self": False, "time_mark": "{b}"},
+        ],
+        "active_ranges": {
+            0: [(0, 10)],
+            1: [(0, 10)],
+            2: [(1, 9)],
+            3: [(4, 6)],
+            4: [(2, 3), (7, 8)],
+        },
+        "duration_constraint": {
+            "p_idx": 0,
+            "start_msg_idx": 0,
+            "end_msg_idx": 10,
+            "label": "{b - a < 8 sec}",
+        }
+    },
+    {
+        "filepath": "01_Diagram/02_Sequence_Diagram/SQ03-Return_Vehicle.drawio.svg",
+        "title": "Sequence Diagram: SQ03 - Return Vehicle (UC05)",
+        "participants": [
+            {"name": "User", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
+            {"name": "Station IoT Dock", "type": "iot", "fill": "#ffe4e6", "stroke": "#f43f5e", "text_c": "#9f1239"},
+            {"name": "Return Controller", "type": "controller", "fill": "#dcfce7", "stroke": "#22c55e", "text_c": "#166534"},
+            {"name": "Telemetry Service", "type": "service", "fill": "#f3e8ff", "stroke": "#a855f7", "text_c": "#6b21a8"},
+            {"name": "Database", "type": "datastore", "fill": "#fef3c7", "stroke": "#f59e0b", "text_c": "#b45309"},
+            {"name": "Mobile App", "type": "ui", "fill": "#dbeafe", "stroke": "#3b82f6", "text_c": "#1e40af"},
+        ],
+        "messages": [
+            {"src": 0, "dst": 1, "text": "insert vehicle into dock & latch", "is_resp": False, "is_self": False, "time_mark": "{a}"},
+            {"src": 1, "dst": 2, "text": "report vehicle plugged in", "is_resp": False, "is_self": False},
+            {"src": 2, "dst": 3, "text": "read odometer & battery level", "is_resp": False, "is_self": False},
+            {"src": 3, "dst": 2, "text": "return final telemetry data", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 4, "text": "close trip & calculate usage fee", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 4, "text": "deduct balance & generate receipt", "is_resp": False, "is_self": True},
+            {"src": 4, "dst": 2, "text": "trip closed & payment confirmed", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 1, "text": "engage lock & flash green LED", "is_resp": False, "is_self": False},
+            {"src": 1, "dst": 2, "text": "dock locked securely", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 5, "text": "send trip invoice & notification", "is_resp": True, "is_self": False},
+            {"src": 5, "dst": 0, "text": "display trip summary & receipt", "is_resp": True, "is_self": False, "time_mark": "{b}"},
+        ],
+        "active_ranges": {
+            0: [(0, 10)],
+            1: [(0, 8)],
+            2: [(1, 9)],
+            3: [(2, 3)],
+            4: [(4, 6)],
+            5: [(9, 10)],
+        },
+        "duration_constraint": {
+            "p_idx": 0,
+            "start_msg_idx": 0,
+            "end_msg_idx": 10,
+            "label": "{b - a < 6 sec}",
+        }
+    },
+    {
+        "filepath": "01_Diagram/02_Sequence_Diagram/SQ04-Request_Charging.drawio.svg",
+        "title": "Sequence Diagram: SQ04 - Request Charging (UC07)",
+        "participants": [
+            {"name": "User", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
+            {"name": "Mobile App", "type": "ui", "fill": "#dbeafe", "stroke": "#3b82f6", "text_c": "#1e40af"},
+            {"name": "Charging Controller", "type": "controller", "fill": "#dcfce7", "stroke": "#22c55e", "text_c": "#166534"},
+            {"name": "Smart Charger IoT", "type": "iot", "fill": "#ffe4e6", "stroke": "#f43f5e", "text_c": "#9f1239"},
+            {"name": "Database", "type": "datastore", "fill": "#fef3c7", "stroke": "#f59e0b", "text_c": "#b45309"},
+        ],
+        "messages": [
+            {"src": 0, "dst": 1, "text": "select charging slot & power tier", "is_resp": False, "is_self": False, "time_mark": "{a}"},
+            {"src": 1, "dst": 2, "text": "submit charging session request", "is_resp": False, "is_self": False},
+            {"src": 2, "dst": 4, "text": "verify student wallet & subscription", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 2, "text": "account verified", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 3, "text": "check charger port status & grid load", "is_resp": False, "is_self": False},
+            {"src": 3, "dst": 2, "text": "port ready & power allocated", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 3, "text": "activate charging port & energize cable", "is_resp": False, "is_self": False},
+            {"src": 3, "dst": 2, "text": "charging power delivered", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 4, "text": "create charging session record", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 2, "text": "session record saved", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 1, "text": "notify charging started & live power feed", "is_resp": True, "is_self": False},
+            {"src": 1, "dst": 0, "text": "display charging progress & energy delivered", "is_resp": True, "is_self": False, "time_mark": "{b}"},
+        ],
+        "active_ranges": {
+            0: [(0, 11)],
+            1: [(0, 11)],
+            2: [(1, 10)],
+            3: [(4, 5), (6, 7)],
+            4: [(2, 3), (8, 9)],
+        },
+        "duration_constraint": {
+            "p_idx": 0,
+            "start_msg_idx": 0,
+            "end_msg_idx": 11,
+            "label": "{b - a < 7 sec}",
+        }
+    },
+    {
+        "filepath": "01_Diagram/02_Sequence_Diagram/SQ05-Redistribute_Vehicles.drawio.svg",
+        "title": "Sequence Diagram: SQ05 - Redistribute Vehicles (UC10)",
+        "participants": [
+            {"name": "Operator", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
+            {"name": "Operator Dashboard", "type": "ui", "fill": "#dbeafe", "stroke": "#3b82f6", "text_c": "#1e40af"},
+            {"name": "Rebalance Controller", "type": "controller", "fill": "#dcfce7", "stroke": "#22c55e", "text_c": "#166534"},
+            {"name": "Optimization Engine", "type": "service", "fill": "#f3e8ff", "stroke": "#a855f7", "text_c": "#6b21a8"},
+            {"name": "Database", "type": "datastore", "fill": "#fef3c7", "stroke": "#f59e0b", "text_c": "#b45309"},
+            {"name": "Field Staff App", "type": "ui", "fill": "#ffe4e6", "stroke": "#f43f5e", "text_c": "#9f1239"},
+        ],
+        "messages": [
+            {"src": 0, "dst": 1, "text": "trigger rebalance analysis", "is_resp": False, "is_self": False, "time_mark": "{a}"},
+            {"src": 1, "dst": 2, "text": "request fleet distribution report", "is_resp": False, "is_self": False},
+            {"src": 2, "dst": 4, "text": "fetch hub inventory & demand forecast", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 2, "text": "return surplus & shortage data", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 3, "text": "compute optimal transfer routes", "is_resp": False, "is_self": False},
+            {"src": 3, "dst": 2, "text": "return dispatch plan", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 4, "text": "save dispatch orders & reserve transit slots", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 2, "text": "dispatch orders confirmed", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 5, "text": "assign transfer missions to drivers", "is_resp": False, "is_self": False},
+            {"src": 5, "dst": 2, "text": "acknowledge mission receipt", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 1, "text": "return active dispatch plan & live tracking", "is_resp": True, "is_self": False},
+            {"src": 1, "dst": 0, "text": "display transfer missions & ETA on map", "is_resp": True, "is_self": False, "time_mark": "{b}"},
+        ],
+        "active_ranges": {
+            0: [(0, 11)],
+            1: [(0, 11)],
+            2: [(1, 10)],
+            3: [(4, 5)],
+            4: [(2, 3), (6, 7)],
+            5: [(8, 9)],
+        },
+        "duration_constraint": {
+            "p_idx": 0,
+            "start_msg_idx": 0,
+            "end_msg_idx": 11,
+            "label": "{b - a < 10 sec}",
+        }
+    },
+    {
+        "filepath": "01_Diagram/02_Sequence_Diagram/SQ06-Handle_Operational_Incident.drawio.svg",
+        "title": "Sequence Diagram: SQ06 - Handle Operational Incident (UC11)",
+        "participants": [
+            {"name": "Technician", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
+            {"name": "Monitoring Dashboard", "type": "ui", "fill": "#dbeafe", "stroke": "#3b82f6", "text_c": "#1e40af"},
+            {"name": "Incident Controller", "type": "controller", "fill": "#dcfce7", "stroke": "#22c55e", "text_c": "#166534"},
+            {"name": "Station IoT Dock", "type": "iot", "fill": "#ffe4e6", "stroke": "#f43f5e", "text_c": "#9f1239"},
+            {"name": "Database", "type": "datastore", "fill": "#fef3c7", "stroke": "#f59e0b", "text_c": "#b45309"},
+        ],
+        "messages": [
+            {"src": 0, "dst": 1, "text": "report dock hardware malfunction", "is_resp": False, "is_self": False, "time_mark": "{a}"},
+            {"src": 1, "dst": 2, "text": "submit incident report & dock ID", "is_resp": False, "is_self": False},
+            {"src": 2, "dst": 3, "text": "send emergency disable command", "is_resp": False, "is_self": False},
+            {"src": 3, "dst": 3, "text": "de-energize port & engage safety lock", "is_resp": False, "is_self": True},
+            {"src": 3, "dst": 2, "text": "dock isolated & safety lock engaged", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 4, "text": "update dock state to 'Under Maintenance'", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 4, "text": "reroute incoming reservations to adjacent docks", "is_resp": False, "is_self": True},
+            {"src": 4, "dst": 2, "text": "reroute complete & incident ticket logged", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 1, "text": "confirm dock isolation & issue repair ticket", "is_resp": True, "is_self": False},
+            {"src": 1, "dst": 0, "text": "display maintenance ticket #INC-892", "is_resp": True, "is_self": False, "time_mark": "{b}"},
+        ],
+        "active_ranges": {
+            0: [(0, 9)],
+            1: [(0, 9)],
+            2: [(1, 8)],
+            3: [(2, 4)],
+            4: [(5, 7)],
+        },
+        "duration_constraint": {
+            "p_idx": 0,
+            "start_msg_idx": 0,
+            "end_msg_idx": 9,
+            "label": "{b - a < 5 sec}",
+        }
+    },
+    {
+        "filepath": "01_Diagram/02_Sequence_Diagram/SQ07-Run_What_if_Simulation.drawio.svg",
+        "title": "Sequence Diagram: SQ07 - Run What-if Simulation (UC13)",
+        "participants": [
+            {"name": "Planner", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
+            {"name": "Simulation Web UI", "type": "ui", "fill": "#dbeafe", "stroke": "#3b82f6", "text_c": "#1e40af"},
+            {"name": "Simulation Controller", "type": "controller", "fill": "#dcfce7", "stroke": "#22c55e", "text_c": "#166534"},
+            {"name": "Simulation Engine", "type": "service", "fill": "#f3e8ff", "stroke": "#a855f7", "text_c": "#6b21a8"},
+            {"name": "Database", "type": "datastore", "fill": "#fef3c7", "stroke": "#f59e0b", "text_c": "#b45309"},
+        ],
+        "messages": [
+            {"src": 0, "dst": 1, "text": "select scenario (Metro Surge + Charger Failure)", "is_resp": False, "is_self": False, "time_mark": "{a}"},
+            {"src": 1, "dst": 2, "text": "submit simulation parameters & duration", "is_resp": False, "is_self": False},
+            {"src": 2, "dst": 4, "text": "load historical trip & charging data", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 2, "text": "historical dataset loaded (50,000 trips)", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 3, "text": "execute Monte Carlo simulation run", "is_resp": False, "is_self": False},
+            {"src": 3, "dst": 3, "text": "model vehicle depletion & grid peak demand", "is_resp": False, "is_self": True},
+            {"src": 3, "dst": 2, "text": "return simulation results & bottlenecks", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 4, "text": "save simulation run & AI recommendations", "is_resp": False, "is_self": False},
+            {"src": 4, "dst": 2, "text": "run record saved", "is_resp": True, "is_self": False},
+            {"src": 2, "dst": 1, "text": "render comparative charts & recommendations", "is_resp": True, "is_self": False},
+            {"src": 1, "dst": 0, "text": "display bottleneck heatmaps & fleet buffer advice", "is_resp": True, "is_self": False, "time_mark": "{b}"},
+        ],
+        "active_ranges": {
+            0: [(0, 10)],
+            1: [(0, 10)],
+            2: [(1, 9)],
+            3: [(4, 6)],
+            4: [(2, 3), (7, 8)],
+        },
+        "duration_constraint": {
+            "p_idx": 0,
+            "start_msg_idx": 0,
+            "end_msg_idx": 10,
+            "label": "{b - a < 15 sec}",
+        }
+    }
+]
+
+if __name__ == "__main__":
+    for d in DIAGRAMS:
+        create_slide_sequence_diagram(
+            filepath=d["filepath"],
+            title=d["title"],
+            participants=d["participants"],
+            messages=d["messages"],
+            active_ranges=d["active_ranges"],
+            duration_constraint=d.get("duration_constraint")
+        )
+    print("All 7 Sequence Diagrams regenerated with slide style!")
