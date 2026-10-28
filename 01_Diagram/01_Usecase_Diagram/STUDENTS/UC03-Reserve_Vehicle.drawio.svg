@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="820px" height="360px" viewBox="-0.5 -0.5 820 360" content="&lt;mxfile host=&quot;Electron&quot;&gt;&lt;diagram id=&quot;Page-1&quot; name=&quot;Page-1&quot;&gt;&lt;mxGraphModel dx=&quot;1200&quot; dy=&quot;800&quot; grid=&quot;1&quot; gridSize=&quot;10&quot; guides=&quot;1&quot; tooltips=&quot;1&quot; connect=&quot;1&quot; arrows=&quot;1&quot; fold=&quot;1&quot; page=&quot;1&quot; pageScale=&quot;1&quot; pageWidth=&quot;820&quot; pageHeight=&quot;360&quot; math=&quot;0&quot; shadow=&quot;0&quot;&gt;&lt;root&gt;&lt;mxCell id=&quot;0&quot;/&gt;&lt;mxCell id=&quot;1&quot; parent=&quot;0&quot;/&gt;&lt;mxCell id=&quot;sys_boundary&quot; value=&quot;Smart E-Mobility Hub System&quot; style=&quot;shape=rect;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=15;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;spacingTop=12;fontColor=#0f172a;pointerEvents=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;190&quot; y=&quot;85&quot; width=&quot;590&quot; height=&quot;170&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;actor_left&quot; value=&quot;Student&quot; style=&quot;shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#bae6fd;strokeColor=#0284c7;strokeWidth=1.8;fontSize=13;fontStyle=1;fontColor=#0f172a;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;90&quot; y=&quot;130&quot; width=&quot;40&quot; height=&quot;80&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;uc_base&quot; value=&quot;Reserve Vehicle&quot; style=&quot;ellipse;whiteSpace=wrap;html=1;fillColor=#bae6fd;strokeColor=#0284c7;strokeWidth=1.6;fontSize=12;fontColor=#0f172a;fontStyle=1;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;250&quot; y=&quot;140&quot; width=&quot;160&quot; height=&quot;65&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;uc_inc&quot; value=&quot;Verify Vehicle&amp;#xa;Availability&quot; style=&quot;ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1.6;fontSize=12;fontColor=#0f172a;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;540&quot; y=&quot;140&quot; width=&quot;180&quot; height=&quot;60&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;e1&quot; value=&quot;&quot; style=&quot;endArrow=none;html=1;rounded=0;strokeColor=#0284c7;strokeWidth=1.6;exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;actor_left&quot; target=&quot;uc_base&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;e2&quot; value=&quot;&quot; style=&quot;endArrow=open;dashed=1;html=1;rounded=0;strokeColor=#0284c7;strokeWidth=1.5;endSize=8;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;uc_base&quot; target=&quot;uc_inc&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;/&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;e2_lbl&quot; value=&quot;&amp;lt;&amp;lt;include&amp;gt;&amp;gt;&quot; style=&quot;edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontColor=#0369a1;fontStyle=1;labelBackgroundColor=#e0f2fe;&quot; vertex=&quot;1&quot; connectable=&quot;0&quot; parent=&quot;e2&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;mxPoint as=&quot;offset&quot;/&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;/root&gt;&lt;/mxGraphModel&gt;&lt;/diagram&gt;&lt;/mxfile&gt;">
+  <defs>
+    <marker id="arrowOpenBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#0284c7" stroke-width="1.8"/>
+    </marker>
+    <marker id="arrowWhiteTriangle" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <polygon points="0 1, 11 6, 0 11" fill="#ffffff" stroke="#0284c7" stroke-width="1.6"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="820" height="360" fill="#ffffff"/>
+  <rect x="190" y="85" width="590" height="170" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="485" y="115" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" fill="#0f172a">Smart E-Mobility Hub System</text>
+  <g>
+    <circle cx="110" cy="145" r="14" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
+    <line x1="110" y1="159" x2="110" y2="190" stroke="#0284c7" stroke-width="2"/>
+    <line x1="90" y1="170" x2="130" y2="170" stroke="#0284c7" stroke-width="2"/>
+    <line x1="110" y1="190" x2="92" y2="215" stroke="#0284c7" stroke-width="2"/>
+    <line x1="110" y1="190" x2="128" y2="215" stroke="#0284c7" stroke-width="2"/>
+    <text x="110" y="240" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" fill="#0f172a">Student</text>
+  </g>
+  <line x1="130.0" y1="170.0" x2="250.0" y2="172.5" stroke="#0284c7" stroke-width="1.6"/>
+  <line x1="408.0" y1="172.2" x2="542.0" y2="170.2" stroke="#0284c7" stroke-width="1.6" stroke-dasharray="5,4" marker-end="url(#arrowOpenBlue)"/>
+  <g transform="translate(431.0, 160.2)">
+    <rect x="0" y="0" width="88" height="22" fill="#e0f2fe" stroke="#0284c7" stroke-width="1" rx="4"/>
+    <text x="44" y="15" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="bold" fill="#0369a1">&lt;&lt;include&gt;&gt;</text>
+  </g>
+  <ellipse cx="330.0" cy="172.5" rx="80.0" ry="32.5" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
+  <text x="330.0" y="176.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#0f172a">Reserve Vehicle</text>
+  <ellipse cx="630.0" cy="170.0" rx="90.0" ry="30.0" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="630.0" y="167.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#0f172a">Verify Vehicle</text>
+  <text x="630.0" y="184.0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#0f172a">Availability</text>
+</svg>
