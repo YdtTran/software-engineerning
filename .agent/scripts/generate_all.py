@@ -342,6 +342,33 @@ build_drawio_svg(
     ]
 )
 
+# Separate goals occur after booking/request creation; they are not mandatory includes of it.
+supplements = [
+    ("STUDENTS", "UC06A-Check_In_Private_Vehicle", "Student", "Check In Private Vehicle",
+     ["Validate Parking Reservation", "Confirm Vehicle Arrival", "Occupy Reserved Parking Slot"]),
+    ("STUDENTS", "UC06B-Check_Out_Private_Vehicle", "Student", "Check Out Private Vehicle",
+     ["Validate Vehicle Ownership", "Verify Charging Has Stopped", "Confirm Vehicle Departure"]),
+    ("STUDENTS", "UC07A-Stop_Charging_Session", "Student", "Stop Charging Session",
+     ["Validate Charging Entitlement", "Confirm Power Disconnection", "Release Charging Allocation"]),
+    ("OPERATOR", "UC10A-Confirm_Transfer_Arrival", "Operator", "Confirm Transfer Arrival",
+     ["Verify Transfer Manifest", "Confirm Destination Parking", "Complete Transfer Order"]),
+    ("OPERATOR", "UC10B-Cancel_Transfer_Order", "Operator", "Cancel Transfer Order",
+     ["Validate Planned Transfer", "Release Transfer Holds"]),
+    ("STUDENTS", "UC11A-Report_Trip_Incident", "Student", "Report Trip Incident",
+     ["Validate Active Trip", "Record Incident Details", "Notify Operator"]),
+]
+for folder, name, actor, goal, required in supplements:
+    build_drawio_svg(
+        filepath=os.path.join(base_dir, folder, name + ".drawio.svg"),
+        width=1320, height=600, system_title="Smart E-Mobility Hub System",
+        actor_left=actor, actor_right=None,
+        usecases=[{"id": "uc_base", "text": goal, "is_bold": True}] +
+                 [{"id": f"uc_inc{i}", "text": text} for i, text in enumerate(required, 1)],
+        edges=[{"id": "e_actor", "source": "actor_left", "target": "uc_base", "type": "assoc"}] +
+              [{"id": f"e_inc{i}", "source": "uc_base", "target": f"uc_inc{i}", "type": "include"}
+               for i in range(1, len(required) + 1)],
+    )
+
 write_catalog(base_dir)
 subprocess.run(["node", os.path.join(os.path.dirname(__file__), "render_usecases.cjs")], check=True)
 print("Regeneration completed: native Draw.io, verified editable SVG/PNG exports, and code catalog.")

@@ -1,0 +1,48 @@
+@startuml
+title Pick Up Vehicle
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor black
+}
+|Student / App|
+start
+|Student / App|
+:Select ticket and scan QR / PIN;
+|Student / App|
+if (Confirm operation?) then ([confirm])
+else ([else])
+|Student / App|
+:Close screen / Back\nKeep current state;
+|Student / App|
+stop
+endif
+|Backend|
+:Validate owner, Hub, reservation\nnow < expiresAt and request ID;
+|Backend|
+if (Valid reservation?) then ([valid])
+|Backend|
+:Claim pickup atomically\nSerialize with expiry / cancellation;
+|IoT / Simulated Station|
+:Unlock with the same command ID\nAwait acknowledgement; max 3 attempts;
+|Backend|
+if (Unlock confirmed?) then ([matching acknowledgement])
+|Backend|
+:Atomically consume reservation\nStart trip; free source slot; set InUse;
+|Backend|
+::Trip [Active]; <<object>>
+|Student / App|
+:Display active trip;
+else ([else])
+|Backend|
+:Keep vehicle unavailable\nReconcile uncertain unlock via UC11\nDo not start trip or charge time;
+|Student / App|
+stop
+endif
+else ([else])
+|Backend|
+:Show invalid / expired ticket\nRelease only expired reservation hold\nReturn to ticket screen;
+|Student / App|
+stop
+endif
+stop
+@enduml

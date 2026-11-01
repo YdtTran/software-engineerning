@@ -1,0 +1,39 @@
+@startuml
+title Reservation and Trip Lifecycle
+state "Active Trip" as Active {
+  state "In-Use" as Riding
+  state "Incident Reported" as Reported
+}
+state "Reserved" as Reserved
+Reserved : entry / holdVehicleUntilExpiresAt()
+Reserved : do: awaitPickupOrExpiry()
+state "Pickup Claimed" as Unlocking
+Unlocking : entry / suspendExpiryRelease()
+Unlocking : do: retryUnlockSameIDUpTo3Times()
+Riding : do: recordDurationAndDistance()
+Reported : entry / notifyOperatorAfterCommit()
+Reported : do: preserveActiveTrip()
+state "Pickup Uncertain" as Reconciliation
+Reconciliation : entry / blockAllocation()
+Reconciliation : do: reconcileLockAndLocation()
+state "Completed" as Completed
+Completed : entry / saveReturnSummary()
+Completed : do: retainHistoryWithoutPayment()
+state "Cancelled" as Cancelled
+Cancelled : entry / releaseOwnVehicleHold()
+state "Expired" as Expired
+Expired : entry / releaseOwnVehicleHold()
+[*] --> Reserved
+Reserved --> Unlocking : pickupClaimed [ownerAndHubValid and now < expiresAt] / serializeWithExpiry()
+Reserved --> Cancelled : cancelCommitted [notPickupClaimed] / cancelReservation()
+Reserved --> Expired : expiryReached [now >= expiresAt and notPickupClaimed] / expireReservation()
+Unlocking --> Riding : unlockConfirmed [matchingAck] / consumeReservationAndStartTrip()
+Unlocking --> Reconciliation : unlockTimeout [threeAttemptsExhausted] / openIncident()
+Reconciliation --> Cancelled : lockedAtSourceConfirmed [noTripStarted] / releaseOnlyAfterReconciliation()
+Reconciliation --> Riding : unlockedPickupConfirmed [samePickupAndVehicle] / recoverOriginalTripStart()
+Riding --> Reported : incidentSubmitted [ownerValid] / saveIncidentIdempotently()
+Active --> Completed : safeReturnConfirmed [vehicleID and usableSlot and lockConfirmed] / closeTripAndOccupySlot()
+Completed --> [*]
+Cancelled --> [*]
+Expired --> [*]
+@enduml

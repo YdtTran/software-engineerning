@@ -1,460 +1,862 @@
-# TỔNG HỢP MÃ NGUỒN PLANTUML & MERMAID SƠ ĐỒ HOẠT ĐỘNG (ACTIVITY DIAGRAM)
-> **Chuẩn mực bài giảng (Supreme Law):** Môn **Software Engineering (CO3001) - ĐHQG-HCM** & **Ian Sommerville (10th Ed) Ch6 p.12-13, 39, 51, 52**.
-> Định dạng chuẩn: Phân làn trách nhiệm (**Swimming lane / Swimlanes** - Slide 52), Luồng đối tượng (**Object Flow** `:Object [state]` nét đứt - Slide 51), Nút Decision (`◇`) có Guard Condition trong ngoặc vuông `[...]` loại trừ lẫn nhau, và Thanh đồng bộ song song (**Fork & Join**).
+# Activity — PlantUML & Mermaid
 
----
+Nguồn: `PROJECT_SPECIFICATION.md` §3, `LIFECYCLE_SCENARIOS.md`; slide CO3001 Ch6.
+Dữ liệu gốc: `.agent/scripts/generate_process_diagrams.py`. SVG và PNG được render bằng Draw.io thật.
 
-## MỤC LỤC
-1. [AD01: Quy trình đặt giữ xe (Reserve Vehicle Workflow)](#ad01-reserve-vehicle-workflow)
-2. [AD02: Quy trình nhận xe tại bãi (Pick Up Vehicle Workflow)](#ad02-pick-up-vehicle-workflow)
-3. [AD03: Quy trình trả xe vào chốt khóa (Return Vehicle Workflow)](#ad03-return-vehicle-workflow)
-4. [AD04: Quy trình đặt chỗ đỗ & Sạc pin (Reserve Parking & Charging Workflow)](#ad04-reserve-parking-and-charging-workflow)
-5. [AD05: Quy trình điều phối phương tiện liên trạm (Vehicle Redistribution Workflow)](#ad05-vehicle-redistribution-workflow)
-6. [AD06: Quy trình xử lý & Cô lập sự cố vận hành (Handle Operational Incident Workflow)](#ad06-handle-operational-incident-workflow)
-7. [AD07: Quy trình mô phỏng kịch bản giả định (What-if Simulation Workflow)](#ad07-what-if-simulation-workflow)
+PlantUML/Mermaid là bản xem mã; Draw.io là bản ký hiệu chi tiết. PlantUML dùng stereotype `<<object>>` cho nút dữ liệu; Mermaid mô phỏng thanh fork/join bằng ô đen. Không dùng hai bản preview để kiểm tra hình học UML.
 
----
+## AD01 — Reserve Vehicle
 
-## AD01: Reserve Vehicle Workflow
-- **Tương ứng Use Case:** `UC03 - Reserve Vehicle`
-- **File Draw.io:** `01_Diagram/03_Activity_Diagram/AD01-Reserve_Vehicle.drawio.svg`
+[Draw.io](AD01-Reserve_Vehicle.drawio) · [SVG editable](AD01-Reserve_Vehicle.drawio.svg) · [PNG](AD01-Reserve_Vehicle.png)
 
-### Mã PlantUML (Có Phân làn Swimlanes & Object Flow)
 ```plantuml
 @startuml
-|Sinh viên (Student)|
+title Reserve Vehicle
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor black
+}
+|Student / App|
 start
-:Mở ứng dụng & Chọn Hub đến;
-
-|Mobile App|
-:Hiển thị danh sách xe & mức pin %;
-
-|Sinh viên (Student)|
-:Chọn xe & Bấm Đặt giữ xe (15p);
-
-|Backend Service|
-:Kiểm tra trạng thái xe & dung lượng pin;
-if (Còn trống & Pin >= 20%?) then ([Hợp lệ])
-    :Khóa xe Reserved & Tạo mã giữ xe;
-    |Database|
-    :Lưu :ReservationTicket [ACTIVE];
-    |Mobile App|
-    :Hiển thị vé điện tử kèm đếm ngược 15:00;
-    stop
-else ([Hết xe / Pin yếu])
-    |Mobile App|
-    :Báo lỗi & Gợi ý phương tiện khác;
-    stop
+|Student / App|
+:Select Hub and vehicle;
+|Student / App|
+if (Confirm operation?) then ([confirm])
+else ([else])
+|Student / App|
+:Close screen / Back\nKeep current state;
+|Student / App|
+stop
 endif
-@enduml
-```
-
-### Mã Mermaid Preview
-```mermaid
-flowchart TD
-    subgraph Lane1 ["Sinh viên (Student)"]
-        Start([● Bắt đầu]) --> Act1["Mở ứng dụng & Chọn Hub đến"]
-        Act2["Hiển thị danh sách xe & pin %"] --> Act3["Chọn xe & Bấm Đặt giữ (15p)"]
-    end
-
-    subgraph Lane2 ["Mobile App"]
-        Act1 --> Act2
-        Act_Err["Báo lỗi & Gợi ý phương tiện khác"]
-        Act6["Hiển thị vé điện tử kèm đếm 15:00"] --> EndNode([◉ Kết thúc])
-    end
-
-    subgraph Lane3 ["Backend Service"]
-        Act3 --> Act4["Kiểm tra trạng thái & Pin"]
-        Act4 --> Dec1{"Còn trống & Pin >= 20%?"}
-        Dec1 -- "[Hợp lệ]" --> Act5["Khóa xe Reserved & Tạo mã giữ xe"]
-        Dec1 -- "[Hết / Pin yếu]" --> Act_Err
-        Act_Err --> Act1
-    end
-
-    subgraph Lane4 ["Database"]
-        Act5 -.-> ObjTicket[":ReservationTicket [ACTIVE]"]
-        ObjTicket -.-> Act6
-    end
-```
-
----
-
-## AD02: Pick Up Vehicle Workflow
-- **Tương ứng Use Case:** `UC04 - Pick Up Vehicle`
-- **File Draw.io:** `01_Diagram/03_Activity_Diagram/AD02-Pick_Up_Vehicle.drawio.svg`
-
-### Mã PlantUML (Có Fork/Join Song song & Swimlanes)
-```plantuml
-@startuml
-|Sinh viên (Student)|
-start
-:Đến Hub & Mở màn hình Nhận xe;
-repeat
-    :Quét QR trên thân hoặc nhập mã PIN;
-
-    |Backend Service|
-    :Xác thực phiếu giữ & Kiểm tra hạn 15 phút;
-    if (Mã hợp lệ & Còn hạn?) then ([Hợp lệ])
-        fork
-            |Trạm IoT (Station)|
-            :Phát lệnh mở chốt khóa điện tử;
-        fork again
-            |Backend Service|
-            :Kích hoạt In-Use & Bắt đầu tính giờ;
-        end fork
-        |Mobile App|
-        :Hiển thị màn hình hành trình đang chạy;
-        stop
-    else ([Sai mã / Hết hạn])
-        |Mobile App|
-        :Báo lỗi & Tăng bộ đếm lần sai;
-    endif
-repeat while (Sai < 3 lần?) is ([Còn lượt thử])
-->[>= 3 lần - Khóa];
-|Mobile App|
-:Khóa phiên nhận xe & Báo bảo mật;
+|Backend|
+:Validate identity and request ID\nRead current vehicle state;
+|Backend|
+if (Eligible and available?) then ([Available, battery >=20%, no hold])
+|Backend|
+:Atomically hold vehicle and save\nreservation; expiresAt = now + 15 min;
+|Backend|
+::Reservation [Reserved]; <<object>>
+|Backend|
+fork
+|Student / App|
+:Display ticket and expiry time;
+fork again
+|Notification Service|
+:Queue confirmation after commit\nRetry delivery without rollback;
+end fork
+else ([else])
+|Backend|
+:Show availability conflict\nReturn to vehicle list;
+|Student / App|
+stop
+endif
 stop
 @enduml
 ```
 
-### Mã Mermaid Preview
 ```mermaid
 flowchart TD
-    subgraph Lane1 ["Sinh viên (Student)"]
-        Start([● Bắt đầu]) --> Act1["Đến Hub & Mở màn hình Nhận xe"]
-        Act1 --> Act2["Quét QR / Nhập mã PIN"]
-    end
-
-    subgraph Lane2 ["Backend Service"]
-        Act2 --> Act3["Xác thực phiếu giữ & Hạn 15p"]
-        Act3 --> Dec1{"Mã hợp lệ & Còn hạn?"}
-        Dec1 -- "[Hợp lệ]" --> ForkBar[Thanh đồng bộ Fork]
-        ForkBar --> ActTrip["Kích hoạt In-Use & Bắt đầu tính giờ"]
-        ActTrip --> JoinBar[Thanh đồng bộ Join]
-    end
-
-    subgraph Lane3 ["Trạm IoT (Station)"]
-        ForkBar --> ActIoT["Phát lệnh mở chốt khóa điện tử"]
-        ActIoT --> JoinBar
-    end
-
-    subgraph Lane4 ["Mobile App"]
-        Dec1 -- "[Sai / Hết hạn]" --> ActFail["Báo lỗi & Tăng bộ đếm lần sai"]
-        ActFail --> DecRetry{"Sai >= 3 lần?"}
-        DecRetry -- "[< 3 lần]" --> Act2
-        DecRetry -- "[>= 3 lần]" --> EndFail([◉ Khóa phiên])
-        JoinBar --> ActUI["Hiển thị hành trình đang chạy"]
-        ActUI --> EndSuccess([◉ Kết thúc thành công])
-    end
+  subgraph lane0["Student / App"]
+    n0(("●"))
+    n1("Select Hub and vehicle")
+    n2{"Confirm operation?"}
+    n3("Close screen / Back<br/>Keep current state")
+    n4(("◉"))
+    n10("Display ticket and expiry time")
+    n14(("◉"))
+    n15(("◉"))
+  end
+  subgraph lane1["Backend"]
+    n5("Validate identity and request ID<br/>Read current vehicle state")
+    n6{"Eligible and available?"}
+    n7("Atomically hold vehicle and save<br/>reservation; expiresAt = now + 15 min")
+    n8[":Reservation [Reserved]"]
+    n9[" "]
+    n12[" "]
+    n13("Show availability conflict<br/>Return to vehicle list")
+  end
+  subgraph lane2["Notification Service"]
+    n11("Queue confirmation after commit<br/>Retry delivery without rollback")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> |"[else]"| n3
+  n3 --> n4
+  n2 --> |"[confirm]"| n5
+  n5 --> n6
+  n6 --> |"[Available, battery >=20%, no hold]"| n7
+  n7 -.-> n8
+  n8 -.-> n9
+  n9 --> n10
+  n9 --> n11
+  n10 --> n12
+  n11 --> n12
+  n6 --> |"[else]"| n13
+  n13 --> n14
+  n12 --> n15
+  classDef bar fill:#000,stroke:#000,color:#000;
+  class n9,n12 bar;
 ```
 
----
+## AD02 — Pick Up Vehicle
 
-## AD03: Return Vehicle Workflow
-- **Tương ứng Use Case:** `UC05 - Return Vehicle`
-- **File Draw.io:** `01_Diagram/03_Activity_Diagram/AD03-Return_Vehicle.drawio.svg`
+[Draw.io](AD02-Pick_Up_Vehicle.drawio) · [SVG editable](AD02-Pick_Up_Vehicle.drawio.svg) · [PNG](AD02-Pick_Up_Vehicle.png)
 
-### Mã PlantUML (Object Flow :TripInvoice & Swimlanes)
 ```plantuml
 @startuml
-|Sinh viên (Student)|
+title Pick Up Vehicle
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor black
+}
+|Student / App|
 start
-repeat
-    :Đưa xe vào khe đỗ và đẩy chặt chốt;
-
-    |Trạm IoT (Station)|
-    :Cảm biến chốt khóa đóng điện & đọc pin;
-    if (Chốt khớp & Đã khóa an toàn?) then ([Đã khóa])
-        break
-    else ([Chưa khớp])
-        |Sinh viên (Student)|
-        :Cảnh báo đẩy chặt lại chốt khóa vật lý;
-    endif
-repeat while (Thử lại chốt khóa)
-
-|Backend Service|
-:Chốt giờ kết thúc & Tính toán cước phí;
-:Lưu :TripInvoice [SETTLED];
-:Cập nhật trạng thái xe (Available / Sạc);
-
-|Mobile App|
-:Hiển thị biên lai & Xác nhận hoàn tất;
+|Student / App|
+:Select ticket and scan QR / PIN;
+|Student / App|
+if (Confirm operation?) then ([confirm])
+else ([else])
+|Student / App|
+:Close screen / Back\nKeep current state;
+|Student / App|
+stop
+endif
+|Backend|
+:Validate owner, Hub, reservation\nnow < expiresAt and request ID;
+|Backend|
+if (Valid reservation?) then ([valid])
+|Backend|
+:Claim pickup atomically\nSerialize with expiry / cancellation;
+|IoT / Simulated Station|
+:Unlock with the same command ID\nAwait acknowledgement; max 3 attempts;
+|Backend|
+if (Unlock confirmed?) then ([matching acknowledgement])
+|Backend|
+:Atomically consume reservation\nStart trip; free source slot; set InUse;
+|Backend|
+::Trip [Active]; <<object>>
+|Student / App|
+:Display active trip;
+else ([else])
+|Backend|
+:Keep vehicle unavailable\nReconcile uncertain unlock via UC11\nDo not start trip or charge time;
+|Student / App|
+stop
+endif
+else ([else])
+|Backend|
+:Show invalid / expired ticket\nRelease only expired reservation hold\nReturn to ticket screen;
+|Student / App|
+stop
+endif
 stop
 @enduml
 ```
 
-### Mã Mermaid Preview
 ```mermaid
 flowchart TD
-    subgraph Lane1 ["Sinh viên (Student)"]
-        Start([● Bắt đầu]) --> Act1["Đưa xe vào khe đỗ & Đẩy khóa chốt"]
-        ActWarn["Cảnh báo đẩy chặt lại chốt khóa"] --> Act1
-    end
-
-    subgraph Lane2 ["Trạm IoT (Station)"]
-        Act1 --> Act2["Cảm biến xác nhận chốt khóa & Đọc pin"]
-        Act2 --> Dec1{"Chốt khớp & Khóa chặt?"}
-        Dec1 -- "[Chưa khớp]" --> ActWarn
-    end
-
-    subgraph Lane3 ["Backend Service"]
-        Dec1 -- "[Đã khóa]" --> Act3["Chốt giờ & Tính cước phí"]
-        Act3 -.-> ObjInv[":TripInvoice [SETTLED]"]
-        ObjInv -.-> Act4["Cập nhật trạng thái xe (Available / Sạc)"]
-    end
-
-    subgraph Lane4 ["Mobile App"]
-        Act4 --> Act5["Hiển thị biên lai & Hoàn tất"]
-        Act5 --> EndSuccess([◉ Hoàn thành cuốc xe])
-    end
+  subgraph lane0["Student / App"]
+    n0(("●"))
+    n1("Select ticket and scan QR / PIN")
+    n2{"Confirm operation?"}
+    n3("Close screen / Back<br/>Keep current state")
+    n4(("◉"))
+    n12("Display active trip")
+    n14(("◉"))
+    n16(("◉"))
+    n17(("◉"))
+  end
+  subgraph lane1["Backend"]
+    n5("Validate owner, Hub, reservation<br/>now < expiresAt and request ID")
+    n6{"Valid reservation?"}
+    n7("Claim pickup atomically<br/>Serialize with expiry / cancellation")
+    n9{"Unlock confirmed?"}
+    n10("Atomically consume reservation<br/>Start trip; free source slot; set InUse")
+    n11[":Trip [Active]"]
+    n13("Keep vehicle unavailable<br/>Reconcile uncertain unlock via UC11<br/>Do not start trip or charge time")
+    n15("Show invalid / expired ticket<br/>Release only expired reservation hold<br/>Return to ticket screen")
+  end
+  subgraph lane2["IoT / Simulated Station"]
+    n8("Unlock with the same command ID<br/>Await acknowledgement; max 3 attempts")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> |"[else]"| n3
+  n3 --> n4
+  n2 --> |"[confirm]"| n5
+  n5 --> n6
+  n6 --> |"[valid]"| n7
+  n7 --> n8
+  n8 --> n9
+  n9 --> |"[matching acknowledgement]"| n10
+  n10 -.-> n11
+  n11 -.-> n12
+  n9 --> |"[else]"| n13
+  n13 --> n14
+  n6 --> |"[else]"| n15
+  n15 --> n16
+  n12 --> n17
 ```
 
----
+## AD03 — Return Vehicle
 
-## AD04: Reserve Parking and Charging Workflow
-- **Tương ứng Use Case:** `UC06 - Reserve Parking Space` & `UC07 - Request Charging`
-- **File Draw.io:** `01_Diagram/03_Activity_Diagram/AD04-Reserve_Parking_and_Charging.drawio.svg`
+[Draw.io](AD03-Return_Vehicle.drawio) · [SVG editable](AD03-Return_Vehicle.drawio.svg) · [PNG](AD03-Return_Vehicle.png)
 
-### Mã PlantUML
 ```plantuml
 @startuml
-|Sinh viên (Student)|
+title Return Vehicle
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor black
+}
+|Student / App|
 start
-:Chọn Hub & Khung giờ gửi xe cá nhân;
-
-|Hệ thống Quản lý Hub|
-:Kiểm tra sức chứa slot đỗ trống;
-if (Còn slot đỗ trống?) then ([Còn slot])
-    :Khóa giữ ô đỗ & Sinh mã QR vào bãi;
-
-    |Sinh viên (Student)|
-    if (Có nhu cầu sạc pin xe cá nhân?) then ([Có sạc pin])
-        :Nhập % pin hiện tại & giờ lấy xe dự kiến;
-        |Hệ thống Quản lý Hub|
-        :Phân bổ cổng sạc & Xếp lịch cấp điện;
-        |Trụ sạc IoT (PowerHub)|
-        :Kích hoạt relay sạc tại vị trí cổng đỗ;
-    else ([Không sạc])
-    endif
-
-    |Mobile App|
-    :Hiển thị thẻ đặt chỗ & Hướng dẫn cắm sạc;
-    stop
-else ([Hết chỗ])
-    |Mobile App|
-    :Báo hết chỗ & Gợi ý khung giờ khác;
-    stop
+|Student / App|
+:Select destination Hub / slot;
+|Student / App|
+if (Confirm operation?) then ([confirm])
+else ([else])
+|Student / App|
+:Close screen / Back\nKeep current state;
+|Student / App|
+stop
 endif
-@enduml
-```
-
-### Mã Mermaid Preview
-```mermaid
-flowchart TD
-    subgraph Lane1 ["Sinh viên (Student)"]
-        Start([● Bắt đầu]) --> Act1["Chọn Hub & Khung giờ gửi xe"]
-        DecCharge{"Có nhu cầu sạc pin?"}
-        ActInput["Nhập % pin & Giờ lấy dự kiến"]
-    end
-
-    subgraph Lane2 ["Hệ thống Quản lý Hub"]
-        Act1 --> Act2["Kiểm tra sức chứa slot đỗ"]
-        Act2 --> DecSlot{"Còn slot đỗ trống?"}
-        DecSlot -- "[Còn slot]" --> ActLock["Khóa giữ ô đỗ & Cấp mã QR bãi"]
-        ActLock --> DecCharge
-        DecCharge -- "[Có sạc]" --> ActInput
-        ActInput --> ActSched["Phân bổ cổng sạc & Xếp lịch cấp điện"]
-    end
-
-    subgraph Lane3 ["Trụ sạc IoT (PowerHub)"]
-        ActSched --> ActRelay["Kích hoạt relay sạc tại cổng đỗ"]
-    end
-
-    subgraph Lane4 ["Mobile App"]
-        DecSlot -- "[Hết chỗ]" --> ActErr["Báo hết chỗ & Gợi ý khung khác"]
-        ActErr --> EndErr([◉ Kết thúc])
-        DecCharge -- "[Không sạc]" --> ActCard["Hiển thị thẻ đặt chỗ vào bãi"]
-        ActRelay --> ActCard
-        ActCard --> EndSuccess([◉ Hoàn thành đặt chỗ])
-    end
-```
-
----
-
-## AD05: Vehicle Redistribution Workflow
-- **Tương ứng Use Case:** `UC10 - Redistribute Vehicles`
-- **File Draw.io:** `01_Diagram/03_Activity_Diagram/AD05-Redistribute_Vehicles.drawio.svg`
-
-### Mã PlantUML
-```plantuml
-@startuml
-|Web Dashboard|
-start
-:Cảnh báo mất cân bằng cung cầu giữa các Hub;
-
-|Điều hành viên (Operator)|
-:Chọn Hub nguồn, Hub đích & Số lượng xe điều phối;
-
-|Rebalance Service|
-:Kiểm tra xe pin >= 80% và slot trống trạm đích;
-if (Đủ điều kiện điều chuyển?) then ([Đủ điều kiện])
-    :Khóa xe In-Transit & Xuất lệnh điều phối;
-    :Lưu :TransferManifest [Qty=20, Pin>=80%];
-
-    |Tài xế trung chuyển (Fleet)|
-    :Nhận lệnh, bốc xếp xe & vận chuyển theo lộ trình;
-    :Quét mã nhập bãi đích & Khôi phục Available;
-    stop
-else ([Thiếu xe/slot])
-    |Web Dashboard|
-    :Đề xuất đổi Hub đích hoặc giảm số lượng xe;
-    |Điều hành viên (Operator)|
-    :Tinh chỉnh lại tham số điều phối;
-    stop
+|Backend|
+:Validate active-trip owner\nClaim usable destination slot;
+|Backend|
+if (Destination claim succeeded?) then ([claimed])
+|Student / App|
+:Dock vehicle safely;
+|IoT / Simulated Station|
+:Confirm vehicle identity, Hub and lock\nAwait telemetry; max 3 attempts;
+|Backend|
+if (Safe return confirmed?) then ([matching vehicle and locked])
+|Backend|
+:Close trip and occupy slot atomically\nRecord duration / distance; no payment;
+|Backend|
+::Trip [Completed]; <<object>>
+|Backend|
+if (Unresolved vehicle fault?) then ([fault])
+|Backend|
+:Keep vehicle Faulty\nAssign recovery / maintenance;
+else ([else])
+|Backend|
+if (Battery sufficient?) then ([battery >=20%])
+|Backend|
+:Set vehicle Available;
+else ([else])
+|Backend|
+:Set vehicle NeedsCharging\nQueue charging request;
 endif
-@enduml
-```
-
-### Mã Mermaid Preview
-```mermaid
-flowchart TD
-    subgraph Lane1 ["Web Dashboard"]
-        Start([● Bắt đầu]) --> ActAlert["Cảnh báo mất cân bằng cung cầu"]
-        ActAlt["Đề xuất đổi Hub đích / Giảm xe"]
-    end
-
-    subgraph Lane2 ["Điều hành viên (Operator)"]
-        ActAlert --> ActSelect["Chọn Hub nguồn, đích & số xe"]
-        ActAlt --> ActSelect
-    end
-
-    subgraph Lane3 ["Rebalance Service"]
-        ActSelect --> ActCheck["Kiểm tra xe pin >= 80% & Slot đích"]
-        ActCheck --> DecCond{"Đủ điều kiện điều chuyển?"}
-        DecCond -- "[Thiếu xe/slot]" --> ActAlt
-        DecCond -- "[Đủ điều kiện]" --> ActLock["Khóa xe In-Transit & Tạo lệnh"]
-        ActLock -.-> ObjManifest[":TransferManifest [Qty=20]"]
-    end
-
-    subgraph Lane4 ["Tài xế trung chuyển (Fleet)"]
-        ObjManifest -.-> ActDrive["Bốc xếp xe & Vận chuyển theo tuyến"]
-        ActDrive --> ActArrive["Quét mã nhập bãi đích & Chuyển Available"]
-        ActArrive --> EndSuccess([◉ Hoàn thành điều phối])
-    end
-```
-
----
-
-## AD06: Handle Operational Incident Workflow
-- **Tương ứng Use Case:** `UC11 - Handle Operational Incident`
-- **File Draw.io:** `01_Diagram/03_Activity_Diagram/AD06-Handle_Operational_Incident.drawio.svg`
-
-### Mã PlantUML
-```plantuml
-@startuml
-|Hệ thống Telemetry / User|
-start
-:Phát hiện sự cố cổng sạc hoặc nhận báo hỏng từ App;
-
-|Incident Engine|
-:Phân tích mức độ sự cố (Nghiêm trọng / Nhẹ);
-if (Mức độ sự cố?) then ([Khẩn cấp / Đoản mạch])
-    :Ngắt điện tức thời & Khóa cổng từ xa (Out of Order);
-else ([Lỗi nhẹ / Sơn xe])
 endif
-:Tạo phiếu sửa chữa & Điều phối kỹ thuật viên;
-
-|Kỹ thuật viên (Technician)|
-:Kiểm tra hiện trường, sửa chữa & thay linh kiện;
-:Chạy kiểm thử an toàn điện & Nghiệm thu trên App;
-
-|Incident Engine|
-:Tái kích hoạt cổng sạc sang trạng thái Sẵn sàng;
+|Student / App|
+:Display return confirmation;
+else ([else])
+|Backend|
+:Keep trip Active; block uncertain slot\nShow return screen / alternate slot\nEscalate to Operator; do not free vehicle;
+|Student / App|
+stop
+endif
+else ([else])
+|Backend|
+:Suggest another slot / Hub\nKeep trip Active; return to Hub selection;
+|Student / App|
+stop
+endif
 stop
 @enduml
 ```
 
-### Mã Mermaid Preview
 ```mermaid
 flowchart TD
-    subgraph Lane1 ["Hệ thống Telemetry / User"]
-        Start([● Bắt đầu]) --> ActDetect["Phát hiện sự cố cổng / Báo hỏng App"]
-    end
-
-    subgraph Lane2 ["Incident Engine"]
-        ActDetect --> ActAssess["Phân tích mức độ sự cố"]
-        ActAssess --> DecSeverity{"Mức độ sự cố?"}
-        DecSeverity -- "[Khẩn cấp / Đoản mạch]" --> ActCut["Ngắt điện tức thời & Khóa Out of Order"]
-        DecSeverity -- "[Lỗi nhẹ]" --> ActTicket["Tạo phiếu bảo trì & Giao việc"]
-        ActCut --> ActTicket
-        ActReactivate["Tái kích hoạt cổng (Available)"] --> EndSuccess([◉ Khôi phục hoạt động])
-    end
-
-    subgraph Lane3 ["Kỹ thuật viên (Technician)"]
-        ActTicket --> ActFix["Kiểm tra hiện trường & Sửa chữa"]
-        ActFix --> ActTest["Kiểm thử an toàn & Nghiệm thu App"]
-        ActTest --> ActReactivate
-    end
+  subgraph lane0["Student / App"]
+    n0(("●"))
+    n1("Select destination Hub / slot")
+    n2{"Confirm operation?"}
+    n3("Close screen / Back<br/>Keep current state")
+    n4(("◉"))
+    n7("Dock vehicle safely")
+    n19("Display return confirmation")
+    n21(("◉"))
+    n23(("◉"))
+    n24(("◉"))
+  end
+  subgraph lane1["Backend"]
+    n5("Validate active-trip owner<br/>Claim usable destination slot")
+    n6{"Destination claim succeeded?"}
+    n9{"Safe return confirmed?"}
+    n10("Close trip and occupy slot atomically<br/>Record duration / distance; no payment")
+    n11[":Trip [Completed]"]
+    n12{"Unresolved vehicle fault?"}
+    n13("Keep vehicle Faulty<br/>Assign recovery / maintenance")
+    n14{"Battery sufficient?"}
+    n15("Set vehicle Available")
+    n16("Set vehicle NeedsCharging<br/>Queue charging request")
+    n17{" "}
+    n18{" "}
+    n20("Keep trip Active; block uncertain slot<br/>Show return screen / alternate slot<br/>Escalate to Operator; do not free vehicle")
+    n22("Suggest another slot / Hub<br/>Keep trip Active; return to Hub selection")
+  end
+  subgraph lane2["IoT / Simulated Station"]
+    n8("Confirm vehicle identity, Hub and lock<br/>Await telemetry; max 3 attempts")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> |"[else]"| n3
+  n3 --> n4
+  n2 --> |"[confirm]"| n5
+  n5 --> n6
+  n6 --> |"[claimed]"| n7
+  n7 --> n8
+  n8 --> n9
+  n9 --> |"[matching vehicle and locked]"| n10
+  n10 -.-> n11
+  n11 -.-> n12
+  n12 --> |"[fault]"| n13
+  n12 --> |"[else]"| n14
+  n14 --> |"[battery >=20%]"| n15
+  n14 --> |"[else]"| n16
+  n15 --> n17
+  n16 --> n17
+  n13 --> n18
+  n17 --> n18
+  n18 --> n19
+  n9 --> |"[else]"| n20
+  n20 --> n21
+  n6 --> |"[else]"| n22
+  n22 --> n23
+  n19 --> n24
 ```
 
----
+## AD04 — Private Parking and Charging
 
-## AD07: What-if Simulation Workflow
-- **Tương ứng Use Case:** `UC13 - Run What-if Simulation` & `UC14 - View Simulation Results`
-- **File Draw.io:** `01_Diagram/03_Activity_Diagram/AD07-Run_What_if_Simulation.drawio.svg`
+[Draw.io](AD04-Reserve_Parking_and_Charging.drawio) · [SVG editable](AD04-Reserve_Parking_and_Charging.drawio.svg) · [PNG](AD04-Reserve_Parking_and_Charging.png)
 
-### Mã PlantUML
 ```plantuml
 @startuml
-|Điều hành viên (Operator)|
+title Private Parking and Charging
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor black
+}
+|Student / App|
 start
-:Chọn 1 trong 5 kịch bản (VD: Cao điểm Metro);
-repeat
-    :Cấu hình tham số mô phỏng (+300%, 120p);
-
-    |What-if Engine (Sandbox)|
-    :Chạy mô phỏng biến đổi sự kiện rời rạc trên Sandbox;
-
-    |Web Dashboard|
-    :Hiển thị KPI dự báo & Đề xuất điều phối xe/sạc;
-
-    |Điều hành viên (Operator)|
-    if (Chấp thuận khuyến nghị?) then ([Đồng ý áp dụng])
-        |Hệ thống Thực tế (Production)|
-        :Phát lệnh điều phối tự động vào mạng lưới thực tế;
-        stop
-    else ([Thử nghiệm lại])
-        |Điều hành viên (Operator)|
-        :Tinh chỉnh lại tham số đầu vào của kịch bản;
-    endif
-repeat while (Tiếp tục thử nghiệm?) is ([Có])
+|Student / App|
+:Select Hub, private vehicle and arrival;
+|Student / App|
+if (Confirm operation?) then ([confirm])
+else ([else])
+|Student / App|
+:Close screen / Back\nKeep current state;
+|Student / App|
+stop
+endif
+|Backend / Scheduler|
+:Validate owner and arrival time\nAtomically claim a usable slot;
+|Backend / Scheduler|
+if (Parking hold committed?) then ([committed])
+|Backend / Scheduler|
+::ParkingReservation [Reserved]; <<object>>
+|Student / App|
+:Present ticket at scheduled arrival;
+|Backend / Scheduler|
+:Validate owner, Hub and arrival window\nScheduledArrival <= now < arrival + 30 min;
+|Backend / Scheduler|
+if (Check-in valid and vehicle present?) then ([valid and arrival confirmed])
+|Backend / Scheduler|
+:Atomically mark Fulfilled\nChange Held slot to Occupied;
+|Student / App|
+if (Request charging?) then ([yes])
+|Backend / Scheduler|
+:Validate ownership, battery and connector\nSave charging request Queued;
+|Backend / Scheduler|
+if (Compatible port and power ready?) then ([ready; allocated kW <= powerLimitKW])
+|IoT / Simulated Station|
+:Confirm plug and electrical safety\nStart supply; await acknowledgement;
+|Backend / Scheduler|
+if (Start acknowledged?) then ([confirmed])
+|Backend / Scheduler|
+:Mark session Active;
+|Student / App|
+:Request stop / reach target or\n80% with urgent queue;
+|IoT / Simulated Station|
+:Cut power with same command ID\nAwait acknowledgement; max 3 attempts;
+|Backend / Scheduler|
+if (Power off confirmed?) then ([confirmed])
+|Backend / Scheduler|
+:Close session; release power allocation\nKeep parking Occupied until unplug;
+else ([else])
+|Backend / Scheduler|
+:Quarantine port; open incident\nDo not report stop / checkout success;
+|Student / App|
+stop
+endif
+else ([else])
+|Backend / Scheduler|
+:Block uncertain port; open incident\nKeep request pending reconciliation;
+|Student / App|
+stop
+endif
+else ([else])
+|Backend / Scheduler|
+:Keep request Queued; show queue\nAllow cancel; retain occupied parking;
+|Student / App|
+stop
+endif
+else ([else])
+endif
+|Student / App|
+:Request check-out and unplug;
+|Backend / Scheduler|
+:Validate owner; cancel queued request\nConfirm no active supply or plug;
+|IoT / Simulated Station|
+:Confirm vehicle physically departed;
+|Backend / Scheduler|
+if (Departure safe and confirmed?) then ([confirmed])
+|Backend / Scheduler|
+:Atomically clear occupant\nRelease usable slot once; retain history;
+else ([else])
+|Backend / Scheduler|
+:Keep slot Occupied / quarantined\nShow parking screen; request assistance;
+|Student / App|
+stop
+endif
+else ([else])
+|Backend / Scheduler|
+:Reject check-in; allow Back / rebook\nCancel or expire only unfulfilled hold\nNever free an occupied slot;
+|Student / App|
+stop
+endif
+else ([else])
+|Backend / Scheduler|
+:Show conflict and alternative Hub\nReturn to parking selection;
+|Student / App|
+stop
+endif
+stop
 @enduml
 ```
 
-### Mã Mermaid Preview
 ```mermaid
 flowchart TD
-    subgraph Lane1 ["Điều hành viên (Operator)"]
-        Start([● Bắt đầu]) --> ActScenario["Chọn 1 trong 5 kịch bản giả định"]
-        ActParams["Cấu hình tham số mô phỏng (+300%, 120p)"]
-        ActScenario --> ActParams
-        DecApply{"Chấp thuận khuyến nghị?"}
-        ActTune["Tinh chỉnh lại tham số kịch bản"]
-        ActTune --> ActParams
-    end
+  subgraph lane0["Student / App"]
+    n0(("●"))
+    n1("Select Hub, private vehicle and arrival")
+    n2{"Confirm operation?"}
+    n3("Close screen / Back<br/>Keep current state")
+    n4(("◉"))
+    n8("Present ticket at scheduled arrival")
+    n12{"Request charging?"}
+    n18("Request stop / reach target or<br/>80% with urgent queue")
+    n23(("◉"))
+    n25(("◉"))
+    n27(("◉"))
+    n28{" "}
+    n29("Request check-out and unplug")
+    n35(("◉"))
+    n37(("◉"))
+    n39(("◉"))
+    n40(("◉"))
+  end
+  subgraph lane1["Backend / Scheduler"]
+    n5("Validate owner and arrival time<br/>Atomically claim a usable slot")
+    n6{"Parking hold committed?"}
+    n7[":ParkingReservation [Reserved]"]
+    n9("Validate owner, Hub and arrival window<br/>ScheduledArrival <= now < arrival + 30 min")
+    n10{"Check-in valid and vehicle present?"}
+    n11("Atomically mark Fulfilled<br/>Change Held slot to Occupied")
+    n13("Validate ownership, battery and connector<br/>Save charging request Queued")
+    n14{"Compatible port and power ready?"}
+    n16{"Start acknowledged?"}
+    n17("Mark session Active")
+    n20{"Power off confirmed?"}
+    n21("Close session; release power allocation<br/>Keep parking Occupied until unplug")
+    n22("Quarantine port; open incident<br/>Do not report stop / checkout success")
+    n24("Block uncertain port; open incident<br/>Keep request pending reconciliation")
+    n26("Keep request Queued; show queue<br/>Allow cancel; retain occupied parking")
+    n30("Validate owner; cancel queued request<br/>Confirm no active supply or plug")
+    n32{"Departure safe and confirmed?"}
+    n33("Atomically clear occupant<br/>Release usable slot once; retain history")
+    n34("Keep slot Occupied / quarantined<br/>Show parking screen; request assistance")
+    n36("Reject check-in; allow Back / rebook<br/>Cancel or expire only unfulfilled hold<br/>Never free an occupied slot")
+    n38("Show conflict and alternative Hub<br/>Return to parking selection")
+  end
+  subgraph lane2["IoT / Simulated Station"]
+    n15("Confirm plug and electrical safety<br/>Start supply; await acknowledgement")
+    n19("Cut power with same command ID<br/>Await acknowledgement; max 3 attempts")
+    n31("Confirm vehicle physically departed")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> |"[else]"| n3
+  n3 --> n4
+  n2 --> |"[confirm]"| n5
+  n5 --> n6
+  n6 -.-> |"[committed]"| n7
+  n7 -.-> n8
+  n8 --> n9
+  n9 --> n10
+  n10 --> |"[valid and arrival confirmed]"| n11
+  n11 --> n12
+  n12 --> |"[yes]"| n13
+  n13 --> n14
+  n14 --> |"[ready; allocated kW <= powerLimitKW]"| n15
+  n15 --> n16
+  n16 --> |"[confirmed]"| n17
+  n17 --> n18
+  n18 --> n19
+  n19 --> n20
+  n20 --> |"[confirmed]"| n21
+  n20 --> |"[else]"| n22
+  n22 --> n23
+  n16 --> |"[else]"| n24
+  n24 --> n25
+  n14 --> |"[else]"| n26
+  n26 --> n27
+  n21 --> n28
+  n12 --> |"[else]"| n28
+  n28 --> n29
+  n29 --> n30
+  n30 --> n31
+  n31 --> n32
+  n32 --> |"[confirmed]"| n33
+  n32 --> |"[else]"| n34
+  n34 --> n35
+  n10 --> |"[else]"| n36
+  n36 --> n37
+  n6 --> |"[else]"| n38
+  n38 --> n39
+  n33 --> n40
+```
 
-    subgraph Lane2 ["What-if Engine (Sandbox)"]
-        ActParams --> ActSim["Chạy mô phỏng sự kiện rời rạc trên Sandbox"]
-    end
+## AD05 — Redistribute Vehicles
 
-    subgraph Lane3 ["Web Dashboard"]
-        ActSim --> ActKPI["Hiển thị KPI dự báo & Đề xuất điều phối"]
-        ActKPI --> DecApply
-    end
+[Draw.io](AD05-Redistribute_Vehicles.drawio) · [SVG editable](AD05-Redistribute_Vehicles.drawio.svg) · [PNG](AD05-Redistribute_Vehicles.png)
 
-    subgraph Lane4 ["Hệ thống Thực tế (Production)"]
-        DecApply -- "[Đồng ý áp dụng]" --> ActDeploy["Phát lệnh điều phối tự động vào thực tế"]
-        DecApply -- "[Thử lại]" --> ActTune
-        ActDeploy --> EndSuccess([◉ Áp dụng thành công])
-    end
+```plantuml
+@startuml
+title Redistribute Vehicles
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor black
+}
+|Operator|
+start
+|Operator|
+:Choose source, destination and vehicles;
+|Operator|
+if (Confirm operation?) then ([confirm])
+else ([else])
+|Operator|
+:Close screen / Back\nKeep current state;
+|Operator|
+stop
+endif
+|Backend / Rebalance|
+:Validate Operator; check battery >=80%\nAvailable vehicles and destination capacity;
+|Backend / Rebalance|
+if (Atomic resource claim succeeded?) then ([claimed])
+|Backend / Rebalance|
+:Create Planned order\nHold vehicles and destination slots;
+|Backend / Rebalance|
+::TransferOrder [Planned]; <<object>>
+|Operator|
+if (Confirm departure?) then ([depart])
+|Backend / Rebalance|
+:Recheck battery >=80% and Planned\nCommit InTransit; release source slots;
+|Field / Simulated Telemetry|
+:Transport vehicles to destination\nReport arrival to Operator;
+|Operator|
+:Reconcile all vehicle IDs and target slots;
+|Backend / Rebalance|
+if (Entire order safely arrived?) then ([all IDs and usable destination slots])
+|Backend / Rebalance|
+:Commit Completed and occupy targets\nClassify Available / NeedsCharging / Faulty;
+else ([else])
+|Backend / Rebalance|
+:Keep InTransit and required holds\nOpen incident; reassign target atomically\nDo not complete a partial batch;
+|Operator|
+stop
+endif
+else ([else])
+|Operator|
+if (Cancel Planned order?) then ([cancel confirmed])
+|Backend / Rebalance|
+:Cancel only if still Planned\nRelease only order-owned holds\nIf departure won race: keep InTransit;
+else ([else])
+|Operator|
+:Close order / Back\nKeep Planned and its holds;
+endif
+endif
+else ([else])
+|Backend / Rebalance|
+:Show conflict; suggest fewer vehicles\nReturn to source / target selection;
+|Operator|
+stop
+endif
+stop
+@enduml
+```
+
+```mermaid
+flowchart TD
+  subgraph lane0["Operator"]
+    n0(("●"))
+    n1("Choose source, destination and vehicles")
+    n2{"Confirm operation?"}
+    n3("Close screen / Back<br/>Keep current state")
+    n4(("◉"))
+    n9{"Confirm departure?"}
+    n12("Reconcile all vehicle IDs and target slots")
+    n16(("◉"))
+    n17{"Cancel Planned order?"}
+    n19("Close order / Back<br/>Keep Planned and its holds")
+    n20{" "}
+    n21{" "}
+    n23(("◉"))
+    n24(("◉"))
+  end
+  subgraph lane1["Backend / Rebalance"]
+    n5("Validate Operator; check battery >=80%<br/>Available vehicles and destination capacity")
+    n6{"Atomic resource claim succeeded?"}
+    n7("Create Planned order<br/>Hold vehicles and destination slots")
+    n8[":TransferOrder [Planned]"]
+    n10("Recheck battery >=80% and Planned<br/>Commit InTransit; release source slots")
+    n13{"Entire order safely arrived?"}
+    n14("Commit Completed and occupy targets<br/>Classify Available / NeedsCharging / Faulty")
+    n15("Keep InTransit and required holds<br/>Open incident; reassign target atomically<br/>Do not complete a partial batch")
+    n18("Cancel only if still Planned<br/>Release only order-owned holds<br/>If departure won race: keep InTransit")
+    n22("Show conflict; suggest fewer vehicles<br/>Return to source / target selection")
+  end
+  subgraph lane2["Field / Simulated Telemetry"]
+    n11("Transport vehicles to destination<br/>Report arrival to Operator")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> |"[else]"| n3
+  n3 --> n4
+  n2 --> |"[confirm]"| n5
+  n5 --> n6
+  n6 --> |"[claimed]"| n7
+  n7 -.-> n8
+  n8 -.-> n9
+  n9 --> |"[depart]"| n10
+  n10 --> n11
+  n11 --> n12
+  n12 --> n13
+  n13 --> |"[all IDs and usable destination slots]"| n14
+  n13 --> |"[else]"| n15
+  n15 --> n16
+  n9 --> |"[else]"| n17
+  n17 --> |"[cancel confirmed]"| n18
+  n17 --> |"[else]"| n19
+  n18 --> n20
+  n19 --> n20
+  n14 --> n21
+  n20 --> n21
+  n6 --> |"[else]"| n22
+  n22 --> n23
+  n21 --> n24
+```
+
+## AD06 — Handle Operational Incident
+
+[Draw.io](AD06-Handle_Operational_Incident.drawio) · [SVG editable](AD06-Handle_Operational_Incident.drawio.svg) · [PNG](AD06-Handle_Operational_Incident.png)
+
+```plantuml
+@startuml
+title Handle Operational Incident
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor black
+}
+|Operator / Student|
+start
+|Operator / Student|
+:Submit trip report / inspect sensor alert;
+|Incident Service|
+:Validate report ownership / Operator role\nDeduplicate request and save incident;
+|Incident Service|
+if (Electrical hazard?) then ([hazard])
+|Field / IoT / Simulated Telemetry|
+:Cut supply; quarantine affected port;
+else ([else])
+|Incident Service|
+:Block new allocations\nDo not lock a moving vehicle;
+endif
+|Incident Service|
+:Notify Operator after commit\nPreserve active trip until safe recovery;
+|Operator / Student|
+:Assign recovery / repair and inspect site;
+|Field / IoT / Simulated Telemetry|
+:Recover safely and repair resource\nRecord electrical / mechanical test result;
+|Incident Service|
+if (Safety test passed?) then ([passed and safe location confirmed])
+|Operator / Student|
+:Confirm repair acceptance;
+|Incident Service|
+:Reconcile trip, reservations and occupancy\nClose trip only via safe UC05 confirmation;
+|Incident Service|
+:Restore eligible resource state\nRequeue interrupted charging; keep audit;
+else ([else])
+|Incident Service|
+:Keep Faulty / Maintenance\nLeave incident open; assign next repair\nClose screen without restoring resource;
+|Operator / Student|
+stop
+endif
+stop
+@enduml
+```
+
+```mermaid
+flowchart TD
+  subgraph lane0["Operator / Student"]
+    n0(("●"))
+    n1("Submit trip report / inspect sensor alert")
+    n8("Assign recovery / repair and inspect site")
+    n11("Confirm repair acceptance")
+    n15(("◉"))
+    n16(("◉"))
+  end
+  subgraph lane1["Incident Service"]
+    n2("Validate report ownership / Operator role<br/>Deduplicate request and save incident")
+    n3{"Electrical hazard?"}
+    n5("Block new allocations<br/>Do not lock a moving vehicle")
+    n6{" "}
+    n7("Notify Operator after commit<br/>Preserve active trip until safe recovery")
+    n10{"Safety test passed?"}
+    n12("Reconcile trip, reservations and occupancy<br/>Close trip only via safe UC05 confirmation")
+    n13("Restore eligible resource state<br/>Requeue interrupted charging; keep audit")
+    n14("Keep Faulty / Maintenance<br/>Leave incident open; assign next repair<br/>Close screen without restoring resource")
+  end
+  subgraph lane2["Field / IoT / Simulated Telemetry"]
+    n4("Cut supply; quarantine affected port")
+    n9("Recover safely and repair resource<br/>Record electrical / mechanical test result")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> n3
+  n3 --> |"[hazard]"| n4
+  n3 --> |"[else]"| n5
+  n4 --> n6
+  n5 --> n6
+  n6 --> n7
+  n7 --> n8
+  n8 --> n9
+  n9 --> n10
+  n10 --> |"[passed and safe location confirmed]"| n11
+  n11 --> n12
+  n12 --> n13
+  n10 --> |"[else]"| n14
+  n14 --> n15
+  n13 --> n16
+```
+
+## AD07 — Run What-if Simulation
+
+[Draw.io](AD07-Run_What_if_Simulation.drawio) · [SVG editable](AD07-Run_What_if_Simulation.drawio.svg) · [PNG](AD07-Run_What_if_Simulation.png)
+
+```plantuml
+@startuml
+title Run What-if Simulation
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor black
+}
+|Operator|
+start
+|Operator|
+:Select scenario and enter parameters;
+|Operator|
+if (Confirm operation?) then ([confirm])
+else ([else])
+|Operator|
+:Close screen / Back\nKeep current state;
+|Operator|
+stop
+endif
+|Backend / Sandbox|
+:Validate ranges; snapshot network\nRun simulation on isolated copy;
+|Backend / Sandbox|
+if (Run completed within deadline?) then ([completed])
+|Backend / Sandbox|
+::SimulationResult [Completed]; <<object>>
+|Operator|
+:Review KPIs and recommendations;
+|Operator|
+if (Apply recommendation?) then ([apply])
+|Backend / Sandbox|
+:Revalidate role and current live resources;
+|Backend / Sandbox|
+if (Recommendation still feasible?) then ([valid])
+|Operational Services|
+:Submit explicit UC10 Planned order\nor UC12 schedule change\nDo not copy sandbox state to live;
+else ([else])
+|Backend / Sandbox|
+:Show stale-result conflict\nReturn to scenario configuration;
+|Operator|
+stop
+endif
+else ([else])
+|Operator|
+:Export report / close results\nKeep live resources unchanged;
+endif
+else ([else])
+|Backend / Sandbox|
+:Show timeout / invalid-input error\nDiscard sandbox; return to configuration;
+|Operator|
+stop
+endif
+stop
+@enduml
+```
+
+```mermaid
+flowchart TD
+  subgraph lane0["Operator"]
+    n0(("●"))
+    n1("Select scenario and enter parameters")
+    n2{"Confirm operation?"}
+    n3("Close screen / Back<br/>Keep current state")
+    n4(("◉"))
+    n8("Review KPIs and recommendations")
+    n9{"Apply recommendation?"}
+    n14(("◉"))
+    n15("Export report / close results<br/>Keep live resources unchanged")
+    n16{" "}
+    n18(("◉"))
+    n19(("◉"))
+  end
+  subgraph lane1["Backend / Sandbox"]
+    n5("Validate ranges; snapshot network<br/>Run simulation on isolated copy")
+    n6{"Run completed within deadline?"}
+    n7[":SimulationResult [Completed]"]
+    n10("Revalidate role and current live resources")
+    n11{"Recommendation still feasible?"}
+    n13("Show stale-result conflict<br/>Return to scenario configuration")
+    n17("Show timeout / invalid-input error<br/>Discard sandbox; return to configuration")
+  end
+  subgraph lane2["Operational Services"]
+    n12("Submit explicit UC10 Planned order<br/>or UC12 schedule change<br/>Do not copy sandbox state to live")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> |"[else]"| n3
+  n3 --> n4
+  n2 --> |"[confirm]"| n5
+  n5 --> n6
+  n6 -.-> |"[completed]"| n7
+  n7 -.-> n8
+  n8 --> n9
+  n9 --> |"[apply]"| n10
+  n10 --> n11
+  n11 --> |"[valid]"| n12
+  n11 --> |"[else]"| n13
+  n13 --> n14
+  n9 --> |"[else]"| n15
+  n12 --> n16
+  n15 --> n16
+  n6 --> |"[else]"| n17
+  n17 --> n18
+  n16 --> n19
 ```

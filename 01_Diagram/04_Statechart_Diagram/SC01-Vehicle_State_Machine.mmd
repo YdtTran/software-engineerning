@@ -1,0 +1,51 @@
+stateDiagram-v2
+  state "Operational Service" as Operational {
+    state "Available" as Available
+    state "Reserved" as Reserved
+    state "In-Use" as InUse
+    state "Needs Charging" as NeedsCharging
+    state "Charging" as Charging
+  }
+  Available : entry / enableBookingIfUnheld()
+  Available : do: receiveTelemetry()
+  Reserved : entry / holdFor15Minutes()
+  Reserved : exit / stopExpiryTimer()
+  InUse : do: streamTripTelemetry()
+  NeedsCharging : entry / disableBooking()
+  NeedsCharging : do: waitForScheduler()
+  Charging : do: monitorSupplyAndBattery()
+  state "Held for Transfer" as TransferHeld
+  TransferHeld : entry / excludeFromBooking()
+  state "In-Transit" as InTransit
+  InTransit : do: trackTransferManifest()
+  state "Faulty" as Faulty
+  Faulty : entry / blockNewAllocations()
+  Faulty : do: preserveTripAndLocation()
+  state "Under Maintenance" as Maintenance
+  Maintenance : do: diagnoseAndRepair()
+  state "Retired" as Retired
+  Retired : entry / archiveVehicle()
+  [*] --> Available
+  Available --> Reserved : reserveCommitted [battery >=20% and no other hold] / linkReservation()
+  Reserved --> Available : cancelCommitted [pickupNotClaimed] / releaseOwnHold()
+  Reserved --> Available : expiryReached [now >= expiresAt and pickupNotClaimed] / releaseOwnHold()
+  Reserved --> InUse : unlockConfirmed [pickupClaimed and matchingAck] / consumeReservationAndStartTrip()
+  Reserved --> Faulty : unlockUncertain [threeAttemptsExhausted] / openIncidentAndReconcile()
+  InUse --> Available : safeReturnConfirmed [noFault and battery >=20%] / closeTripAndOccupySlot()
+  InUse --> NeedsCharging : safeReturnConfirmed [noFault and battery <20%] / closeTripAndQueueCharge()
+  NeedsCharging --> Charging : powerOnConfirmed [plugSafe and portAllocated] / startSession()
+  Charging --> Available : powerOffConfirmed [noFault and battery >=20%] / closeSession()
+  Charging --> NeedsCharging : powerOffConfirmed [noFault and battery <20%] / closeSessionAndRequeue()
+  Operational --> Faulty : faultDetected / blockAllocations; cutSupplyIfCharging; neverLockMovingVehicle
+  Available --> TransferHeld : planCommitted [battery >=80% and capacityHeld] / linkPlannedOrder()
+  TransferHeld --> Available : cancelCommitted [orderStillPlanned and noFault] / releaseOwnHolds()
+  TransferHeld --> InTransit : departureConfirmed [battery >=80% and orderStillPlanned] / freeSourceSlot()
+  TransferHeld --> Faulty : faultDetected / invalidateDeparture()
+  InTransit --> Available : arrivalCommitted [wholeOrderArrived and noFault and battery >=20%] / occupyTarget()
+  InTransit --> NeedsCharging : arrivalCommitted [wholeOrderArrived and noFault and battery <20%] / occupyTargetAndQueue()
+  InTransit --> Faulty : arrivalCommitted [wholeOrderArrived and fault] / occupyTargetAndOpenIncident()
+  Faulty --> Maintenance : recoveryConfirmed [safeStationaryLocation] / assignRepair()
+  Maintenance --> Available : repairAccepted [testPassed and noActiveTrip and battery >=20%] / reconcileHolds()
+  Maintenance --> NeedsCharging : repairAccepted [testPassed and noActiveTrip and battery <20%] / queueCharge()
+  Maintenance --> Retired : retireApproved [noTripOrTransferOrReservation and supplyOff] / archiveHistory()
+  Retired --> [*]

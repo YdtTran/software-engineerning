@@ -70,6 +70,8 @@ Màu chính: navy `#152584`, cyan `#00B8D6`, nền `#F2F5F9`. Trạng thái đư
 
 ## Phạm vi bản mẫu
 
+What-if có đủ năm lựa chọn theo đặc tả: khách Metro tăng, đầy bãi, hỏng cổng sạc, tăng nhu cầu sạc và dồn ứ xe. Cả năm vẫn dùng công thức minh họa; chưa phải engine mô phỏng nghiệp vụ. Các luồng bổ sung check-in/check-out, kết thúc sạc, hoàn tất/hủy điều chuyển và báo sự cố giữa chuyến mới được đặc tả tại [LIFECYCLE_SCENARIOS.md](../../01_Diagram/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md), chưa có màn hình/thao tác thực thi trong mockup này.
+
 Đây là mockup có tương tác, chưa phải MVP nghiệp vụ. Tài khoản được giả định đã đăng nhập. Số liệu, thông báo, mã phiếu và thời gian được dựng để minh họa. Sơ đồ Hub không phải bản đồ địa lý chính xác; QR chỉ là khung minh họa và luồng nhận dùng nhập mã. Không có timer giữ xe thật, backend, lưu trữ, IoT, xác thực, thanh toán hoặc thuật toán tối ưu. Các phiên app/web độc lập, chưa đồng bộ tài khoản hoặc dữ liệu; các màn hình vận hành có bộ dữ liệu mẫu riêng; số liệu không đồng bộ với mọi thay đổi ở luồng sinh viên. Công thức What-if chỉ tạo phản hồi trực quan theo tham số, không có giá trị dự báo. Nút áp dụng chỉ ghi nhận trạng thái demo; xuất báo cáo tạo JSON của kịch bản.
 
 Khi làm sản phẩm thật cần triển khai giao dịch giữ tài nguyên, kiểm tra cạnh tranh đồng thời, hạn giữ chỗ, sự kiện nhận/trả, lịch sạc, quyền truy cập và thuật toán mô phỏng.

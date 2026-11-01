@@ -324,7 +324,7 @@ Tên Use Case: Đặt trước phương tiện (Reserve Vehicle)
 Tác nhân chính: Student
 Tác nhân phụ: Notification Service
 Mô tả tóm tắt: Sinh viên thực hiện đặt giữ chỗ trước một phương tiện điện trong thời gian 15 phút để đảm bảo có xe khi đến Hub.
-Tiền điều kiện: Sinh viên đã đăng nhập tài khoản hợp lệ, không có lệnh đặt xe nào đang hoạt động và không có nợ phí.
+Tiền điều kiện: Sinh viên đã đăng nhập tài khoản hợp lệ, không có lệnh đặt xe hoặc chuyến đi nào đang hoạt động.
 Hậu điều kiện: Xe được chuyển sang trạng thái `Reserved`, phiếu giữ xe (#ticket) được phát hành cho sinh viên.
 
 Luồng sự kiện chính (Main Flow):
@@ -353,7 +353,7 @@ Luồng ngoại lệ (Exception Flows):
 
 Quy tắc nghiệp vụ (Business Rules):
 - BR04: Mỗi sinh viên chỉ được phép đặt trước tối đa 01 phương tiện tại một thời điểm.
-- BR05: Thời gian giữ xe tối đa là 15 phút. Sau 15 phút, tiến trình nền tự động hủy và trừ điểm uy tín nếu không đến nhận.
+- BR05: Thời gian giữ xe tối đa là 15 phút. Sau 15 phút, tiến trình nền chuyển phiếu sang Expired, giải phóng đúng giữ chỗ và gửi thông báo nếu không đến nhận.
 ================================================================================
 ```
 
@@ -407,7 +407,7 @@ KỊCH BẢN CA SỬ DỤNG: UC05 - TRẢ PHƯƠNG TIỆN TẠI HUB (RETURN VEHI
 Mã Use Case: UC05
 Tên Use Case: Trả phương tiện tại Hub (Return Vehicle)
 Tác nhân chính: Student
-Tác nhân phụ: Trạm khóa chốt điện tử tại Hub, Hệ thống thanh toán/ghi nhận lượt đi
+Tác nhân phụ: Trạm khóa chốt điện tử tại Hub, Bộ ghi nhận lượt đi (không thanh toán trong MVP)
 Mô tả tóm tắt: Sinh viên kết thúc chuyến đi bằng cách đưa phương tiện vào slot đỗ hợp lệ tại Hub đích, khóa chốt và xác nhận trên app.
 Tiền điều kiện: Sinh viên đang có chuyến đi ở trạng thái `In-Use` (UC04).
 Hậu điều kiện: Xe được khóa chốt, cập nhật mức pin thực tế, chuyển trạng thái xe sang `Available` (hoặc `Needs Charging`), hành trình được đóng lại.
@@ -422,7 +422,7 @@ Luồng sự kiện chính (Main Flow):
    - Đọc dung lượng pin thực tế còn lại của xe qua telemetry.
 5. Sinh viên tích chọn "Đã đưa xe vào vị trí và khóa chốt" trên màn hình và bấm "Xác nhận trả xe".
 6. Hệ thống kích hoạt Use Case bắt buộc: Confirm Vehicle Return (include).
-   - Đóng chuyến đi, tính tổng thời gian di chuyển, cự ly và chi phí (nếu có).
+   - Đóng chuyến đi, tính tổng thời gian di chuyển, cự ly (không thu phí trong MVP).
    - Cập nhật slot đỗ thành `Occupied`.
    - Nếu pin $\ge 20\%$: cập nhật xe thành `Available`. Nếu pin $< 20\%$: cập nhật thành `Needs Charging`.
 7. Hệ thống hiển thị hóa đơn tóm tắt hành trình và gửi thông báo hoàn tất. Use Case kết thúc.
@@ -504,7 +504,7 @@ Luồng sự kiện chính (Main Flow):
    - Kiểm tra số cổng sạc khả dụng và công suất tải tức thời của Hub.
 4. Hệ thống kích hoạt: Validate Charging Request (include).
    - Kiểm tra tính tương thích chuẩn sạc và thời gian sạc khả thi.
-5. Hệ thống tính toán chi phí điện năng dự kiến và thời gian hoàn thành.
+5. Hệ thống hiển thị thời gian hoàn thành dự kiến; MVP không tính/thu phí điện năng.
 6. Sinh viên bấm "Xác nhận yêu cầu sạc".
 7. Hệ thống kích hoạt: Confirm Charging Request (include).
    - Gán số hiệu cổng sạc (hoặc xếp vào hàng đợi sạc thông minh UC12).
@@ -565,7 +565,7 @@ Luồng ngoại lệ (Exception Flows):
   2. Hệ thống tự động kích hoạt tạo sự cố cảnh báo trong UC11.
 
 Quy tắc nghiệp vụ (Business Rules):
-- BR10: Khi tỷ lệ chỗ đỗ vượt quá 90% hoặc số xe khả dụng giảm dưới 5%, hệ thống phải phát tín hiệu cảnh báo màu đỏ trên Dashboard.
+- BR10: Áp dụng FR-NI03: đỏ khi tỷ lệ lấp đầy ≥95% hoặc không còn xe khả dụng; nếu chưa đỏ, vàng khi lấp đầy ≥85% hoặc tỷ lệ xe khả dụng ≤10%. Còn lại bình thường.
 ================================================================================
 ```
 
@@ -629,8 +629,9 @@ Luồng sự kiện chính (Main Flow):
    - Kiểm tra Hub đích có đủ số slot đỗ trống để tiếp nhận số lượng xe trên hay không.
 5. Hệ thống kích hoạt Use Case bắt buộc: Create Transfer Order (include).
    - Tạo mã lệnh điều phối, chỉ định danh sách ID các xe, thời gian dự kiến hoàn thành.
-6. Hệ thống khóa các xe được chọn sang trạng thái `In-Transit` và gửi lệnh đến app của đội xe tải trung chuyển.
-7. Màn hình hiển thị thông báo "Tạo lệnh điều phối thành công". Use Case kết thúc.
+6. Hệ thống tạo lệnh `Planned`, giữ các xe tại Hub nguồn và sức chứa tại Hub đích; xe đã giữ không được cho thuê. Operator chuyển thông tin cho đội hiện trường.
+7. Khi xác nhận xe thực sự xuất phát, Operator kiểm tra lại danh sách, pin ≥80% và giữ chỗ đích; hệ thống chuyển lệnh sang `InTransit`, xe sang `InTransfer` và giải phóng slot nguồn nguyên tử.
+8. Hiển thị lệnh đang vận chuyển. Xác nhận đến qua UC10A; trước xuất phát có thể hủy qua UC10B.
 
 Luồng rẽ nhánh (Alternative Flows):
 - 4a. Hub đích không đủ chỗ đỗ tiếp nhận (Find Alternative Destination Hub - extend):
@@ -658,7 +659,7 @@ Tên Use Case: Xử lý sự cố vận hành (Handle Operational Incident)
 Tác nhân chính: Operator
 Tác nhân phụ: Kỹ thuật viên bảo trì hiện trường
 Mô tả tóm tắt: Tiếp nhận, đánh giá mức độ ảnh hưởng, cách ly thiết bị hỏng và phân công bảo trì cho các sự cố xe hỏng, lỗi cổng sạc hoặc mất nguồn.
-Tiền điều kiện: Có sự cố được báo cáo từ sinh viên (UC04) hoặc cảnh báo tự động từ cảm biến IoT (UC08).
+Tiền điều kiện: Có sự cố được báo cáo từ sinh viên (UC04 hoặc UC11A giữa chuyến) hoặc cảnh báo tự động từ dữ liệu IoT/giả lập (UC08).
 Hậu điều kiện: Thiết bị hỏng được cách ly an toàn, phiếu bảo trì được tạo, trạng thái sự cố được cập nhật.
 
 Luồng sự kiện chính (Main Flow):
@@ -670,7 +671,7 @@ Luồng sự kiện chính (Main Flow):
    - Đánh giá mức độ: Khẩn cấp (nguy cơ cháy nổ/chập điện), Nghiêm trọng (ảnh hưởng >30% năng lực Hub), hoặc Thông thường (xẹp lốp, trầy sơn).
 5. Operator bấm nút xác nhận xử lý.
 6. Hệ thống kích hoạt: Isolate Faulty Resource (include, bắt buộc).
-   - Ngắt điện cổng sạc bị chập hoặc khóa xe hỏng sang trạng thái `Out of Order`.
+   - Cách ly phân bổ tài nguyên lỗi. Với xe đang chạy: không khóa vật lý từ xa; hướng dẫn dừng an toàn và tổ chức thu hồi. Chỉ xác nhận kết thúc chuyến sau khi nhận lại xe an toàn.
 7. Hệ thống kích hoạt: Schedule Maintenance (include, bắt buộc).
    - Phân công kỹ thuật viên đến hiện trường kèm thời hạn xử lý (SLA).
 8. Hệ thống kích hoạt: Update Incident Status (include) sang `Investigating/In Progress`.
@@ -678,7 +679,7 @@ Luồng sự kiện chính (Main Flow):
 
 Luồng rẽ nhánh (Alternative Flows):
 - 8a. Kỹ thuật viên hoàn tất sửa chữa:
-  1. Kỹ thuật viên báo cáo nghiệm thu trên app.
+  1. Kỹ thuật viên báo kết quả hiện trường; Operator ghi nhận nghiệm thu trên giao diện vận hành (không cần app kỹ thuật viên riêng trong MVP).
   2. Operator kiểm tra và chuyển trạng thái sự cố sang `Resolved`.
   3. Kích hoạt lại tài nguyên về trạng thái `Available` (kế thừa UC09).
 
@@ -732,7 +733,7 @@ Luồng ngoại lệ (Exception Flows):
   2. Giảm dòng sạc của các xe đã đạt trên 70% pin để nhường công suất cho xe pin yếu.
 
 Quy tắc nghiệp vụ (Business Rules):
-- BR15: Tuyệt đối không để tổng công suất sạc vượt quá 85% công suất định mức của trạm biến áp Hub.
+- BR15: `powerLimitKW = 0.85 × công suất định mức` là ngân sách vận hành Hub. Tổng công suất sạc được phân bổ không vượt `powerLimitKW`; không nhân 85% lần thứ hai.
 ================================================================================
 ```
 
@@ -830,6 +831,12 @@ Quy tắc nghiệp vụ (Business Rules):
 
 ---
 
+### 4.3. Các mục tiêu phụ khép kín vòng đời
+
+Bổ sung UC06A/B, UC07A, UC10A/B, UC11A theo [Bổ sung vòng đời nghiệp vụ](01_Diagram/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md). Tài liệu này là phần bổ sung của báo cáo, gồm đủ 11 mục cho mỗi ca, ngoại lệ và liên kết Draw.io/PlantUML/Mermaid. UC06 chỉ tạo giữ chỗ: check-in hoàn thành phiếu và chiếm slot; check-out giải phóng slot sau xác nhận xe rời bãi. UC07 chỉ bắt đầu sạc: UC07A xác nhận ngắt nguồn trước khi giải phóng cổng/công suất. Tài khoản/xe cá nhân được cấp sẵn, không có thanh toán/nợ phí/điểm uy tín trong MVP.
+
+---
+
 ## PHẦN 5: YÊU CẦU CHỨC NĂNG PHI TƯƠNG TÁC (BONUS)
 
 Các dịch vụ chạy ngầm tự động (Background Daemons / Automated Jobs) vận hành liên tục 24/7 mà không cần thao tác bấm nút trực tiếp của con người:
@@ -840,7 +847,7 @@ Các dịch vụ chạy ngầm tự động (Background Daemons / Automated Jobs
 - **Hành động tự động:**
   1. Chuyển trạng thái bản ghi đặt chỗ sang `Expired`.
   2. Mở khóa phương tiện hoặc slot đỗ, trả về trạng thái `Available`.
-  3. Gửi thông báo đến tài khoản sinh viên kèm thông tin trừ 5 điểm uy tín đặt chỗ.
+  3. Gửi thông báo hết hạn đến tài khoản sinh viên; MVP không có điểm uy tín.
 
 ### 5.2. FR-NI02: Luồng Giả lập Suy giảm Pin & Đồng bộ Telemetry
 - **Cơ chế hoạt động:** Luồng dịch vụ thời gian thực mô phỏng sự tiêu hao năng lượng pin của tất cả các phương tiện đang có trạng thái `In-Use` trên đường.

@@ -154,7 +154,7 @@ Read predicates do not reserve resources. Services must recheck authorization, l
 - **Inputs:** Confirmed stop instant at; stopping reason/target status determined by calling service context.
 - **Output:** void.
 - **Preconditions:** Session is Active; at >= startedAt; stop/de-energization is confirmed by physical/simulated integration. Service knows whether requested charging completed or was interrupted.
-- **Algorithm:** Atomically record stoppedAt; set Completed when demand is satisfied, otherwise Interrupted; release point/session power allocation and update request to Completed or Queued. Preserve a faulted point's isolation status.
+- **Algorithm:** Atomically record stoppedAt; set Completed when demand is satisfied, otherwise Interrupted; release point/session power allocation and update request to Completed when satisfied, Cancelled for a user-requested early stop, or Queued for a technical interruption. A user cancellation must not automatically restart charging. Preserve a faulted point's isolation status.
 - **Postconditions:** Old session remains attached to its request and point; it is no longer active. Reassignment creates a new session rather than overwriting history.
 - **Errors:** InvalidTime, InvalidTransition or StopNotConfirmed; do not falsely declare power/resource released when physical/simulated stop has not been confirmed. IncidentService keeps the point isolated during recovery.
 
@@ -164,7 +164,7 @@ Read predicates do not reserve resources. Services must recheck authorization, l
 - **Purpose:** Record confirmed redistribution arrival (UC10).
 - **Inputs:** Arrival instant at and service-confirmed vehicle arrivals/held destination slots.
 - **Output:** void.
-- **Preconditions:** Order is InTransit, dispatchedAt exists and at >= dispatchedAt; distinct hubs, non-empty eligible shared vehicles and destination capacity remain valid.
+- **Preconditions:** Order is InTransit, dispatchedAt exists and at >= dispatchedAt; distinct hubs, non-empty assigned shared vehicles and destination capacity remain valid. The 80% battery threshold is checked at selection/dispatch, not as a reason to refuse recording a confirmed arrival.
 - **Algorithm:** RedistributionService atomically confirms all arrivals, assigns each destination slot/hub, releases the order's transfer/capacity holds and sets Completed/completedAt. Eligibility was checked at assignment and is rechecked for safe arrival handling.
 - **Postconditions:** Vehicles are located at destination with consistent occupancy, no active transfer remains; history persists. Unresolved faults still block availability.
 - **Errors:** InvalidTime, InvalidTransition, ArrivalNotConfirmed or CapacityConflict; retain order/holds for recovery, with no partial all-vehicles completion.

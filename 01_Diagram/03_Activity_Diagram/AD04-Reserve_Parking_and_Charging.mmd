@@ -1,0 +1,89 @@
+flowchart TD
+  subgraph lane0["Student / App"]
+    n0(("●"))
+    n1("Select Hub, private vehicle and arrival")
+    n2{"Confirm operation?"}
+    n3("Close screen / Back<br/>Keep current state")
+    n4(("◉"))
+    n8("Present ticket at scheduled arrival")
+    n12{"Request charging?"}
+    n18("Request stop / reach target or<br/>80% with urgent queue")
+    n23(("◉"))
+    n25(("◉"))
+    n27(("◉"))
+    n28{" "}
+    n29("Request check-out and unplug")
+    n35(("◉"))
+    n37(("◉"))
+    n39(("◉"))
+    n40(("◉"))
+  end
+  subgraph lane1["Backend / Scheduler"]
+    n5("Validate owner and arrival time<br/>Atomically claim a usable slot")
+    n6{"Parking hold committed?"}
+    n7[":ParkingReservation [Reserved]"]
+    n9("Validate owner, Hub and arrival window<br/>ScheduledArrival <= now < arrival + 30 min")
+    n10{"Check-in valid and vehicle present?"}
+    n11("Atomically mark Fulfilled<br/>Change Held slot to Occupied")
+    n13("Validate ownership, battery and connector<br/>Save charging request Queued")
+    n14{"Compatible port and power ready?"}
+    n16{"Start acknowledged?"}
+    n17("Mark session Active")
+    n20{"Power off confirmed?"}
+    n21("Close session; release power allocation<br/>Keep parking Occupied until unplug")
+    n22("Quarantine port; open incident<br/>Do not report stop / checkout success")
+    n24("Block uncertain port; open incident<br/>Keep request pending reconciliation")
+    n26("Keep request Queued; show queue<br/>Allow cancel; retain occupied parking")
+    n30("Validate owner; cancel queued request<br/>Confirm no active supply or plug")
+    n32{"Departure safe and confirmed?"}
+    n33("Atomically clear occupant<br/>Release usable slot once; retain history")
+    n34("Keep slot Occupied / quarantined<br/>Show parking screen; request assistance")
+    n36("Reject check-in; allow Back / rebook<br/>Cancel or expire only unfulfilled hold<br/>Never free an occupied slot")
+    n38("Show conflict and alternative Hub<br/>Return to parking selection")
+  end
+  subgraph lane2["IoT / Simulated Station"]
+    n15("Confirm plug and electrical safety<br/>Start supply; await acknowledgement")
+    n19("Cut power with same command ID<br/>Await acknowledgement; max 3 attempts")
+    n31("Confirm vehicle physically departed")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> |"[else]"| n3
+  n3 --> n4
+  n2 --> |"[confirm]"| n5
+  n5 --> n6
+  n6 -.-> |"[committed]"| n7
+  n7 -.-> n8
+  n8 --> n9
+  n9 --> n10
+  n10 --> |"[valid and arrival confirmed]"| n11
+  n11 --> n12
+  n12 --> |"[yes]"| n13
+  n13 --> n14
+  n14 --> |"[ready; allocated kW <= powerLimitKW]"| n15
+  n15 --> n16
+  n16 --> |"[confirmed]"| n17
+  n17 --> n18
+  n18 --> n19
+  n19 --> n20
+  n20 --> |"[confirmed]"| n21
+  n20 --> |"[else]"| n22
+  n22 --> n23
+  n16 --> |"[else]"| n24
+  n24 --> n25
+  n14 --> |"[else]"| n26
+  n26 --> n27
+  n21 --> n28
+  n12 --> |"[else]"| n28
+  n28 --> n29
+  n29 --> n30
+  n30 --> n31
+  n31 --> n32
+  n32 --> |"[confirmed]"| n33
+  n32 --> |"[else]"| n34
+  n34 --> n35
+  n10 --> |"[else]"| n36
+  n36 --> n37
+  n6 --> |"[else]"| n38
+  n38 --> n39
+  n33 --> n40

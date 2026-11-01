@@ -1,0 +1,62 @@
+@startuml
+title Return Vehicle
+skinparam activity {
+  BackgroundColor #e0f2fe
+  BorderColor black
+}
+|Student / App|
+start
+|Student / App|
+:Select destination Hub / slot;
+|Student / App|
+if (Confirm operation?) then ([confirm])
+else ([else])
+|Student / App|
+:Close screen / Back\nKeep current state;
+|Student / App|
+stop
+endif
+|Backend|
+:Validate active-trip owner\nClaim usable destination slot;
+|Backend|
+if (Destination claim succeeded?) then ([claimed])
+|Student / App|
+:Dock vehicle safely;
+|IoT / Simulated Station|
+:Confirm vehicle identity, Hub and lock\nAwait telemetry; max 3 attempts;
+|Backend|
+if (Safe return confirmed?) then ([matching vehicle and locked])
+|Backend|
+:Close trip and occupy slot atomically\nRecord duration / distance; no payment;
+|Backend|
+::Trip [Completed]; <<object>>
+|Backend|
+if (Unresolved vehicle fault?) then ([fault])
+|Backend|
+:Keep vehicle Faulty\nAssign recovery / maintenance;
+else ([else])
+|Backend|
+if (Battery sufficient?) then ([battery >=20%])
+|Backend|
+:Set vehicle Available;
+else ([else])
+|Backend|
+:Set vehicle NeedsCharging\nQueue charging request;
+endif
+endif
+|Student / App|
+:Display return confirmation;
+else ([else])
+|Backend|
+:Keep trip Active; block uncertain slot\nShow return screen / alternate slot\nEscalate to Operator; do not free vehicle;
+|Student / App|
+stop
+endif
+else ([else])
+|Backend|
+:Suggest another slot / Hub\nKeep trip Active; return to Hub selection;
+|Student / App|
+stop
+endif
+stop
+@enduml
