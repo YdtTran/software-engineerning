@@ -448,6 +448,7 @@ Theo yêu cầu môn học, bài tập lớn được chia làm 4 cột mốc n�
 - **Nội dung Cá nhân (Individual Work):**
   - **Biểu đồ Lớp (Class Diagram):** Chi tiết thuộc tính, phương thức, quan hệ kết tập/cấu thành/kế thừa.
   - **Đặc tả Phương thức (Method Descriptions):** Mô tả chi tiết mục đích, tham số đầu vào, kiểu dữ liệu trả về và giải thuật cho **100% các phương thức** trong Class Diagram.
+  - **Bộ thiết kế lớp miền:** [Class catalog, sơ đồ chỉnh sửa được và đặc tả phương thức](./01_Diagram/05_Class_Diagram/README.md) cho UC01–UC14.
 - **Điểm cộng (Bonus):**
   - Bộ kịch bản kiểm thử (Test Cases / Unit Tests specification).
 

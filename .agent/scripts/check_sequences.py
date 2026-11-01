@@ -121,7 +121,19 @@ def check(file):
             assert ('endArrow=open;' if m.get('is_resp') else 'endArrow=block;') in style
             if m.get('is_self'):
                 g=cells[f'nested_{i}'].find('mxGeometry')
-                assert float(g.get('y')) == rows[i]+24
+                assert float(g.get('y')) == rows[i]+4
+                assert float(g.get('x')) == centers[m['src']]
+                assert float(g.get('height')) == 16
+                preview = svg.find(f'{NS}rect[@id="nested_{i}"]')
+                for key in ('x', 'y', 'width', 'height'):
+                    assert float(preview.get(key)) == float(g.get(key)), 'Nested activation parity'
+                geo = cells[f'msg_{i}'].find('mxGeometry')
+                target = geo.find('mxPoint[@as="targetPoint"]')
+                assert float(target.get('x')) == centers[m['src']]+6
+                assert float(target.get('y')) > float(g.get('y'))+float(g.get('height'))
+                assert 'rounded=1;' in style
+                path = svg.find(f'{NS}path[@id="msg_{i}"]')
+                assert path.get('d').count(' Q ') == 2, 'Recursive loop needs rounded outer corners'
                 assert any(rows[start] <= rows[i] and rows[i]+40 < rows[end] for start,end in d['active_ranges'][m['src']])
         for id in ('title', 'duration', 'assumption'):
             if id not in cells:

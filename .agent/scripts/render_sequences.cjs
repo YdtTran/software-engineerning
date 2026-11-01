@@ -104,7 +104,7 @@ async function main() {
         const rect=n=>{const b=n.getBBox();return {id:n.id,x:b.x,y:b.y,w:b.width,h:b.height}};
         const paint=n=>{const s=getComputedStyle(n);return {fill:s.fill,stroke:s.stroke}};
         const label=n=>({...rect(n),parts:[n,...n.querySelectorAll('tspan')].map(p=>({color:getComputedStyle(p).fill,fontSize:parseFloat(getComputedStyle(p).fontSize)}))});
-        const points=n=>n.tagName==='line'?[{x:+n.getAttribute('x1'),y:+n.getAttribute('y1')},{x:+n.getAttribute('x2'),y:+n.getAttribute('y2')}]:Array.from(n.getAttribute('d').matchAll(/(?:M|L)\s*([\d.]+)\s+([\d.]+)/g),m=>({x:+m[1],y:+m[2]}));
+        const points=n=>n.dataset.points?JSON.parse(n.dataset.points).map(([x,y])=>({x,y})):n.tagName==='line'?[{x:+n.getAttribute('x1'),y:+n.getAttribute('y1')},{x:+n.getAttribute('x2'),y:+n.getAttribute('y2')}]:Array.from(n.getAttribute('d').matchAll(/(?:M|L)\s*([\d.]+)\s+([\d.]+)/g),m=>({x:+m[1],y:+m[2]}));
         return {width:+svg.getAttribute('width'),height:+svg.getAttribute('height'),labels:Array.from(svg.querySelectorAll('text'),label),activations:Array.from(svg.querySelectorAll('[id^="act_"],[id^="nested_"]'),rect),bounds:Array.from(svg.querySelectorAll('[id^="p_"],#title_box'),n=>({...rect(n),actor:n.tagName==='g'})),boxes:Array.from(svg.querySelectorAll('[id^="p_"],[id^="act_"],[id^="nested_"],#title_box'),n=>({...rect(n),...paint(n)})),transparent:Array.from(svg.querySelectorAll('rect[id]')).filter(n=>! /^(p_|act_|nested_|title_box)/.test(n.id)).map(n=>({id:n.id,...paint(n)})),edges:Array.from(svg.querySelectorAll('[data-kind]'),n=>({id:n.id,points:points(n)}))};
       });
       try {verify(svgModel);}catch(e){throw Error(file+' SVG: '+e.message);}
@@ -126,11 +126,11 @@ async function main() {
               const paths=Array.from(s.shape.node.querySelectorAll('path')).map(n=>n.getAttribute('d'));
               if(!paths.length)throw Error('Missing rendered path '+c.id);
               const line=paths[0];
-              if(/[^MLml\d\s.,+\-]/.test(line))throw Error('Unexpected path commands '+c.id+': '+line);
+              if(/[^MLmlQq\d\s.,+\-]/.test(line))throw Error('Unexpected path commands '+c.id+': '+line);
               const coords=Array.from(line.matchAll(/[-+]?\d*\.?\d+/g),m=>+m[0]);
               const drawnPoints=[];
               for(let i=0;i<coords.length;i+=2)drawnPoints.push({x:coords[i],y:coords[i+1]});
-              model.edges.push({id:c.id,points:s.absolutePoints.filter(Boolean).map(p=>({x:p.x,y:p.y})),drawnPoints,paths});
+              model.edges.push({id:c.id,points:s.absolutePoints.filter(Boolean).map(p=>({x:p.x,y:p.y})),drawnPoints:s.style.rounded==='1'?s.absolutePoints.filter(Boolean).map(p=>({x:p.x,y:p.y})):drawnPoints,paths});
             } else if(c.vertex) {
               if(c.id.startsWith('act_')||c.id.startsWith('nested_'))model.activations.push(r);
               if(c.id.startsWith('p_')||c.id==='title_box')model.bounds.push({...r,actor:s.style.shape==='umlActor'});

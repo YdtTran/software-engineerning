@@ -100,12 +100,13 @@ def create_slide_sequence_diagram(filepath, title, participants, messages,
         svg.append('</text>')
 
     def edge(id, points, response=False, kind='message', arrow=True, color=None):
-        color = color or ('#2563eb' if response else '#1e293b')
+        color = color or ('#000000' if response else '#1e293b')
         dash = '1' if response or kind == 'lifeline' else '0'
         head = ('open' if response else 'block') if arrow else 'none'
         timing = 'startArrow=open;endArrow=open;' if kind == 'timing' else ''
+        rounding = 'rounded=1;arcSize=20;' if len(points)>2 else 'rounded=0;'
         cells.append(f'<mxCell id="{id}" value="" edge="1" parent="1" '
-                     f'style="html=0;noEdgeStyle=1;rounded=0;strokeColor={color};strokeWidth=1.5;'
+                     f'style="html=0;noEdgeStyle=1;{rounding}strokeColor={color};strokeWidth=1.5;'
                      f'endArrow={head};endFill={0 if response else 1};dashed={dash};{timing}">'
                      '<mxGeometry relative="1" as="geometry">'
                      f'<mxPoint x="{points[0][0]}" y="{points[0][1]}" as="sourcePoint"/>'
@@ -118,8 +119,10 @@ def create_slide_sequence_diagram(filepath, title, participants, messages,
             svg.append(f'<line id="{id}" data-kind="{kind}" x1="{x1}" y1="{y1}" '
                        f'x2="{x2}" y2="{y2}" stroke="{color}" stroke-width="1.5"{dashed}/>')
         else:
-            path = 'M ' + ' L '.join(f'{x} {y}' for x,y in points)
-            svg.append(f'<path id="{id}" data-kind="self" d="{path}" fill="none" '
+            (x,y),(outer,_),(_,bottom),(end,_) = points
+            path = (f'M {x} {y} L {outer-10} {y} Q {outer} {y} {outer} {y+10} '
+                    f'L {outer} {bottom-10} Q {outer} {bottom} {outer-10} {bottom} L {end} {bottom}')
+            svg.append(f'<path id="{id}" data-kind="self" data-points="{escape_xml(json.dumps(points))}" d="{path}" fill="none" '
                        f'stroke="{color}" stroke-width="1.5"/>')
         if kind == 'timing':
             (x,a),(_,b)=points
@@ -157,8 +160,8 @@ def create_slide_sequence_diagram(filepath, title, participants, messages,
     for i,(m,lines,y) in enumerate(zip(messages,labels,rows)):
         a,b=centers[m['src']],centers[m['dst']]
         if m.get('is_self'):
-            vertex(f'nested_{i}',a, y+24, 12, 16, fill=participants[m['src']]['fill'],stroke=participants[m['src']]['stroke'])
-            points=[(a+6,y),(a+42,y),(a+42,y+24),(a+12,y+24)]
+            vertex(f'nested_{i}',a, y+4, 12, 16, fill=participants[m['src']]['fill'],stroke=participants[m['src']]['stroke'])
+            points=[(a+6,y),(a+42,y),(a+42,y+24),(a+6,y+24)]
             lx=a+54; ly=y-4; lw=text_width(lines, MESSAGE_SIZE)
         else:
             direction=1 if b>a else -1
