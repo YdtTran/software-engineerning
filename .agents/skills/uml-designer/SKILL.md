@@ -75,7 +75,7 @@ Kỹ năng này được kích hoạt khi:
 
 ```mermaid
 flowchart TD
-    Step1["Bước 1: Phân tích nghiệp vụ & Xác định loại sơ đồ"] --> Step2["Bước 2: Đọc quy tắc nghiệp vụ chuẩn slide trong references/"]
+    Step1["Bước 1: Phân tích nghiệp vụ & Xác định loại sơ đồ"] --> Step2["Bước 2: Đọc quy tắc nghiệp vụ chuẩn slide trong 02_Rules/"]
     Step2 --> Step3["Bước 3: Xuất mã PlantUML chuẩn & Mermaid preview"]
     Step3 --> Step4["Bước 4: Tự động khởi tạo file .drawio.svg chuẩn hình học"]
     Step4 --> Step5["Bước 5: Chạy Checklist tự kiểm tra & In hướng dẫn"]
@@ -89,13 +89,15 @@ flowchart TD
 - **State-chart Diagram:** Vòng đời thực thể, state 2 ngăn (`entry /`, `do:`, `exit /`), chuyển trạng thái `event [guard] / action`, superstate.
 - **Architecture 4+1 View:** Phân bổ sơ đồ vào Logical, Process, Development, Physical, và Use-Case Scenarios.
 
-### Bước 2: Đọc quy tắc nghiệp vụ chuẩn slide trong `references/`
-- [00_Usecase_diagram.md](./references/00_Usecase_diagram.md)
-- [01_Activity_diagram.md](./references/01_Activity_diagram.md)
-- [02_Sequence_diagram.md](./references/02_Sequence_diagram.md)
-- [03_Class_diagram.md](./references/03_Class_diagram.md)
-- [04_Statechart_diagram.md](./references/04_Statechart_diagram.md)
-- [05_Architecture_4plus1_views.md](./references/05_Architecture_4plus1_views.md)
+### Bước 2: Đọc quy tắc nghiệp vụ chuẩn slide trong `02_Rules/`
+- [00_Usecase_diagram.md](../../../02_Rules/00_Usecase_diagram.md)
+- [01_Activity_diagram.md](../../../02_Rules/01_Activity_diagram.md)
+- [02_Sequence_diagram.md](../../../02_Rules/02_Sequence_diagram.md)
+- [03_Class_diagram.md](../../../02_Rules/03_Class_diagram.md)
+- [04_Statechart_diagram.md](../../../02_Rules/04_Statechart_diagram.md)
+- [05_Architecture_4plus1_views.md](../../../02_Rules/05_Architecture_4plus1_views.md)
+
+Tham khảo cú pháp khi xuất mã: [PlantUML](./references/05_PlantUML_Guide.md) và [Mermaid](./references/04_Mermaid_UML_Guide.md).
 
 ### Bước 3: Xuất 2 Block Code song song
 1. **Khối PlantUML Code (` ```plantuml `):** Chuẩn `@startuml ... @enduml`, tối ưu cho Draw.io và Visual Paradigm Online.

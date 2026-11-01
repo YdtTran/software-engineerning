@@ -1,284 +1,150 @@
+"""Build native use-case diagrams; render exports with render_usecases.cjs."""
+import importlib.util
+import math
 import os
-import html
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+DIAGRAMS = []
+BLUE = "#0284c7"
+BACKGROUND = "#e0f2fe"
+
 
 def escape_xml(s):
+    import html
     return html.escape(s, quote=True)
 
+
 def build_drawio_svg(filepath, width, height, system_title, actor_left, actor_right, usecases, edges):
-    """
-    Builds a clean, non-overlapping .drawio.svg diagram.
-    - System boundary has a light ocean blue background (fillColor=#e0f2fe, strokeColor=#0284c7).
-    - System boundary is calculated dynamically with generous padding (>= 60px) around all use cases,
-      ensuring no use case can ever protrude or be sliced by the boundary line.
-    - pointerEvents=0 on sys_boundary allows clicking through to inner usecases.
-    - Associations snap to exact outer edges (entryX=0/1, entryY=0.5) so lines never cross other ellipses.
-    - <<include>> and <<extend>> relations use dedicated edgeLabel cells with html=0 and labelBackgroundColor=#e0f2fe.
-    """
-    # 1. Calculate dynamic bounding box of all use cases
-    min_uc_x = min(uc['x'] for uc in usecases)
-    max_uc_x = max(uc['x'] + uc['w'] for uc in usecases)
-    min_uc_y = min(uc['y'] for uc in usecases)
-    max_uc_y = max(uc['y'] + uc['h'] for uc in usecases)
+    # Reflow the existing semantic model instead of trusting its legacy coordinates.
+    nodes = {u["id"]: dict(u, w=280, h=80) for u in usecases}
+    overview = "uc_base" not in nodes
+    actors = {"actor_left": actor_left}
+    if overview:
+        actors["actor_right"] = actor_right
+        skill = Path(os.environ.get("DRAWIO_SKILL", Path.home() / ".agents/skills/drawio-skill"))
+        spec = importlib.util.spec_from_file_location("drawio_autolayout", skill / "scripts/autolayout.py")
+        layout = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(layout)
+        graph = {"direction": "LR", "nodes": [{"id": k, "width": 280, "height": 100} for k in nodes] +
+                 [{"id": k, "width": 40, "height": 80} for k in actors],
+                 "edges": [{"source": "actor_left" if k.startswith("uc_s") else "actor_right", "target": k} for k in nodes]}
+        _, positions, _ = layout.layout(layout.build_dot(graph))
+        ordered = sorted(nodes, key=lambda k: -positions[k][1])
+        for i, k in enumerate(ordered):
+            nodes[k].update(x=520, y=100 + i * 110)
+        actor_positions = {}
+        for actor, prefix in [("actor_left", "uc_s"), ("actor_right", "uc_o")]:
+            ys = [n["y"] + 40 for k, n in nodes.items() if k.startswith(prefix)]
+            actor_positions[actor] = (70, (min(ys) + max(ys)) / 2 - 80 * .33)
+        edges = [dict(e, source="actor_right", target=e["source"]) if e["target"] == "actor_right" else dict(e) for e in edges]
+    else:
+        satellites = [k for k in nodes if k not in ("uc_base", "uc_cancel", "uc_validate")]
+        for i, k in enumerate(satellites):
+            nodes[k].update(x=980, y=100 + i * 140)
+        base_h = max(100, 24 * len(satellites))
+        center_y = 140 + max(0, len(satellites) - 1) * 70
+        nodes["uc_base"].update(x=340, y=center_y - base_h / 2, h=base_h)
+        if "uc_validate" in nodes:
+            children = [nodes[k] for k in ("uc_child3", "uc_child4")]
+            nodes["uc_validate"].update(x=1640, y=sum(n["y"] for n in children) / 2)
+        if "uc_cancel" in nodes:
+            nodes["uc_cancel"].update(x=340, y=max(n["y"] + n["h"] for k, n in nodes.items() if k != "uc_cancel") + 100)
+        actor_y = center_y
+        if "uc_cancel" in nodes:
+            actor_y = (center_y + nodes["uc_cancel"]["y"] + 40) / 2
+        actor_positions = {"actor_left": (70, actor_y - 80 * .33)}
 
-    pad_left = 60
-    pad_right = 60
-    pad_top = 55
-    pad_bottom = 50
+    x = min(n["x"] for n in nodes.values()) - 60
+    y = min(n["y"] for n in nodes.values()) - 55
+    w = max(n["x"] + n["w"] for n in nodes.values()) + 60 - x
+    h = max(n["y"] + n["h"] for n in nodes.values()) + 50 - y
+    width, height = math.ceil(x + w + 30), math.ceil(y + h + 30)
+    mxfile = ET.Element("mxfile", host="drawio", agent="drawio-skill", version="26.0.0")
+    page = ET.SubElement(mxfile, "diagram", id=Path(filepath).stem, name=Path(filepath).name.split(".")[0])
+    model = ET.SubElement(page, "mxGraphModel", grid="1", gridSize="10", page="0", pageWidth=str(width), pageHeight=str(height), background="#ffffff")
+    root = ET.SubElement(model, "root")
+    ET.SubElement(root, "mxCell", id="0")
+    ET.SubElement(root, "mxCell", id="1", parent="0")
 
-    sys_x = min_uc_x - pad_left
-    sys_y = min_uc_y - pad_top
-    sys_w = (max_uc_x + pad_right) - sys_x
-    sys_h = (max_uc_y + pad_bottom) - sys_y
+    def vertex(cid, text, style, xx, yy, ww, hh, parent="1"):
+        cell = ET.SubElement(root, "mxCell", id=cid, value=text, style=style, vertex="1", parent=parent)
+        ET.SubElement(cell, "mxGeometry", x=str(xx), y=str(yy), width=str(ww), height=str(hh), **{"as": "geometry"})
+        return cell
 
-    # Calculate Actor positions
-    act_left_w, act_left_h = 40, 80
-    act_left_x = sys_x - 100 if actor_left else 0
-    act_left_y = sys_y + (sys_h // 2) - 40
+    vertex("sys_boundary", system_title, "rounded=0;container=1;collapsible=0;whiteSpace=wrap;html=0;verticalAlign=top;spacingTop=12;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#0f172a;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;pointerEvents=0;", x, y, w, h)
+    for k, n in nodes.items():
+        fill = "#bae6fd" if n.get("is_bold") else "#ffffff"
+        vertex(k, n["text"], f"ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=15;fontColor=#0f172a;fontStyle={int(bool(n.get('is_bold')))};fillColor={fill};strokeColor={BLUE};strokeWidth=1.6;", n["x"]-x, n["y"]-y, n["w"], n["h"], "sys_boundary")
+    for k, name in actors.items():
+        ax, ay = actor_positions[k]
+        vertex(k, name, "shape=umlActor;html=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;fontFamily=Arial;fontSize=16;fontStyle=1;fontColor=#0f172a;fillColor=#bae6fd;strokeColor=#0284c7;strokeWidth=1.6;", ax, ay, 40, 80)
 
-    act_right_w, act_right_h = 40, 80
-    act_right_x = sys_x + sys_w + 50 if actor_right else 0
-    act_right_y = sys_y + (sys_h // 2) - 40
+    def arc(index, count, side):
+        angle = 0 if count == 1 else math.radians(-65 + 130 * index / (count - 1))
+        return ((1 + side * math.cos(angle)) / 2, (1 + math.sin(angle)) / 2)
 
-    # Dynamic canvas dimensions
-    min_canvas_w = (act_right_x + act_right_w + 40) if actor_right else (sys_x + sys_w + 40)
-    canvas_w = max(width, min_canvas_w)
-    canvas_h = max(height, sys_y + sys_h + 40)
-
-    # If actor_left exists, make sure min_x >= 20
-    if actor_left and act_left_x < 20:
-        offset_x = 20 - act_left_x
-        sys_x += offset_x
-        act_left_x += offset_x
-        if actor_right:
-            act_right_x += offset_x
-        for uc in usecases:
-            uc['x'] += offset_x
-        canvas_w += offset_x
-
-    # 2. Build mxGraphModel
-    mx_cells = []
-    mx_cells.append('<mxCell id="0"/>')
-    mx_cells.append('<mxCell id="1" parent="0"/>')
-
-    # System Boundary (fillColor=#e0f2fe: Light Ocean Blue, pointerEvents=0)
-    mx_cells.append(
-        f'<mxCell id="sys_boundary" value="{system_title}" '
-        f'style="shape=rect;whiteSpace=wrap;html=1;verticalAlign=top;fontStyle=1;fontSize=15;'
-        f'fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;spacingTop=12;fontColor=#0f172a;pointerEvents=0;" '
-        f'vertex="1" parent="1">'
-        f'<mxGeometry x="{sys_x}" y="{sys_y}" width="{sys_w}" height="{sys_h}" as="geometry"/>'
-        f'</mxCell>'
-    )
-
-    # Actor Left
-    if actor_left:
-        mx_cells.append(
-            f'<mxCell id="actor_left" value="{actor_left}" '
-            f'style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;'
-            f'fillColor=#bae6fd;strokeColor=#0284c7;strokeWidth=1.8;fontSize=13;fontStyle=1;fontColor=#0f172a;" '
-            f'vertex="1" parent="1">'
-            f'<mxGeometry x="{act_left_x}" y="{act_left_y}" width="{act_left_w}" height="{act_left_h}" as="geometry"/>'
-            f'</mxCell>'
-        )
-
-    # Actor Right
-    if actor_right:
-        mx_cells.append(
-            f'<mxCell id="actor_right" value="{actor_right}" '
-            f'style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;'
-            f'fillColor=#bae6fd;strokeColor=#0284c7;strokeWidth=1.8;fontSize=13;fontStyle=1;fontColor=#0f172a;" '
-            f'vertex="1" parent="1">'
-            f'<mxGeometry x="{act_right_x}" y="{act_right_y}" width="{act_right_w}" height="{act_right_h}" as="geometry"/>'
-            f'</mxCell>'
-        )
-
-    # Use Cases
-    for uc in usecases:
-        f_style = f"fillColor={uc.get('fill', '#ffffff')};strokeColor={uc.get('stroke', '#0284c7')};strokeWidth=1.6;fontSize=12;fontColor=#0f172a;"
-        if uc.get('is_bold'):
-            f_style += "fontStyle=1;"
-        uc_text = uc['text'].replace('\n', '&#xa;')
-        mx_cells.append(
-            f'<mxCell id="{uc["id"]}" value="{uc_text}" '
-            f'style="ellipse;whiteSpace=wrap;html=1;{f_style}" '
-            f'vertex="1" parent="1">'
-            f'<mxGeometry x="{uc["x"]}" y="{uc["y"]}" width="{uc["w"]}" height="{uc["h"]}" as="geometry"/>'
-            f'</mxCell>'
-        )
-
-    # Edges
-    for idx, e in enumerate(edges):
-        eid = e['id']
-        etype = e.get('type', 'assoc')
-        src = e['source']
-        tgt = e['target']
-        lbl = e.get('label', '')
-
-        if etype == 'assoc':
-            edge_style = "endArrow=none;html=1;rounded=0;strokeColor=#0284c7;strokeWidth=1.6;"
-            if src == "actor_left":
-                edge_style += "exitX=1;exitY=0.33;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;"
-            elif tgt == "actor_right":
-                edge_style += "exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.33;entryDx=0;entryDy=0;"
-            elif tgt == "actor_left":
-                edge_style += "exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.33;entryDx=0;entryDy=0;"
-            
-            mx_cells.append(
-                f'<mxCell id="{eid}" value="" style="{edge_style}" edge="1" parent="1" source="{src}" target="{tgt}">'
-                f'<mxGeometry relative="1" as="geometry"/>'
-                f'</mxCell>'
-            )
-        elif etype in ('include', 'extend'):
-            mx_cells.append(
-                f'<mxCell id="{eid}" value="" '
-                f'style="endArrow=open;dashed=1;html=1;rounded=0;strokeColor=#0284c7;strokeWidth=1.5;endSize=8;" '
-                f'edge="1" parent="1" source="{src}" target="{tgt}">'
-                f'<mxGeometry relative="1" as="geometry"/>'
-                f'</mxCell>'
-            )
-            if lbl:
-                safe_lbl = escape_xml(lbl)
-                mx_cells.append(
-                    f'<mxCell id="{eid}_lbl" value="{safe_lbl}" '
-                    f'style="edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];'
-                    f'fontSize=11;fontColor=#0369a1;fontStyle=1;labelBackgroundColor=#e0f2fe;" '
-                    f'vertex="1" connectable="0" parent="{eid}">'
-                    f'<mxGeometry relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>'
-                    f'</mxCell>'
-                )
-        elif etype == 'generalization':
-            mx_cells.append(
-                f'<mxCell id="{eid}" value="" '
-                f'style="endArrow=block;endFill=0;endSize=10;html=1;rounded=0;strokeColor=#0284c7;strokeWidth=1.6;" '
-                f'edge="1" parent="1" source="{src}" target="{tgt}">'
-                f'<mxGeometry relative="1" as="geometry"/>'
-                f'</mxCell>'
-            )
-
-    mxfile_xml = (
-        f'<mxfile host="Electron"><diagram id="Page-1" name="Page-1">'
-        f'<mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" '
-        f'connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="{canvas_w}" pageHeight="{canvas_h}" '
-        f'math="0" shadow="0"><root>{"".join(mx_cells)}</root></mxGraphModel></diagram></mxfile>'
-    )
-    content_escaped = escape_xml(mxfile_xml)
-
-    # 3. Build SVG Body
-    svg_elements = []
-    svg_elements.append(f'  <rect x="0" y="0" width="{canvas_w}" height="{canvas_h}" fill="#ffffff"/>')
-    # Layer 0: System Boundary with light ocean blue fill (#e0f2fe)
-    svg_elements.append(f'  <rect x="{sys_x}" y="{sys_y}" width="{sys_w}" height="{sys_h}" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>')
-    svg_elements.append(f'  <text x="{sys_x + sys_w//2}" y="{sys_y + 30}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" fill="#0f172a">{system_title}</text>')
-
-    # Actors Render
-    def render_actor(name, cx, cy):
-        return f'''  <g>
-    <circle cx="{cx}" cy="{cy}" r="14" fill="#bae6fd" stroke="#0284c7" stroke-width="2"/>
-    <line x1="{cx}" y1="{cy+14}" x2="{cx}" y2="{cy+45}" stroke="#0284c7" stroke-width="2"/>
-    <line x1="{cx-20}" y1="{cy+25}" x2="{cx+20}" y2="{cy+25}" stroke="#0284c7" stroke-width="2"/>
-    <line x1="{cx}" y1="{cy+45}" x2="{cx-18}" y2="{cy+70}" stroke="#0284c7" stroke-width="2"/>
-    <line x1="{cx}" y1="{cy+45}" x2="{cx+18}" y2="{cy+70}" stroke="#0284c7" stroke-width="2"/>
-    <text x="{cx}" y="{cy+95}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" fill="#0f172a">{name}</text>
-  </g>'''
-
-    uc_map = {uc['id']: uc for uc in usecases}
-    actor_coords = {}
-    if actor_left:
-        actor_coords['actor_left'] = (act_left_x + 20, act_left_y + 15)
-        svg_elements.append(render_actor(actor_left, act_left_x + 20, act_left_y + 15))
-    if actor_right:
-        actor_coords['actor_right'] = (act_right_x + 20, act_right_y + 15)
-        svg_elements.append(render_actor(actor_right, act_right_x + 20, act_right_y + 15))
-
-    # Edges Render
+    related = [e for e in edges if e["type"] != "assoc" and "uc_base" in (e["source"], e["target"])]
+    related.sort(key=lambda e: nodes[e["target"] if e["source"] == "uc_base" else e["source"]]["y"])
     for e in edges:
-        src_id = e['source']
-        tgt_id = e['target']
-        etype = e.get('type', 'assoc')
-        lbl = e.get('label', '')
+        source, target, kind = e["source"], e["target"], e["type"]
+        start, end = (1, .5), (0, .5)
+        if kind == "assoc":
+            start = (1, .33)
+        elif e in related:
+            port = arc(related.index(e), len(related), 1)
+            if source == "uc_base":
+                start = port
+            else:
+                start, end = (0, .5), port
+        elif target == "uc_validate":
+            end = arc(0 if source == "uc_child3" else 1, 2, -1)
+        style = f"edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor={BLUE};strokeWidth=1.6;exitX={start[0]};exitY={start[1]};entryX={end[0]};entryY={end[1]};exitPerimeter=0;entryPerimeter=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;"
+        style += {"assoc": "endArrow=none;", "include": "dashed=1;dashPattern=6 4;endArrow=open;endSize=10;endFill=0;", "extend": "dashed=1;dashPattern=6 4;endArrow=open;endSize=10;endFill=0;", "generalization": "endArrow=block;endSize=14;endFill=0;fillColor=#e0f2fe;"}[kind]
+        edge = ET.SubElement(root, "mxCell", id=e["id"], value="", style=style, edge="1", parent="1", source=source, target=target)
+        ET.SubElement(edge, "mxGeometry", relative="1", **{"as": "geometry"})
+        if kind in ("include", "extend"):
+            label = vertex(e["id"] + "_lbl", "<<"+kind+">>", "edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=13;fontColor=#0369a1;fontStyle=1;labelBackgroundColor=#e0f2fe;", 0, 0, 0, 0, e["id"])
+            geo = label.find("mxGeometry")
+            # Labels sit near the satellite, where fan routes have ample separation.
+            geo.attrib.clear()
+            geo.attrib.update(x="0.35" if source == "uc_base" or target == "uc_validate" else "-0.35", y="0", relative="1", **{"as": "geometry"})
+            ET.SubElement(geo, "mxPoint", x="0", y="-16", **{"as": "offset"})
+    output = Path(filepath.replace(".drawio.svg", ".drawio"))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    ET.indent(mxfile)
+    ET.ElementTree(mxfile).write(output, encoding="utf-8", xml_declaration=True)
+    DIAGRAMS.append(dict(path=output, nodes=nodes, actors=actors, edges=edges, title=system_title))
+    print(f"Created {output.name}: {len(nodes)} use cases, {len(edges)} relationships")
 
-        if src_id == 'actor_left' and tgt_id in uc_map:
-            x1 = actor_coords['actor_left'][0] + 20
-            y1 = actor_coords['actor_left'][1] + 25
-            x2 = uc_map[tgt_id]['x']
-            y2 = uc_map[tgt_id]['y'] + uc_map[tgt_id]['h'] / 2.0
-        elif tgt_id == 'actor_right' and src_id in uc_map:
-            x1 = uc_map[src_id]['x'] + uc_map[src_id]['w']
-            y1 = uc_map[src_id]['y'] + uc_map[src_id]['h'] / 2.0
-            x2 = actor_coords['actor_right'][0] - 20
-            y2 = actor_coords['actor_right'][1] + 25
-        elif tgt_id == 'actor_left' and src_id in uc_map:
-            x1 = uc_map[src_id]['x']
-            y1 = uc_map[src_id]['y'] + uc_map[src_id]['h'] / 2.0
-            x2 = actor_coords['actor_left'][0] + 20
-            y2 = actor_coords['actor_left'][1] + 25
-        else:
-            uc_s = uc_map[src_id]
-            uc_t = uc_map[tgt_id]
-            sx, sy = uc_s['x'] + uc_s['w']/2.0, uc_s['y'] + uc_s['h']/2.0
-            tx, ty = uc_t['x'] + uc_t['w']/2.0, uc_t['y'] + uc_t['h']/2.0
-            dx, dy = tx - sx, ty - sy
-            dist = (dx**2 + dy**2)**0.5 or 1
-            ux, uy = dx/dist, dy/dist
 
-            x1 = sx + ux * (uc_s['w']/2.0 - 2)
-            y1 = sy + uy * (uc_s['h']/2.0 - 2)
-            x2 = tx - ux * (uc_t['w']/2.0 - 2)
-            y2 = ty - uy * (uc_t['h']/2.0 - 2)
-
-        if etype == 'assoc':
-            svg_elements.append(f'  <line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#0284c7" stroke-width="1.6"/>')
-        elif etype in ('include', 'extend'):
-            svg_elements.append(f'  <line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#0284c7" stroke-width="1.6" stroke-dasharray="5,4" marker-end="url(#arrowOpenBlue)"/>')
-            if lbl:
-                mx = (x1 + x2)/2.0
-                my = (y1 + y2)/2.0
-                safe_l = escape_xml(lbl)
-                svg_elements.append(f'''  <g transform="translate({mx-44:.1f}, {my-11:.1f})">
-    <rect x="0" y="0" width="88" height="22" fill="#e0f2fe" stroke="#0284c7" stroke-width="1" rx="4"/>
-    <text x="44" y="15" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="bold" fill="#0369a1">{safe_l}</text>
-  </g>''')
-        elif etype == 'generalization':
-            svg_elements.append(f'  <line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#0284c7" stroke-width="1.6" marker-end="url(#arrowWhiteTriangle)"/>')
-
-    # Use Cases Render
-    for uc in usecases:
-        cx = uc['x'] + uc['w']/2.0
-        cy = uc['y'] + uc['h']/2.0
-        rx = uc['w']/2.0
-        ry = uc['h']/2.0
-        fill = uc.get('fill', '#ffffff')
-        stroke = uc.get('stroke', '#0284c7')
-        sw = 2 if uc.get('is_bold') else 1.5
-        svg_elements.append(f'  <ellipse cx="{cx:.1f}" cy="{cy:.1f}" rx="{rx:.1f}" ry="{ry:.1f}" fill="{fill}" stroke="{stroke}" stroke-width="{sw}"/>')
-        
-        lines = uc['text'].split('\n')
-        fw = 'bold' if uc.get('is_bold') else 'normal'
-        fs = 12
-        if len(lines) == 1:
-            svg_elements.append(f'  <text x="{cx:.1f}" y="{cy+4:.1f}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="{fs}" font-weight="{fw}" fill="#0f172a">{lines[0]}</text>')
-        elif len(lines) == 2:
-            svg_elements.append(f'  <text x="{cx:.1f}" y="{cy-3:.1f}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="{fs}" font-weight="{fw}" fill="#0f172a">{lines[0]}</text>')
-            svg_elements.append(f'  <text x="{cx:.1f}" y="{cy+14:.1f}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="{fs}" font-weight="{fw}" fill="#0f172a">{lines[1]}</text>')
-        elif len(lines) >= 3:
-            svg_elements.append(f'  <text x="{cx:.1f}" y="{cy-11:.1f}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="{fw}" fill="#0f172a">{lines[0]}</text>')
-            svg_elements.append(f'  <text x="{cx:.1f}" y="{cy+4:.1f}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="{fw}" fill="#0f172a">{lines[1]}</text>')
-            svg_elements.append(f'  <text x="{cx:.1f}" y="{cy+19:.1f}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="{fw}" fill="#0f172a">{lines[2]}</text>')
-
-    full_svg = f'''<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="{canvas_w}px" height="{canvas_h}px" viewBox="-0.5 -0.5 {canvas_w} {canvas_h}" content="{content_escaped}">
-  <defs>
-    <marker id="arrowOpenBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#0284c7" stroke-width="1.8"/>
-    </marker>
-    <marker id="arrowWhiteTriangle" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
-      <polygon points="0 1, 11 6, 0 11" fill="#ffffff" stroke="#0284c7" stroke-width="1.6"/>
-    </marker>
-  </defs>
-{chr(10).join(svg_elements)}
-</svg>
-'''
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w', encoding='utf-8') as f:
-        f.write(full_svg)
-    print(f"Created: {filepath} (Size: {canvas_w}x{canvas_h}, Boundary: x={sys_x}, y={sys_y}, w={sys_w}, h={sys_h})")
+def write_catalog(base_dir):
+    lines = ["# Use-case diagrams: PlantUML and Mermaid", "", "Source: original PNGs in `refs/uc_uml/USE_CASE/`. Native Draw.io files and editable SVG exports use checked, separate edge routes. Mermaid is a flowchart approximation of UML notation; Draw.io is the layout reference.", ""]
+    for d in DIAGRAMS:
+        name = d["path"].stem
+        lines += [f"## {name}", "", f"[Editable Draw.io]({d['path'].relative_to(base_dir).as_posix()}) | [SVG preview]({d['path'].relative_to(base_dir).as_posix()}.svg)", "", "```plantuml", "@startuml", "left to right direction", "skinparam shadowing false", "skinparam rectangleBackgroundColor #e0f2fe", "skinparam rectangleBorderColor #0284c7"]
+        for k, actor in d["actors"].items():
+            lines.append(f'actor "{actor}" as {k}')
+        lines.append('rectangle "Smart E-Mobility Hub System" {')
+        for k, n in d["nodes"].items():
+            text = n["text"].replace("\n", " ")
+            lines.append(f'  usecase "{text}" as {k}')
+        lines.append("}")
+        for e in d["edges"]:
+            arrow = {"assoc": "--", "include": "..>", "extend": "..>", "generalization": "--|>"}[e["type"]]
+            direction = "-right-" if e["type"] == "assoc" else arrow
+            label = " : <<" + e["type"] + ">>" if e["type"] in ("include", "extend") else ""
+            lines.append(f"{e['source']} {direction} {e['target']}{label}")
+        lines += ["@enduml", "```", "", "```mermaid", "flowchart LR"]
+        for k, actor in d["actors"].items():
+            lines.append(f'  {k}["{actor}"]')
+        lines.append('  subgraph sys_boundary["Smart E-Mobility Hub System"]')
+        for k, n in d["nodes"].items():
+            text = n["text"].replace("\n", "<br/>").replace("&", "&amp;")
+            lines.append(f'    {k}(["{text}"])')
+        lines.append("  end")
+        for e in d["edges"]:
+            arrow = {"assoc": "---", "include": '-. "&lt;&lt;include&gt;&gt;" .->', "extend": '-. "&lt;&lt;extend&gt;&gt;" .->', "generalization": '-->|"generalization: child to parent"|'}[e["type"]]
+            lines.append(f"  {e['source']} {arrow} {e['target']}")
+        lines += ["  style sys_boundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px", "```", ""]
+    Path(base_dir, "PLANTUML_ALL.md").write_text("\n".join(lines), encoding="utf-8")

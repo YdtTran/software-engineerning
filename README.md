@@ -35,7 +35,7 @@ Hệ thống tập trung vào các bài toán kỹ nghệ phần mềm cốt lõ
 
 ### Giai đoạn 1: Submission #1 (Đặc tả Yêu cầu & Use Case)
 - [x] **Phân tích Bối cảnh & Phạm vi Dự án:** Xác định bài toán kết nối Metro số 1 và hệ thống Hub ĐHQG.
-- [x] **Phân tích Tác nhân (Stakeholders):** Xác định Primary Actors (Student - Trái, Operator - Phải) và Secondary Actors (IoT Sensor Stream, Notification Service).
+- [x] **Phân tích Tác nhân (Stakeholders):** Xác định Primary Actors (Student và Operator - bên trái) và Secondary Actors (IoT Sensor Stream, Notification Service - bên phải khi tham gia).
 - [x] **Sơ đồ Use Case Tổng quan Toàn Hệ thống:** Khởi tạo [`general_usecase_diagram.drawio.svg`](./01_Diagram/01_Usecase_Diagram/GENERAL/general_usecase_diagram.drawio.svg) bao trọn 14 Use Cases.
 - [x] **Sơ đồ Use Case Chi tiết Nhóm Sinh viên (7 UC):**
   - [x] [`UC01: Search Mobility Hub`](./01_Diagram/01_Usecase_Diagram/STUDENTS/UC01-Search_Mobility_Hub.drawio.svg)
@@ -100,19 +100,22 @@ Hệ thống tập trung vào các bài toán kỹ nghệ phần mềm cốt lõ
 
 ## 3. DANH MỤC TÀI NGUYÊN & LỐI TẮT NHANH
 
+Mỗi tài nguyên được duy trì tại một nơi: prototype và ảnh xuất tại `03_App/01_UI_UX/`, ảnh giao diện tham khảo tại `03_App/00_Ref/`, quy chuẩn UML tại `02_Rules/`, skill tại `.agents/skills/uml-designer/`. `refs/` giữ đề bài tham khảo và PNG use case gốc có nội dung khác bản hiện tại. `GEMINI.md` và `.agent/rules/uml-designer.md` tham chiếu bộ hướng dẫn chung trong `AGENTS.md`.
+
 | Danh mục | Đường dẫn | Nội dung & Mục đích |
 | :--- | :--- | :--- |
 | **Master Specification** | [`PROJECT_SPECIFICATION.md`](./PROJECT_SPECIFICATION.md) | Tài liệu đặc tả kỹ thuật chi tiết toàn bộ dự án (Bối cảnh, FRs, NFRs, What-if, UI/UX, AI Policy). |
 | **Báo cáo Submission #1** | [`SUBMISSION_1_REPORT.md`](./SUBMISSION_1_REPORT.md) | Báo cáo hoàn chỉnh Giai đoạn 1 gồm bối cảnh, 14 kịch bản Use Case chi tiết, NFRs và Bonus FRs. |
 | **Thư mục Sơ đồ Hệ thống** | [`01_Diagram/`](./01_Diagram/) | Thư mục gốc chứa toàn bộ các loại sơ đồ UML chuẩn hóa của hệ thống. |
 | **Sơ đồ Use Case** | [`01_Diagram/01_Usecase_Diagram/`](./01_Diagram/01_Usecase_Diagram/) | 15 sơ đồ vector `.drawio.svg` (Tổng quan, 7 UC Sinh viên, 7 UC Operator) kèm [`PLANTUML_ALL.md`](./01_Diagram/01_Usecase_Diagram/PLANTUML_ALL.md). |
+| **Bộ Use Case đã rà soát** | [`Danh mục & checklist`](./01_Diagram/01_Usecase_Diagram/README.md) | 15 file `.drawio` gốc chỉnh sửa được, SVG/PNG đã kiểm tra không giao cắt hoặc chồng đường nối; quy tắc nghiệp vụ đã đồng bộ với báo cáo. |
 | **Sơ đồ Tuần tự (Sequence)** | [`01_Diagram/02_Sequence_Diagram/`](./01_Diagram/02_Sequence_Diagram/) | 7 sơ đồ vector `.drawio.svg` (`SQ01` - `SQ07`) kèm [`PLANTUML_SEQUENCE.md`](./01_Diagram/02_Sequence_Diagram/PLANTUML_SEQUENCE.md). |
 | **Sơ đồ Hoạt động (Activity)** | [`01_Diagram/03_Activity_Diagram/`](./01_Diagram/03_Activity_Diagram/) | 7 sơ đồ vector `.drawio.svg` (`AD01` - `AD07`) kèm [`PLANTUML_ACTIVITY.md`](./01_Diagram/03_Activity_Diagram/PLANTUML_ACTIVITY.md). |
 | **Sơ đồ Trạng thái (Statechart)** | [`01_Diagram/04_Statechart_Diagram/`](./01_Diagram/04_Statechart_Diagram/) | 3 sơ đồ vector `.drawio.svg` (`SC01` - `SC03`) kèm [`PLANTUML_STATECHART.md`](./01_Diagram/04_Statechart_Diagram/PLANTUML_STATECHART.md). |
 | **Bản mẫu UI/UX** | [`03_App/01_UI_UX/`](./03_App/01_UI_UX/) | Prototype tương tác hoàn chỉnh (26 màn hình), không cần cài đặt server, mở chạy trực tiếp trên Chrome/Edge. |
 | **Hồ sơ UI/UX PDF** | [`UI-UX.pdf`](./03_App/01_UI_UX/UI-UX.pdf) | Bộ tài liệu 14 trang A4 Landscape chất lượng cao phục vụ nộp bài **Submission #2**. |
 | **Quy chuẩn UML** | [`02_Rules/`](./02_Rules/) | Cẩm nang quy tắc vẽ chuẩn slide ĐHQG-HCM: Use Case, Activity, Sequence, Class, State-chart Diagram và Kiến trúc 4+1 View. |
-| **Đề bài Gốc Môn học** | [`03_BTL_SoftwareEngineering_HK261.pdf`](./03_BTL_SoftwareEngineering_HK261.pdf) | Yêu cầu bài tập lớn chính thức từ Giảng viên ĐHQG-HCM. |
+| **Đề bài Gốc Môn học** | [`04_BTL_SoftwareEngineering_HK261.pdf`](./04_BTL_SoftwareEngineering_HK261.pdf) | Yêu cầu bài tập lớn chính thức từ Giảng viên ĐHQG-HCM. |
 
 ---
 

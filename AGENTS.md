@@ -8,8 +8,8 @@ Tài liệu này là quy chuẩn bắt buộc mà Agent phải tuân thủ trong
 
 1. **Thứ tự ưu tiên chuẩn mực:**
    - **MỨC 1 (Tối cao):** Slide bài giảng chính thức môn **Software Engineering (CO3001)** - Khoa KH&KT Máy tính, Trường ĐH Bách Khoa - ĐHQG-HCM (Giảng viên: Anh Nguyen-Duc, Tho Quan Thanh), biên soạn dựa trên giáo trình quốc tế **Ian Sommerville - Software Engineering (10th Edition)** lưu trữ tại thư mục `00_Slides/`. Mọi quy tắc vẽ, tên gọi ký hiệu, hình mẫu biểu đồ đều phải tuân theo slide.
-   - **MỨC 2:** Yêu cầu nghiệp vụ, phạm vi bài toán và chức năng hệ thống tuân theo đề bài `03_BTL_SoftwareEngineering_HK261.pdf` và tài liệu kiến trúc master [`PROJECT_SPECIFICATION.md`](./PROJECT_SPECIFICATION.md).
-   - **MỨC 3:** Cẩm nang chi tiết tại [`02_Rules/`](./02_Rules/) và `.agent/skills/uml-designer/references/`.
+   - **MỨC 2:** Yêu cầu nghiệp vụ, phạm vi bài toán và chức năng hệ thống tuân theo đề bài `04_BTL_SoftwareEngineering_HK261.pdf` và tài liệu kiến trúc master [`PROJECT_SPECIFICATION.md`](./PROJECT_SPECIFICATION.md).
+   - **MỨC 3:** Cẩm nang chi tiết tại [`02_Rules/`](./02_Rules/) và `.agents/skills/uml-designer/references/`.
 
 ---
 

@@ -19,3 +19,8 @@ node_modules/
 # Local env files
 *.env.local
 .env
+
+# Regenerable agent scratch output
+.agent/scratch/
+__pycache__/
+*.pyc
