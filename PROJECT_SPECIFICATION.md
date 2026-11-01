@@ -215,7 +215,7 @@ flowchart LR
 - **Quan hệ kỹ thuật:**
   - `Return Vehicle` $\xrightarrow{\ll include \gg}$ `Check Hub Space Availability`: Xác nhận Hub đích còn vị trí đỗ trống hợp lệ.
   - `Return Vehicle` $\xrightarrow{\ll include \gg}$ `Verify Vehicle & Battery Status`: Ghi nhận % pin thực tế khi trả xe và trạng thái khóa chốt vật lý.
-  - `Return Vehicle` $\xrightarrow{\ll include \gg}$ `Confirm Vehicle Return`: Đóng hành trình, tính phí dịch vụ (nếu có) và cập nhật xe về trạng thái `Available` hoặc `Needs Charging`.
+  - `Return Vehicle` $\xrightarrow{\ll include \gg}$ `Confirm Vehicle Return`: Đóng hành trình, ghi nhận thời gian và quãng đường (MVP không thu phí) và cập nhật xe về trạng thái `Available` hoặc `Needs Charging`.
 - **Sơ đồ chi tiết:** Xem file [`UC05-Return_Vehicle.drawio.svg`](./01_Diagram/01_Usecase_Diagram/STUDENTS/UC05-Return_Vehicle.drawio.svg).
 
 #### UC06: Đặt trước chỗ đỗ xe (`Reserve Parking Space`)
@@ -349,7 +349,7 @@ flowchart TD
 2. **Kịch bản 2: Hub chạm ngưỡng 100% sức chứa chỗ đỗ (Hub Full Parking Capacity):**
    - *Tình huống giả định:* Khung giờ vào lớp tại Hub trường ĐH Bách Khoa và ĐH CNTT đạt 100% tỷ lệ lấp đầy slot đỗ xe.
    - *Mô phỏng tác động:* Sinh viên đi xe thuê và xe cá nhân đến trạm không thể trả xe hoặc gửi xe, gây ách tắc lối vào trạm.
-   - *Đề xuất điều phối:* Gửi thông báo chuyển hướng (Reroute) ngay trên ứng dụng di động cho sinh viên đang di chuyển, hướng dẫn trả xe tại Hub Nhà Văn Hóa Sinh Viên (cách 250m) kèm ưu đãi giảm 20% cước phí chuyến đi.
+   - *Đề xuất điều phối:* Gửi thông báo chuyển hướng (Reroute) ngay trên ứng dụng di động cho sinh viên đang di chuyển, hướng dẫn trả xe tại Hub Nhà Văn Hóa Sinh Viên (cách 250m) kèm thông tin khoảng cách và chỗ đỗ còn lại.
 3. **Kịch bản 3: Nhu cầu sạc điện tăng đột biến (Surge in Charging Demand):**
    - *Tình huống giả định:* Thời tiết mưa kéo dài hoặc thời điểm ban đêm (21:00 – 23:00) tại Ký túc xá Khu B, hàng loạt sinh viên cắm sạc xe điện cá nhân và xe dùng chung.
    - *Mô phỏng tác động:* Tổng công suất sạc vượt quá ngưỡng an toàn của trạm biến áp Hub, hàng đợi sạc kéo dài qua đêm.
@@ -383,6 +383,16 @@ flowchart TD
    - Tự động phát sinh cảnh báo mức độ vàng khi Hub đạt $\ge 85\%$ chỗ đỗ hoặc $\le 10\%$ xe khả dụng; phát sinh cảnh báo mức độ đỏ khi đạt $\ge 95\%$ hoặc cạn kiệt xe.
 4. **FR-NI04: Tự động Tái Lập Lịch Sạc khi có Biến động Nguồn (Dynamic Charge Queue Rebalancer):**
    - Khi có bất kỳ cổng sạc nào chuyển sang trạng thái `Fault` hoặc có xe mới đăng ký sạc khẩn cấp ($<10\%$ pin), tiến trình nền tự động tính toán lại ma trận độ ưu tiên và cập nhật lại hàng đợi sạc ngay lập tức mà không cần Operator thao tác thủ công.
+
+---
+
+### 3.7. Bổ sung vòng đời và phạm vi MVP
+
+Giữ 14 nhóm chức năng chính; bổ sung UC06A (check-in xe cá nhân), UC06B (check-out), UC07A (kết thúc sạc), UC10A (hoàn tất điều chuyển), UC10B (hủy lệnh chưa xuất phát), UC11A (báo sự cố giữa chuyến). Đây là các mục tiêu ở thời điểm khác nhau, không phải include bắt buộc của thao tác đặt chỗ/tạo yêu cầu. Xem [Bổ sung vòng đời nghiệp vụ](01_Diagram/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md) cho sáu bảng 11 mục và sơ đồ editable.
+
+UC10 tạo lệnh Planned và giữ xe/sức chứa đích; chỉ chuyển InTransit khi xác nhận xuất phát. UC11 nhận cả báo cáo UC11A; không khóa vật lý xe đang chạy và không tự đóng chuyến khi nhận báo cáo. Tài khoản và xe cá nhân được cấp sẵn; MVP không triển khai đăng ký, thanh toán, nợ phí, điểm uy tín, khuyến mãi hay app riêng cho kỹ thuật viên. UC04 bắt buộc có phiếu UC03 hợp lệ.
+
+Ngưỡng FR-NI03 là quy tắc thống nhất: đỏ khi lấp đầy ≥95% hoặc không còn xe khả dụng; nếu chưa đỏ, vàng khi lấp đầy ≥85% hoặc tỷ lệ xe khả dụng ≤10%. `powerLimitKW` là ngân sách vận hành bằng 85% công suất định mức; tổng công suất sạc không vượt ngân sách này.
 
 ---
 

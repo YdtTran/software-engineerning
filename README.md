@@ -8,6 +8,8 @@
 > **Capstone Dashboard**  
 > *Tài liệu đặc tả kiến trúc & yêu cầu chi tiết đầy đủ xem tại:* **[`PROJECT_SPECIFICATION.md`](./PROJECT_SPECIFICATION.md)**  
 
+[Bổ sung vòng đời nghiệp vụ](01_Diagram/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md): sáu ca phụ cho check-in/check-out xe cá nhân, kết thúc sạc, hoàn tất/hủy điều chuyển và báo sự cố giữa chuyến; kèm đặc tả 11 mục và file Draw.io chỉnh sửa được.
+
 ---
 
 ## 1. TỔNG QUAN DỰ ÁN

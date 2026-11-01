@@ -1,0 +1,58 @@
+flowchart TD
+  subgraph lane0["Operator"]
+    n0(("●"))
+    n1("Choose source, destination and vehicles")
+    n2{"Confirm operation?"}
+    n3("Close screen / Back<br/>Keep current state")
+    n4(("◉"))
+    n9{"Confirm departure?"}
+    n12("Reconcile all vehicle IDs and target slots")
+    n16(("◉"))
+    n17{"Cancel Planned order?"}
+    n19("Close order / Back<br/>Keep Planned and its holds")
+    n20{" "}
+    n21{" "}
+    n23(("◉"))
+    n24(("◉"))
+  end
+  subgraph lane1["Backend / Rebalance"]
+    n5("Validate Operator; check battery >=80%<br/>Available vehicles and destination capacity")
+    n6{"Atomic resource claim succeeded?"}
+    n7("Create Planned order<br/>Hold vehicles and destination slots")
+    n8[":TransferOrder [Planned]"]
+    n10("Recheck battery >=80% and Planned<br/>Commit InTransit; release source slots")
+    n13{"Entire order safely arrived?"}
+    n14("Commit Completed and occupy targets<br/>Classify Available / NeedsCharging / Faulty")
+    n15("Keep InTransit and required holds<br/>Open incident; reassign target atomically<br/>Do not complete a partial batch")
+    n18("Cancel only if still Planned<br/>Release only order-owned holds<br/>If departure won race: keep InTransit")
+    n22("Show conflict; suggest fewer vehicles<br/>Return to source / target selection")
+  end
+  subgraph lane2["Field / Simulated Telemetry"]
+    n11("Transport vehicles to destination<br/>Report arrival to Operator")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> |"[else]"| n3
+  n3 --> n4
+  n2 --> |"[confirm]"| n5
+  n5 --> n6
+  n6 --> |"[claimed]"| n7
+  n7 -.-> n8
+  n8 -.-> n9
+  n9 --> |"[depart]"| n10
+  n10 --> n11
+  n11 --> n12
+  n12 --> n13
+  n13 --> |"[all IDs and usable destination slots]"| n14
+  n13 --> |"[else]"| n15
+  n15 --> n16
+  n9 --> |"[else]"| n17
+  n17 --> |"[cancel confirmed]"| n18
+  n17 --> |"[else]"| n19
+  n18 --> n20
+  n19 --> n20
+  n14 --> n21
+  n20 --> n21
+  n6 --> |"[else]"| n22
+  n22 --> n23
+  n21 --> n24

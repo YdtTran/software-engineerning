@@ -1,6 +1,6 @@
 # Use-case diagrams: PlantUML and Mermaid
 
-Source: original PNGs in `refs/uc_uml/USE_CASE/`. Native Draw.io files and editable SVG exports use checked, separate edge routes. Mermaid is a flowchart approximation of UML notation; Draw.io is the layout reference.
+Sources: PROJECT_SPECIFICATION.md, SUBMISSION_1_REPORT.md and the original PNGs in `refs/uc_uml/USE_CASE/`. UC06A/B, UC07A, UC10A/B and UC11A implement the lifecycle supplement in LIFECYCLE_SCENARIOS.md. Native Draw.io files and editable SVG exports use checked, separate edge routes. Mermaid is a flowchart approximation of UML notation; Draw.io is the layout reference.
 
 ## general_usecase_diagram
 
@@ -684,6 +684,242 @@ flowchart LR
   uc_ext1 -. "&lt;&lt;extend&gt;&gt;" .-> uc_base
   uc_ext2 -. "&lt;&lt;extend&gt;&gt;" .-> uc_base
   uc_ext3 -. "&lt;&lt;extend&gt;&gt;" .-> uc_base
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc1
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc2
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc3
+  style sys_boundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
+```
+
+## UC06A-Check_In_Private_Vehicle
+
+[Editable Draw.io](STUDENTS/UC06A-Check_In_Private_Vehicle.drawio) | [SVG preview](STUDENTS/UC06A-Check_In_Private_Vehicle.drawio.svg)
+
+```plantuml
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam rectangleBackgroundColor #e0f2fe
+skinparam rectangleBorderColor #0284c7
+actor "Student" as actor_left
+rectangle "Smart E-Mobility Hub System" {
+  usecase "Check In Private Vehicle" as uc_base
+  usecase "Validate Parking Reservation" as uc_inc1
+  usecase "Confirm Vehicle Arrival" as uc_inc2
+  usecase "Occupy Reserved Parking Slot" as uc_inc3
+}
+actor_left -right- uc_base
+uc_base ..> uc_inc1 : <<include>>
+uc_base ..> uc_inc2 : <<include>>
+uc_base ..> uc_inc3 : <<include>>
+@enduml
+```
+
+```mermaid
+flowchart LR
+  actor_left["Student"]
+  subgraph sys_boundary["Smart E-Mobility Hub System"]
+    uc_base(["Check In Private Vehicle"])
+    uc_inc1(["Validate Parking Reservation"])
+    uc_inc2(["Confirm Vehicle Arrival"])
+    uc_inc3(["Occupy Reserved Parking Slot"])
+  end
+  actor_left --- uc_base
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc1
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc2
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc3
+  style sys_boundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
+```
+
+## UC06B-Check_Out_Private_Vehicle
+
+[Editable Draw.io](STUDENTS/UC06B-Check_Out_Private_Vehicle.drawio) | [SVG preview](STUDENTS/UC06B-Check_Out_Private_Vehicle.drawio.svg)
+
+```plantuml
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam rectangleBackgroundColor #e0f2fe
+skinparam rectangleBorderColor #0284c7
+actor "Student" as actor_left
+rectangle "Smart E-Mobility Hub System" {
+  usecase "Check Out Private Vehicle" as uc_base
+  usecase "Validate Vehicle Ownership" as uc_inc1
+  usecase "Verify Charging Has Stopped" as uc_inc2
+  usecase "Confirm Vehicle Departure" as uc_inc3
+}
+actor_left -right- uc_base
+uc_base ..> uc_inc1 : <<include>>
+uc_base ..> uc_inc2 : <<include>>
+uc_base ..> uc_inc3 : <<include>>
+@enduml
+```
+
+```mermaid
+flowchart LR
+  actor_left["Student"]
+  subgraph sys_boundary["Smart E-Mobility Hub System"]
+    uc_base(["Check Out Private Vehicle"])
+    uc_inc1(["Validate Vehicle Ownership"])
+    uc_inc2(["Verify Charging Has Stopped"])
+    uc_inc3(["Confirm Vehicle Departure"])
+  end
+  actor_left --- uc_base
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc1
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc2
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc3
+  style sys_boundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
+```
+
+## UC07A-Stop_Charging_Session
+
+[Editable Draw.io](STUDENTS/UC07A-Stop_Charging_Session.drawio) | [SVG preview](STUDENTS/UC07A-Stop_Charging_Session.drawio.svg)
+
+```plantuml
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam rectangleBackgroundColor #e0f2fe
+skinparam rectangleBorderColor #0284c7
+actor "Student" as actor_left
+rectangle "Smart E-Mobility Hub System" {
+  usecase "Stop Charging Session" as uc_base
+  usecase "Validate Charging Entitlement" as uc_inc1
+  usecase "Confirm Power Disconnection" as uc_inc2
+  usecase "Release Charging Allocation" as uc_inc3
+}
+actor_left -right- uc_base
+uc_base ..> uc_inc1 : <<include>>
+uc_base ..> uc_inc2 : <<include>>
+uc_base ..> uc_inc3 : <<include>>
+@enduml
+```
+
+```mermaid
+flowchart LR
+  actor_left["Student"]
+  subgraph sys_boundary["Smart E-Mobility Hub System"]
+    uc_base(["Stop Charging Session"])
+    uc_inc1(["Validate Charging Entitlement"])
+    uc_inc2(["Confirm Power Disconnection"])
+    uc_inc3(["Release Charging Allocation"])
+  end
+  actor_left --- uc_base
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc1
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc2
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc3
+  style sys_boundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
+```
+
+## UC10A-Confirm_Transfer_Arrival
+
+[Editable Draw.io](OPERATOR/UC10A-Confirm_Transfer_Arrival.drawio) | [SVG preview](OPERATOR/UC10A-Confirm_Transfer_Arrival.drawio.svg)
+
+```plantuml
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam rectangleBackgroundColor #e0f2fe
+skinparam rectangleBorderColor #0284c7
+actor "Operator" as actor_left
+rectangle "Smart E-Mobility Hub System" {
+  usecase "Confirm Transfer Arrival" as uc_base
+  usecase "Verify Transfer Manifest" as uc_inc1
+  usecase "Confirm Destination Parking" as uc_inc2
+  usecase "Complete Transfer Order" as uc_inc3
+}
+actor_left -right- uc_base
+uc_base ..> uc_inc1 : <<include>>
+uc_base ..> uc_inc2 : <<include>>
+uc_base ..> uc_inc3 : <<include>>
+@enduml
+```
+
+```mermaid
+flowchart LR
+  actor_left["Operator"]
+  subgraph sys_boundary["Smart E-Mobility Hub System"]
+    uc_base(["Confirm Transfer Arrival"])
+    uc_inc1(["Verify Transfer Manifest"])
+    uc_inc2(["Confirm Destination Parking"])
+    uc_inc3(["Complete Transfer Order"])
+  end
+  actor_left --- uc_base
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc1
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc2
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc3
+  style sys_boundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
+```
+
+## UC10B-Cancel_Transfer_Order
+
+[Editable Draw.io](OPERATOR/UC10B-Cancel_Transfer_Order.drawio) | [SVG preview](OPERATOR/UC10B-Cancel_Transfer_Order.drawio.svg)
+
+```plantuml
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam rectangleBackgroundColor #e0f2fe
+skinparam rectangleBorderColor #0284c7
+actor "Operator" as actor_left
+rectangle "Smart E-Mobility Hub System" {
+  usecase "Cancel Transfer Order" as uc_base
+  usecase "Validate Planned Transfer" as uc_inc1
+  usecase "Release Transfer Holds" as uc_inc2
+}
+actor_left -right- uc_base
+uc_base ..> uc_inc1 : <<include>>
+uc_base ..> uc_inc2 : <<include>>
+@enduml
+```
+
+```mermaid
+flowchart LR
+  actor_left["Operator"]
+  subgraph sys_boundary["Smart E-Mobility Hub System"]
+    uc_base(["Cancel Transfer Order"])
+    uc_inc1(["Validate Planned Transfer"])
+    uc_inc2(["Release Transfer Holds"])
+  end
+  actor_left --- uc_base
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc1
+  uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc2
+  style sys_boundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
+```
+
+## UC11A-Report_Trip_Incident
+
+[Editable Draw.io](STUDENTS/UC11A-Report_Trip_Incident.drawio) | [SVG preview](STUDENTS/UC11A-Report_Trip_Incident.drawio.svg)
+
+```plantuml
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam rectangleBackgroundColor #e0f2fe
+skinparam rectangleBorderColor #0284c7
+actor "Student" as actor_left
+rectangle "Smart E-Mobility Hub System" {
+  usecase "Report Trip Incident" as uc_base
+  usecase "Validate Active Trip" as uc_inc1
+  usecase "Record Incident Details" as uc_inc2
+  usecase "Notify Operator" as uc_inc3
+}
+actor_left -right- uc_base
+uc_base ..> uc_inc1 : <<include>>
+uc_base ..> uc_inc2 : <<include>>
+uc_base ..> uc_inc3 : <<include>>
+@enduml
+```
+
+```mermaid
+flowchart LR
+  actor_left["Student"]
+  subgraph sys_boundary["Smart E-Mobility Hub System"]
+    uc_base(["Report Trip Incident"])
+    uc_inc1(["Validate Active Trip"])
+    uc_inc2(["Record Incident Details"])
+    uc_inc3(["Notify Operator"])
+  end
+  actor_left --- uc_base
   uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc1
   uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc2
   uc_base -. "&lt;&lt;include&gt;&gt;" .-> uc_inc3

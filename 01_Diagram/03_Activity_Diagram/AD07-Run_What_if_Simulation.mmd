@@ -1,0 +1,47 @@
+flowchart TD
+  subgraph lane0["Operator"]
+    n0(("●"))
+    n1("Select scenario and enter parameters")
+    n2{"Confirm operation?"}
+    n3("Close screen / Back<br/>Keep current state")
+    n4(("◉"))
+    n8("Review KPIs and recommendations")
+    n9{"Apply recommendation?"}
+    n14(("◉"))
+    n15("Export report / close results<br/>Keep live resources unchanged")
+    n16{" "}
+    n18(("◉"))
+    n19(("◉"))
+  end
+  subgraph lane1["Backend / Sandbox"]
+    n5("Validate ranges; snapshot network<br/>Run simulation on isolated copy")
+    n6{"Run completed within deadline?"}
+    n7[":SimulationResult [Completed]"]
+    n10("Revalidate role and current live resources")
+    n11{"Recommendation still feasible?"}
+    n13("Show stale-result conflict<br/>Return to scenario configuration")
+    n17("Show timeout / invalid-input error<br/>Discard sandbox; return to configuration")
+  end
+  subgraph lane2["Operational Services"]
+    n12("Submit explicit UC10 Planned order<br/>or UC12 schedule change<br/>Do not copy sandbox state to live")
+  end
+  n0 --> n1
+  n1 --> n2
+  n2 --> |"[else]"| n3
+  n3 --> n4
+  n2 --> |"[confirm]"| n5
+  n5 --> n6
+  n6 -.-> |"[completed]"| n7
+  n7 -.-> n8
+  n8 --> n9
+  n9 --> |"[apply]"| n10
+  n10 --> n11
+  n11 --> |"[valid]"| n12
+  n11 --> |"[else]"| n13
+  n13 --> n14
+  n9 --> |"[else]"| n15
+  n12 --> n16
+  n15 --> n16
+  n6 --> |"[else]"| n17
+  n17 --> n18
+  n16 --> n19

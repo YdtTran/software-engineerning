@@ -119,7 +119,7 @@ def build_drawio_svg(filepath, width, height, system_title, actor_left, actor_ri
 
 
 def write_catalog(base_dir):
-    lines = ["# Use-case diagrams: PlantUML and Mermaid", "", "Source: original PNGs in `refs/uc_uml/USE_CASE/`. Native Draw.io files and editable SVG exports use checked, separate edge routes. Mermaid is a flowchart approximation of UML notation; Draw.io is the layout reference.", ""]
+    lines = ["# Use-case diagrams: PlantUML and Mermaid", "", "Sources: PROJECT_SPECIFICATION.md, SUBMISSION_1_REPORT.md and the original PNGs in `refs/uc_uml/USE_CASE/`. UC06A/B, UC07A, UC10A/B and UC11A implement the lifecycle supplement in LIFECYCLE_SCENARIOS.md. Native Draw.io files and editable SVG exports use checked, separate edge routes. Mermaid is a flowchart approximation of UML notation; Draw.io is the layout reference.", ""]
     for d in DIAGRAMS:
         name = d["path"].stem
         lines += [f"## {name}", "", f"[Editable Draw.io]({d['path'].relative_to(base_dir).as_posix()}) | [SVG preview]({d['path'].relative_to(base_dir).as_posix()}.svg)", "", "```plantuml", "@startuml", "left to right direction", "skinparam shadowing false", "skinparam rectangleBackgroundColor #e0f2fe", "skinparam rectangleBorderColor #0284c7"]

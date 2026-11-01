@@ -30,7 +30,11 @@ All 15 original diagrams from `refs/uc_uml/USE_CASE/` have been redrawn as nativ
 | UC06-Reserve_Parking_Space | [Draw.io](STUDENTS/UC06-Reserve_Parking_Space.drawio) | [Editable SVG](STUDENTS/UC06-Reserve_Parking_Space.drawio.svg) | [PNG](STUDENTS/UC06-Reserve_Parking_Space.png) |
 | UC07-Request_Charging | [Draw.io](STUDENTS/UC07-Request_Charging.drawio) | [Editable SVG](STUDENTS/UC07-Request_Charging.drawio.svg) | [PNG](STUDENTS/UC07-Request_Charging.png) |
 
-[PlantUML and Mermaid source blocks for all 15 diagrams](PLANTUML_ALL.md). Mermaid is a flowchart approximation; the Draw.io exports are the checked layout reference.
+[PlantUML and Mermaid source blocks for all 21 diagrams](PLANTUML_ALL.md). Mermaid is a flowchart approximation; the Draw.io exports are the checked layout reference.
+
+## Lifecycle additions
+
+[Six supporting scenarios and editable diagrams](LIFECYCLE_SCENARIOS.md) close private parking, charging, redistribution and in-trip incident workflows. The 14 core groups and existing filenames are preserved. These are design artifacts, not implemented backend features.
 
 ## Quality checklist
 
@@ -43,7 +47,7 @@ All 15 original diagrams from `refs/uc_uml/USE_CASE/` have been redrawn as nativ
 | Separate edgeLabel cells for relationship labels | PASS |
 | Rendered edges: no crossings, T junctions, or overlapping segments | PASS |
 | No edges through unrelated shapes; no label collisions or clipping | PASS |
-| Native Draw.io XML structural validation | PASS: 15 files, 0 errors, 0 warnings |
+| Native Draw.io XML structural validation | PASS: 21 files, 0 errors, 0 warnings |
 | SVG exports contain the editable source XML | PASS |
 
 Geometry is checked from the installed Draw.io renderer’s actual cell states and edge paths, not inferred from screenshots. Associations sharing an actor endpoint are intentional; they share no edge segments. See [verification.json](verification.json) for per-diagram results.

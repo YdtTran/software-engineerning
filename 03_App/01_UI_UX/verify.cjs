@@ -37,6 +37,13 @@ const fs = require('node:fs');
  const first=await page.locator('.comparison').textContent();
  await page.goto(web+'#simulation');await page.locator('#demand').fill('100');await page.locator('#simulation-form button').click();await page.waitForURL('**#results');
  assert.notEqual(await page.locator('.comparison').textContent(),first);
+ for(const [kind,title] of [['metro','Khách đến ga Metro tăng'],['parking','Hub hết chỗ đỗ'],['charging','Cổng sạc ngừng hoạt động'],['charging-demand','Nhu cầu sạc tăng đột biến'],['clustering','Xe dồn ứ tại một khu vực']]){
+   await page.goto(web+'#simulation');
+   assert.equal(await page.locator('input[name="scenario"]').count(),5);
+   await page.locator('input[name="scenario"][value="'+kind+'"]').check();
+   await page.locator('#simulation-form button').click();await page.waitForURL('**#results');
+   assert.match(await page.locator('.op-main h3').first().textContent(),new RegExp(title));
+ }
  const ids=['home','map','vehicles','reserve','ticket','pickup','trip','parking','charging','notifications','account','overview','resources','redistribute','incidents','schedule','simulation','results'];
  for(const id of ids){
    await page.goto((ids.indexOf(id)<11?user:web)+'&capture=1#'+id);await page.waitForTimeout(60);

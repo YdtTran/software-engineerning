@@ -49,7 +49,7 @@ assert(intersect({x:0,y:0},{x:10,y:0},{x:5,y:0},{x:5,y:10}));
 assert(!intersect({x:0,y:0},{x:10,y:10},{x:0,y:0},{x:10,y:-10}));
 
 (async()=>{
-  assert.equal(files.length,15);
+  assert.equal(files.length,21);
   const browser=await chromium.launch({headless:true,channel:'msedge'});
   try {
     const page=await browser.newPage({viewport:{width:2000,height:1900},deviceScaleFactor:1});
@@ -102,7 +102,7 @@ assert(!intersect({x:0,y:0},{x:10,y:10},{x:0,y:0},{x:10,y:-10}));
       await imagePage.close();
       results.push({file:path.relative(base,file).replaceAll('\\','/'),nodes:rendered.model.nodes.length,edges:rendered.model.edges.length,labels:rendered.model.labels.length,crossings:0,overlappingSegments:0,edgeThroughNode:0,labelCollisions:0});
       console.log('PASS '+path.basename(file));
-      fs.writeFileSync(path.join(base,'verification.json'),JSON.stringify({renderer:'Installed Draw.io viewer-static in headless Edge',checkedAt:new Date().toISOString(),passed:results.length===15,checks:['rendered edge crossings, T junctions and collinear overlaps','edges through unrelated nodes','labels against nodes, other labels and unrelated edges','use-case label clipping','dynamic system boundary padding','primary actors outside on left','all 15 diagrams rendered'],diagrams:results},null,2)+'\n');
+      fs.writeFileSync(path.join(base,'verification.json'),JSON.stringify({renderer:'Installed Draw.io viewer-static in headless Edge',checkedAt:new Date().toISOString(),passed:results.length===files.length,checks:['rendered edge crossings, T junctions and collinear overlaps','edges through unrelated nodes','labels against nodes, other labels and unrelated edges','use-case label clipping','dynamic system boundary padding','primary actors outside on left','all 21 diagrams rendered'],diagrams:results},null,2)+'\n');
     }
   } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});
