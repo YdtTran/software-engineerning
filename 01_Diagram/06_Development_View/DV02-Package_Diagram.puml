@@ -1,0 +1,88 @@
+@startuml
+title DV02 — Development View: Proposed Package Organization
+
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam defaultFontName "Segoe UI"
+skinparam packageBackgroundColor #F8FAFC
+skinparam packageBorderColor #64748B
+skinparam ArrowColor #475569
+skinparam NoteBackgroundColor #FFFBEB
+skinparam NoteBorderColor #D97706
+
+package "Smart E-Mobility Hub\nProposed source/package structure — MVP target" as System {
+    package "Presentation" as Presentation {
+        package "Student Mobile Experience\n(prototype view)" as StudentUI
+        package "Operator Field Mobile Experience\n(prototype view)" as OperatorMobileUI
+        package "Operator Web Dashboard Experience\n(prototype view)" as OperatorWebUI
+        package "Shared Preview Shell\n(existing mockup viewer)" as PreviewShell
+    }
+
+    package "API / Interface" as ApiLayer {
+        package "Express HTTP API\n(target)" as HttpApi
+        package "Telemetry Inbound Port" as TelemetryInput
+    }
+
+    package "Application" as ApplicationLayer {
+        package "Use-case Modules" as UseCaseModules {
+            package "Accounts & Resources" as AccountsResources
+            package "Reservations & Trips" as ReservationsTrips
+            package "Charging" as Charging
+            package "Operations" as Operations
+            package "Simulation" as Simulation
+        }
+
+        package "Application Ports" as ApplicationPorts {
+            package "Repository Ports" as RepositoryPorts
+            package "Notification Outbound Port" as NotificationOutput
+        }
+    }
+
+    package "Domain" as DomainLayer {
+        package "Accounts & Resources Domain" as DomainAccountsResources
+        package "Reservations & Trips Domain" as DomainReservationsTrips
+        package "Charging Domain" as DomainCharging
+        package "Operations Domain" as DomainOperations
+        package "Simulation Domain" as DomainSimulation
+    }
+
+    package "Infrastructure" as InfrastructureLayer {
+        package "SQLite Repository Adapter\n(target)" as SqliteAdapter
+        package "SQLite Persistence\n(target)" as Sqlite
+        package "Simulated Telemetry Adapter\n(MVP option)" as SimulatedTelemetry
+        package "Mock Notification Adapter\n(MVP option)" as MockNotification
+    }
+}
+
+' Planned client-to-API dependencies; current mockups are not wired to this API.
+StudentUI ..> HttpApi : <<planned HTTP integration>>
+OperatorMobileUI ..> HttpApi : <<planned HTTP integration>>
+OperatorWebUI ..> HttpApi : <<planned HTTP integration>>
+
+' Aggregate dependencies keep the package view readable; module responsibilities and
+' domain/UC mapping are detailed in the accompanying README.
+HttpApi ..> UseCaseModules : dispatches use cases
+UseCaseModules ..> DomainLayer : business rules
+UseCaseModules ..> RepositoryPorts : persistence
+UseCaseModules ..> NotificationOutput : Reservations / Operations
+TelemetryInput ..> Operations : dispatches telemetry events
+
+' Infrastructure implements ports owned by the application boundary.
+SqliteAdapter ..> RepositoryPorts : implements
+SqliteAdapter ..> Sqlite : reads / writes
+SimulatedTelemetry ..> TelemetryInput : implements
+MockNotification ..> NotificationOutput : implements
+
+note bottom of System
+  This is a proposed logical package organization, not a claim about existing folders.
+  The backend packages form one modular monolith, not separately deployed services.
+  Presentation-to-API edges are target dependencies only; current UI is a mockup.
+  Repository/notification ports belong to the Application boundary;
+  Infrastructure depends inward to implement those abstractions.
+  Atomic allocation and state transitions need transaction boundaries.
+  Protocols, concrete libraries and production providers remain undecided.
+end note
+
+@enduml

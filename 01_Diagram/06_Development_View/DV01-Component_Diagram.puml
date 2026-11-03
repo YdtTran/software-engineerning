@@ -1,0 +1,87 @@
+@startuml
+title DV01 — Development View: Component Architecture (MVP Target)
+
+left to right direction
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam defaultFontName "Segoe UI"
+skinparam packageBackgroundColor #F8FAFC
+skinparam packageBorderColor #64748B
+skinparam componentBackgroundColor #FFFFFF
+skinparam componentBorderColor #0284C7
+skinparam interfaceBackgroundColor #E0F2FE
+skinparam interfaceBorderColor #0284C7
+skinparam ArrowColor #475569
+skinparam NoteBackgroundColor #FFFBEB
+skinparam NoteBorderColor #D97706
+
+package "Presentation\nExisting UI prototype — mockup only" as Presentation {
+    component "Student Mobile\nexperience" as StudentUI
+    component "Operator Field Mobile\nexperience" as OperatorMobileUI
+    component "Operator Web Dashboard\nexperience" as OperatorWebUI
+    component "Shared Preview Shell\nindex.html + app.js" as PreviewShell
+
+}
+
+package "Smart E-Mobility Hub Backend\nMVP target — Modular Monolith" as Backend {
+    package "API / Interface" as ApiLayer {
+        component "Express HTTP API\n(target)" as HttpApi
+        interface "Telemetry Inbound Port" as TelemetryInput
+    }
+
+    package "Application" as ApplicationLayer {
+        package "Use-case Modules" as UseCaseModules {
+            component "Accounts & Resources\nVehicleService (resource queries/lifecycle)\nUC01–02, UC08–09" as AccountsResources
+            component "Reservations & Trips\nReservationHub; trip coordination\nUC03–06; FR-NI01" as ReservationsTrips
+            component "Charging\nChargingScheduler\nUC07, UC12" as Charging
+            component "Operations\nRedistributionService;\nIncidentService; TelemetryService\nUC08–11; FR-NI02–04" as Operations
+            component "Simulation\nSimulationEngine\nUC13–14" as Simulation
+        }
+
+        interface "Persistence Ports\nResource / Reservation / Charging /\nOperations / Simulation repositories" as RepositoryPorts
+        interface "Notification Outbound Port" as NotificationOutput
+    }
+
+    package "Domain" as DomainLayer {
+        component "Domain Model & Business Invariants\nAccounts, hubs, vehicles, slots,\nreservations, trips, charging,\ntransfers, incidents, simulations" as DomainModel
+    }
+
+    package "Infrastructure" as InfrastructureLayer {
+        component "SQLite Repository Adapter\n(implementation target)" as SqliteAdapter
+        component "SQLite Persistence\n(technology target)" as Sqlite
+        component "Simulated Telemetry Adapter\n(MVP option; real protocol TBD)" as SimulatedTelemetry
+        component "Mock Notification Adapter\n(MVP option; provider TBD)" as MockNotification
+    }
+}
+
+' Planned client-to-API dependencies; the current mockups are not wired to this API.
+StudentUI ..> HttpApi : <<planned HTTP integration>>
+OperatorMobileUI ..> HttpApi : <<planned HTTP integration>>
+OperatorWebUI ..> HttpApi : <<planned HTTP integration>>
+
+HttpApi ..> UseCaseModules : dispatches use cases
+UseCaseModules ..> DomainModel : applies domain rules
+UseCaseModules ..> RepositoryPorts : uses persistence abstractions
+TelemetryInput ..> Operations : dispatches telemetry events
+UseCaseModules ..> NotificationOutput : Reservations / Operations
+
+SqliteAdapter ..|> RepositoryPorts : implements
+SqliteAdapter --> Sqlite : reads / writes\n(transactional allocation)
+SimulatedTelemetry ..|> TelemetryInput : implements
+MockNotification ..|> NotificationOutput : implements
+
+note bottom of Backend
+  Logical components only — not deployment nodes or separate services.
+  Atomic reservation/allocation and state transitions require transaction boundaries.
+  Repository ports hide SQLite details from application and domain rules.
+  Infrastructure adapters realize ports owned by the application boundary.
+end note
+
+note bottom of Presentation
+  The three experiences are mockups rendered through a shared preview shell.
+  Planned API integration is not implemented in the current prototype.
+end note
+
+@enduml

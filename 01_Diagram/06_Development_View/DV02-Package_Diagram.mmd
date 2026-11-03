@@ -1,0 +1,68 @@
+flowchart LR
+    subgraph system["Smart E-Mobility Hub — proposed source/package structure"]
+        subgraph presentation["Presentation"]
+            student["Student Mobile Experience<br/>(prototype view)"]
+            opmobile["Operator Field Mobile Experience<br/>(prototype view)"]
+            opweb["Operator Web Dashboard Experience<br/>(prototype view)"]
+            preview["Shared Preview Shell<br/>(existing mockup viewer)"]
+        end
+
+        subgraph api["API / Interface"]
+            http["Express HTTP API<br/>(target)"]
+            telemetryIn[["Telemetry Inbound Port"]]
+        end
+
+        subgraph application["Application"]
+            accounts["Accounts & Resources"]
+            reservations["Reservations & Trips"]
+            charging["Charging"]
+            operations["Operations"]
+            simulation["Simulation"]
+            useCaseModules[["Use-case Modules"]]
+            repoPort[["Repository Ports"]]
+            notificationPort[["Notification Outbound Port"]]
+        end
+
+        subgraph domain["Domain"]
+            domainAccounts["Accounts & Resources Domain"]
+            domainReservations["Reservations & Trips Domain"]
+            domainCharging["Charging Domain"]
+            domainOperations["Operations Domain"]
+            domainSimulation["Simulation Domain"]
+            domainPackages[["Domain Packages"]]
+        end
+
+        subgraph infrastructure["Infrastructure"]
+            sqliteAdapter["SQLite Repository Adapter<br/>(target)"]
+            sqlite[("SQLite Persistence<br/>(target)")]
+            telemetryAdapter["Simulated Telemetry Adapter<br/>(MVP option)"]
+            notificationAdapter["Mock Notification Adapter<br/>(MVP option)"]
+        end
+    end
+
+    student -. "planned API; not wired" .-> http
+    opmobile -. "planned API; not wired" .-> http
+    opweb -. "planned API; not wired" .-> http
+
+    http --> useCaseModules
+
+    useCaseModules --> domainPackages
+    useCaseModules --> repoPort
+    useCaseModules --> notificationPort
+    telemetryIn -->|"dispatches telemetry events"| operations
+
+    sqliteAdapter -. "implements" .-> repoPort
+    sqliteAdapter --> sqlite
+    telemetryAdapter -. "implements" .-> telemetryIn
+    notificationAdapter -. "implements" .-> notificationPort
+
+    classDef target fill:#eff6ff,stroke:#0284c7,color:#0f172a;
+    classDef port fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e;
+    classDef mock fill:#fffbeb,stroke:#d97706,color:#78350f;
+    class http,sqlite,sqliteAdapter target;
+    class telemetryIn,repoPort,notificationPort port;
+    class telemetryAdapter,notificationAdapter,preview mock;
+
+    %% Use-case module dependencies are aggregated to keep package-level wiring readable.
+    %% Arrows show caller/package -> dependency, not runtime message sequence.
+    %% UML realization is shown as a dashed edge, not its exact UML glyph.

@@ -1,0 +1,59 @@
+flowchart LR
+    subgraph presentation["Presentation — existing mockup only"]
+        student["Student mobile experience"]
+        opmobile["Operator field mobile experience"]
+        opweb["Operator web dashboard experience"]
+        preview["Shared preview shell<br/>index.html + app.js"]
+    end
+    student -. "planned HTTP integration" .-> http
+    opmobile -. "planned HTTP integration" .-> http
+    opweb -. "planned HTTP integration" .-> http
+
+    subgraph api["API / Interface — MVP target"]
+        http["Express HTTP API"]
+        telemetryIn["Telemetry inbound port"]
+    end
+
+    subgraph application["Application — modules in one backend"]
+        accounts["Accounts & Resources<br/>VehicleService<br/>UC01–02, UC08–09"]
+        reservations["Reservations & Trips<br/>ReservationHub; trip coordination<br/>UC03–06; FR-NI01"]
+        charging["Charging<br/>ChargingScheduler<br/>UC07, UC12"]
+        operations["Operations<br/>RedistributionService; IncidentService;<br/>TelemetryService<br/>UC08–11; FR-NI02–04"]
+        simulation["Simulation<br/>SimulationEngine<br/>UC13–14"]
+        useCaseModules[["Use-case Modules"]]
+        repoPort[["Repository ports<br/>resource / reservation / charging /<br/>operations / simulation"]]
+        notificationPort[["Notification outbound port"]]
+    end
+
+    subgraph domain["Domain — business rules"]
+        domainModel["Domain model & invariants<br/>accounts, hubs, vehicles, slots,<br/>reservations, trips, charging,<br/>transfers, incidents, simulations"]
+    end
+
+    subgraph infrastructure["Infrastructure — MVP adapters"]
+        sqliteAdapter["SQLite repository adapter"]
+        sqlite[("SQLite persistence")]
+        simulatedTelemetry["Simulated telemetry adapter<br/>real protocol TBD"]
+        mockNotification["Mock notification adapter<br/>provider TBD"]
+    end
+
+    http --> useCaseModules
+
+    useCaseModules --> domainModel
+    useCaseModules --> repoPort
+    useCaseModules --> notificationPort
+    telemetryIn --> operations
+
+    sqliteAdapter -. "implements" .-> repoPort
+    sqliteAdapter -->|"transactional reads / writes"| sqlite
+    simulatedTelemetry -. "implements" .-> telemetryIn
+    mockNotification -. "implements" .-> notificationPort
+
+    classDef target fill:#eff6ff,stroke:#0284c7,color:#0f172a;
+    classDef port fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e;
+    classDef mock fill:#fffbeb,stroke:#d97706,color:#78350f;
+    class http,sqlite,sqliteAdapter target;
+    class telemetryIn,repoPort,notificationPort port;
+    class simulatedTelemetry,mockNotification,preview mock;
+
+    %% Mermaid does not express UML component/interface realization exactly.
+    %% This preview shows logical dependencies; it does not represent deployment nodes.
