@@ -86,9 +86,9 @@ Hệ thống tập trung vào các bài toán kỹ nghệ phần mềm cốt lõ
 ### Giai đoạn 3: Submission #3 (Kiến trúc Hệ thống & Thiết kế Chi tiết)
 - [ ] **Deployment View (Góc nhìn Triển khai):** Sơ đồ máy chủ, client di động, kết nối cảm biến IoT telemetry.
 - [ ] **Development / Implementation View (Góc nhìn Phát triển):** Kiến trúc phân tầng (Clean/Layered Architecture), module và thư viện.
-- [ ] **Class Diagram (Biểu đồ Lớp):** Thiết kế cấu trúc các lớp thực thể, dịch vụ, bộ điều khiển, mối quan hệ và bội số quan hệ.
-- [ ] **Đặc tả Phương thức (Method Descriptions):** Mô tả chi tiết 100% các phương thức trong Class Diagram (mục đích, tham số, giá trị trả về, giải thuật).
-- [ ] **Kịch bản Kiểm thử (Test Cases - Bonus):** Bộ Test Cases kiểm thử chức năng và luồng nghiệp vụ.
+- [x] **Class Diagram (Biểu đồ Lớp):** Thiết kế cấu trúc 19 lớp thực thể, mối quan hệ và bội số quan hệ tại [`01_Diagram/05_Class_Diagram/`](./01_Diagram/05_Class_Diagram/README.md).
+- [x] **Đặc tả Phương thức (Method Descriptions):** Mô tả chi tiết 100% (18/18) các phương thức trong Class Diagram tại [`METHOD_DESCRIPTIONS.md`](./01_Diagram/05_Class_Diagram/METHOD_DESCRIPTIONS.md).
+- [x] **Kịch bản Kiểm thử (Test Cases - Bonus):** Bộ Test Plan & 88 Test Cases (`UT-01`–`UT-54`, `SUC-01`–`SUC-24`, `NFR-01`–`NFR-10`) chuẩn Slide Ch9 tại [`TEST_CASES.md`](./01_Diagram/05_Class_Diagram/TEST_CASES.md) kèm bộ kiểm thử tự động [`verify_test_cases.py`](./01_Diagram/05_Class_Diagram/verify_test_cases.py).
 
 ---
 
@@ -114,6 +114,8 @@ Mỗi tài nguyên được duy trì tại một nơi: prototype và ảnh xuấ
 | **Sơ đồ Tuần tự (Sequence)** | [`01_Diagram/02_Sequence_Diagram/`](./01_Diagram/02_Sequence_Diagram/) | 7 sơ đồ vector `.drawio.svg` (`SQ01` - `SQ07`) kèm [`PLANTUML_SEQUENCE.md`](./01_Diagram/02_Sequence_Diagram/PLANTUML_SEQUENCE.md). |
 | **Sơ đồ Hoạt động (Activity)** | [`01_Diagram/03_Activity_Diagram/`](./01_Diagram/03_Activity_Diagram/) | 7 sơ đồ vector `.drawio.svg` (`AD01` - `AD07`) kèm [`PLANTUML_ACTIVITY.md`](./01_Diagram/03_Activity_Diagram/PLANTUML_ACTIVITY.md). |
 | **Sơ đồ Trạng thái (Statechart)** | [`01_Diagram/04_Statechart_Diagram/`](./01_Diagram/04_Statechart_Diagram/) | 3 sơ đồ vector `.drawio.svg` (`SC01` - `SC03`) kèm [`PLANTUML_STATECHART.md`](./01_Diagram/04_Statechart_Diagram/PLANTUML_STATECHART.md). |
+| **Biểu đồ Lớp & Đặc tả Phương thức** | [`01_Diagram/05_Class_Diagram/`](./01_Diagram/05_Class_Diagram/README.md) | 19 lớp miền, 9 tab Draw.io [`smart_emobility_class_diagram.drawio.svg`](./01_Diagram/05_Class_Diagram/smart_emobility_class_diagram.drawio.svg), [`CLASS_CATALOG.md`](./01_Diagram/05_Class_Diagram/CLASS_CATALOG.md) và [`METHOD_DESCRIPTIONS.md`](./01_Diagram/05_Class_Diagram/METHOD_DESCRIPTIONS.md). |
+| **Kịch bản Kiểm thử (Submission #3 Bonus)** | [`TEST_CASES.md`](./01_Diagram/05_Class_Diagram/TEST_CASES.md) | Test Plan 6 cột (Slide Ch9 p.59), 54 Unit Tests, 24 Use-Case Tests (Slide Ch9 p.53), 10 NFR Tests và script [`verify_test_cases.py`](./01_Diagram/05_Class_Diagram/verify_test_cases.py). |
 | **Bản mẫu UI/UX** | [`03_App/01_UI_UX/`](./03_App/01_UI_UX/) | Prototype tương tác hoàn chỉnh (26 màn hình), không cần cài đặt server, mở chạy trực tiếp trên Chrome/Edge. |
 | **Hồ sơ UI/UX PDF** | [`UI-UX.pdf`](./03_App/01_UI_UX/UI-UX.pdf) | Bộ tài liệu 14 trang A4 Landscape chất lượng cao phục vụ nộp bài **Submission #2**. |
 | **Quy chuẩn UML** | [`02_Rules/`](./02_Rules/) | Cẩm nang quy tắc vẽ chuẩn slide ĐHQG-HCM: Use Case, Activity, Sequence, Class, State-chart Diagram và Kiến trúc 4+1 View. |

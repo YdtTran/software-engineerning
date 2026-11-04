@@ -460,7 +460,7 @@ Theo yêu cầu môn học, bài tập lớn được chia làm 4 cột mốc n�
   - **Đặc tả Phương thức (Method Descriptions):** Mô tả chi tiết mục đích, tham số đầu vào, kiểu dữ liệu trả về và giải thuật cho **100% các phương thức** trong Class Diagram.
   - **Bộ thiết kế lớp miền:** [Class catalog, sơ đồ chỉnh sửa được và đặc tả phương thức](./01_Diagram/05_Class_Diagram/README.md) cho UC01–UC14.
 - **Điểm cộng (Bonus):**
-  - Bộ kịch bản kiểm thử (Test Cases / Unit Tests specification).
+  - Bộ kịch bản kiểm thử (Test Cases / Unit Tests specification): Đã hoàn thành tại [`01_Diagram/05_Class_Diagram/TEST_CASES.md`](./01_Diagram/05_Class_Diagram/TEST_CASES.md) kèm script kiểm định tự động [`verify_test_cases.py`](./01_Diagram/05_Class_Diagram/verify_test_cases.py) (54 Unit Tests cho 18 phương thức + 24 Use-Case/System Tests chuẩn Slide Ch9 p.53 + 10 NFR Tests chuẩn Slide Ch9 p.59, p.63).
 
 ---
 
