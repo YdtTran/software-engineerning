@@ -1,0 +1,356 @@
+<mxfile host="65bd71144e">
+    <diagram name="SC01-Vehicle_State_Machine" id="0">
+        <mxGraphModel dx="2043" dy="953" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;fontSize=24;fontStyle=1;" value="SC01  /  Vehicle Lifecycle" vertex="1">
+                    <mxGeometry height="40" width="1400" x="80" y="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="subtitle" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;fontSize=13;" value="UC03–05, UC10, UC11, UC12  ·  CO3001 Ch6 p.41–45  ·  SoC = battery level  ·  ACK = device acknowledgement" vertex="1">
+                    <mxGeometry height="24" width="1450" x="80" y="52" as="geometry"/>
+                </mxCell>
+                <mxCell id="Operational" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=6;startSize=38;fillColor=#e0f2fe;swimlaneFillColor=#f8fafc;strokeColor=#0284c7;pointerEvents=0;collapsible=0;fontSize=17;fontStyle=1;align=left;spacingLeft=14;" value="Operational Service" vertex="1">
+                    <mxGeometry height="820" width="900" x="80" y="150" as="geometry"/>
+                </mxCell>
+                <mxCell id="Available" parent="Operational" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#dbeafe;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="Available" vertex="1">
+                    <mxGeometry height="110" width="250" x="100" y="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_Available" parent="Available" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="entry / enableBookingIfEligible()&#xa;do: receiveTelemetry()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="Reserved" parent="Operational" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#dbeafe;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="Reserved" vertex="1">
+                    <mxGeometry height="110" width="250" x="100" y="360" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_Reserved" parent="Reserved" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="entry / holdFor15Minutes()&#xa;exit / stopExpiryTimer()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="InUse" parent="Operational" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#dbeafe;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="In-Use" vertex="1">
+                    <mxGeometry height="110" width="250" x="100" y="630" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_InUse" parent="InUse" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="do: streamTripTelemetry()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="NeedsCharging" parent="Operational" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#dbeafe;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="Needs Charging" vertex="1">
+                    <mxGeometry height="110" width="250" x="580" y="630" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_NeedsCharging" parent="NeedsCharging" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="entry / disableBooking()&#xa;do: waitForScheduler()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="Charging" parent="Operational" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#dbeafe;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="Charging" vertex="1">
+                    <mxGeometry height="110" width="250" x="580" y="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_Charging" parent="Charging" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="do: monitorSupplyAndBattery()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="initial" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;ellipse;fillColor=#000000;" value="" vertex="1">
+                    <mxGeometry height="24" width="24" x="293" y="92" as="geometry"/>
+                </mxCell>
+                <mxCell id="TransferHeld" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#e2e8f0;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="Held for Transfer" vertex="1">
+                    <mxGeometry height="110" width="250" x="1170" y="240" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_TransferHeld" parent="TransferHeld" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="entry / excludeFromBooking()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="InTransit" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#e2e8f0;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="In-Transit" vertex="1">
+                    <mxGeometry height="110" width="250" x="1170" y="780" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_InTransit" parent="InTransit" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="do: trackTransferManifest()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="Faulty" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#fee2e2;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="Faulty / Quarantined" vertex="1">
+                    <mxGeometry height="110" width="250" x="1170" y="1100" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_Faulty" parent="Faulty" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="entry / blockNewAllocations()&#xa;do: preserveTripAndLocation()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="Maintenance" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#fef3c7;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="Under Maintenance" vertex="1">
+                    <mxGeometry height="110" width="250" x="660" y="1100" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_Maintenance" parent="Maintenance" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="do: diagnoseAndRepair()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="Retired" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;swimlane;rounded=1;arcSize=10;startSize=32;fillColor=#e2e8f0;swimlaneFillColor=#ffffff;collapsible=0;fontStyle=1;fontSize=16;" value="Retired" vertex="1">
+                    <mxGeometry height="110" width="250" x="180" y="1100" as="geometry"/>
+                </mxCell>
+                <mxCell id="body_Retired" parent="Retired" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=10;fontSize=12;" value="entry / archiveVehicle()" vertex="1">
+                    <mxGeometry height="70" width="250" y="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="final" parent="1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;shape=endState;fillColor=#000000;" value="" vertex="1">
+                    <mxGeometry height="24" width="24" x="293" y="1320" as="geometry"/>
+                </mxCell>
+                <mxCell id="e0" data-caption="" data-contract="" edge="1" parent="1" source="initial" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="Available" tooltip="" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" data-caption="reserve [eligible]&#xa;/ hold vehicle" data-contract="reserveCommitted [battery &gt;=20% and no other hold] / linkReservation()" edge="1" parent="1" source="Available" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="Reserved" tooltip="reserveCommitted [battery &gt;=20% and no other hold] / linkReservation()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e1" parent="e1" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="reserve [eligible]&#xa;/ hold vehicle" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e2" data-caption="cancel [not claimed]&#xa;/ release hold" data-contract="cancelCommitted [pickupNotClaimed] / releaseOwnHold()" edge="1" parent="1" source="Reserved" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.3;entryX=1;entryY=0.3;exitPerimeter=0;entryPerimeter=0;" target="Available" tooltip="cancelCommitted [pickupNotClaimed] / releaseOwnHold()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="490" y="543"/>
+                            <mxPoint x="490" y="273"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e2" parent="e2" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="cancel [not claimed]&#xa;/ release hold" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-30.5" y="78" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e3" data-caption="expire [deadline reached]&#xa;/ release hold" data-contract="expiryReached [now &gt;= expiresAt and pickupNotClaimed] / releaseOwnHold()" edge="1" parent="1" source="Reserved" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.7;entryX=1;entryY=0.7;exitPerimeter=0;entryPerimeter=0;" target="Available" tooltip="expiryReached [now &gt;= expiresAt and pickupNotClaimed] / releaseOwnHold()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="550" y="587"/>
+                            <mxPoint x="550" y="317"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e3" parent="e3" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="expire [deadline reached]&#xa;/ release hold" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="130" y="13" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e4" data-caption="unlock ACK [claimed]&#xa;/ start trip" data-contract="unlockConfirmed [pickupClaimed and matchingAck] / consumeReservationAndStartTrip()" edge="1" parent="1" source="Reserved" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="InUse" tooltip="unlockConfirmed [pickupClaimed and matchingAck] / consumeReservationAndStartTrip()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e4" parent="e4" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="unlock ACK [claimed]&#xa;/ start trip" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e5" data-caption="unlock uncertain [3 tries]&#xa;/ open incident" data-contract="unlockUncertain [threeAttemptsExhausted] / openIncidentAndReconcile()" edge="1" parent="1" source="Reserved" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.5;entryX=0.7;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="Faulty" tooltip="unlockUncertain [threeAttemptsExhausted] / openIncidentAndReconcile()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1130" y="565"/>
+                            <mxPoint x="1130" y="1040"/>
+                            <mxPoint x="1345" y="1040"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e5" parent="e5" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="unlock uncertain [3 tries]&#xa;/ open incident" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-525" y="58" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e6" data-caption="safe return [healthy, SoC &gt;=20%]&#xa;/ close trip" data-contract="safeReturnConfirmed [noFault and battery &gt;=20%] / closeTripAndOccupySlot()" edge="1" parent="1" source="InUse" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" target="Available" tooltip="safeReturnConfirmed [noFault and battery &gt;=20%] / closeTripAndOccupySlot()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="140" y="835"/>
+                            <mxPoint x="140" y="295"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e6" parent="e6" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="safe return [healthy, SoC &gt;=20%]&#xa;/ close trip" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-160.5" y="-2" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e7" data-caption="safe return&#xa;[healthy, SoC &lt;20%]&#xa;/ queue charge" data-contract="safeReturnConfirmed [noFault and battery &lt;20%] / closeTripAndQueueCharge()" edge="1" parent="1" source="InUse" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.5;entryX=0;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" target="NeedsCharging" tooltip="safeReturnConfirmed [noFault and battery &lt;20%] / closeTripAndQueueCharge()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e7" parent="e7" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="safe return&#xa;[healthy, SoC &lt;20%]&#xa;/ queue charge" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e8" data-caption="power ON ACK&#xa;[plug safe, allocated]&#xa;/ start session" data-contract="powerOnConfirmed [plugSafe and portAllocated] / startSession()" edge="1" parent="1" source="NeedsCharging" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.7;entryX=1;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" target="Charging" tooltip="powerOnConfirmed [plugSafe and portAllocated] / startSession()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="920" y="857"/>
+                            <mxPoint x="920" y="295"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e8" parent="e8" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="power ON ACK&#xa;[plug safe, allocated]&#xa;/ start session" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="80" y="124" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e9" data-caption="power OFF ACK&#xa;[healthy, SoC &gt;=20%]&#xa;/ close session" data-contract="powerOffConfirmed [matchingAck and noFault and battery &gt;=20%] / closeSessionByReason()" edge="1" parent="1" source="Charging" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.5;entryX=1;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" target="Available" tooltip="powerOffConfirmed [matchingAck and noFault and battery &gt;=20%] / closeSessionByReason()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e9" parent="e9" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="power OFF ACK&#xa;[healthy, SoC &gt;=20%]&#xa;/ close session" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint y="-56.75" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e10" data-caption="power OFF ACK&#xa;[healthy, SoC &lt;20%]&#xa;/ close by reason; conditionally requeue" data-contract="powerOffConfirmed [matchingAck and noFault and battery &lt;20%] / closeSessionByReason(); requeueOnlyTechnicalOrYield()" edge="1" parent="1" source="Charging" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="NeedsCharging" tooltip="powerOffConfirmed [matchingAck and noFault and battery &lt;20%] / closeSessionByReason(); requeueOnlyTechnicalOrYield()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e10" parent="e10" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="power OFF ACK&#xa;[healthy, SoC &lt;20%]&#xa;/ close by reason; conditionally requeue" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="19.5" y="105.75" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e11" data-caption="fault detected&#xa;/ isolate safely" data-contract="faultDetected / blockAllocations; cutSupplyIfCharging; neverLockMovingVehicle" edge="1" parent="1" source="Operational" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.55;entryX=0.2;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="Faulty" tooltip="faultDetected / blockAllocations; cutSupplyIfCharging; neverLockMovingVehicle" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1150" y="601"/>
+                            <mxPoint x="1150" y="1020"/>
+                            <mxPoint x="1220" y="1020"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e11" parent="e11" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="fault detected&#xa;/ isolate safely" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-85.5" y="-182" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e12" data-caption="plan [SoC &gt;=80%, capacity held]&#xa;/ hold for transfer" data-contract="planCommitted [operatorValid and noFault and noOtherHold and battery &gt;=80% and capacityHeld] / linkPlannedOrder()" edge="1" parent="1" source="Available" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.7;exitY=0;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="TransferHeld" tooltip="planCommitted [operatorValid and noFault and noOtherHold and battery &gt;=80% and capacityHeld] / linkPlannedOrder()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="355" y="200"/>
+                            <mxPoint x="1295" y="200"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e12" parent="e12" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="plan [SoC &gt;=80%, capacity held]&#xa;/ hold for transfer" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="285" y="-15" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e13" data-caption="cancel [still Planned, healthy]&#xa;/ release order holds" data-contract="cancelCommitted [orderStillPlanned and noFault] / releaseOwnHolds()" edge="1" parent="1" source="TransferHeld" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.7;exitY=0;entryX=0.95;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="Available" tooltip="cancelCommitted [orderStillPlanned and noFault] / releaseOwnHolds()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1345" y="135"/>
+                            <mxPoint x="417.5" y="135"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e13" parent="e13" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="cancel [still Planned, healthy]&#xa;/ release order holds" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="518.5" y="50.5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e14" data-caption="depart [authorized, eligible,&#xa;SoC &gt;=80%, Planned, target held]&#xa;/ commit atomically" data-contract="departureConfirmed [operatorValid and battery &gt;=80% and orderStillPlanned and destinationHeld and eligible] / commitDepartureAndFreeSourceAtomically()" edge="1" parent="1" source="TransferHeld" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="InTransit" tooltip="departureConfirmed [operatorValid and battery &gt;=80% and orderStillPlanned and destinationHeld and eligible] / commitDepartureAndFreeSourceAtomically()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e14" parent="e14" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="depart [authorized, eligible,&#xa;SoC &gt;=80%, Planned, target held]&#xa;/ commit atomically" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e15" data-caption="fault detected&#xa;/ block departure" data-contract="faultDetected / invalidateDeparture()" edge="1" parent="1" source="TransferHeld" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.3;entryX=1;entryY=0.7;exitPerimeter=0;entryPerimeter=0;" target="Faulty" tooltip="faultDetected / invalidateDeparture()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1480" y="273"/>
+                            <mxPoint x="1480" y="1177"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e15" parent="e15" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="fault detected&#xa;/ block departure" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="60" y="285" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e16" data-caption="arrive [all arrived,&#xa;healthy, SoC &gt;=20%]&#xa;/ occupy target" data-contract="arrivalCommitted [wholeOrderArrived and noFault and battery &gt;=20%] / occupyTarget()" edge="1" parent="1" source="InTransit" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.5;entryX=0.64;entryY=0;exitPerimeter=0;entryPerimeter=0;entryDx=0;entryDy=0;" target="Available" tooltip="arrivalCommitted [wholeOrderArrived and noFault and battery &gt;=20%] / occupyTarget()" value="">
+                    <mxGeometry relative="1" x="-0.0263" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1430" y="835"/>
+                            <mxPoint x="1430" y="80"/>
+                            <mxPoint x="340" y="80"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e16" parent="e16" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="arrive [all arrived,&#xa;healthy, SoC &gt;=20%]&#xa;/ occupy target" vertex="1">
+                    <mxGeometry relative="1" x="-0.0263" as="geometry">
+                        <mxPoint x="236" y="380" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e17" data-caption="arrive [all arrived,&#xa;healthy, SoC &lt;20%]&#xa;/ queue charge" data-contract="arrivalCommitted [wholeOrderArrived and noFault and battery &lt;20%] / occupyTargetAndQueue()" edge="1" parent="1" source="InTransit" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.3;entryX=1;entryY=0.3;exitPerimeter=0;entryPerimeter=0;" target="NeedsCharging" tooltip="arrivalCommitted [wholeOrderArrived and noFault and battery &lt;20%] / occupyTargetAndQueue()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e17" parent="e17" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="arrive [all arrived,&#xa;healthy, SoC &lt;20%]&#xa;/ queue charge" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint y="2" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e18" data-caption="arrive [all arrived, fault]&#xa;/ occupy target; report" data-contract="arrivalCommitted [wholeOrderArrived and fault] / occupyTargetAndOpenIncident()" edge="1" parent="1" source="InTransit" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="Faulty" tooltip="arrivalCommitted [wholeOrderArrived and fault] / occupyTargetAndOpenIncident()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e18" parent="e18" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="arrive [all arrived, fault]&#xa;/ occupy target; report" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e19" data-caption="recover [Operator, safe, isolated]&#xa;/ assign repair" data-contract="recoveryConfirmed [operatorValid and safeStationaryLocation and powerIsolated] / assignRepair()" edge="1" parent="1" source="Faulty" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.5;entryX=1;entryY=0.5;exitPerimeter=0;entryPerimeter=0;" target="Maintenance" tooltip="recoveryConfirmed [operatorValid and safeStationaryLocation and powerIsolated] / assignRepair()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e19" parent="e19" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="recover [Operator, safe, isolated]&#xa;/ assign repair" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e20" data-caption="repair [Operator, test passed,&#xa;no obligations, SoC &gt;=20%]&#xa;/ reconcile holds" data-contract="repairAccepted [operatorValid and testPassed and allocationsReconciled and noActiveObligations and battery &gt;=20%] / reconcileHolds()" edge="1" parent="1" source="Maintenance" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.3;entryX=0;entryY=0.2;exitPerimeter=0;entryPerimeter=0;" target="Available" tooltip="repairAccepted [operatorValid and testPassed and allocationsReconciled and noActiveObligations and battery &gt;=20%] / reconcileHolds()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="600" y="1133"/>
+                            <mxPoint x="600" y="1030"/>
+                            <mxPoint x="105" y="1030"/>
+                            <mxPoint x="105" y="262"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e20" parent="e20" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="repair [Operator, test passed,&#xa;no obligations, SoC &gt;=20%]&#xa;/ reconcile holds" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="140" y="73" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e21" data-caption="repair [Operator, test passed,&#xa;no obligations, SoC &lt;20%]&#xa;/ queue charge" data-contract="repairAccepted [operatorValid and testPassed and allocationsReconciled and noActiveObligations and battery &lt;20%] / queueCharge()" edge="1" parent="1" source="Maintenance" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=0;entryX=0.5;entryY=1;exitPerimeter=0;entryPerimeter=0;" target="NeedsCharging" tooltip="repairAccepted [operatorValid and testPassed and allocationsReconciled and noActiveObligations and battery &lt;20%] / queueCharge()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e21" parent="e21" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="repair [Operator, test passed,&#xa;no obligations, SoC &lt;20%]&#xa;/ queue charge" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e22" data-caption="retire [no active obligations,&#xa;power off] / archive" data-contract="retireApproved [noTripOrTransferOrReservation and supplyOff] / archiveHistory()" edge="1" parent="1" source="Maintenance" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.7;entryX=1;entryY=0.7;exitPerimeter=0;entryPerimeter=0;" target="Retired" tooltip="retireApproved [noTripOrTransferOrReservation and supplyOff] / archiveHistory()" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="label_e22" parent="e22" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="retire [no active obligations,&#xa;power off] / archive" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint y="-2" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e23" data-caption="" data-contract="" edge="1" parent="1" source="Retired" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=0.5;entryY=0;exitPerimeter=0;entryPerimeter=0;" target="final" tooltip="" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e24" data-caption="pickup recovered [same pickup, healthy]&#xa;/ recover trip once" data-contract="unlockedPickupConfirmed [pickupClaimed and matchingPickupAndVehicle and noFault] / recoverOriginalTripAndFreeSourceOnce()" edge="1" parent="1" source="Faulty" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.25;entryX=1;entryY=0.75;exitPerimeter=0;entryPerimeter=0;" target="InUse" tooltip="unlockedPickupConfirmed [pickupClaimed and matchingPickupAndVehicle and noFault] / recoverOriginalTripAndFreeSourceOnce()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1100" y="1127.5"/>
+                            <mxPoint x="1100" y="930"/>
+                            <mxPoint x="455" y="930"/>
+                            <mxPoint x="455" y="862.5"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e24" parent="e24" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="pickup recovered [same pickup, healthy]&#xa;/ recover trip once" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="270" y="315.5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e25" data-caption="locked at source [no trip, healthy,&#xa;hold settled, SoC &gt;=20%]&#xa;/ release hold once" data-contract="lockedAtSourceConfirmed [noTripStarted and noFault and reservationSettled and battery &gt;=20%] / releaseReconciledHoldOnce()" edge="1" parent="1" source="Faulty" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=orthogonalEdgeStyle;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.85;entryX=0.75;entryY=0;exitPerimeter=0;entryDx=0;entryDy=0;" target="Available" tooltip="lockedAtSourceConfirmed [noTripStarted and noFault and reservationSettled and battery &gt;=20%] / releaseReconciledHoldOnce()" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1430" y="1193.5"/>
+                            <mxPoint x="1430" y="100"/>
+                            <mxPoint x="367.5" y="100"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="label_e25" parent="e25" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;fontSize=14;" value="locked at source [no trip, healthy,&#xa;hold settled, SoC &gt;=20%]&#xa;/ release hold once" vertex="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="70.5" y="700" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

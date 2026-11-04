@@ -1,0 +1,89 @@
+{
+  "fingerprints": {
+    "CLASS_CATALOG.md": "05807a02961de36a49e79db8358aa4beed7570bb88fc43e4122df9af64069719",
+    "build_class_diagram.py": "163341e951d8c24518615ccc3e41d8c2d4e0a5e0ad078f0dde87ad1981ca8428",
+    "render_class_diagram.cjs": "0123ab4f6ef5e4fc9b1adf321af909d9aac4861162d0b57a42652260c0f0e0af"
+  },
+  "artifacts": {
+    "drawio/smart_emobility_class_diagram.drawio": "cb1b0eb09ea468563daf4a90d238c38e3376b9f4a65048f807a7d096569a0925",
+    "png/charging.png": "922c4f5a0a0147edcc7c8b12e17e0246efb33fb7edd540ce54edeff366ba7f3e",
+    "png/incidents.png": "c62a8151755d83a25aa933dddfdf987512511dbe95ca4eccda4154ca19f6d527",
+    "png/location.png": "f61b996c71b58e9832b60f7755fb6061dc4c443f43341f74c94e74eb31a5929f",
+    "png/reservations.png": "21592d46729dc5ba5e00ae3143371bb59563b3dd6738860caaa360dec3acaff7",
+    "png/simulation.png": "5f8f6dcf05844b72572ae7dca9008508f667570bd9b0b878ee33ecae12043ab7",
+    "png/smart_emobility_class_diagram.png": "cfae7f9e06fac1e8f09ba28317e97d657112c5e87ba68a00d6bc67ff7166f1f7",
+    "png/transfers.png": "5c78bdbefc1cd65f8c568d48b906d1728cab74896b1255e69674fe7f80389c47",
+    "png/trips.png": "d96d2fbe081733ba14adc1bd2398529ec4621bc8c589920ab492970e7e3823f4",
+    "png/types.png": "6b2be1288acc3dabf890a66906d458dc96ee5a1c3ae6d7de2f67844840fbd295"
+  },
+  "generatedAt": "2026-11-03T17:05:14.398Z",
+  "canonical": {
+    "classes": 19,
+    "operations": 18,
+    "generalizations": 4,
+    "associations": 31
+  },
+  "compact": {
+    "occurrences": 38,
+    "maxAttributes": 3,
+    "maxOperations": 2
+  },
+  "overview": {
+    "issues": []
+  },
+  "views": [
+    {
+      "id": "types",
+      "classes": 3,
+      "edges": 2,
+      "issues": []
+    },
+    {
+      "id": "location",
+      "classes": 5,
+      "edges": 5,
+      "issues": []
+    },
+    {
+      "id": "reservations",
+      "classes": 6,
+      "edges": 5,
+      "issues": []
+    },
+    {
+      "id": "trips",
+      "classes": 5,
+      "edges": 5,
+      "issues": []
+    },
+    {
+      "id": "charging",
+      "classes": 6,
+      "edges": 6,
+      "issues": []
+    },
+    {
+      "id": "transfers",
+      "classes": 4,
+      "edges": 4,
+      "issues": []
+    },
+    {
+      "id": "incidents",
+      "classes": 5,
+      "edges": 5,
+      "issues": []
+    },
+    {
+      "id": "simulation",
+      "classes": 4,
+      "edges": 3,
+      "issues": []
+    }
+  ],
+  "tools": {
+    "viewer": "/home/ydt/.vscode/extensions/hediet.vscode-drawio-1.18.0/drawio/src/main/webapp/js/viewer-static.min.js",
+    "playwright": "/tmp/usecase-simplification/runtime/node_modules/playwright"
+  },
+  "status": "passed"
+}

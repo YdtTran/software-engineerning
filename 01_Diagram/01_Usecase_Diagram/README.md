@@ -1,65 +1,394 @@
-# Reviewed use-case diagrams
+# Usecase Diagram
 
-All 15 original diagrams from `refs/uc_uml/USE_CASE/` have been redrawn as native editable `.drawio` files, editable `.drawio.svg` previews, and PNG exports. The original reference PNGs are preserved. Each existing diagram filename is retained in its original STUDENTS, OPERATOR, or GENERAL folder.
+Editable diagrams are in `drawio/`; PNG images are in `png/`.
 
-## Resolved conflicts
+Open a `.drawio` file in diagrams.net or the Draw.io extension for VS Code to edit it.
 
-1. UC06 uses **Reserve Parking Space**, correcting the original “Reverse” label.
-2. Student and Operator are primary actors outside the system boundary on the **left**, including the overview.
-3. UC11 **includes** Isolate Faulty Resource and Schedule Maintenance. They are required by its main flow and postcondition.
-4. Vehicle holds expire at `Reservation_Time + 15 minutes`; parking reservations expire at `ScheduledArrivalTime + 30 minutes` if not checked in. The expiry job uses `Current_Time >= ExpiresAt` only for `Pending/Reserved` records.
-5. The simulation engine is an internal component, not a supporting actor. The report and master specification have been updated.
+| Diagram | Draw.io | PNG |
+| --- | --- | --- |
+| UC01-Search_Mobility_Hub | [Edit](drawio/UC01-Search_Mobility_Hub.drawio) | [View](png/UC01-Search_Mobility_Hub.png) |
+| UC02-View_Available_Vehicles | [Edit](drawio/UC02-View_Available_Vehicles.drawio) | [View](png/UC02-View_Available_Vehicles.png) |
+| UC03-Reserve_Vehicle | [Edit](drawio/UC03-Reserve_Vehicle.drawio) | [View](png/UC03-Reserve_Vehicle.png) |
+| UC04-Pick_Up_Vehicle | [Edit](drawio/UC04-Pick_Up_Vehicle.drawio) | [View](png/UC04-Pick_Up_Vehicle.png) |
+| UC05-Return_Vehicle | [Edit](drawio/UC05-Return_Vehicle.drawio) | [View](png/UC05-Return_Vehicle.png) |
+| UC06-Reserve_Parking_Space | [Edit](drawio/UC06-Reserve_Parking_Space.drawio) | [View](png/UC06-Reserve_Parking_Space.png) |
+| UC06A-Check_In_Private_Vehicle | [Edit](drawio/UC06A-Check_In_Private_Vehicle.drawio) | [View](png/UC06A-Check_In_Private_Vehicle.png) |
+| UC06B-Check_Out_Private_Vehicle | [Edit](drawio/UC06B-Check_Out_Private_Vehicle.drawio) | [View](png/UC06B-Check_Out_Private_Vehicle.png) |
+| UC07-Request_Charging | [Edit](drawio/UC07-Request_Charging.drawio) | [View](png/UC07-Request_Charging.png) |
+| UC07A-Stop_Charging_Session | [Edit](drawio/UC07A-Stop_Charging_Session.drawio) | [View](png/UC07A-Stop_Charging_Session.png) |
+| UC10-Redistribute_Vehicles | [Edit](drawio/UC10-Redistribute_Vehicles.drawio) | [View](png/UC10-Redistribute_Vehicles.png) |
+| UC10A-Confirm_Transfer_Arrival | [Edit](drawio/UC10A-Confirm_Transfer_Arrival.drawio) | [View](png/UC10A-Confirm_Transfer_Arrival.png) |
+| UC10B-Cancel_Transfer_Order | [Edit](drawio/UC10B-Cancel_Transfer_Order.drawio) | [View](png/UC10B-Cancel_Transfer_Order.png) |
+| UC11-Handle_Operational_Incident | [Edit](drawio/UC11-Handle_Operational_Incident.drawio) | [View](png/UC11-Handle_Operational_Incident.png) |
+| UC11A-Report_Trip_Incident | [Edit](drawio/UC11A-Report_Trip_Incident.drawio) | [View](png/UC11A-Report_Trip_Incident.png) |
+| UC12-Manage_Charging_Schedule | [Edit](drawio/UC12-Manage_Charging_Schedule.drawio) | [View](png/UC12-Manage_Charging_Schedule.png) |
+| UC13-Run_What-if_Simulation | [Edit](drawio/UC13-Run_What-if_Simulation.drawio) | [View](png/UC13-Run_What-if_Simulation.png) |
+| UC14-View_Simulation_Results | [Edit](drawio/UC14-View_Simulation_Results.drawio) | [View](png/UC14-View_Simulation_Results.png) |
+| UC8-Monitor_Mobility_Hub_Network | [Edit](drawio/UC8-Monitor_Mobility_Hub_Network.drawio) | [View](png/UC8-Monitor_Mobility_Hub_Network.png) |
+| UC9-Manage_Mobility_Resources | [Edit](drawio/UC9-Manage_Mobility_Resources.drawio) | [View](png/UC9-Manage_Mobility_Resources.png) |
+| general_usecase_diagram | [Edit](drawio/general_usecase_diagram.drawio) | [View](png/general_usecase_diagram.png) |
+| operator_usecases | [Edit](drawio/operator_usecases.drawio) | [View](png/operator_usecases.png) |
+| user_usecases | [Edit](drawio/user_usecases.drawio) | [View](png/user_usecases.png) |
 
-## Files
+## Overview consistency
 
-| Diagram | Edit | Preview | PNG |
-|---|---|---|---|
-| general_usecase_diagram | [Draw.io](GENERAL/general_usecase_diagram.drawio) | [Editable SVG](GENERAL/general_usecase_diagram.drawio.svg) | [PNG](GENERAL/general_usecase_diagram.png) |
-| UC10-Redistribute_Vehicles | [Draw.io](OPERATOR/UC10-Redistribute_Vehicles.drawio) | [Editable SVG](OPERATOR/UC10-Redistribute_Vehicles.drawio.svg) | [PNG](OPERATOR/UC10-Redistribute_Vehicles.png) |
-| UC11-Handle_Operational_Incident | [Draw.io](OPERATOR/UC11-Handle_Operational_Incident.drawio) | [Editable SVG](OPERATOR/UC11-Handle_Operational_Incident.drawio.svg) | [PNG](OPERATOR/UC11-Handle_Operational_Incident.png) |
-| UC12-Manage_Charging_Schedule | [Draw.io](OPERATOR/UC12-Manage_Charging_Schedule.drawio) | [Editable SVG](OPERATOR/UC12-Manage_Charging_Schedule.drawio.svg) | [PNG](OPERATOR/UC12-Manage_Charging_Schedule.png) |
-| UC13-Run_What-if_Simulation | [Draw.io](OPERATOR/UC13-Run_What-if_Simulation.drawio) | [Editable SVG](OPERATOR/UC13-Run_What-if_Simulation.drawio.svg) | [PNG](OPERATOR/UC13-Run_What-if_Simulation.png) |
-| UC14-View_Simulation_Results | [Draw.io](OPERATOR/UC14-View_Simulation_Results.drawio) | [Editable SVG](OPERATOR/UC14-View_Simulation_Results.drawio.svg) | [PNG](OPERATOR/UC14-View_Simulation_Results.png) |
-| UC8-Monitor_Mobility_Hub_Network | [Draw.io](OPERATOR/UC8-Monitor_Mobility_Hub_Network.drawio) | [Editable SVG](OPERATOR/UC8-Monitor_Mobility_Hub_Network.drawio.svg) | [PNG](OPERATOR/UC8-Monitor_Mobility_Hub_Network.png) |
-| UC9-Manage_Mobility_Resources | [Draw.io](OPERATOR/UC9-Manage_Mobility_Resources.drawio) | [Editable SVG](OPERATOR/UC9-Manage_Mobility_Resources.drawio.svg) | [PNG](OPERATOR/UC9-Manage_Mobility_Resources.png) |
-| UC01-Search_Mobility_Hub | [Draw.io](STUDENTS/UC01-Search_Mobility_Hub.drawio) | [Editable SVG](STUDENTS/UC01-Search_Mobility_Hub.drawio.svg) | [PNG](STUDENTS/UC01-Search_Mobility_Hub.png) |
-| UC02-View_Available_Vehicles | [Draw.io](STUDENTS/UC02-View_Available_Vehicles.drawio) | [Editable SVG](STUDENTS/UC02-View_Available_Vehicles.drawio.svg) | [PNG](STUDENTS/UC02-View_Available_Vehicles.png) |
-| UC03-Reserve_Vehicle | [Draw.io](STUDENTS/UC03-Reserve_Vehicle.drawio) | [Editable SVG](STUDENTS/UC03-Reserve_Vehicle.drawio.svg) | [PNG](STUDENTS/UC03-Reserve_Vehicle.png) |
-| UC04-Pick_Up_Vehicle | [Draw.io](STUDENTS/UC04-Pick_Up_Vehicle.drawio) | [Editable SVG](STUDENTS/UC04-Pick_Up_Vehicle.drawio.svg) | [PNG](STUDENTS/UC04-Pick_Up_Vehicle.png) |
-| UC05-Return_Vehicle | [Draw.io](STUDENTS/UC05-Return_Vehicle.drawio) | [Editable SVG](STUDENTS/UC05-Return_Vehicle.drawio.svg) | [PNG](STUDENTS/UC05-Return_Vehicle.png) |
-| UC06-Reserve_Parking_Space | [Draw.io](STUDENTS/UC06-Reserve_Parking_Space.drawio) | [Editable SVG](STUDENTS/UC06-Reserve_Parking_Space.drawio.svg) | [PNG](STUDENTS/UC06-Reserve_Parking_Space.png) |
-| UC07-Request_Charging | [Draw.io](STUDENTS/UC07-Request_Charging.drawio) | [Editable SVG](STUDENTS/UC07-Request_Charging.drawio.svg) | [PNG](STUDENTS/UC07-Request_Charging.png) |
+The overall view is the union of the User and Operator views: 27 goals. User is the end-user role. Telemetry and Notification Service are supporting external actors. Lifecycle goals are separate interactions; cancellation is not an extension of the original booking transaction. Simulation results are reviewed independently or after a successful run; applying recommendations still requires live resource validation.
 
-[PlantUML and Mermaid source blocks for all 21 diagrams](PLANTUML_ALL.md). Mermaid is a flowchart approximation; the Draw.io exports are the checked layout reference.
+### user_usecases
 
-## Lifecycle additions
+[Editable SVG](svg/user_usecases.drawio.svg)
 
-[Six supporting scenarios and editable diagrams](LIFECYCLE_SCENARIOS.md) close private parking, charging, redistribution and in-trip incident workflows. The 14 core groups and existing filenames are preserved. These are design artifacts, not implemented backend features.
+```plantuml
+@startuml
+left to right direction
+actor "User" as actor_user
+actor "IoT / Simulated Telemetry" as actor_telemetry
+actor "Notification Service" as actor_notification
+rectangle "Smart E-Mobility Hub System" {
+usecase "Search Mobility Hub" as uc_UC01
+usecase "View Available Vehicles" as uc_UC02
+usecase "Reserve Vehicle" as uc_UC03
+usecase "Cancel Vehicle Reservation" as uc_UC03_uc_cancel
+usecase "Pick Up Vehicle" as uc_UC04
+usecase "Report Vehicle Damage" as uc_UC04_uc_ext
+usecase "Return Vehicle" as uc_UC05
+usecase "Report Trip Incident" as uc_UC11A
+usecase "Reserve Parking Space" as uc_UC06
+usecase "Cancel Parking Reservation" as uc_UC06_uc_cancel
+usecase "Check In Private Vehicle" as uc_UC06A
+usecase "Check Out Private Vehicle" as uc_UC06B
+usecase "Request Charging" as uc_UC07
+usecase "Cancel Charging Request" as uc_UC07_uc_cancel
+usecase "Stop Charging Session" as uc_UC07A
+}
+actor_user -- uc_UC01
+actor_user -- uc_UC02
+actor_user -- uc_UC03
+actor_user -- uc_UC03_uc_cancel
+actor_user -- uc_UC04
+uc_UC04_uc_ext ..> uc_UC04 : <<extend>>
+actor_user -- uc_UC05
+actor_user -- uc_UC11A
+actor_user -- uc_UC06
+actor_user -- uc_UC06_uc_cancel
+actor_user -- uc_UC06A
+actor_user -- uc_UC06B
+actor_user -- uc_UC07
+actor_user -- uc_UC07_uc_cancel
+actor_user -- uc_UC07A
+uc_UC04 -- actor_telemetry
+uc_UC05 -- actor_telemetry
+uc_UC06A -- actor_telemetry
+uc_UC06B -- actor_telemetry
+uc_UC07 -- actor_telemetry
+uc_UC07A -- actor_telemetry
+uc_UC03 -- actor_notification
+uc_UC11A -- actor_notification
+uc_UC06 -- actor_notification
+@enduml
+```
 
-## Quality checklist
+```mermaid
+flowchart LR
+actor_user["User"]
+actor_telemetry["IoT / Simulated Telemetry"]
+actor_notification["Notification Service"]
+subgraph System["Smart E-Mobility Hub System"]
+uc_UC01(["Search Mobility Hub"])
+uc_UC02(["View Available Vehicles"])
+uc_UC03(["Reserve Vehicle"])
+uc_UC03_uc_cancel(["Cancel Vehicle Reservation"])
+uc_UC04(["Pick Up Vehicle"])
+uc_UC04_uc_ext(["Report Vehicle Damage"])
+uc_UC05(["Return Vehicle"])
+uc_UC11A(["Report Trip Incident"])
+uc_UC06(["Reserve Parking Space"])
+uc_UC06_uc_cancel(["Cancel Parking Reservation"])
+uc_UC06A(["Check In Private Vehicle"])
+uc_UC06B(["Check Out Private Vehicle"])
+uc_UC07(["Request Charging"])
+uc_UC07_uc_cancel(["Cancel Charging Request"])
+uc_UC07A(["Stop Charging Session"])
+end
+actor_user --- uc_UC01
+actor_user --- uc_UC02
+actor_user --- uc_UC03
+actor_user --- uc_UC03_uc_cancel
+actor_user --- uc_UC04
+uc_UC04_uc_ext -. "extend" .-> uc_UC04
+actor_user --- uc_UC05
+actor_user --- uc_UC11A
+actor_user --- uc_UC06
+actor_user --- uc_UC06_uc_cancel
+actor_user --- uc_UC06A
+actor_user --- uc_UC06B
+actor_user --- uc_UC07
+actor_user --- uc_UC07_uc_cancel
+actor_user --- uc_UC07A
+uc_UC04 --- actor_telemetry
+uc_UC05 --- actor_telemetry
+uc_UC06A --- actor_telemetry
+uc_UC06B --- actor_telemetry
+uc_UC07 --- actor_telemetry
+uc_UC07A --- actor_telemetry
+uc_UC03 --- actor_notification
+uc_UC11A --- actor_notification
+uc_UC06 --- actor_notification
+```
 
-| Check | Result |
+### operator_usecases
+
+[Editable SVG](svg/operator_usecases.drawio.svg)
+
+```plantuml
+@startuml
+left to right direction
+actor "Operator" as actor_operator
+actor "IoT / Simulated Telemetry" as actor_telemetry
+rectangle "Smart E-Mobility Hub System" {
+usecase "Monitor Mobility Hub Network" as uc_UC08
+usecase "Manage Mobility Resources" as uc_UC09
+usecase "Redistribute Vehicles" as uc_UC10
+usecase "Confirm Transfer Arrival" as uc_UC10A
+usecase "Cancel Transfer Order" as uc_UC10B
+usecase "Handle Operational Incident" as uc_UC11
+usecase "Manage Charging Schedule" as uc_UC12
+usecase "Override Charging Schedule" as uc_UC12_uc_ext2
+usecase "Run What-if Simulation" as uc_UC13
+usecase "View Simulation Results" as uc_UC14
+usecase "Export Simulation Results" as uc_UC14_uc_ext1
+usecase "Apply Coordination Recommendations" as uc_UC14_uc_apply
+}
+actor_operator -- uc_UC08
+actor_operator -- uc_UC09
+actor_operator -- uc_UC10
+actor_operator -- uc_UC10A
+actor_operator -- uc_UC10B
+actor_operator -- uc_UC11
+actor_operator -- uc_UC12
+uc_UC12_uc_ext2 ..> uc_UC12 : <<extend>>
+actor_operator -- uc_UC13
+uc_UC13 ..> uc_UC14 : <<include>>
+actor_operator -- uc_UC14
+uc_UC14_uc_ext1 ..> uc_UC14 : <<extend>>
+uc_UC14_uc_apply ..> uc_UC14 : <<extend>>
+uc_UC08 -- actor_telemetry
+uc_UC10 -- actor_telemetry
+uc_UC10A -- actor_telemetry
+uc_UC11 -- actor_telemetry
+uc_UC12 -- actor_telemetry
+@enduml
+```
+
+```mermaid
+flowchart LR
+actor_operator["Operator"]
+actor_telemetry["IoT / Simulated Telemetry"]
+subgraph System["Smart E-Mobility Hub System"]
+uc_UC08(["Monitor Mobility Hub Network"])
+uc_UC09(["Manage Mobility Resources"])
+uc_UC10(["Redistribute Vehicles"])
+uc_UC10A(["Confirm Transfer Arrival"])
+uc_UC10B(["Cancel Transfer Order"])
+uc_UC11(["Handle Operational Incident"])
+uc_UC12(["Manage Charging Schedule"])
+uc_UC12_uc_ext2(["Override Charging Schedule"])
+uc_UC13(["Run What-if Simulation"])
+uc_UC14(["View Simulation Results"])
+uc_UC14_uc_ext1(["Export Simulation Results"])
+uc_UC14_uc_apply(["Apply Coordination Recommendations"])
+end
+actor_operator --- uc_UC08
+actor_operator --- uc_UC09
+actor_operator --- uc_UC10
+actor_operator --- uc_UC10A
+actor_operator --- uc_UC10B
+actor_operator --- uc_UC11
+actor_operator --- uc_UC12
+uc_UC12_uc_ext2 -. "extend" .-> uc_UC12
+actor_operator --- uc_UC13
+uc_UC13 -. "include" .-> uc_UC14
+actor_operator --- uc_UC14
+uc_UC14_uc_ext1 -. "extend" .-> uc_UC14
+uc_UC14_uc_apply -. "extend" .-> uc_UC14
+uc_UC08 --- actor_telemetry
+uc_UC10 --- actor_telemetry
+uc_UC10A --- actor_telemetry
+uc_UC11 --- actor_telemetry
+uc_UC12 --- actor_telemetry
+```
+
+### general_usecase_diagram
+
+[Editable SVG](svg/general_usecase_diagram.drawio.svg)
+
+```plantuml
+@startuml
+left to right direction
+actor "User" as actor_user
+actor "Operator" as actor_operator
+actor "IoT / Simulated Telemetry" as actor_telemetry
+actor "Notification Service" as actor_notification
+rectangle "Smart E-Mobility Hub System" {
+usecase "Search Mobility Hub" as uc_UC01
+usecase "View Available Vehicles" as uc_UC02
+usecase "Reserve Vehicle" as uc_UC03
+usecase "Cancel Vehicle Reservation" as uc_UC03_uc_cancel
+usecase "Pick Up Vehicle" as uc_UC04
+usecase "Report Vehicle Damage" as uc_UC04_uc_ext
+usecase "Return Vehicle" as uc_UC05
+usecase "Report Trip Incident" as uc_UC11A
+usecase "Reserve Parking Space" as uc_UC06
+usecase "Cancel Parking Reservation" as uc_UC06_uc_cancel
+usecase "Check In Private Vehicle" as uc_UC06A
+usecase "Check Out Private Vehicle" as uc_UC06B
+usecase "Request Charging" as uc_UC07
+usecase "Cancel Charging Request" as uc_UC07_uc_cancel
+usecase "Stop Charging Session" as uc_UC07A
+usecase "Monitor Mobility Hub Network" as uc_UC08
+usecase "Manage Mobility Resources" as uc_UC09
+usecase "Redistribute Vehicles" as uc_UC10
+usecase "Confirm Transfer Arrival" as uc_UC10A
+usecase "Cancel Transfer Order" as uc_UC10B
+usecase "Handle Operational Incident" as uc_UC11
+usecase "Manage Charging Schedule" as uc_UC12
+usecase "Override Charging Schedule" as uc_UC12_uc_ext2
+usecase "Run What-if Simulation" as uc_UC13
+usecase "View Simulation Results" as uc_UC14
+usecase "Export Simulation Results" as uc_UC14_uc_ext1
+usecase "Apply Coordination Recommendations" as uc_UC14_uc_apply
+}
+actor_user -- uc_UC01
+actor_user -- uc_UC02
+actor_user -- uc_UC03
+actor_user -- uc_UC03_uc_cancel
+actor_user -- uc_UC04
+uc_UC04_uc_ext ..> uc_UC04 : <<extend>>
+actor_user -- uc_UC05
+actor_user -- uc_UC11A
+actor_user -- uc_UC06
+actor_user -- uc_UC06_uc_cancel
+actor_user -- uc_UC06A
+actor_user -- uc_UC06B
+actor_user -- uc_UC07
+actor_user -- uc_UC07_uc_cancel
+actor_user -- uc_UC07A
+actor_operator -- uc_UC08
+actor_operator -- uc_UC09
+actor_operator -- uc_UC10
+actor_operator -- uc_UC10A
+actor_operator -- uc_UC10B
+actor_operator -- uc_UC11
+actor_operator -- uc_UC12
+uc_UC12_uc_ext2 ..> uc_UC12 : <<extend>>
+actor_operator -- uc_UC13
+uc_UC13 ..> uc_UC14 : <<include>>
+actor_operator -- uc_UC14
+uc_UC14_uc_ext1 ..> uc_UC14 : <<extend>>
+uc_UC14_uc_apply ..> uc_UC14 : <<extend>>
+uc_UC04 -- actor_telemetry
+uc_UC05 -- actor_telemetry
+uc_UC06A -- actor_telemetry
+uc_UC06B -- actor_telemetry
+uc_UC07 -- actor_telemetry
+uc_UC07A -- actor_telemetry
+uc_UC08 -- actor_telemetry
+uc_UC10 -- actor_telemetry
+uc_UC10A -- actor_telemetry
+uc_UC11 -- actor_telemetry
+uc_UC12 -- actor_telemetry
+uc_UC03 -- actor_notification
+uc_UC11A -- actor_notification
+uc_UC06 -- actor_notification
+@enduml
+```
+
+```mermaid
+flowchart LR
+actor_user["User"]
+actor_operator["Operator"]
+actor_telemetry["IoT / Simulated Telemetry"]
+actor_notification["Notification Service"]
+subgraph System["Smart E-Mobility Hub System"]
+uc_UC01(["Search Mobility Hub"])
+uc_UC02(["View Available Vehicles"])
+uc_UC03(["Reserve Vehicle"])
+uc_UC03_uc_cancel(["Cancel Vehicle Reservation"])
+uc_UC04(["Pick Up Vehicle"])
+uc_UC04_uc_ext(["Report Vehicle Damage"])
+uc_UC05(["Return Vehicle"])
+uc_UC11A(["Report Trip Incident"])
+uc_UC06(["Reserve Parking Space"])
+uc_UC06_uc_cancel(["Cancel Parking Reservation"])
+uc_UC06A(["Check In Private Vehicle"])
+uc_UC06B(["Check Out Private Vehicle"])
+uc_UC07(["Request Charging"])
+uc_UC07_uc_cancel(["Cancel Charging Request"])
+uc_UC07A(["Stop Charging Session"])
+uc_UC08(["Monitor Mobility Hub Network"])
+uc_UC09(["Manage Mobility Resources"])
+uc_UC10(["Redistribute Vehicles"])
+uc_UC10A(["Confirm Transfer Arrival"])
+uc_UC10B(["Cancel Transfer Order"])
+uc_UC11(["Handle Operational Incident"])
+uc_UC12(["Manage Charging Schedule"])
+uc_UC12_uc_ext2(["Override Charging Schedule"])
+uc_UC13(["Run What-if Simulation"])
+uc_UC14(["View Simulation Results"])
+uc_UC14_uc_ext1(["Export Simulation Results"])
+uc_UC14_uc_apply(["Apply Coordination Recommendations"])
+end
+actor_user --- uc_UC01
+actor_user --- uc_UC02
+actor_user --- uc_UC03
+actor_user --- uc_UC03_uc_cancel
+actor_user --- uc_UC04
+uc_UC04_uc_ext -. "extend" .-> uc_UC04
+actor_user --- uc_UC05
+actor_user --- uc_UC11A
+actor_user --- uc_UC06
+actor_user --- uc_UC06_uc_cancel
+actor_user --- uc_UC06A
+actor_user --- uc_UC06B
+actor_user --- uc_UC07
+actor_user --- uc_UC07_uc_cancel
+actor_user --- uc_UC07A
+actor_operator --- uc_UC08
+actor_operator --- uc_UC09
+actor_operator --- uc_UC10
+actor_operator --- uc_UC10A
+actor_operator --- uc_UC10B
+actor_operator --- uc_UC11
+actor_operator --- uc_UC12
+uc_UC12_uc_ext2 -. "extend" .-> uc_UC12
+actor_operator --- uc_UC13
+uc_UC13 -. "include" .-> uc_UC14
+actor_operator --- uc_UC14
+uc_UC14_uc_ext1 -. "extend" .-> uc_UC14
+uc_UC14_uc_apply -. "extend" .-> uc_UC14
+uc_UC04 --- actor_telemetry
+uc_UC05 --- actor_telemetry
+uc_UC06A --- actor_telemetry
+uc_UC06B --- actor_telemetry
+uc_UC07 --- actor_telemetry
+uc_UC07A --- actor_telemetry
+uc_UC08 --- actor_telemetry
+uc_UC10 --- actor_telemetry
+uc_UC10A --- actor_telemetry
+uc_UC11 --- actor_telemetry
+uc_UC12 --- actor_telemetry
+uc_UC03 --- actor_notification
+uc_UC11A --- actor_notification
+uc_UC06 --- actor_notification
+```
+
+| Quality check | Result |
 |---|---|
-| 14 core use cases preserved in the overview | PASS |
-| Actors outside the system, primary actors on the left | PASS |
-| Correct include, extend, and generalization directions | PASS |
-| Light ocean blue boundary and dynamic 60/55/50 px padding | PASS |
-| Separate edgeLabel cells for relationship labels | PASS |
-| Rendered edges: no crossings, T junctions, or overlapping segments | PASS |
-| No edges through unrelated shapes; no label collisions or clipping | PASS |
-| Native Draw.io XML structural validation | PASS: 21 files, 0 errors, 0 warnings |
-| SVG exports contain the editable source XML | PASS |
+| Overall goals equal union of role views | 27 goals |
+| Primary actors left; supporting actors right | Applied |
+| System boundary and separate relationship labels | Preserved |
+| PlantUML, Mermaid, editable SVG and PNG | Generated |
 
-Geometry is checked from the installed Draw.io renderer’s actual cell states and edge paths, not inferred from screenshots. Associations sharing an actor endpoint are intentional; they share no edge segments. See [verification.json](verification.json) for per-diagram results.
-
-## Open and import
-
-1. **VS Code:** double-click a `.drawio.svg` file with the Draw.io Integration extension installed.
-2. **Draw.io:** open a `.drawio` file, or paste a PlantUML block using `+` → `Advanced` → `PlantUML`.
-3. **VP Online:** use `File` → `Import` → `PlantUML...` and paste the corresponding block.
-
-## Regenerate
-
-From the repository root, run `.agent/scripts/generate_all.py` with Python. It regenerates the native files and source catalog, then runs `render_usecases.cjs` to check geometry and export SVG/PNG. The generator retains the existing semantic IDs.
-
-Requires Graphviz `dot`, the drawio-skill scripts (default `~/.agents/skills/drawio-skill`, override `DRAWIO_SKILL`), Node.js, Playwright, Edge, and the installed Draw.io VS Code extension. Renderer paths can be overridden with `DRAWIO_PLAYWRIGHT` and `DRAWIO_VIEWER`. No application UI or runtime behavior was changed.
+- VS Code: double-click `.drawio.svg` to edit.
+- Draw.io: `+` → `Advanced` → `PlantUML`.
+- VP Online: `File` → `Import` → `PlantUML...`.
