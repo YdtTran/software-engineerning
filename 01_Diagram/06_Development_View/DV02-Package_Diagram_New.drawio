@@ -1,0 +1,269 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Trang-1" id="2miyNCZCv7kLZ7YRbBC5">
+    <mxGraphModel dx="1733" dy="960" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="4681" pageHeight="3300" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <UserObject label="" plantUmlData="{&#xa;  &quot;data&quot;: &quot;@startuml\ntitle DV02 — Development View: Proposed Package Organization\n\nleft to right direction\nskinparam packageStyle rectangle\nskinparam shadowing false\nskinparam linetype ortho\nskinparam defaultFontName \&quot;Segoe UI\&quot;\nskinparam packageBackgroundColor #F8FAFC\nskinparam packageBorderColor #64748B\nskinparam ArrowColor #475569\nskinparam NoteBackgroundColor #FFFBEB\nskinparam NoteBorderColor #D97706\n\npackage \&quot;Smart E-Mobility Hub\\nProposed source/package structure — MVP target\&quot; as System {\n    package \&quot;Presentation\&quot; as Presentation {\n        package \&quot;Student Mobile Experience\\n(prototype view)\&quot; as StudentUI\n        package \&quot;Operator Field Mobile Experience\\n(prototype view)\&quot; as OperatorMobileUI\n        package \&quot;Operator Web Dashboard Experience\\n(prototype view)\&quot; as OperatorWebUI\n        package \&quot;Shared Preview Shell\\n(existing mockup viewer)\&quot; as PreviewShell\n    }\n\n    package \&quot;API / Interface\&quot; as ApiLayer {\n        package \&quot;Express HTTP API\\n(target)\&quot; as HttpApi\n    }\n\n    package \&quot;Application\&quot; as ApplicationLayer {\n        package \&quot;Use-case Modules\&quot; as UseCaseModules {\n            package \&quot;Accounts &amp; Resources\&quot; as AccountsResources\n            package \&quot;Reservations &amp; Trips\&quot; as ReservationsTrips\n            package \&quot;Charging\&quot; as Charging\n            package \&quot;Operations\&quot; as Operations\n            package \&quot;Simulation\&quot; as Simulation\n        }\n\n        package \&quot;Application Ports\&quot; as ApplicationPorts {\n            package \&quot;Repository Ports\&quot; as RepositoryPorts\n            package \&quot;Notification Outbound Port\&quot; as NotificationOutput\n            package \&quot;Telemetry Input Contract\&quot; as TelemetryInput\n        }\n    }\n\n    package \&quot;Domain\&quot; as DomainLayer {\n        package \&quot;Accounts &amp; Resources Domain\&quot; as DomainAccountsResources\n        package \&quot;Reservations &amp; Trips Domain\&quot; as DomainReservationsTrips\n        package \&quot;Charging Domain\&quot; as DomainCharging\n        package \&quot;Operations Domain\&quot; as DomainOperations\n        package \&quot;Simulation Domain\&quot; as DomainSimulation\n    }\n\n    package \&quot;Infrastructure\&quot; as InfrastructureLayer {\n        package \&quot;SQLite Repository Adapter\\n(target)\&quot; as SqliteAdapter\n        package \&quot;Simulated Telemetry Adapter\\n(MVP option)\&quot; as SimulatedTelemetry\n        package \&quot;Mock Notification Adapter\\n(MVP option)\&quot; as MockNotification\n    }\n}\n\n&#39; Planned client-to-API dependencies; current mockups are not wired to this API.\nStudentUI ..&gt; HttpApi : &lt;&lt;access&gt;&gt;\nOperatorMobileUI ..&gt; HttpApi : &lt;&lt;access&gt;&gt;\nOperatorWebUI ..&gt; HttpApi : &lt;&lt;access&gt;&gt;\n\n&#39; Aggregate dependencies keep the package view readable; module responsibilities and\n&#39; domain/UC mapping are detailed in the accompanying README.\nHttpApi ..&gt; UseCaseModules : &lt;&lt;access&gt;&gt;\nHttpApi ..&gt; TelemetryInput : &lt;&lt;access&gt;&gt;\nOperations ..&gt; TelemetryInput : &lt;&lt;access&gt;&gt;\nUseCaseModules ..&gt; DomainLayer : &lt;&lt;access&gt;&gt;\nUseCaseModules ..&gt; RepositoryPorts : &lt;&lt;access&gt;&gt;\nUseCaseModules ..&gt; NotificationOutput : &lt;&lt;access&gt;&gt;\n\n&#39; These are source-package dependencies, not runtime calls or interface realizations.\nSqliteAdapter ..&gt; RepositoryPorts : &lt;&lt;access&gt;&gt;\nSimulatedTelemetry ..&gt; TelemetryInput : &lt;&lt;access&gt;&gt;\nMockNotification ..&gt; NotificationOutput : &lt;&lt;access&gt;&gt;\n\nnote bottom of System\n  This is a proposed logical package organization, not a claim about existing folders.\n  The backend packages form one modular monolith, not separately deployed services.\n  Presentation-to-API dependencies are planned; current UI is a mockup.\n  The Application owns the telemetry input contract; the API, Operations\n  and simulated telemetry packages depend on that source package.\n  Repository and notification abstractions belong to the Application boundary.\n  SQLite is a selected persistence technology, not a source package or deployment node.\n  Atomic allocation and state transitions need transaction boundaries.\n  Protocols, concrete libraries and production providers remain undecided.\nend note\n\n@enduml\n\n&quot;,&#xa;  &quot;config&quot;: null&#xa;}" id="1447xLcI5Li6DH4DxRwE-142">
+          <mxCell connectable="0" parent="1" style="group;transparentBounds=1;editIcon=1;lockedGroup=0;groupPadding=10;" vertex="1">
+            <mxGeometry as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Smart E-Mobility Hub&#xa;Proposed source/package structure — MVP target" plantUmlId="c_0" plantUmlBaseStyle="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Smart E-Mobility Hub&#xa;Proposed source/package structure — MVP target" id="1447xLcI5Li6DH4DxRwE-143">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-142" style="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="710" width="1896" x="30" y="66" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Presentation" plantUmlId="c_1" plantUmlBaseStyle="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Presentation" id="1447xLcI5Li6DH4DxRwE-144">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-143" style="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="335" width="315" x="15" y="49" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Student Mobile Experience&#xa;(prototype view)" plantUmlId="n_2" plantUmlBaseStyle="shape=folder;tabWidth=199;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Student Mobile Experience&#xa;(prototype view)" id="1447xLcI5Li6DH4DxRwE-145">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-144" style="shape=folder;tabWidth=199;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="46" width="216" x="49.5" y="277" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Operator Field Mobile Experience&#xa;(prototype view)" plantUmlId="n_3" plantUmlBaseStyle="shape=folder;tabWidth=246;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Operator Field Mobile Experience&#xa;(prototype view)" id="1447xLcI5Li6DH4DxRwE-146">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-144" style="shape=folder;tabWidth=246;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="46" width="263" x="26" y="196" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Operator Web Dashboard Experience&#xa;(prototype view)" plantUmlId="n_4" plantUmlBaseStyle="shape=folder;tabWidth=268;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Operator Web Dashboard Experience&#xa;(prototype view)" id="1447xLcI5Li6DH4DxRwE-147">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-144" style="shape=folder;tabWidth=268;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="46" width="285" x="15" y="115" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Shared Preview Shell&#xa;(existing mockup viewer)" plantUmlId="n_5" plantUmlBaseStyle="shape=folder;tabWidth=191;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Shared Preview Shell&#xa;(existing mockup viewer)" id="1447xLcI5Li6DH4DxRwE-148">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-144" style="shape=folder;tabWidth=191;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="46" width="208" x="53.5" y="34" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="API / Interface" plantUmlId="c_6" plantUmlBaseStyle="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="API / Interface" id="1447xLcI5Li6DH4DxRwE-149">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-143" style="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="92" width="186" x="365" y="327.5" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Express HTTP API&#xa;(target)" plantUmlId="n_7" plantUmlBaseStyle="shape=folder;tabWidth=139;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Express HTTP API&#xa;(target)" id="1447xLcI5Li6DH4DxRwE-150">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-149" style="shape=folder;tabWidth=139;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="46" width="156" x="15" y="34" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Application" plantUmlId="c_8" plantUmlBaseStyle="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Application" id="1447xLcI5Li6DH4DxRwE-151">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-143" style="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="282" width="729.5" x="586" y="232.5" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Use-case Modules" plantUmlId="c_9" plantUmlBaseStyle="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Use-case Modules" id="1447xLcI5Li6DH4DxRwE-152">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-151" style="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="236" width="425.5" x="15" y="34" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Accounts &amp;amp; Resources" plantUmlId="n_10" plantUmlBaseStyle="shape=folder;tabWidth=170;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Accounts &amp;amp; Resources" id="1447xLcI5Li6DH4DxRwE-153">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-152" style="shape=folder;tabWidth=170;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="187" x="15" y="109" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Reservations &amp;amp; Trips" plantUmlId="n_11" plantUmlBaseStyle="shape=folder;tabWidth=163;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Reservations &amp;amp; Trips" id="1447xLcI5Li6DH4DxRwE-154">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-152" style="shape=folder;tabWidth=163;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="180" x="18.5" y="184" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Charging" plantUmlId="n_12" plantUmlBaseStyle="shape=folder;tabWidth=84;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Charging" id="1447xLcI5Li6DH4DxRwE-155">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-152" style="shape=folder;tabWidth=84;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="101" x="305" y="109" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Operations" plantUmlId="n_13" plantUmlBaseStyle="shape=folder;tabWidth=96;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Operations" id="1447xLcI5Li6DH4DxRwE-156">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-152" style="shape=folder;tabWidth=96;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="113" x="52" y="34" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Simulation" plantUmlId="n_14" plantUmlBaseStyle="shape=folder;tabWidth=93;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Simulation" id="1447xLcI5Li6DH4DxRwE-157">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-152" style="shape=folder;tabWidth=93;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="110" x="300.5" y="184" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Application Ports" plantUmlId="c_15" plantUmlBaseStyle="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Application Ports" id="1447xLcI5Li6DH4DxRwE-158">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-151" style="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="236" width="239" x="475.5" y="34" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Repository Ports" plantUmlId="n_16" plantUmlBaseStyle="shape=folder;tabWidth=135;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Repository Ports" id="1447xLcI5Li6DH4DxRwE-159">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-158" style="shape=folder;tabWidth=135;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="152" x="43.5" y="184" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Notification Outbound Port" plantUmlId="n_17" plantUmlBaseStyle="shape=folder;tabWidth=192;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Notification Outbound Port" id="1447xLcI5Li6DH4DxRwE-160">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-158" style="shape=folder;tabWidth=192;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="209" x="15" y="109" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Telemetry Input Contract" plantUmlId="n_18" plantUmlBaseStyle="shape=folder;tabWidth=187;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Telemetry Input Contract" id="1447xLcI5Li6DH4DxRwE-161">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-158" style="shape=folder;tabWidth=187;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="204" x="17.5" y="34" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_34" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-177">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-151" source="1447xLcI5Li6DH4DxRwE-156" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" target="1447xLcI5Li6DH4DxRwE-161">
+            <mxGeometry relative="1" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_36" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-179">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-151" source="1447xLcI5Li6DH4DxRwE-152" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" target="1447xLcI5Li6DH4DxRwE-159">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="479.8" y="171.5" />
+                <mxPoint x="479.8" y="238" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_37" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-180">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-151" source="1447xLcI5Li6DH4DxRwE-152" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" target="1447xLcI5Li6DH4DxRwE-160">
+            <mxGeometry relative="1" x="-0.1803" y="9" as="geometry">
+              <mxPoint x="-1" y="-1" as="offset" />
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="Domain" plantUmlId="c_19" plantUmlBaseStyle="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Domain" id="1447xLcI5Li6DH4DxRwE-162">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-143" style="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="236" width="530.5" x="1350.5" y="255.5" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Accounts &amp;amp; Resources Domain" plantUmlId="n_20" plantUmlBaseStyle="shape=folder;tabWidth=222;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Accounts &amp;amp; Resources Domain" id="1447xLcI5Li6DH4DxRwE-163">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-162" style="shape=folder;tabWidth=222;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="239" x="15" y="34" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Reservations &amp;amp; Trips Domain" plantUmlId="n_21" plantUmlBaseStyle="shape=folder;tabWidth=214;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Reservations &amp;amp; Trips Domain" id="1447xLcI5Li6DH4DxRwE-164">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-162" style="shape=folder;tabWidth=214;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="231" x="19" y="109" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Charging Domain" plantUmlId="n_22" plantUmlBaseStyle="shape=folder;tabWidth=135;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Charging Domain" id="1447xLcI5Li6DH4DxRwE-165">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-162" style="shape=folder;tabWidth=135;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="152" x="58.5" y="184" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Operations Domain" plantUmlId="n_23" plantUmlBaseStyle="shape=folder;tabWidth=147;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Operations Domain" id="1447xLcI5Li6DH4DxRwE-166">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-162" style="shape=folder;tabWidth=147;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="164" x="351.5" y="34" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Simulation Domain" plantUmlId="n_24" plantUmlBaseStyle="shape=folder;tabWidth=144;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Simulation Domain" id="1447xLcI5Li6DH4DxRwE-167">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-162" style="shape=folder;tabWidth=144;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="40" width="161" x="353" y="109" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Infrastructure" plantUmlId="c_25" plantUmlBaseStyle="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Infrastructure" id="1447xLcI5Li6DH4DxRwE-168">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-143" style="rounded=1;absoluteArcSize=1;arcSize=5;fillColor=none;strokeColor=#181818;verticalAlign=top;align=center;spacingTop=-4;fontSize=14;fontStyle=1;whiteSpace=wrap;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="254" width="262" x="41.5" y="444" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="SQLite Repository Adapter&#xa;(target)" plantUmlId="n_26" plantUmlBaseStyle="shape=folder;tabWidth=195;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="SQLite Repository Adapter&#xa;(target)" id="1447xLcI5Li6DH4DxRwE-169">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-168" style="shape=folder;tabWidth=195;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="46" width="212" x="25" y="196" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Simulated Telemetry Adapter&#xa;(MVP option)" plantUmlId="n_27" plantUmlBaseStyle="shape=folder;tabWidth=215;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Simulated Telemetry Adapter&#xa;(MVP option)" id="1447xLcI5Li6DH4DxRwE-170">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-168" style="shape=folder;tabWidth=215;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="46" width="232" x="15" y="115" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="Mock Notification Adapter&#xa;(MVP option)" plantUmlId="n_28" plantUmlBaseStyle="shape=folder;tabWidth=192;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" plantUmlBaseValue="Mock Notification Adapter&#xa;(MVP option)" id="1447xLcI5Li6DH4DxRwE-171">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-168" style="shape=folder;tabWidth=192;tabHeight=23;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#64748B;fontSize=14;align=left;verticalAlign=top;spacingLeft=6;spacingTop=1;shadow=0;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="46" width="209" x="26.5" y="34" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_29" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-172">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-143" source="1447xLcI5Li6DH4DxRwE-145" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" target="1447xLcI5Li6DH4DxRwE-150">
+            <mxGeometry relative="1" x="-0.2667" y="-5" as="geometry">
+              <mxPoint x="1" as="offset" />
+              <Array as="points">
+                <mxPoint x="350" y="349" />
+                <mxPoint x="350" y="384.5" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_30" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-173">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-143" source="1447xLcI5Li6DH4DxRwE-146" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" target="1447xLcI5Li6DH4DxRwE-150">
+            <mxGeometry relative="1" as="geometry">
+              <Array as="points">
+                <mxPoint x="400" y="268" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_31" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-174">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-143" source="1447xLcI5Li6DH4DxRwE-147" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" target="1447xLcI5Li6DH4DxRwE-150">
+            <mxGeometry relative="1" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_32" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-175">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-143" source="1447xLcI5Li6DH4DxRwE-150" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" target="1447xLcI5Li6DH4DxRwE-152">
+            <mxGeometry relative="1" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_33" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-176">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-143" source="1447xLcI5Li6DH4DxRwE-150" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" target="1447xLcI5Li6DH4DxRwE-161">
+            <mxGeometry relative="1" x="0.0243" as="geometry">
+              <Array as="points">
+                <mxPoint x="510" y="214" />
+                <mxPoint x="1100" y="214" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_35" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-178">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-143" source="1447xLcI5Li6DH4DxRwE-152" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;exitX=1.002;exitY=0.071;exitDx=0;exitDy=0;exitPerimeter=0;jumpStyle=arc;" target="1447xLcI5Li6DH4DxRwE-162">
+            <mxGeometry relative="1" x="0.1859" y="-10" as="geometry">
+              <mxPoint x="-1" as="offset" />
+              <Array as="points">
+                <mxPoint x="1027.4" y="244" />
+                <mxPoint x="1615.8" y="244" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_38" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-181">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-143" source="1447xLcI5Li6DH4DxRwE-169" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;jumpStyle=arc;" target="1447xLcI5Li6DH4DxRwE-159">
+            <mxGeometry relative="1" x="-0.0341" as="geometry">
+              <Array as="points">
+                <mxPoint x="1220" y="663" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_40" plantUmlBaseStyle="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-183">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-143" source="1447xLcI5Li6DH4DxRwE-171" style="strokeColor=#475569;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;fontFamily=Segoe UI;edgeStyle=orthogonalEdgeStyle;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" target="1447xLcI5Li6DH4DxRwE-160">
+            <mxGeometry relative="1" x="-0.135" as="geometry">
+              <Array as="points">
+                <mxPoint x="290" y="501" />
+                <mxPoint x="290" y="534" />
+                <mxPoint x="1270" y="534" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="«access»" plantUmlId="e_39" plantUmlBaseStyle="strokeColor=#181818;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;" plantUmlBaseValue="«access»" id="1447xLcI5Li6DH4DxRwE-182">
+          <mxCell edge="1" parent="1447xLcI5Li6DH4DxRwE-143" source="1447xLcI5Li6DH4DxRwE-170" style="strokeColor=#181818;fontColor=#000000;fontSize=13;html=1;labelBackgroundColor=#FFFFFF;verticalAlign=bottom;endArrow=classicThin;endFill=1;dashed=1;dashPattern=7 7;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.862;entryY=0.048;entryDx=0;entryDy=0;curved=0;rounded=0;endSize=6;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;entryPerimeter=0;jumpStyle=arc;" target="1447xLcI5Li6DH4DxRwE-161">
+            <mxGeometry relative="1" x="-0.0727" as="geometry">
+              <Array as="points">
+                <mxPoint x="1924" y="582" />
+                <mxPoint x="1920" y="224" />
+                <mxPoint x="1254.85" y="224" />
+              </Array>
+            </mxGeometry>
+          </mxCell>
+        </UserObject>
+        <UserObject label="DV02 — Development View: Proposed Package Organization" plantUmlId="title_43" plantUmlBaseStyle="text;html=1;fillColor=none;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;align=center;verticalAlign=middle;fontFamily=Segoe UI;" plantUmlBaseValue="DV02 — Development View: Proposed Package Organization" id="1447xLcI5Li6DH4DxRwE-186">
+          <mxCell parent="1447xLcI5Li6DH4DxRwE-142" style="text;html=1;fillColor=none;strokeColor=none;fontSize=14;fontStyle=1;fontColor=#000000;align=center;verticalAlign=middle;fontFamily=Segoe UI;" vertex="1">
+            <mxGeometry height="24" width="421" x="768" y="30" as="geometry" />
+          </mxCell>
+        </UserObject>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
