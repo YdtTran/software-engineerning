@@ -16,8 +16,8 @@ PlantUML is the detailed UML source. Mermaid provides a readable preview; its no
 | Layer | Responsibility and boundary |
 | --- | --- |
 | **Presentation** | Student mobile, Operator field mobile, and Operator web mockup experiences. The existing shared preview shell renders these views. Their API integration is planned, not implemented. |
-| **API / Interface** | Target Express HTTP API and the telemetry inbound contract; translate external requests/events to application operations. |
-| **Application** | Coordinate use cases, transaction boundaries, repositories, and outbound notification requests in cohesive modules within one backend. |
+| **API / Interface** | Target Express HTTP API; translate external requests/events to application operations. |
+| **Application** | Own the telemetry input contract and coordinate use cases, transaction boundaries, repositories, and outbound notification requests in cohesive modules within one backend. |
 | **Domain** | Own business concepts, validations, invariants, and state transitions without depending on UI, Express, or SQLite. |
 | **Infrastructure** | Implement persistence and external integration ports, including the SQLite repository adapter and MVP telemetry/notification adapters. |
 
@@ -38,8 +38,8 @@ A use case may cross module boundaries. The mapping is a responsibility guide, n
 - Requests flow from Presentation through API / Interface to Application operations and Domain rules.
 - Application modules depend inward on Domain behavior and on abstractions (Repository and notification ports), not on concrete SQLite or web framework APIs.
 - Infrastructure adapters implement application-owned ports. The SQLite repository adapter persists domain state and must use transaction boundaries for atomic allocation and state transitions.
-- Telemetry enters through an interface; simulated telemetry and mock notification are MVP adapter options. Real protocols and providers remain undecided.
-- The telemetry inbound port dispatches accepted events toward the Operations module; Operations does not depend outward on an API-layer port.
+- The Application-owned Telemetry Input Contract is realized by Operations in the component view. The API and simulated telemetry source depend on/submit to this contract; Operations does not depend on an API-layer abstraction.
+- Mock notification is an MVP adapter option. Real telemetry protocols and notification providers remain undecided.
 - To keep the diagrams readable, use-case-module dependencies on Domain, Repository, and Notification ports are aggregated at the `Use-case Modules` boundary. The module-to-UC/service table above retains module-level traceability; notifications are requested by Reservations & Trips and Operations.
 - Prototype-to-API edges are target dependencies only. Do not treat the mockup viewer as an integrated backend client.
 - Component/package boundaries are logical code organization, not microservices, servers, containers, network links, or hardware.
@@ -71,7 +71,8 @@ Before implementation, select the API contract and endpoint details; authenticat
 - [x] No deployment topology, process/runtime behavior, or domain class model is substituted for this Development View.
 - [x] PlantUML, Mermaid, native Draw.io, and editable SVG artifacts are provided for each diagram.
 - [x] XML structure, graph references, and native/SVG model parity were checked after generation.
-- [x] Both SVGs were inspected at fit zoom; no overlapping boxes or clipping were visible. A native Draw.io/PlantUML renderer is not installed, so those editor-specific render checks were unavailable.
+- [ ] Connector routing still needs owner cleanup. The owner has manually improved both `.drawio.svg` diagrams and reports that some connectors remain messy; those edits are preserved for follow-up.
+- [x] The owner visually reviewed the updated SVG diagrams. The agent's local preview could not provide a fit-zoom review, and no standalone Draw.io/PlantUML renderer is available.
 
 ## Source documents
 
@@ -86,3 +87,4 @@ Before implementation, select the API contract and endpoint details; authenticat
 - Open a `.drawio` file or its matching `.drawio.svg` in Draw.io for VS Code to inspect and edit the graph.
 - The `.puml` files can be imported in tools that support PlantUML; the `.mmd` files can be previewed in Mermaid-compatible Markdown viewers.
 - Editing the native `.drawio` file is the most direct way to change the mxGraph model; keep source and export variants synchronized after changes.
+- Connector routes are intentionally owner-maintained. The remaining messy connections are reserved for manual adjustment in Draw.io; the semantic relationship endpoints and UML notation have been validated.

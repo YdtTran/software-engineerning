@@ -5,13 +5,12 @@ flowchart LR
         opweb["Operator web dashboard experience"]
         preview["Shared preview shell<br/>index.html + app.js"]
     end
-    student -. "planned HTTP integration" .-> http
-    opmobile -. "planned HTTP integration" .-> http
-    opweb -. "planned HTTP integration" .-> http
+    student -. "planned HTTP" .-> http
+    opmobile -. "planned HTTP" .-> http
+    opweb -. "planned HTTP" .-> http
 
     subgraph api["API / Interface — MVP target"]
         http["Express HTTP API"]
-        telemetryIn["Telemetry Inbound Port<br/>&lt;&lt;interface&gt;&gt;"]
     end
 
     subgraph application["Application — modules in one backend"]
@@ -21,8 +20,9 @@ flowchart LR
         operations["Operations<br/>RedistributionService; IncidentService;<br/>TelemetryService<br/>UC08–11; FR-NI02–04"]
         simulation["Simulation<br/>SimulationEngine<br/>UC13–14"]
         useCaseModules[["Use-case Modules"]]
-        repoPort[["Repository ports<br/>resource / reservation / charging /<br/>operations / simulation"]]
-        notificationPort[["Notification outbound port"]]
+        telemetryIn["&lt;&lt;interface&gt;&gt;<br/>Telemetry Input Contract<br/>application use-case contract"]
+        repoPort["&lt;&lt;interface&gt;&gt;<br/>RepositoryPort<br/>resource / reservation / charging /<br/>operations / simulation"]
+        notificationPort["&lt;&lt;interface&gt;&gt;<br/>NotificationPort"]
     end
 
     subgraph domain["Domain — business rules"]
@@ -31,21 +31,22 @@ flowchart LR
 
     subgraph infrastructure["Infrastructure — MVP adapters"]
         sqliteAdapter["SQLite repository adapter"]
-        sqlite[("SQLite persistence")]
+        sqlite["SQLite persistence<br/>(target technology)"]
         simulatedTelemetry["Simulated telemetry adapter<br/>real protocol TBD"]
         mockNotification["Mock notification adapter<br/>provider TBD"]
     end
 
-    http --> useCaseModules
+    http -. "uses" .-> useCaseModules
 
-    useCaseModules --> domainModel
-    useCaseModules --> repoPort
-    useCaseModules --> notificationPort
-    http -. "provides telemetry ingress" .-> telemetryIn
+    useCaseModules -. "uses" .-> domainModel
+    useCaseModules -. "uses" .-> repoPort
+    useCaseModules -. "uses" .-> notificationPort
+    operations -. "realizes" .-> telemetryIn
+    http -. "submits telemetry" .-> telemetryIn
 
     sqliteAdapter -. "realizes" .-> repoPort
-    sqliteAdapter -. "transactional reads / writes" .-> sqlite
-    simulatedTelemetry -. "uses" .-> telemetryIn
+    sqliteAdapter -. "persists state" .-> sqlite
+    simulatedTelemetry -. "submits telemetry" .-> telemetryIn
     mockNotification -. "realizes" .-> notificationPort
 
     classDef target fill:#eff6ff,stroke:#0284c7,color:#0f172a;
@@ -55,5 +56,6 @@ flowchart LR
     class telemetryIn,repoPort,notificationPort port;
     class simulatedTelemetry,mockNotification,preview mock;
 
-    %% Mermaid shows interface and realization semantics descriptively; use PlantUML for exact UML notation.
+    %% Mermaid approximates UML interface/realization glyphs; see PlantUML for exact notation.
+    %% Dashed arrows point from a client component to its supplier interface.
     %% The diagram does not represent deployment nodes.

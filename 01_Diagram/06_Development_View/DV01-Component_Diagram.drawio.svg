@@ -1,2 +1,975 @@
-<?xml version='1.0' encoding='utf-8'?>
-<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" width="2100" height="1420" viewBox="0 0 2100 1420" content="&lt;mxGraphModel dx=&quot;2100&quot; dy=&quot;1420&quot; grid=&quot;1&quot; gridSize=&quot;10&quot; page=&quot;1&quot; pageWidth=&quot;2100&quot; pageHeight=&quot;1420&quot; background=&quot;#ffffff&quot;&gt;&lt;root&gt;&lt;mxCell id=&quot;0&quot; /&gt;&lt;mxCell id=&quot;1&quot; parent=&quot;0&quot; /&gt;&lt;mxCell id=&quot;title&quot; value=&quot;DV01 — Component Architecture (MVP target)&quot; style=&quot;html=0;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Segoe UI;fontSize=26;fontStyle=1;fontColor=#0f172a;fillColor=none;strokeColor=none;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;40&quot; y=&quot;20&quot; width=&quot;1960&quot; height=&quot;60&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;lane_presentation&quot; value=&quot;Presentation&quot; style=&quot;html=0;whiteSpace=wrap;rounded=1;arcSize=8;align=center;verticalAlign=top;spacingTop=12;fontFamily=Segoe UI;fontSize=18;fontStyle=1;fontColor=#0f172a;fillColor=#f8fafc;strokeColor=#94a3b8;strokeWidth=2;pointerEvents=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;30&quot; y=&quot;120&quot; width=&quot;360&quot; height=&quot;1210&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;lane_api&quot; value=&quot;API / Interface&quot; style=&quot;html=0;whiteSpace=wrap;rounded=1;arcSize=8;align=center;verticalAlign=top;spacingTop=12;fontFamily=Segoe UI;fontSize=18;fontStyle=1;fontColor=#0f172a;fillColor=#f8fafc;strokeColor=#94a3b8;strokeWidth=2;pointerEvents=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;410&quot; y=&quot;120&quot; width=&quot;290&quot; height=&quot;1210&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;lane_application&quot; value=&quot;Application — modular monolith&quot; style=&quot;html=0;whiteSpace=wrap;rounded=1;arcSize=8;align=center;verticalAlign=top;spacingTop=12;fontFamily=Segoe UI;fontSize=18;fontStyle=1;fontColor=#0f172a;fillColor=#f8fafc;strokeColor=#94a3b8;strokeWidth=2;pointerEvents=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;720&quot; y=&quot;120&quot; width=&quot;600&quot; height=&quot;1210&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;lane_domain&quot; value=&quot;Domain&quot; style=&quot;html=0;whiteSpace=wrap;rounded=1;arcSize=8;align=center;verticalAlign=top;spacingTop=12;fontFamily=Segoe UI;fontSize=18;fontStyle=1;fontColor=#0f172a;fillColor=#f8fafc;strokeColor=#94a3b8;strokeWidth=2;pointerEvents=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1340&quot; y=&quot;120&quot; width=&quot;330&quot; height=&quot;1210&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;lane_infrastructure&quot; value=&quot;Infrastructure&quot; style=&quot;html=0;whiteSpace=wrap;rounded=1;arcSize=8;align=center;verticalAlign=top;spacingTop=12;fontFamily=Segoe UI;fontSize=18;fontStyle=1;fontColor=#0f172a;fillColor=#f8fafc;strokeColor=#94a3b8;strokeWidth=2;pointerEvents=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1690&quot; y=&quot;120&quot; width=&quot;320&quot; height=&quot;1210&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;usecase_modules_frame&quot; value=&quot;Use-case Modules&quot; style=&quot;html=0;whiteSpace=wrap;rounded=1;align=center;verticalAlign=top;spacingTop=8;fontFamily=Segoe UI;fontSize=14;fontStyle=1;fontColor=#475569;fillColor=none;strokeColor=#64748b;strokeWidth=1;dashed=1;pointerEvents=0;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;730&quot; y=&quot;175&quot; width=&quot;340&quot; height=&quot;705&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;student&quot; value=&quot;Student Mobile&amp;#10;experience&amp;#10;(mockup)&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;55&quot; y=&quot;220&quot; width=&quot;310&quot; height=&quot;105&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;operator_mobile&quot; value=&quot;Operator Field Mobile&amp;#10;experience&amp;#10;(mockup)&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;55&quot; y=&quot;365&quot; width=&quot;310&quot; height=&quot;105&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;operator_web&quot; value=&quot;Operator Web Dashboard&amp;#10;experience&amp;#10;(mockup)&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;55&quot; y=&quot;510&quot; width=&quot;310&quot; height=&quot;105&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;preview&quot; value=&quot;Shared Preview Shell&amp;#10;index.html + app.js&amp;#10;renders the three experiences&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#fffbeb;strokeColor=#d97706;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;55&quot; y=&quot;700&quot; width=&quot;310&quot; height=&quot;120&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;http_api&quot; value=&quot;Express HTTP API&amp;#10;MVP target&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;445&quot; y=&quot;390&quot; width=&quot;220&quot; height=&quot;120&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;telemetry_in&quot; value=&quot;Telemetry Inbound Port&amp;#10;protocol TBD&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;445&quot; y=&quot;870&quot; width=&quot;220&quot; height=&quot;105&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;accounts&quot; value=&quot;Accounts &amp;amp; Resources&amp;#10;VehicleService | UC01–02,&amp;#10;UC08–09&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;745&quot; y=&quot;210&quot; width=&quot;300&quot; height=&quot;100&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;reservations&quot; value=&quot;Reservations &amp;amp; Trips&amp;#10;ReservationHub | UC03–06&amp;#10;FR-NI01&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;745&quot; y=&quot;345&quot; width=&quot;300&quot; height=&quot;100&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;charging&quot; value=&quot;Charging&amp;#10;ChargingScheduler | UC07, UC12&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;745&quot; y=&quot;480&quot; width=&quot;300&quot; height=&quot;100&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;operations&quot; value=&quot;Operations | RedistributionService&amp;#10;IncidentService | TelemetryService&amp;#10;UC08–11 | FR-NI02–04&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;745&quot; y=&quot;615&quot; width=&quot;300&quot; height=&quot;115&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;simulation&quot; value=&quot;Simulation | SimulationEngine&amp;#10;UC13–14&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;745&quot; y=&quot;765&quot; width=&quot;300&quot; height=&quot;100&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;repository_ports&quot; value=&quot;Repository&amp;#10;Ports&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1175&quot; y=&quot;400&quot; width=&quot;125&quot; height=&quot;125&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;notification_port&quot; value=&quot;Notification&amp;#10;Port&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1175&quot; y=&quot;930&quot; width=&quot;125&quot; height=&quot;105&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;domain_model&quot; value=&quot;Domain Model &amp;amp; Invariants&amp;#10;accounts, hubs, vehicles, slots,&amp;#10;reservations, trips, charging,&amp;#10;transfers, incidents,&amp;#10;simulations&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1365&quot; y=&quot;500&quot; width=&quot;280&quot; height=&quot;245&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;sqlite_adapter&quot; value=&quot;SQLite Repository Adapter&amp;#10;target implementation&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1715&quot; y=&quot;220&quot; width=&quot;270&quot; height=&quot;105&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;sqlite&quot; value=&quot;SQLite Persistence&amp;#10;target technology&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#eff6ff;strokeColor=#0284c7;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1715&quot; y=&quot;390&quot; width=&quot;270&quot; height=&quot;105&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;sim_telemetry&quot; value=&quot;Simulated Telemetry Adapter&amp;#10;MVP option; real protocol TBD&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#fffbeb;strokeColor=#d97706;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1715&quot; y=&quot;650&quot; width=&quot;270&quot; height=&quot;105&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;mock_notification&quot; value=&quot;Mock Notification Adapter&amp;#10;MVP option; provider TBD&quot; style=&quot;html=0;whiteSpace=wrap;shape=component;align=center;verticalAlign=middle;spacing=8;fontFamily=Segoe UI;fontSize=15;fontColor=#0f172a;fillColor=#fffbeb;strokeColor=#d97706;strokeWidth=2;&quot; vertex=&quot;1&quot; parent=&quot;1&quot;&gt;&lt;mxGeometry x=&quot;1715&quot; y=&quot;900&quot; width=&quot;270&quot; height=&quot;105&quot; as=&quot;geometry&quot; /&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_1&quot; value=&quot;planned HTTP&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;dashed=1;dashPattern=6 4;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.16666666666666666;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;student&quot; target=&quot;http_api&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot;&gt;&lt;mxPoint x=&quot;405&quot; y=&quot;272.5&quot; /&gt;&lt;mxPoint x=&quot;405&quot; y=&quot;410&quot; /&gt;&lt;/Array&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_2&quot; value=&quot;planned HTTP&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;dashed=1;dashPattern=6 4;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;operator_mobile&quot; target=&quot;http_api&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot;&gt;&lt;mxPoint x=&quot;405&quot; y=&quot;417.5&quot; /&gt;&lt;mxPoint x=&quot;405&quot; y=&quot;450&quot; /&gt;&lt;/Array&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_3&quot; value=&quot;planned HTTP&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;dashed=1;dashPattern=6 4;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.8333333333333334;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;operator_web&quot; target=&quot;http_api&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot;&gt;&lt;mxPoint x=&quot;405&quot; y=&quot;562.5&quot; /&gt;&lt;mxPoint x=&quot;405&quot; y=&quot;490&quot; /&gt;&lt;/Array&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_18&quot; value=&quot;&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;telemetry_in&quot; target=&quot;operations&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot;&gt;&lt;mxPoint x=&quot;705&quot; y=&quot;922.5&quot; /&gt;&lt;mxPoint x=&quot;705&quot; y=&quot;672.5&quot; /&gt;&lt;/Array&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_21&quot; value=&quot;implements&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;dashed=1;dashPattern=6 4;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.42;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;sqlite_adapter&quot; target=&quot;repository_ports&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot;&gt;&lt;mxPoint x=&quot;2030&quot; y=&quot;272.5&quot; /&gt;&lt;mxPoint x=&quot;2030&quot; y=&quot;452.5&quot; /&gt;&lt;/Array&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_22&quot; value=&quot;transactional&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;sqlite_adapter&quot; target=&quot;sqlite&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot; /&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_23&quot; value=&quot;implements&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;dashed=1;dashPattern=6 4;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;sim_telemetry&quot; target=&quot;telemetry_in&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot;&gt;&lt;mxPoint x=&quot;2070&quot; y=&quot;702.5&quot; /&gt;&lt;mxPoint x=&quot;2070&quot; y=&quot;1330&quot; /&gt;&lt;mxPoint x=&quot;665&quot; y=&quot;1330&quot; /&gt;&lt;/Array&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_24&quot; value=&quot;implements&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;dashed=1;dashPattern=6 4;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;mock_notification&quot; target=&quot;notification_port&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot;&gt;&lt;mxPoint x=&quot;2050&quot; y=&quot;952.5&quot; /&gt;&lt;mxPoint x=&quot;2050&quot; y=&quot;982.5&quot; /&gt;&lt;/Array&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_25&quot; value=&quot;business rules&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5319148936170213;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;usecase_modules_frame&quot; target=&quot;domain_model&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot;&gt;&lt;mxPoint x=&quot;1330&quot; y=&quot;550&quot; /&gt;&lt;mxPoint x=&quot;1330&quot; y=&quot;622.5&quot; /&gt;&lt;/Array&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_26&quot; value=&quot;uses repositories&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.4078014184397163;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;usecase_modules_frame&quot; target=&quot;repository_ports&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot; /&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_27&quot; value=&quot;uses notifications&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;exitX=0.970588;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;usecase_modules_frame&quot; target=&quot;notification_port&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot;&gt;&lt;mxPoint x=&quot;1237.5&quot; y=&quot;880&quot; /&gt;&lt;/Array&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;mxCell id=&quot;edge_28&quot; value=&quot;dispatches use cases&quot; style=&quot;html=0;edgeStyle=orthogonalEdgeStyle;rounded=0;jettySize=auto;orthogonalLoop=1;strokeColor=#475569;strokeWidth=2;endArrow=block;endFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.3900709219858156;entryDx=0;entryDy=0;&quot; edge=&quot;1&quot; parent=&quot;1&quot; source=&quot;http_api&quot; target=&quot;usecase_modules_frame&quot;&gt;&lt;mxGeometry relative=&quot;1&quot; as=&quot;geometry&quot;&gt;&lt;Array as=&quot;points&quot; /&gt;&lt;/mxGeometry&gt;&lt;/mxCell&gt;&lt;/root&gt;&lt;/mxGraphModel&gt;"><ns0:defs><ns0:marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><ns0:path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" /></ns0:marker></ns0:defs><ns0:rect x="0" y="0" width="2040" height="1420" fill="#ffffff" /><ns0:rect x="30" y="120" width="360" height="1210" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" /><ns0:text x="210.0" y="154" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">Presentation</ns0:text><ns0:rect x="410" y="120" width="290" height="1210" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" /><ns0:text x="555.0" y="154" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">API / Interface</ns0:text><ns0:rect x="720" y="120" width="600" height="1210" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" /><ns0:text x="1020.0" y="154" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">Application — modular monolith</ns0:text><ns0:rect x="1340" y="120" width="330" height="1210" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" /><ns0:text x="1505.0" y="154" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">Domain</ns0:text><ns0:rect x="1690" y="120" width="320" height="1210" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" /><ns0:text x="1850.0" y="154" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" fill="#0f172a">Infrastructure</ns0:text><ns0:rect x="730" y="175" width="340" height="705" rx="12" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="7 5" /><ns0:text x="900.0" y="200" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" fill="#475569">Use-case Modules</ns0:text><ns0:path d="M 365 272.5 L 405 272.5 L 405 410 L 445 410" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="6 4" /><ns0:text x="410.0" y="357.25" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#475569">planned HTTP</ns0:text><ns0:path d="M 365 417.5 L 405 417.5 L 405 450 L 445 450" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="6 4" /><ns0:text x="410.0" y="429.75" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#475569">planned HTTP</ns0:text><ns0:path d="M 365 562.5 L 405 562.5 L 405 490 L 445 490" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="6 4" /><ns0:text x="410.0" y="502.25" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#475569">planned HTTP</ns0:text><ns0:text x="710.0" y="351.0" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#475569">use cases</ns0:text><ns0:path d="M 665 922.5 L 705 922.5 L 705 672.5 L 745 672.5" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="none" /><ns0:path d="M 1985 272.5 L 2030 272.5 L 2030 452.5 L 1300 452.5" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="6 4" /><ns0:text x="1645" y="1225" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#475569">implements</ns0:text><ns0:path d="M 1850 325 L 1850 390" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="none" /><ns0:text x="1855.0" y="357.5" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#475569">transactional</ns0:text><ns0:path d="M 1985 702.5 L 2070 702.5 L 2070 1330 L 665 1330 L 665 922.5" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="6 4" /><ns0:text x="1325" y="1325" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#475569">implements</ns0:text><ns0:path d="M 1985 952.5 L 2050 952.5 L 2050 982.5 L 1300 982.5" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="6 4" /><ns0:path d="M 1070 550 H 1330 V 622.5 H 1365" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" /><ns0:path d="M 1070 462.5 H 1175" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" /><ns0:path d="M 1060 880 H 1237.5 V 930" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" /><ns0:path d="M 665 450 H 730" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow)" /><ns0:text x="1645" y="1275" font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#475569">implements</ns0:text><ns0:rect x="55" y="220" width="310" height="105" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="62" y="232" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="62" y="247" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="210.0" y="256.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="210.0" dy="0">Student Mobile</ns0:tspan><ns0:tspan x="210.0" dy="22">experience</ns0:tspan><ns0:tspan x="210.0" dy="22">(mockup)</ns0:tspan></ns0:text><ns0:rect x="55" y="365" width="310" height="105" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="62" y="377" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="62" y="392" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="210.0" y="401.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="210.0" dy="0">Operator Field Mobile</ns0:tspan><ns0:tspan x="210.0" dy="22">experience</ns0:tspan><ns0:tspan x="210.0" dy="22">(mockup)</ns0:tspan></ns0:text><ns0:rect x="55" y="510" width="310" height="105" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="62" y="522" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="62" y="537" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="210.0" y="546.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="210.0" dy="0">Operator Web Dashboard</ns0:tspan><ns0:tspan x="210.0" dy="22">experience</ns0:tspan><ns0:tspan x="210.0" dy="22">(mockup)</ns0:tspan></ns0:text><ns0:rect x="55" y="700" width="310" height="120" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2" /><ns0:rect x="62" y="712" width="13" height="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.5" /><ns0:rect x="62" y="727" width="13" height="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.5" /><ns0:text x="210.0" y="744.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="210.0" dy="0">Shared Preview Shell</ns0:tspan><ns0:tspan x="210.0" dy="22">index.html + app.js</ns0:tspan><ns0:tspan x="210.0" dy="22">renders the three experiences</ns0:tspan></ns0:text><ns0:rect x="445" y="390" width="220" height="120" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="452" y="402" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="452" y="417" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="555.0" y="445.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="555.0" dy="0">Express HTTP API</ns0:tspan><ns0:tspan x="555.0" dy="22">MVP target</ns0:tspan></ns0:text><ns0:rect x="445" y="870" width="220" height="105" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" /><ns0:rect x="452" y="882" width="13" height="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="452" y="897" width="13" height="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="555.0" y="917.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="555.0" dy="0">Telemetry Inbound Port</ns0:tspan><ns0:tspan x="555.0" dy="22">protocol TBD</ns0:tspan></ns0:text><ns0:rect x="745" y="210" width="300" height="100" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="752" y="222" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="752" y="237" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="925.0" y="244.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="925.0" dy="0">Accounts &amp; Resources</ns0:tspan><ns0:tspan x="925.0" dy="22">VehicleService | UC01–02,</ns0:tspan><ns0:tspan x="925.0" dy="22">UC08–09</ns0:tspan></ns0:text><ns0:rect x="745" y="345" width="300" height="100" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="752" y="357" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="752" y="372" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="925.0" y="379.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="925.0" dy="0">Reservations &amp; Trips</ns0:tspan><ns0:tspan x="925.0" dy="22">ReservationHub | UC03–06</ns0:tspan><ns0:tspan x="925.0" dy="22">FR-NI01</ns0:tspan></ns0:text><ns0:rect x="745" y="480" width="300" height="100" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="752" y="492" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="752" y="507" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="925.0" y="525.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="925.0" dy="0">Charging</ns0:tspan><ns0:tspan x="925.0" dy="22">ChargingScheduler | UC07, UC12</ns0:tspan></ns0:text><ns0:rect x="745" y="615" width="300" height="115" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="752" y="627" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="752" y="642" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="925.0" y="656.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="925.0" dy="0">Operations | RedistributionService</ns0:tspan><ns0:tspan x="925.0" dy="22">IncidentService | TelemetryService</ns0:tspan><ns0:tspan x="925.0" dy="22">UC08–11 | FR-NI02–04</ns0:tspan></ns0:text><ns0:rect x="745" y="765" width="300" height="100" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="752" y="777" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="752" y="792" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="925.0" y="810.0" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="925.0" dy="0">Simulation | SimulationEngine</ns0:tspan><ns0:tspan x="925.0" dy="22">UC13–14</ns0:tspan></ns0:text><ns0:rect x="1175" y="400" width="125" height="125" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" /><ns0:rect x="1182" y="412" width="13" height="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="1182" y="427" width="13" height="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="1237.5" y="457.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="1210.0" dy="0">Repository</ns0:tspan><ns0:tspan x="1210.0" dy="22">Ports</ns0:tspan></ns0:text><ns0:rect x="1175" y="930" width="125" height="105" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" /><ns0:rect x="1182" y="942" width="13" height="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="1182" y="957" width="13" height="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="1237.5" y="977.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="1210.0" dy="0">Notification</ns0:tspan><ns0:tspan x="1210.0" dy="22">Port</ns0:tspan></ns0:text><ns0:rect x="1365" y="500" width="280" height="245" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" /><ns0:rect x="1372" y="512" width="13" height="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5" /><ns0:rect x="1372" y="527" width="13" height="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5" /><ns0:text x="1505.0" y="584.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="1505.0" dy="0">Domain Model &amp; Invariants</ns0:tspan><ns0:tspan x="1505.0" dy="22">accounts, hubs, vehicles, slots,</ns0:tspan><ns0:tspan x="1505.0" dy="22">reservations, trips, charging,</ns0:tspan><ns0:tspan x="1505.0" dy="22">transfers, incidents,</ns0:tspan><ns0:tspan x="1505.0" dy="22">simulations</ns0:tspan></ns0:text><ns0:rect x="1715" y="220" width="270" height="105" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="1722" y="232" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="1722" y="247" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="1850.0" y="267.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="1850.0" dy="0">SQLite Repository Adapter</ns0:tspan><ns0:tspan x="1850.0" dy="22">target implementation</ns0:tspan></ns0:text><ns0:rect x="1715" y="390" width="270" height="105" rx="10" fill="#eff6ff" stroke="#0284c7" stroke-width="2" /><ns0:rect x="1722" y="402" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:rect x="1722" y="417" width="13" height="8" fill="#eff6ff" stroke="#0284c7" stroke-width="1.5" /><ns0:text x="1850.0" y="437.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="1850.0" dy="0">SQLite Persistence</ns0:tspan><ns0:tspan x="1850.0" dy="22">target technology</ns0:tspan></ns0:text><ns0:rect x="1715" y="650" width="270" height="105" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2" /><ns0:rect x="1722" y="662" width="13" height="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.5" /><ns0:rect x="1722" y="677" width="13" height="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.5" /><ns0:text x="1850.0" y="697.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="1850.0" dy="0">Simulated Telemetry Adapter</ns0:tspan><ns0:tspan x="1850.0" dy="22">MVP option; real protocol TBD</ns0:tspan></ns0:text><ns0:rect x="1715" y="900" width="270" height="105" rx="10" fill="#fffbeb" stroke="#d97706" stroke-width="2" /><ns0:rect x="1722" y="912" width="13" height="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.5" /><ns0:rect x="1722" y="927" width="13" height="8" fill="#fffbeb" stroke="#d97706" stroke-width="1.5" /><ns0:text x="1850.0" y="947.5" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="15" fill="#0f172a"><ns0:tspan x="1850.0" dy="0">Mock Notification Adapter</ns0:tspan><ns0:tspan x="1850.0" dy="22">MVP option; provider TBD</ns0:tspan></ns0:text><ns0:text x="40" y="62" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="700" fill="#0f172a">DV01 — Component Architecture (MVP target)</ns0:text><ns0:text x="40" y="1396" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#475569">Logical dependencies only. Student/Operator prototype API calls are planned, not implemented. Atomic allocations require transaction boundaries.</ns0:text></ns0:svg>
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" style="background: #ffffff; background-color: light-dark(#ffffff, #121212); color-scheme: light;" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="2093px" height="1311px" viewBox="0 0 2093 1311" id="ge-svg-1QPi6yvcPIkbTMZwmiu7" content="&lt;mxfile&gt;&lt;diagram id=&quot;dv01&quot; name=&quot;DV01 — Component Architecture (MVP target)&quot;&gt;7Zxbc6O4EoB/jav2PEwKcecxcTI7qdqZzZlkZ3eeUjIIWzMYsQJy2V9/JJC4J2As5yRZ5yFGQhKo9anV3ZK9MJbbh18pTDafSYCiha4FDwvjfKHrum1pGvvkWY9lFrBlzpriQOTVGdf4HyQyZbEcByhtFcwIiTKctDN9EsfIz1p5kFJy3y4Wkqj91ASuUS/j2odRP/dPHGQb0TMgu8FvfEJ4vZGPNnVxZwX9n2tK8lg8cKEbYfFX3t5C2Zgon25gQO4bWcbFwlhSQrLyavuwRBEXr5RbWe/jE3erF6cozqZUyHDGOt2rJNpJs0cpkk22jdiVtjDO7jc4Q9cJ9Pmte8YAy4MRXscsGaGQNXF2h2iGmTxPRfYWBwFv6SwkcfYRbnHE0bhGa8Ierv1xKe4IEnRbpsXzgUgvSURo8T6GFgJHhzwfR5HMj0nMH5JmlPxEncyyR3cwykWPzr9prJva4kJfuNrCM9n1kmwTVppJQddOqc/76Wc55e/4y+dvVxxDSNco+49ojPUSPTQkJmT8KyJblNFHVmTToMQWY35fIwU8mSmaMUVSzByJCRRAr6uW6zFlF2JYh4c4gjG6TShKWb9ghkmsYLgLwlEghgZSX4yc20DBZ80jOgBDRngTKWsRx+sbnjgH+lQ2gDuTDT4T3RCGfg8QdsczobFyqzty0vO3Sgjm/bi4Y91JhUh6LF31xLsjG6DSfQ06jA4cRhsOoIwOmOAjFMqhOL265PqFjYSuXfLiIReXMjp0r6M6wOHwSCI2VkfdcRhMmtJtLUdbEuQRpMVVTCLM2lVGT2WSiXYc/VD0BGQL8REc9eCcNwSrZLkx2kgAwzwUEzgOKWTdzoV5dWRDMRuXAwJWwYjZZcT2DsBIniIfpui2UIAovWV92R6AkhlcuJOxMMexMB3Lsr0pPgwrbJuO6a56RPBmA5huql5NwuOPFH3gEma5n0sZz0LE0ay+FjE7C0vXanWs/QFJszwo3LS9kWAOeMKTfuX6TQCjcmcFGzuBYU3XDygM7TAcokHTXdN3BvVDb7CvpbDYWK8wd/dt1gLgEkEPCaIYxX4z85ct8X/myTwnFwwhAdpIWFaLCCVeLmEdgRmhTGeUfTySMU7G70JoLPcjRlHwahExbAVKo0LkHq2OfOzIx59cZto5W2lWBNLgtQFiAQU6JKHoDqP7985GGIYrtBpiI/AcR7MnriobJiCuMa6k1LTrTSHPCgLMjK2Hk0JUXMWf8eFJkpMfaaMME3KAaMpDqxtU/KeIf9ZUzTNNKjt0OkOOpoChTZYliuJprxoiNQrm4oEHpvnof7q54fH1ImZWwdGMuSujoDI3ZNzM7Kw1ngIMMhShotKtktCHRIEWu12vh4JQC739KWAjHmXFjfIT18FSey1uyE+Jxo0U8IIHV5Ocm7dL9tIUMgnVxVqhSy2v3R6/KjsDK7e/PgG34xiDTkDNchWYMND3mQubpUftMoWr00pabChsuE2KQtpXlJKcFgtLxck3tMF+hK4RvcOcO23hLHkflhqQEVn26IW+bNRhN936pjfT1BlYprqh2Y6C0lXYOnzDit4VE+NI0ySavrYk1iLqhvKTCTUZjaKf8lWTJqMGxm5U+Pj1w5dLDbwYQoapQBn5zAJc82E74jMBn2UlrWrUZda1v0E8CEebpDiFsmFXQH8xLExXWSTmqFd2c7KlVimG/ysKMKuJVznPrxalCpzL2Mc8pNddriqjqF+ltVgBUFUpNY9eqyVzHm1gwGUfoc0GKiLBeJtHqram/wW0XTfkJRCosy5ipo7a1IB6xQIz0ZihiBwV8T6KEpLijDAnLCFUqdF89MNqU0cK+YrJuBXYKa3shTwC07A4q7zahBAZpKUMi6zuDN8RP69PH/BGfDUlIYCYZDgUvmcB4JG/A/D3pSHlDoEkz1bFSdx9vf0ZBHmGAoLKkzN8F5yfsH7fqxsjKAjNIYKADQ0TTiNIHonR5Kn0ppd2Gd9BimEREKgDRFWMgC+Fm3wlru7KgIBIpRERRZr6reEO8kJZ6QUuW3qtWYUhGKdhEe3mhbCw4joN1/puXuRbN/ummN6NTlUbajI6pauwxf6OGHW3MIAJh+mdE6vIHvvvb6zfhc0vF1KWOJUirNkRQXANbxNu5O912Hhgf013OoQ44AC79CUhRzJ2IuOKaQzmDnZ2WCsgMuRvYvaI9ePLwWA4KmDA29usDuO/byYUbbqWa0Ox79rcAenri3LrjCSFkiiWP4ogl35CSUZ8wi9vzs5fDhnbUoAMP1Vw2zSsj9hMweYzExvL+dIS3CRoGC13zEihh6elbT+7pgJaULBGt4IHft0CZIiZ0mEtlVPzhOEwTLxJebqTeR4bsiYxjC7q3MZ5U17+B8qyR8EAzDPCXZSq2m+kPHc8NNTVOdH+UKM4OOVfeOSvkKC4zPmII/mOraOhPHEFMzbmHGE26ho3uNEDzv4SJfj1d171xBKp8wfZW554lAnmTj3+1UyUtYDd+ZO362aKlGynFK9YyoR8m+cnGgwnEYzjQvGVRwWGsKOIG8537YEeIqioygQHHxsFipOzaaPlK56xaHw3r2MROfqJ1eRxtIb8ik7Nb/kONc1VZ6YDrs8DfPDA5BH0iaBb7xlsEzi7gm0dAGxjT7CrY55HqidS7RqtP/M9Q27ZO2tv7wCQA3cfyusg0ZtgfBVxQ7QL+Uvq5QkTqk91/zBfg2zuVjGBpXsyvZNNq881agcCdG8YnENrR9Bmy9R31ofDW5D70SO0EzO2NX5IRKmS1LXO1/nGbdxeFfnzL09VAIa7ZwVTd07cAxjSMy3pNzurBk0OOWPqWfK9MX/GtHGtgL+3pohCbdyMITctjDJKmhbCh2WBw9kYLXU9h7WZxu1AzPTtonZw67ZNIxih8Ue+TaTIIPV3NwXSfLXFBYGtIdpNr3/QTjTg6MoVu9PWoY42rtg7VQAYVdT2vjXkz1A8WUEHz1ZQtBKY82bnE+HpNzFDX4WJNWa+T5miT5y7UWJ0sckJgK18blptpj1rfG52q7hjVXq/5uE5h5g51ryZ88wvPryJ2fOsKdWZGQbwgOl6hg2YEgbG6/Fz++eNGpOGjdC8CaNpwFA8Y4DR+VEJyxpbZzoVbLMT4lSEv33EfwR/U3NcDZjANQ3PAfYrwn/UWd9xCvw/3ArnyJ8iT/YFgBu3VOYpXe1E92x3BMJaR8oiJAxT8T3rfTGcGdRubx+8ffJURLQNT2OOmKcDz7VcYI3tqM8C8Znp/7bUn/fv5u7wARUuvhaenueNEFmkrhDFbDT5WapXFGvhxqn84rYy49TuHK02nedtU7sb3d6xvDcWYwGWJ8LlT1TZ1fZlyfoXysvi9S/BGxf/Aw==&lt;/diagram&gt;&lt;/mxfile&gt;">
+    <style type="text/css">
+        @supports (color: light-dark(#000, #fff)) { #ge-svg-1QPi6yvcPIkbTMZwmiu7 { --ge-adaptive-bg: light-dark(#ffffff, var(--ge-dark-color, #121212)); --ge-adaptive-fg: light-dark(#000000, var(--ge-light-color, #ffffff)); } }
+    </style>
+    <defs/>
+    <rect fill="#ffffff" width="100%" height="100%" x="0" y="0" style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18));"/>
+    <g>
+        <g data-cell-id="0">
+            <g data-cell-id="1">
+                <g data-cell-id="title">
+                    <g>
+                        <rect x="11" y="0" width="1960" height="60" fill="none" stroke="none" pointer-events="all"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe flex-start; width: 1958px; height: 1px; padding-top: 30px; margin-left: 13px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: left; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 26px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                                DV01 — Component Architecture (MVP target)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="13" y="38" fill="#0f172a" font-family="'Segoe UI'" font-size="26px" font-weight="bold" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    DV01 — Component Architecture (MVP target)
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="lane_presentation">
+                    <g>
+                        <rect x="1" y="100" width="360" height="1210" rx="28.8" ry="28.8" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" pointer-events="all" style="fill: light-dark(rgb(248, 250, 252), rgb(21, 23, 25)); stroke: light-dark(rgb(148, 163, 184), rgb(87, 100, 118));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe center; width: 358px; height: 1px; padding-top: 119px; margin-left: 2px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 18px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                                Presentation
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="181" y="137" fill="#0f172a" font-family="'Segoe UI'" font-size="18px" text-anchor="middle" font-weight="bold" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    Presentation
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="lane_api">
+                    <g>
+                        <rect x="381" y="100" width="290" height="1210" rx="23.2" ry="23.2" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" pointer-events="all" style="fill: light-dark(rgb(248, 250, 252), rgb(21, 23, 25)); stroke: light-dark(rgb(148, 163, 184), rgb(87, 100, 118));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe center; width: 288px; height: 1px; padding-top: 119px; margin-left: 382px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 18px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                                API / Interface
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="526" y="137" fill="#0f172a" font-family="'Segoe UI'" font-size="18px" text-anchor="middle" font-weight="bold" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    API / Interface
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="lane_application">
+                    <g>
+                        <rect x="691" y="100" width="600" height="1210" rx="48" ry="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" pointer-events="all" style="fill: light-dark(rgb(248, 250, 252), rgb(21, 23, 25)); stroke: light-dark(rgb(148, 163, 184), rgb(87, 100, 118));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe center; width: 598px; height: 1px; padding-top: 119px; margin-left: 692px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 18px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                                Application — modular monolith
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="991" y="137" fill="#0f172a" font-family="'Segoe UI'" font-size="18px" text-anchor="middle" font-weight="bold" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    Application — modular monolith
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="lane_domain">
+                    <g>
+                        <rect x="1311" y="100" width="330" height="1210" rx="26.4" ry="26.4" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" pointer-events="all" style="fill: light-dark(rgb(248, 250, 252), rgb(21, 23, 25)); stroke: light-dark(rgb(148, 163, 184), rgb(87, 100, 118));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe center; width: 328px; height: 1px; padding-top: 119px; margin-left: 1312px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 18px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                                Domain
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1476" y="137" fill="#0f172a" font-family="'Segoe UI'" font-size="18px" text-anchor="middle" font-weight="bold" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    Domain
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="lane_infrastructure">
+                    <g>
+                        <rect x="1661" y="100" width="430" height="1210" rx="34.4" ry="34.4" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" pointer-events="all" style="fill: light-dark(rgb(248, 250, 252), rgb(21, 23, 25)); stroke: light-dark(rgb(148, 163, 184), rgb(87, 100, 118));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe center; width: 428px; height: 1px; padding-top: 119px; margin-left: 1662px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 18px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                                Infrastructure
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1876" y="137" fill="#0f172a" font-family="'Segoe UI'" font-size="18px" text-anchor="middle" font-weight="bold" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    Infrastructure
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="usecase_modules_frame">
+                    <g transform="translate(0.5,0.5)">
+                        <rect x="701" y="155" width="340" height="705" rx="51" ry="51" fill="none" stroke="#64748b" stroke-dasharray="3 3" pointer-events="none" style="stroke: light-dark(rgb(100, 116, 139), rgb(126, 140, 159));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe flex-start; justify-content: unsafe center; width: 338px; height: 1px; padding-top: 170px; margin-left: 702px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #475569; ">
+                                            <div style="display: inline-block; font-size: 14px; font-family: 'Segoe UI'; color: light-dark(#475569, #9ba7b8); line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                                                Use-case Modules
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="871" y="184" fill="#475569" font-family="'Segoe UI'" font-size="14px" text-anchor="middle" font-weight="bold" style="fill: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));">
+                                    Use-case Modules
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="student">
+                    <g>
+                        <path d="M 42 200 L 336 200 L 336 305 L 42 305 L 42 279.5 L 26 279.5 L 26 267.5 L 42 267.5 L 42 237.5 L 26 237.5 L 26 225.5 L 42 225.5 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 42 225.5 L 58 225.5 L 58 237.5 L 42 237.5 M 42 267.5 L 58 267.5 L 58 279.5 L 42 279.5" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 296px; height: 1px; padding-top: 252px; margin-left: 33px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Student Mobile
+                                                <br/>
+                                                experience
+                                                <br/>
+                                                (mockup)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="181" y="239" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="181" y="239">
+                                        Student Mobile
+                                    </tspan>
+                                    <tspan x="181" y="257">
+                                        experience
+                                    </tspan>
+                                    <tspan x="181" y="275">
+                                        (mockup)
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="operator_mobile">
+                    <g>
+                        <path d="M 42 345 L 336 345 L 336 450 L 42 450 L 42 424.5 L 26 424.5 L 26 412.5 L 42 412.5 L 42 382.5 L 26 382.5 L 26 370.5 L 42 370.5 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 42 370.5 L 58 370.5 L 58 382.5 L 42 382.5 M 42 412.5 L 58 412.5 L 58 424.5 L 42 424.5" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 296px; height: 1px; padding-top: 398px; margin-left: 33px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Operator Field Mobile
+                                                <br/>
+                                                experience
+                                                <br/>
+                                                (mockup)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="181" y="384" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="181" y="384">
+                                        Operator Field Mobile
+                                    </tspan>
+                                    <tspan x="181" y="402">
+                                        experience
+                                    </tspan>
+                                    <tspan x="181" y="420">
+                                        (mockup)
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="operator_web">
+                    <g>
+                        <path d="M 42 490 L 336 490 L 336 595 L 42 595 L 42 569.5 L 26 569.5 L 26 557.5 L 42 557.5 L 42 527.5 L 26 527.5 L 26 515.5 L 42 515.5 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 42 515.5 L 58 515.5 L 58 527.5 L 42 527.5 M 42 557.5 L 58 557.5 L 58 569.5 L 42 569.5" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 296px; height: 1px; padding-top: 543px; margin-left: 33px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Operator Web Dashboard
+                                                <br/>
+                                                experience
+                                                <br/>
+                                                (mockup)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="181" y="529" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="181" y="529">
+                                        Operator Web Dashboard
+                                    </tspan>
+                                    <tspan x="181" y="547">
+                                        experience
+                                    </tspan>
+                                    <tspan x="181" y="565">
+                                        (mockup)
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="preview">
+                    <g>
+                        <path d="M 42 680 L 336 680 L 336 800 L 42 800 L 42 770 L 26 770 L 26 758 L 42 758 L 42 722 L 26 722 L 26 710 L 42 710 Z" fill="#fffbeb" stroke="#d97706" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(255, 251, 235), rgb(25, 22, 8)); stroke: light-dark(rgb(217, 119, 6), rgb(197, 113, 16));"/>
+                        <path d="M 42 710 L 58 710 L 58 722 L 42 722 M 42 758 L 58 758 L 58 770 L 42 770" fill="none" stroke="#d97706" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(217, 119, 6), rgb(197, 113, 16));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 296px; height: 1px; padding-top: 740px; margin-left: 33px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Shared Preview Shell
+                                                <br/>
+                                                index.html + app.js
+                                                <br/>
+                                                renders the three experiences
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="181" y="727" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="181" y="727">
+                                        Shared Preview Shell
+                                    </tspan>
+                                    <tspan x="181" y="745">
+                                        index.html + app.js
+                                    </tspan>
+                                    <tspan x="181" y="763">
+                                        renders the three experiences
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="http_api">
+                    <g>
+                        <path d="M 432 370 L 636 370 L 636 490 L 432 490 L 432 460 L 416 460 L 416 448 L 432 448 L 432 412 L 416 412 L 416 400 L 432 400 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 432 400 L 448 400 L 448 412 L 432 412 M 432 448 L 448 448 L 448 460 L 432 460" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 206px; height: 1px; padding-top: 430px; margin-left: 423px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Express HTTP API
+                                                <br/>
+                                                MVP target
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="526" y="426" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="526" y="426">
+                                        Express HTTP API
+                                    </tspan>
+                                    <tspan x="526" y="444">
+                                        MVP target
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="telemetry_in">
+                    <g>
+                        <rect x="1091" y="565" width="180" height="85" fill="#f0f9ff" stroke="#0284c7" stroke-width="2" pointer-events="all" style="fill: light-dark(rgb(240, 249, 255), rgb(18, 26, 31)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 166px; height: 1px; padding-top: 608px; margin-left: 1098px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                &lt;&lt;interface&gt;&gt;
+                                                <br/>
+                                                Telemetry Input Contract
+                                                <br/>
+                                                application use-case contract
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1181" y="585" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="1181" y="585">
+                                        &lt;&lt;interface&gt;&gt;
+                                    </tspan>
+                                    <tspan x="1181" y="603">
+                                        Telemetry Input Contract
+                                    </tspan>
+                                    <tspan x="1181" y="621">
+                                        application use-case
+                                    </tspan>
+                                    <tspan x="1181" y="639">
+                                        contract
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="accounts">
+                    <g>
+                        <path d="M 732 190 L 1016 190 L 1016 290 L 732 290 L 732 266 L 716 266 L 716 254 L 732 254 L 732 226 L 716 226 L 716 214 L 732 214 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 732 214 L 748 214 L 748 226 L 732 226 M 732 254 L 748 254 L 748 266 L 732 266" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 286px; height: 1px; padding-top: 240px; margin-left: 723px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Accounts &amp; Resources
+                                                <br/>
+                                                VehicleService | UC01–02,
+                                                <br/>
+                                                UC08–09
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="866" y="227" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="866" y="227">
+                                        Accounts &amp; Resources
+                                    </tspan>
+                                    <tspan x="866" y="245">
+                                        VehicleService | UC01–02,
+                                    </tspan>
+                                    <tspan x="866" y="263">
+                                        UC08–09
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="reservations">
+                    <g>
+                        <path d="M 732 325 L 1016 325 L 1016 425 L 732 425 L 732 401 L 716 401 L 716 389 L 732 389 L 732 361 L 716 361 L 716 349 L 732 349 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 732 349 L 748 349 L 748 361 L 732 361 M 732 389 L 748 389 L 748 401 L 732 401" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 286px; height: 1px; padding-top: 375px; margin-left: 723px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Reservations &amp; Trips
+                                                <br/>
+                                                ReservationHub | UC03–06
+                                                <br/>
+                                                FR-NI01
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="866" y="362" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="866" y="362">
+                                        Reservations &amp; Trips
+                                    </tspan>
+                                    <tspan x="866" y="380">
+                                        ReservationHub | UC03–06
+                                    </tspan>
+                                    <tspan x="866" y="398">
+                                        FR-NI01
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="charging">
+                    <g>
+                        <path d="M 732 460 L 1016 460 L 1016 560 L 732 560 L 732 536 L 716 536 L 716 524 L 732 524 L 732 496 L 716 496 L 716 484 L 732 484 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 732 484 L 748 484 L 748 496 L 732 496 M 732 524 L 748 524 L 748 536 L 732 536" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 286px; height: 1px; padding-top: 510px; margin-left: 723px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Charging
+                                                <br/>
+                                                ChargingScheduler | UC07, UC12
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="866" y="506" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="866" y="506">
+                                        Charging
+                                    </tspan>
+                                    <tspan x="866" y="524">
+                                        ChargingScheduler | UC07, UC12
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="operations">
+                    <g>
+                        <path d="M 732 595 L 1016 595 L 1016 710 L 732 710 L 732 681.5 L 716 681.5 L 716 669.5 L 732 669.5 L 732 635.5 L 716 635.5 L 716 623.5 L 732 623.5 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 732 623.5 L 748 623.5 L 748 635.5 L 732 635.5 M 732 669.5 L 748 669.5 L 748 681.5 L 732 681.5" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 286px; height: 1px; padding-top: 653px; margin-left: 723px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Operations | RedistributionService
+                                                <br/>
+                                                IncidentService | TelemetryService
+                                                <br/>
+                                                UC08–11 | FR-NI02–04
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="866" y="639" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="866" y="639">
+                                        Operations | RedistributionService
+                                    </tspan>
+                                    <tspan x="866" y="657">
+                                        IncidentService | TelemetryService
+                                    </tspan>
+                                    <tspan x="866" y="675">
+                                        UC08–11 | FR-NI02–04
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="simulation">
+                    <g>
+                        <path d="M 732 745 L 1016 745 L 1016 845 L 732 845 L 732 821 L 716 821 L 716 809 L 732 809 L 732 781 L 716 781 L 716 769 L 732 769 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 732 769 L 748 769 L 748 781 L 732 781 M 732 809 L 748 809 L 748 821 L 732 821" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 286px; height: 1px; padding-top: 795px; margin-left: 723px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Simulation | SimulationEngine
+                                                <br/>
+                                                UC13–14
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="866" y="791" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="866" y="791">
+                                        Simulation | SimulationEngine
+                                    </tspan>
+                                    <tspan x="866" y="809">
+                                        UC13–14
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="repository_ports">
+                    <g>
+                        <rect x="1091" y="370" width="190" height="90" fill="#f0f9ff" stroke="#0284c7" stroke-width="2" pointer-events="all" style="fill: light-dark(rgb(240, 249, 255), rgb(18, 26, 31)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 176px; height: 1px; padding-top: 415px; margin-left: 1098px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                &lt;&lt;interface&gt;&gt;
+                                                <br/>
+                                                RepositoryPort
+                                                <br/>
+                                                resource / reservation / charging / operations / simulation
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1186" y="384" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="1186" y="384">
+                                        &lt;&lt;interface&gt;&gt;
+                                    </tspan>
+                                    <tspan x="1186" y="402">
+                                        RepositoryPort
+                                    </tspan>
+                                    <tspan x="1186" y="420">
+                                        resource / reservation /
+                                    </tspan>
+                                    <tspan x="1186" y="438">
+                                        charging / operations /
+                                    </tspan>
+                                    <tspan x="1186" y="456">
+                                        simulation
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="notification_port">
+                    <g>
+                        <rect x="1091" y="910" width="190" height="80" fill="#f0f9ff" stroke="#0284c7" stroke-width="2" pointer-events="all" style="fill: light-dark(rgb(240, 249, 255), rgb(18, 26, 31)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 176px; height: 1px; padding-top: 950px; margin-left: 1098px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                &lt;&lt;interface&gt;&gt;
+                                                <br/>
+                                                NotificationPort
+                                                <br/>
+                                                outbound contract
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1186" y="937" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="1186" y="937">
+                                        &lt;&lt;interface&gt;&gt;
+                                    </tspan>
+                                    <tspan x="1186" y="955">
+                                        NotificationPort
+                                    </tspan>
+                                    <tspan x="1186" y="973">
+                                        outbound contract
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="domain_model">
+                    <g>
+                        <path d="M 1352 505 L 1616 505 L 1616 750 L 1352 750 L 1352 682.5 L 1336 682.5 L 1336 670.5 L 1352 670.5 L 1352 584.5 L 1336 584.5 L 1336 572.5 L 1352 572.5 Z" fill="#f0fdf4" stroke="#16a34a" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(240, 253, 244), rgb(15, 26, 19)); stroke: light-dark(rgb(22, 163, 74), rgb(39, 160, 83));"/>
+                        <path d="M 1352 572.5 L 1368 572.5 L 1368 584.5 L 1352 584.5 M 1352 670.5 L 1368 670.5 L 1368 682.5 L 1352 682.5" fill="none" stroke="#16a34a" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(22, 163, 74), rgb(39, 160, 83));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 266px; height: 1px; padding-top: 628px; margin-left: 1343px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Domain Model &amp; Invariants
+                                                <br/>
+                                                accounts, hubs, vehicles, slots,
+                                                <br/>
+                                                reservations, trips, charging,
+                                                <br/>
+                                                transfers, incidents,
+                                                <br/>
+                                                simulations
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1476" y="596" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="1476" y="596">
+                                        Domain Model &amp; Invariants
+                                    </tspan>
+                                    <tspan x="1476" y="614">
+                                        accounts, hubs, vehicles, slots,
+                                    </tspan>
+                                    <tspan x="1476" y="632">
+                                        reservations, trips, charging,
+                                    </tspan>
+                                    <tspan x="1476" y="650">
+                                        transfers, incidents,
+                                    </tspan>
+                                    <tspan x="1476" y="668">
+                                        simulations
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="sqlite_adapter">
+                    <g>
+                        <path d="M 1702 200 L 1956 200 L 1956 305 L 1702 305 L 1702 279.5 L 1686 279.5 L 1686 267.5 L 1702 267.5 L 1702 237.5 L 1686 237.5 L 1686 225.5 L 1702 225.5 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 1702 225.5 L 1718 225.5 L 1718 237.5 L 1702 237.5 M 1702 267.5 L 1718 267.5 L 1718 279.5 L 1702 279.5" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 256px; height: 1px; padding-top: 252px; margin-left: 1693px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                SQLite Repository Adapter
+                                                <br/>
+                                                target implementation
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1821" y="248" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="1821" y="248">
+                                        SQLite Repository Adapter
+                                    </tspan>
+                                    <tspan x="1821" y="266">
+                                        target implementation
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="sqlite">
+                    <g>
+                        <path d="M 1702 350 L 1956 350 L 1956 455 L 1702 455 L 1702 429.5 L 1686 429.5 L 1686 417.5 L 1702 417.5 L 1702 387.5 L 1686 387.5 L 1686 375.5 L 1702 375.5 Z" fill="#eff6ff" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(239, 246, 255), rgb(21, 27, 35)); stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                        <path d="M 1702 375.5 L 1718 375.5 L 1718 387.5 L 1702 387.5 M 1702 417.5 L 1718 417.5 L 1718 429.5 L 1702 429.5" fill="none" stroke="#0284c7" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(2, 132, 199), rgb(52, 163, 221));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 256px; height: 1px; padding-top: 402px; margin-left: 1693px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                SQLite Persistence
+                                                <br/>
+                                                target technology
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1821" y="398" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="1821" y="398">
+                                        SQLite Persistence
+                                    </tspan>
+                                    <tspan x="1821" y="416">
+                                        target technology
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="sim_telemetry">
+                    <g>
+                        <path d="M 1702 630 L 1956 630 L 1956 735 L 1702 735 L 1702 709.5 L 1686 709.5 L 1686 697.5 L 1702 697.5 L 1702 667.5 L 1686 667.5 L 1686 655.5 L 1702 655.5 Z" fill="#fffbeb" stroke="#d97706" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(255, 251, 235), rgb(25, 22, 8)); stroke: light-dark(rgb(217, 119, 6), rgb(197, 113, 16));"/>
+                        <path d="M 1702 655.5 L 1718 655.5 L 1718 667.5 L 1702 667.5 M 1702 697.5 L 1718 697.5 L 1718 709.5 L 1702 709.5" fill="none" stroke="#d97706" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(217, 119, 6), rgb(197, 113, 16));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 256px; height: 1px; padding-top: 683px; margin-left: 1693px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Simulated Telemetry Adapter
+                                                <br/>
+                                                MVP option; real protocol TBD
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1821" y="678" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="1821" y="678">
+                                        Simulated Telemetry Adapter
+                                    </tspan>
+                                    <tspan x="1821" y="696">
+                                        MVP option; real protocol TBD
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="mock_notification">
+                    <g>
+                        <path d="M 1697 820 L 1951 820 L 1951 925 L 1697 925 L 1697 899.5 L 1681 899.5 L 1681 887.5 L 1697 887.5 L 1697 857.5 L 1681 857.5 L 1681 845.5 L 1697 845.5 Z" fill="#fffbeb" stroke="#d97706" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="fill: light-dark(rgb(255, 251, 235), rgb(25, 22, 8)); stroke: light-dark(rgb(217, 119, 6), rgb(197, 113, 16));"/>
+                        <path d="M 1697 845.5 L 1713 845.5 L 1713 857.5 L 1697 857.5 M 1697 887.5 L 1713 887.5 L 1713 899.5 L 1697 899.5" fill="none" stroke="#d97706" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(217, 119, 6), rgb(197, 113, 16));"/>
+                    </g>
+                    <g>
+                        <g>
+                            <switch>
+                                <foreignObject style="overflow: visible; text-align: left;" pointer-events="none" width="100%" height="100%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 256px; height: 1px; padding-top: 873px; margin-left: 1688px;">
+                                        <div style="box-sizing: border-box; font-size: 0; text-align: center; color: #0f172a; ">
+                                            <div style="display: inline-block; font-size: 15px; font-family: 'Segoe UI'; color: light-dark(#0f172a, #d3daea); line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">
+                                                Mock Notification Adapter
+                                                <br/>
+                                                MVP option; provider TBD
+                                            </div>
+                                        </div>
+                                    </div>
+                                </foreignObject>
+                                <text x="1816" y="868" fill="#0f172a" font-family="'Segoe UI'" font-size="15px" text-anchor="middle" style="fill: light-dark(rgb(15, 23, 42), rgb(211, 218, 234));">
+                                    <tspan x="1816" y="868">
+                                        Mock Notification Adapter
+                                    </tspan>
+                                    <tspan x="1816" y="886">
+                                        MVP option; provider TBD
+                                    </tspan>
+                                </text>
+                            </switch>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_1">
+                    <g>
+                        <path d="M 336 252.5 L 374.75 385.71" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" stroke-dasharray="12 8" pointer-events="stroke" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                        <path d="M 369.3 381.29 L 375.38 387.85 L 376.98 379.05" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                    </g>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="340" y="315" width="73" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="376" y="326">
+                                planned HTTP
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_2">
+                    <g/>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="340" y="408" width="73" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="376" y="418">
+                                planned HTTP
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_3">
+                    <g/>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="340" y="501" width="73" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="376" y="511">
+                                planned HTTP
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_18">
+                    <g/>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="1034" y="624" width="40" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="1053.5" y="634.5">
+                                realizes
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_21">
+                    <g>
+                        <path d="M 1956 252.5 L 2061 252.5 L 2061 480 L 1361.24 480" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" stroke-dasharray="12 8" pointer-events="stroke" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                        <path d="M 1353.24 480 L 1361.24 476 L 1361.24 484 Z" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                    </g>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="1722" y="474" width="40" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="1741.5" y="484.5">
+                                realizes
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_22">
+                    <g/>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="1788" y="322" width="67" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="1821" y="332.5">
+                                persists state
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_23">
+                    <g>
+                        <path d="M 1956 682.5 L 2041 682.5 L 2041 1080 L 1331 1080 L 1331 700 L 1181 700 L 1185.47 700" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" stroke-dasharray="12 8" pointer-events="stroke" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                        <path d="M 1191.24 696 L 1183.24 700 L 1191.24 704" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                    </g>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="1609" y="1074" width="88" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="1652.5" y="1084.5">
+                                submits telemetry
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_24">
+                    <g>
+                        <path d="M 1951 872.5 L 2021 872.5 L 2021 950 L 1335 950 C 1335 944.8 1327 944.8 1327 950 L 1327 950 L 1291.17 948.82" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" stroke-dasharray="12 8" pointer-events="stroke" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                        <path d="M 1283.22 949.74 L 1290.71 944.85 L 1291.63 952.8 Z" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                    </g>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="1757" y="944" width="40" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="1776.5" y="954.5">
+                                realizes
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_25">
+                    <g>
+                        <path d="M 1041 530 L 1296.53 530" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" stroke-dasharray="12 8" pointer-events="stroke" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                        <path d="M 1290.76 534 L 1298.76 530 L 1290.76 526" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                    </g>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="1225" y="524" width="25" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="1237" y="534.5">
+                                uses
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_26">
+                    <g/>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="1054" y="423" width="25" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="1066" y="433">
+                                uses
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_27">
+                    <g>
+                        <path d="M 871 860 L 1086.86 948.31" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" stroke-dasharray="12 8" pointer-events="stroke" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                        <path d="M 1080.01 949.83 L 1088.93 949.15 L 1083.04 942.42" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                    </g>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="970" y="944" width="25" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="982" y="954.5">
+                                uses
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_28">
+                    <g/>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="657" y="424" width="25" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="669" y="434.5">
+                                uses
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="edge_29">
+                    <g>
+                        <path d="M 636 430 L 636 450 L 651 450 L 651 880 L 867 880 C 867 874.8 875 874.8 875 880 L 875 880 L 1130.8 880 L 1130.78 654.39" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" stroke-dasharray="12 8" pointer-events="stroke" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                        <path d="M 1134.78 660.15 L 1130.78 652.15 L 1126.78 660.15" fill="none" stroke="#475569" stroke-width="2" stroke-miterlimit="10" pointer-events="all" style="stroke: light-dark(rgb(71, 85, 105), rgb(155, 167, 184));"/>
+                    </g>
+                    <g>
+                        <g fill="#000000" font-family="Helvetica" text-anchor="middle" font-size="11px" style="fill: var(--ge-adaptive-fg, #000000);">
+                            <rect fill="#ffffff" stroke="none" x="731" y="874" width="88" height="14" stroke-width="0" style="fill: var(--ge-adaptive-bg, #ffffff);"/>
+                            <text x="774" y="884.5">
+                                submits telemetry
+                            </text>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+    <switch>
+        <g requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"/>
+        <a transform="translate(0,-5)" xlink:href="https://www.drawio.com/doc/faq/svg-export-text-problems" target="_blank">
+            <text text-anchor="middle" font-size="10px" x="50%" y="100%">
+                Text is not SVG - cannot display
+            </text>
+        </a>
+    </switch>
+</svg>

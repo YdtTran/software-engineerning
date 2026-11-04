@@ -27,7 +27,6 @@ package "Presentation\nExisting UI prototype — mockup only" as Presentation {
 package "Smart E-Mobility Hub Backend\nMVP target — Modular Monolith" as Backend {
     package "API / Interface" as ApiLayer {
         component "Express HTTP API\n(target)" as HttpApi
-        interface "Telemetry Inbound Port" as TelemetryInput
     }
 
     package "Application" as ApplicationLayer {
@@ -41,6 +40,7 @@ package "Smart E-Mobility Hub Backend\nMVP target — Modular Monolith" as Backe
 
         interface "Persistence Ports\nResource / Reservation / Charging /\nOperations / Simulation repositories" as RepositoryPorts
         interface "Notification Outbound Port" as NotificationOutput
+        interface "Telemetry Input Contract\n(application use-case contract)" as TelemetryInput
     }
 
     package "Domain" as DomainLayer {
@@ -56,26 +56,27 @@ package "Smart E-Mobility Hub Backend\nMVP target — Modular Monolith" as Backe
 }
 
 ' Planned client-to-API dependencies; the current mockups are not wired to this API.
-StudentUI ..> HttpApi : <<planned HTTP integration>>
-OperatorMobileUI ..> HttpApi : <<planned HTTP integration>>
-OperatorWebUI ..> HttpApi : <<planned HTTP integration>>
+StudentUI ..> HttpApi : planned HTTP
+OperatorMobileUI ..> HttpApi : planned HTTP
+OperatorWebUI ..> HttpApi : planned HTTP
 
-HttpApi ..> UseCaseModules : dispatches use cases
-UseCaseModules ..> DomainModel : applies domain rules
-UseCaseModules ..> RepositoryPorts : uses persistence abstractions
-HttpApi ..|> TelemetryInput : provides telemetry ingress
-UseCaseModules ..> NotificationOutput : Reservations / Operations
+HttpApi ..> UseCaseModules : uses
+UseCaseModules ..> DomainModel : uses
+UseCaseModules ..> RepositoryPorts : uses
+UseCaseModules ..> NotificationOutput : uses
+Operations ..|> TelemetryInput : realizes
 
-SqliteAdapter ..|> RepositoryPorts : implements
-SqliteAdapter ..> Sqlite : reads / writes\n(transactional allocation)
-SimulatedTelemetry ..> TelemetryInput : sends telemetry
-MockNotification ..|> NotificationOutput : implements
+SqliteAdapter ..|> RepositoryPorts : realizes
+SqliteAdapter ..> Sqlite : persists state
+HttpApi ..> TelemetryInput : submits telemetry
+SimulatedTelemetry ..> TelemetryInput : submits telemetry
+MockNotification ..|> NotificationOutput : realizes
 
 note bottom of Backend
   Logical components only — not deployment nodes or separate services.
   Atomic reservation/allocation and state transitions require transaction boundaries.
   Repository ports hide SQLite details from application and domain rules.
-  Infrastructure adapters realize ports owned by the application boundary.
+  Application owns its input/output contracts; API and infrastructure adapters call them.
 end note
 
 note bottom of Presentation

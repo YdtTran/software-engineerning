@@ -22,7 +22,6 @@ package "Smart E-Mobility Hub\nProposed source/package structure — MVP target"
 
     package "API / Interface" as ApiLayer {
         package "Express HTTP API\n(target)" as HttpApi
-        package "Telemetry Inbound Port" as TelemetryInput
     }
 
     package "Application" as ApplicationLayer {
@@ -37,6 +36,7 @@ package "Smart E-Mobility Hub\nProposed source/package structure — MVP target"
         package "Application Ports" as ApplicationPorts {
             package "Repository Ports" as RepositoryPorts
             package "Notification Outbound Port" as NotificationOutput
+            package "Telemetry Input Contract" as TelemetryInput
         }
     }
 
@@ -50,37 +50,38 @@ package "Smart E-Mobility Hub\nProposed source/package structure — MVP target"
 
     package "Infrastructure" as InfrastructureLayer {
         package "SQLite Repository Adapter\n(target)" as SqliteAdapter
-        package "SQLite Persistence\n(target)" as Sqlite
         package "Simulated Telemetry Adapter\n(MVP option)" as SimulatedTelemetry
         package "Mock Notification Adapter\n(MVP option)" as MockNotification
     }
 }
 
 ' Planned client-to-API dependencies; current mockups are not wired to this API.
-StudentUI ..> HttpApi : <<planned HTTP integration>>
-OperatorMobileUI ..> HttpApi : <<planned HTTP integration>>
-OperatorWebUI ..> HttpApi : <<planned HTTP integration>>
+StudentUI ..> HttpApi : <<access>>
+OperatorMobileUI ..> HttpApi : <<access>>
+OperatorWebUI ..> HttpApi : <<access>>
 
 ' Aggregate dependencies keep the package view readable; module responsibilities and
 ' domain/UC mapping are detailed in the accompanying README.
-HttpApi ..> UseCaseModules : dispatches use cases
-UseCaseModules ..> DomainLayer : business rules
-UseCaseModules ..> RepositoryPorts : persistence
-UseCaseModules ..> NotificationOutput : Reservations / Operations
-TelemetryInput ..> Operations : dispatches telemetry events
+HttpApi ..> UseCaseModules : <<access>>
+HttpApi ..> TelemetryInput : <<access>>
+Operations ..> TelemetryInput : <<access>>
+UseCaseModules ..> DomainLayer : <<access>>
+UseCaseModules ..> RepositoryPorts : <<access>>
+UseCaseModules ..> NotificationOutput : <<access>>
 
-' Infrastructure implements ports owned by the application boundary.
-SqliteAdapter ..> RepositoryPorts : implements
-SqliteAdapter ..> Sqlite : reads / writes
-SimulatedTelemetry ..> TelemetryInput : implements
-MockNotification ..> NotificationOutput : implements
+' These are source-package dependencies, not runtime calls or interface realizations.
+SqliteAdapter ..> RepositoryPorts : <<access>>
+SimulatedTelemetry ..> TelemetryInput : <<access>>
+MockNotification ..> NotificationOutput : <<access>>
 
 note bottom of System
   This is a proposed logical package organization, not a claim about existing folders.
   The backend packages form one modular monolith, not separately deployed services.
-  Presentation-to-API edges are target dependencies only; current UI is a mockup.
-  Repository/notification ports belong to the Application boundary;
-  Infrastructure depends inward to implement those abstractions.
+  Presentation-to-API dependencies are planned; current UI is a mockup.
+  The Application owns the telemetry input contract; the API, Operations
+  and simulated telemetry packages depend on that source package.
+  Repository and notification abstractions belong to the Application boundary.
+  SQLite is a selected persistence technology, not a source package or deployment node.
   Atomic allocation and state transitions need transaction boundaries.
   Protocols, concrete libraries and production providers remain undecided.
 end note

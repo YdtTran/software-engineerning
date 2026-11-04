@@ -9,7 +9,6 @@ flowchart LR
 
         subgraph api["API / Interface"]
             http["Express HTTP API<br/>(target)"]
-            telemetryIn[["Telemetry Inbound Port"]]
         end
 
         subgraph application["Application"]
@@ -21,6 +20,7 @@ flowchart LR
             useCaseModules[["Use-case Modules"]]
             repoPort[["Repository Ports"]]
             notificationPort[["Notification Outbound Port"]]
+            telemetryIn[["Telemetry Input Contract"]]
         end
 
         subgraph domain["Domain"]
@@ -34,7 +34,6 @@ flowchart LR
 
         subgraph infrastructure["Infrastructure"]
             sqliteAdapter["SQLite Repository Adapter<br/>(target)"]
-            sqlite[("SQLite Persistence<br/>(target)")]
             telemetryAdapter["Simulated Telemetry Adapter<br/>(MVP option)"]
             notificationAdapter["Mock Notification Adapter<br/>(MVP option)"]
         end
@@ -44,25 +43,25 @@ flowchart LR
     opmobile -. "planned API; not wired" .-> http
     opweb -. "planned API; not wired" .-> http
 
-    http --> useCaseModules
+    http -. "&lt;&lt;access&gt;&gt;" .-> useCaseModules
 
-    useCaseModules --> domainPackages
-    useCaseModules --> repoPort
-    useCaseModules --> notificationPort
-    telemetryIn -->|"dispatches telemetry events"| operations
+    useCaseModules -. "&lt;&lt;access&gt;&gt;" .-> domainPackages
+    useCaseModules -. "&lt;&lt;access&gt;&gt;" .-> repoPort
+    useCaseModules -. "&lt;&lt;access&gt;&gt;" .-> notificationPort
+    operations -. "&lt;&lt;access&gt;&gt;" .-> telemetryIn
+    http -. "&lt;&lt;access&gt;&gt;" .-> telemetryIn
 
-    sqliteAdapter -. "implements" .-> repoPort
-    sqliteAdapter --> sqlite
-    telemetryAdapter -. "implements" .-> telemetryIn
-    notificationAdapter -. "implements" .-> notificationPort
+    sqliteAdapter -. "&lt;&lt;access&gt;&gt;" .-> repoPort
+    telemetryAdapter -. "&lt;&lt;access&gt;&gt;" .-> telemetryIn
+    notificationAdapter -. "&lt;&lt;access&gt;&gt;" .-> notificationPort
 
     classDef target fill:#eff6ff,stroke:#0284c7,color:#0f172a;
     classDef port fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e;
     classDef mock fill:#fffbeb,stroke:#d97706,color:#78350f;
-    class http,sqlite,sqliteAdapter target;
+    class http,sqliteAdapter target;
     class telemetryIn,repoPort,notificationPort port;
     class telemetryAdapter,notificationAdapter,preview mock;
 
     %% Use-case module dependencies are aggregated to keep package-level wiring readable.
-    %% Arrows show caller/package -> dependency, not runtime message sequence.
-    %% UML realization is shown as a dashed edge, not its exact UML glyph.
+    %% Dashed arrows show client package -> supplier package dependencies.
+    %% Mermaid is a preview and does not render UML package folders/relationships exactly.
