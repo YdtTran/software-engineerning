@@ -3,7 +3,6 @@ title DV01 — Development View: Component Architecture (MVP Target)
 
 left to right direction
 skinparam componentStyle uml2
-skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam linetype ortho
 skinparam defaultFontName "Segoe UI"
@@ -64,12 +63,12 @@ OperatorWebUI ..> HttpApi : <<planned HTTP integration>>
 HttpApi ..> UseCaseModules : dispatches use cases
 UseCaseModules ..> DomainModel : applies domain rules
 UseCaseModules ..> RepositoryPorts : uses persistence abstractions
-TelemetryInput ..> Operations : dispatches telemetry events
+HttpApi ..|> TelemetryInput : provides telemetry ingress
 UseCaseModules ..> NotificationOutput : Reservations / Operations
 
 SqliteAdapter ..|> RepositoryPorts : implements
-SqliteAdapter --> Sqlite : reads / writes\n(transactional allocation)
-SimulatedTelemetry ..|> TelemetryInput : implements
+SqliteAdapter ..> Sqlite : reads / writes\n(transactional allocation)
+SimulatedTelemetry ..> TelemetryInput : sends telemetry
 MockNotification ..|> NotificationOutput : implements
 
 note bottom of Backend

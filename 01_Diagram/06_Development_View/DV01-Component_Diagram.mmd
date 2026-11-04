@@ -11,7 +11,7 @@ flowchart LR
 
     subgraph api["API / Interface — MVP target"]
         http["Express HTTP API"]
-        telemetryIn["Telemetry inbound port"]
+        telemetryIn["Telemetry Inbound Port<br/>&lt;&lt;interface&gt;&gt;"]
     end
 
     subgraph application["Application — modules in one backend"]
@@ -41,12 +41,12 @@ flowchart LR
     useCaseModules --> domainModel
     useCaseModules --> repoPort
     useCaseModules --> notificationPort
-    telemetryIn --> operations
+    http -. "provides telemetry ingress" .-> telemetryIn
 
-    sqliteAdapter -. "implements" .-> repoPort
-    sqliteAdapter -->|"transactional reads / writes"| sqlite
-    simulatedTelemetry -. "implements" .-> telemetryIn
-    mockNotification -. "implements" .-> notificationPort
+    sqliteAdapter -. "realizes" .-> repoPort
+    sqliteAdapter -. "transactional reads / writes" .-> sqlite
+    simulatedTelemetry -. "uses" .-> telemetryIn
+    mockNotification -. "realizes" .-> notificationPort
 
     classDef target fill:#eff6ff,stroke:#0284c7,color:#0f172a;
     classDef port fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e;
@@ -55,5 +55,5 @@ flowchart LR
     class telemetryIn,repoPort,notificationPort port;
     class simulatedTelemetry,mockNotification,preview mock;
 
-    %% Mermaid does not express UML component/interface realization exactly.
-    %% This preview shows logical dependencies; it does not represent deployment nodes.
+    %% Mermaid shows interface and realization semantics descriptively; use PlantUML for exact UML notation.
+    %% The diagram does not represent deployment nodes.

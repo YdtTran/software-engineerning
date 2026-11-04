@@ -23,6 +23,7 @@ Kỹ năng này được kích hoạt khi:
   - **Class Diagram** (Slide Ch6 p.28-35)
   - **State-chart Diagram** (Slide Ch6 p.41-45)
   - **Architecture 4+1 View Model** (Slide Ch7 p.17-18)
+- Người dùng yêu cầu thiết kế **Development / Implementation View**, layered architecture, Component Diagram hoặc Package Diagram.
 - Người dùng yêu cầu tạo file biểu đồ `.drawio.svg` để chỉnh sửa trực tiếp trên canvas Draw.io trong VS Code.
 - Người dùng cần thẩm định (review), kiểm tra lỗi logic hoặc chuẩn hóa sơ đồ UML sẵn có.
 
@@ -88,6 +89,7 @@ flowchart TD
 - **Class Diagram:** Cấu trúc 3 ngăn, phạm vi `+`, `-`, `#`, `~`, multiplicities `1`, `0..1`, `*`, `1..*`, quan hệ `*--`, `<>--`, `<|--`.
 - **State-chart Diagram:** Vòng đời thực thể, state 2 ngăn (`entry /`, `do:`, `exit /`), chuyển trạng thái `event [guard] / action`, superstate.
 - **Architecture 4+1 View:** Phân bổ sơ đồ vào Logical, Process, Development, Physical, và Use-Case Scenarios.
+- **Development / Implementation View:** Component Diagram thể hiện module/interface/dependency; Package Diagram thể hiện tổ chức package nguồn dự kiến. Đọc DECISION.md và rule chuyên biệt trước khi thiết kế; không nhầm module với process/deployment node.
 
 ### Bước 2: Đọc quy tắc nghiệp vụ chuẩn slide trong `02_Rules/`
 - [00_Usecase_diagram.md](../../../02_Rules/00_Usecase_diagram.md)
@@ -96,6 +98,7 @@ flowchart TD
 - [03_Class_diagram.md](../../../02_Rules/03_Class_diagram.md)
 - [04_Statechart_diagram.md](../../../02_Rules/04_Statechart_diagram.md)
 - [05_Architecture_4plus1_views.md](../../../02_Rules/05_Architecture_4plus1_views.md)
+- [06_Development_Implementation_view.md](../../../02_Rules/06_Development_Implementation_view.md)
 
 Tham khảo cú pháp khi xuất mã: [PlantUML](./references/05_PlantUML_Guide.md) và [Mermaid](./references/04_Mermaid_UML_Guide.md).
 

@@ -29,7 +29,7 @@ Hệ thống tập trung vào các bài toán kỹ nghệ phần mềm cốt lõ
 
 ### Thiết lập Môi trường & Bộ Quy chuẩn Ban đầu
 - [x] **Cấu hình Workspace:** Tích hợp extension `hediet.vscode-drawio` qua [`.vscode/extensions.json`](./.vscode/extensions.json) để chỉnh sửa diagram kéo thả trực tiếp trong VS Code.
-- [x] **Thiết lập Bộ quy tắc UML Designer:** Xây dựng cẩm nang tiêu chuẩn thiết kế chuẩn slide bài giảng ĐHQG-HCM & Ian Sommerville tại [`02_Rules/`](./02_Rules/) (Use Case, Activity, Sequence, Class, State-chart Diagram và Kiến trúc 4+1 View).
+- [x] **Thiết lập Bộ quy tắc UML Designer:** Xây dựng cẩm nang tiêu chuẩn thiết kế chuẩn slide bài giảng ĐHQG-HCM & Ian Sommerville tại [`02_Rules/`](./02_Rules/) (Use Case, Activity, Sequence, Class, State-chart, Kiến trúc 4+1 và Development / Implementation View).
 - [x] **Thiết lập Agent Guidelines:** Ban hành quy chuẩn bắt buộc chống lỗi hình học Draw.io tại [`AGENTS.md`](./AGENTS.md) và [`GEMINI.md`](./GEMINI.md).
 - [x] **Đặc tả Yêu cầu Toàn diện:** Soạn thảo hồ sơ kiến trúc master [`PROJECT_SPECIFICATION.md`](./PROJECT_SPECIFICATION.md).
 
@@ -116,7 +116,7 @@ Mỗi tài nguyên được duy trì tại một nơi: prototype và ảnh xuấ
 | **Sơ đồ Trạng thái (Statechart)** | [`01_Diagram/04_Statechart_Diagram/`](./01_Diagram/04_Statechart_Diagram/) | 3 sơ đồ vector `.drawio.svg` (`SC01` - `SC03`) kèm [`PLANTUML_STATECHART.md`](./01_Diagram/04_Statechart_Diagram/PLANTUML_STATECHART.md). |
 | **Bản mẫu UI/UX** | [`03_App/01_UI_UX/`](./03_App/01_UI_UX/) | Prototype tương tác hoàn chỉnh (26 màn hình), không cần cài đặt server, mở chạy trực tiếp trên Chrome/Edge. |
 | **Hồ sơ UI/UX PDF** | [`UI-UX.pdf`](./03_App/01_UI_UX/UI-UX.pdf) | Bộ tài liệu 14 trang A4 Landscape chất lượng cao phục vụ nộp bài **Submission #2**. |
-| **Quy chuẩn UML** | [`02_Rules/`](./02_Rules/) | Cẩm nang quy tắc vẽ chuẩn slide ĐHQG-HCM: Use Case, Activity, Sequence, Class, State-chart Diagram và Kiến trúc 4+1 View. |
+| **Quy chuẩn UML** | [`02_Rules/`](./02_Rules/) | Cẩm nang quy tắc vẽ chuẩn slide ĐHQG-HCM: Use Case, Activity, Sequence, Class, State-chart, Kiến trúc 4+1 và [Development / Implementation View](./02_Rules/06_Development_Implementation_view.md). |
 | **Đề bài Gốc Môn học** | [`04_BTL_SoftwareEngineering_HK261.pdf`](./04_BTL_SoftwareEngineering_HK261.pdf) | Yêu cầu bài tập lớn chính thức từ Giảng viên ĐHQG-HCM. |
 
 ---

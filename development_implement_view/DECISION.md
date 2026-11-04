@@ -6,6 +6,8 @@
 
 This document records the agreed architectural choices for the Development View. It is a design baseline for the MVP, not a statement that the backend has already been implemented. The source documents describe the project requirements and domain model; choices below fill in the implementation architecture where those documents leave options open.
 
+**Execution plan:** See [plan.md](./plan.md) for the agent handoff, source-reading order, deliverables, sequenced tasks, and acceptance checks.
+
 ## Confirmed decisions
 
 | ID | Decision | Rationale |

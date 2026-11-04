@@ -46,6 +46,8 @@ Kiến trúc phần mềm không thể mô tả trọn vẹn chỉ qua một sơ
 | **4. Physical View** | Thể hiện cấu hình phần cứng vật lý, máy chủ, thiết bị IoT và cách các thành phần phần mềm được phân tán trên các node xử lý (*System Engineers*). | - **Deployment Diagram** (Sơ đồ triển khai: App Mobile, Backend Server, Cloud DB, IoT Hub) |
 | **+1. Scenarios (Use-Case View)** | Góc nhìn trung tâm kết nối 4 góc nhìn trên, mô tả chức năng dưới góc độ người dùng cuối (*End-user Functionality*). | - **Use Case Diagram** (Biểu đồ ca sử dụng)<br>- **Use Case Tabular Scenarios** (Kịch bản ca sử dụng chi tiết) |
 
+> Quy tắc chuyên biệt cho Development / Implementation View, bao gồm phân tầng, component/package diagrams và stack đã chốt, xem [06_Development_Implementation_view.md](./06_Development_Implementation_view.md). Các quyết định hiện hành được lưu tại [development_implement_view/DECISION.md](../development_implement_view/DECISION.md).
+
 ---
 
 ## III. ÁP DỤNG VÀO CÁC GIAI ĐOẠN NỘP BÀI CỦA ĐỒ ÁN (COURSE MILESTONES)
