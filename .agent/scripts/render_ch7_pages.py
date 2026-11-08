@@ -1,7 +1,7 @@
 import pymupdf
 import os
 
-doc = pymupdf.open("00_Slides/07_Ch7 Architectural Design_2025.pdf")
+doc = pymupdf.open("docs/slides/07_Ch7 Architectural Design_2025.pdf")
 os.makedirs(".agent/scratch/ch7_images", exist_ok=True)
 
 for p in [8, 17, 18, 42]:

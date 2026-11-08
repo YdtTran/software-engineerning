@@ -9,9 +9,9 @@ from phase2_builder_v2 import (
 )
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SEQ_DIR = os.path.join(BASE_DIR, "01_Diagram", "02_Sequence_Diagram")
-ACT_DIR = os.path.join(BASE_DIR, "01_Diagram", "03_Activity_Diagram")
-STA_DIR = os.path.join(BASE_DIR, "01_Diagram", "04_Statechart_Diagram")
+SEQ_DIR = os.path.join(BASE_DIR, ".diagram-exports/legacy", "02_Sequence_Diagram")
+ACT_DIR = os.path.join(BASE_DIR, ".diagram-exports/legacy", "03_Activity_Diagram")
+STA_DIR = os.path.join(BASE_DIR, ".diagram-exports/legacy", "04_Statechart_Diagram")
 
 os.makedirs(SEQ_DIR, exist_ok=True)
 os.makedirs(ACT_DIR, exist_ok=True)
@@ -28,7 +28,7 @@ build_sequence_diagram_v2(
     filepath=os.path.join(SEQ_DIR, "SQ01-Reserve_Vehicle.drawio.svg"),
     title="Sequence Diagram: SQ01 - Reserve Vehicle (UC03)",
     participants=[
-        {'name': ':Student', 'type': 'actor'},
+        {'name': ':User', 'type': 'actor'},
         {'name': ':MobileApp', 'type': 'boundary'},
         {'name': ':ReservationController', 'type': 'controller'},
         {'name': ':VehicleService', 'type': 'service'},
@@ -60,7 +60,7 @@ build_sequence_diagram_v2(
     filepath=os.path.join(SEQ_DIR, "SQ02-Pick_Up_Vehicle.drawio.svg"),
     title="Sequence Diagram: SQ02 - Pick Up Vehicle (UC04)",
     participants=[
-        {'name': ':Student', 'type': 'actor'},
+        {'name': ':User', 'type': 'actor'},
         {'name': ':MobileApp', 'type': 'boundary'},
         {'name': ':PickupController', 'type': 'controller'},
         {'name': ':IoTStation', 'type': 'service'},
@@ -93,7 +93,7 @@ build_sequence_diagram_v2(
     filepath=os.path.join(SEQ_DIR, "SQ03-Return_Vehicle.drawio.svg"),
     title="Sequence Diagram: SQ03 - Return Vehicle (UC05)",
     participants=[
-        {'name': ':Student', 'type': 'actor'},
+        {'name': ':User', 'type': 'actor'},
         {'name': ':MobileApp', 'type': 'boundary'},
         {'name': ':ReturnController', 'type': 'controller'},
         {'name': ':TripService', 'type': 'service'},
@@ -122,7 +122,7 @@ build_sequence_diagram_v2(
     filepath=os.path.join(SEQ_DIR, "SQ04-Request_Charging.drawio.svg"),
     title="Sequence Diagram: SQ04 - Request Charging (UC07)",
     participants=[
-        {'name': ':Student', 'type': 'actor'},
+        {'name': ':User', 'type': 'actor'},
         {'name': ':MobileApp', 'type': 'boundary'},
         {'name': ':ChargingController', 'type': 'controller'},
         {'name': ':ChargingService', 'type': 'service'},
@@ -241,7 +241,7 @@ print("All 7 Sequence diagrams generated successfully.")
 build_activity_diagram_swimlanes(
     filepath=os.path.join(ACT_DIR, "AD01-Reserve_Vehicle.drawio.svg"),
     title="Activity Diagram: AD01 - Reserve Vehicle Workflow (Swimlanes)",
-    swimlanes=["Sinh viên (Student)", "Mobile App", "Backend Service", "Database"],
+    swimlanes=["Người dùng (User)", "Mobile App", "Backend Service", "Database"],
     nodes=[
         {'id': 'start', 'lane': 0, 'type': 'start', 'y': 80, 'w': 28, 'h': 28},
         {'id': 'act1', 'lane': 0, 'type': 'action', 'text': 'Mở ứng dụng &\nChọn Hub đến', 'y': 140, 'w': 140, 'h': 50},
@@ -274,7 +274,7 @@ build_activity_diagram_swimlanes(
 build_activity_diagram_swimlanes(
     filepath=os.path.join(ACT_DIR, "AD02-Pick_Up_Vehicle.drawio.svg"),
     title="Activity Diagram: AD02 - Pick Up Vehicle Workflow (Swimlanes)",
-    swimlanes=["Sinh viên (Student)", "Mobile App", "Backend Service", "Trạm IoT (Station)"],
+    swimlanes=["Người dùng (User)", "Mobile App", "Backend Service", "Trạm IoT (Station)"],
     nodes=[
         {'id': 'start', 'lane': 0, 'type': 'start', 'y': 80, 'w': 28, 'h': 28},
         {'id': 'act1', 'lane': 0, 'type': 'action', 'text': 'Đến Hub & Mở màn\nhình Nhận xe', 'y': 140, 'w': 140, 'h': 50},
@@ -314,7 +314,7 @@ build_activity_diagram_swimlanes(
 build_activity_diagram_swimlanes(
     filepath=os.path.join(ACT_DIR, "AD03-Return_Vehicle.drawio.svg"),
     title="Activity Diagram: AD03 - Return Vehicle Workflow (Swimlanes)",
-    swimlanes=["Sinh viên (Student)", "Trạm IoT (Station)", "Backend Service", "Mobile App"],
+    swimlanes=["Người dùng (User)", "Trạm IoT (Station)", "Backend Service", "Mobile App"],
     nodes=[
         {'id': 'start', 'lane': 0, 'type': 'start', 'y': 80, 'w': 28, 'h': 28},
         {'id': 'act1', 'lane': 0, 'type': 'action', 'text': 'Đưa xe vào khe đỗ\nvà đẩy chặt chốt', 'y': 140, 'w': 140, 'h': 50},
@@ -345,7 +345,7 @@ build_activity_diagram_swimlanes(
 build_activity_diagram_swimlanes(
     filepath=os.path.join(ACT_DIR, "AD04-Reserve_Parking_and_Charging.drawio.svg"),
     title="Activity Diagram: AD04 - Parking & Charging Workflow (Swimlanes)",
-    swimlanes=["Sinh viên (Student)", "Mobile App", "Hệ thống Quản lý Hub", "Trụ sạc IoT (PowerHub)"],
+    swimlanes=["Người dùng (User)", "Mobile App", "Hệ thống Quản lý Hub", "Trụ sạc IoT (PowerHub)"],
     nodes=[
         {'id': 'start', 'lane': 0, 'type': 'start', 'y': 80, 'w': 28, 'h': 28},
         {'id': 'act1', 'lane': 0, 'type': 'action', 'text': 'Chọn Hub & Khung giờ\ngửi xe cá nhân', 'y': 140, 'w': 140, 'h': 50},
@@ -563,7 +563,7 @@ build_statechart_diagram_v2(
         },
         {
             'id': 's_comp', 'type': 'state', 'name': 'Charge Complete',
-            'actions': ['entry / cutRelay()', 'do: notifyStudent()'],
+            'actions': ['entry / cutRelay()', 'do: notifyUser()'],
             'x': 580, 'y': 225, 'w': 160, 'h': 65
         },
         {
@@ -628,7 +628,7 @@ build_statechart_diagram_v2(
         {'src': 's_res', 'dst': 's_trip', 'event': 'unlockVehicle', 'guard': 'within 15 mins'},
         {'src': 's_trip', 'dst': 's_comp', 'event': 'dockAndLockAtHub'},
         {'src': 's_comp', 'dst': 'final_done', 'event': 'paymentSettled'},
-        {'src': 's_res', 'dst': 's_canc', 'event': 'studentCancel'},
+        {'src': 's_res', 'dst': 's_canc', 'event': 'userCancel'},
         {'src': 's_res', 'dst': 's_exp', 'event': 'autoExpireDaemon', 'guard': 'after 15 mins'},
         {'src': 's_canc', 'dst': 'final_done', 'event': 'cleanupSession'},
         {'src': 's_exp', 'dst': 'final_done', 'event': 'cleanupSession'},

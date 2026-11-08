@@ -24,3 +24,7 @@ node_modules/
 .agent/scratch/
 __pycache__/
 *.pyc
+
+# Local SQLite data and temporary UML exports
+/app/db/.local/
+/.diagram-exports/

@@ -2,7 +2,7 @@
 from pathlib import Path
 import copy
 import xml.etree.ElementTree as E
-B=Path(__file__).resolve().parents[2]/'01_Diagram/01_Usecase_Diagram'
+B=Path(__file__).resolve().parents[2]/'docs/diagrams/01_Usecase_Diagram'
 roles=[]
 for name in ('user','operator'):
  p=B/'drawio'/f'{name}_usecases.drawio'
@@ -40,13 +40,13 @@ for k,v in dict(x=x,y=y,width=w,height=h).items():g.set(k,str(v))
 root.insert(2,boundary)
 t.find('diagram').set('name','Overall use cases')
 t.write(B/'drawio/general_usecase_diagram.drawio',encoding='unicode')
-print('Synced overall view: 27 goals from User and Operator catalogs.')
+print('Synced overall view: 25 goals from User and Operator catalogs.')
 # Supporting systems remain outside each system boundary.
 for name in ('user_usecases','operator_usecases','general_usecase_diagram'):
  p=B/'drawio'/f'{name}.drawio'; t=E.parse(p); r=t.find('.//root'); cells=list(r)
  b=next(c for c in cells if c.get('id')=='sys_boundary').find('mxGeometry')
  right=float(b.get('x'))+float(b.get('width'))+100
- mappings={'telemetry':('IoT / Simulated Telemetry',{'UC04','UC05','UC06A','UC06B','UC07','UC07A','UC08','UC10','UC10A','UC11','UC12'}),'notification':('Notification Service',{'UC03','UC06','UC11A'})}
+ mappings={'telemetry':('IoT / Simulated Telemetry',{'UC04','UC05','UC06','UC07','UC07A','UC08','UC10','UC10A','UC11','UC12'}),'notification':('Notification Service',{'UC03','UC06','UC11A'})}
  for key,(label,ids) in mappings.items():
   targets=[c for c in cells if c.get('vertex')=='1' and c.get('id','').removeprefix('uc_') in ids]
   if not targets:continue

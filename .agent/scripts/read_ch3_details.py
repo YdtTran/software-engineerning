@@ -1,6 +1,6 @@
 import pymupdf
 
-doc = pymupdf.open("00_Slides/03_Ch3_4 Requirements Engineering.pdf")
+doc = pymupdf.open("docs/slides/03_Ch3_4 Requirements Engineering.pdf")
 
 for p in range(52, 57):
     page = doc[p]

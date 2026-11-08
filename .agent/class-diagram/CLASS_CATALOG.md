@@ -4,15 +4,15 @@ This is a proposed design for Submission #3, not an implemented backend. Associa
 
 ## Sources
 
-- **A:** [Assignment](../../04_BTL_SoftwareEngineering_HK261.pdf), PDF pp. 1–4 (domain), pp. 5–6 (Submission #3).
-- **M:** [Master specification](../../PROJECT_SPECIFICATION.md), §§2–5, especially UC01–UC14 and FR-NI01–04. Numeric thresholds come from M/current SQ01, not the assignment.
-- **L:** [Lecture Ch6](../../00_Slides/06_Ch6%20System%20Modeling_2025.pdf), pp. 28–35; [project class convention](../../02_Rules/03_Class_diagram.md).
-- **S:** [Sequence sources](../../01_Diagram/02_Sequence_Diagram/PLANTUML_SEQUENCE.md), SQ01–SQ07. Sequence assumptions do not add requirements to A/M.
+- **A:** [Assignment](../../docs/references/04_BTL_SoftwareEngineering_HK261.pdf), PDF pp. 1–4 (domain), pp. 5–6 (Submission #3).
+- **M:** [Master specification](../../docs/requirements/PROJECT_SPECIFICATION.md), §§2–5, especially UC01–UC14 and FR-NI01–04. Numeric thresholds come from M/current SQ01, not the assignment.
+- **L:** [Lecture Ch6](../../docs/slides/06_Ch6%20System%20Modeling_2025.pdf), pp. 28–35; [project class convention](../../docs/standards/03_Class_diagram.md).
+- **S:** [Sequence sources](../../docs/diagrams/02_Sequence_Diagram/README.md), SQ01–SQ07. Sequence assumptions do not add requirements to A/M.
 - **D:** [Approved change design](../../openspec/changes/define-domain-class-model/design.md). Class names, enum names, signatures and internal transitions below are design choices implementing A/M.
 
 ## Compact display selection
 
-At most three attributes and two operations per class; names select the unchanged typed signatures in the complete blocks below. Empty compartments remain editable. Inherited members stay on their declaring class. See [method contracts](#method-contracts) for all 18 contracts, including hidden updateBattery and expire.
+At most three attributes and two operations per class; names select the unchanged typed signatures in the complete blocks below. Empty compartments remain editable. Inherited members stay on their declaring class. See [method contracts](.#method-contracts) for all 18 contracts, including hidden updateBattery and expire.
 
 | Class | Displayed attributes | Displayed operations |
 | --- | --- | --- |
@@ -25,7 +25,7 @@ At most three attributes and two operations per class; names select the unchange
 | ChargingPoint | status, connector, allocatedPowerKW | canServe |
 | Reservation (abstract) | status, expiresAt | cancel, calculateExpiry (abstract) |
 | VehicleReservation | reservedAt, pickupClaimed | calculateExpiry |
-| ParkingReservation | scheduledArrivalAt | calculateExpiry |
+| ParkingReservation | plannedInterval, parkingOutcome | calculateExpiry |
 | Trip | status, pickedUpAt, returnedAt | complete |
 | ChargingRequest | targetBatteryPercent, neededBy, status | isUrgent |
 | ChargingSession | status, allocatedPowerKW | stop |
@@ -40,7 +40,7 @@ At most three attributes and two operations per class; names select the unchange
 
 | Class | Kind | Purpose | UC/source mapping |
 | --- | --- | --- | --- |
-| UserAccount | concrete | Identity and a non-empty set of student/operator roles; a user may have both roles. | UC01–UC14; A, M §3.1 |
+| UserAccount | concrete | Identity and a non-empty set of user/operator roles; a user may have both roles. | UC01–UC14; A, M §3.1 |
 | ElectricVehicle | abstract | Shared vehicle identity, battery validation, physical connection and rental eligibility. Never directly instantiated. | UC02–UC07, UC09–UC12; A, M §§2–3 |
 | ElectricBicycle | concrete | Instantiable bicycle, inheriting the complete vehicle contract. | UC02–UC07, UC09–UC12; A |
 | ElectricMotorcycle | concrete | Instantiable motorcycle, including privately owned motorcycles. | UC02–UC07, UC09–UC12; A |
@@ -49,7 +49,7 @@ At most three attributes and two operations per class; names select the unchange
 | ChargingPoint | concrete | Connection compatibility, operational availability and power rating. | UC07–UC09, UC11, UC12; A, M §3.4 |
 | Reservation | abstract | Common cancellation/expiry lifecycle; resource-specific expiry is abstract. | UC03, UC06, FR-NI01; M §3.6 |
 | VehicleReservation | concrete | A hold on exactly one eligible shared vehicle. | UC03, UC04, FR-NI01; M §3.3 |
-| ParkingReservation | concrete | A hold on exactly one parking slot for an arrival. | UC05, UC06, FR-NI01; M §3.3 |
+| ParkingReservation | concrete | An immediate hold or planned interval commitment for one slot; records actual check-in, checkout and final parking fee when known. | UC05, UC06, FR-NI01; M §3.3 |
 | Trip | concrete | Historical shared-vehicle pickup/return and one active journey. | UC04, UC05; A, M §3.3 |
 | ChargingRequest | concrete | Charging demand, battery-at-request and needed-by input for scheduling. | UC07, UC12; A, M §§3.3–3.4 |
 | ChargingSession | concrete | Actual charger assignment and retained interrupted/completed session history. | UC07, UC11, UC12; A, M §3.4 |
@@ -67,13 +67,13 @@ At most three attributes and two operations per class; names select the unchange
 | ElectricBicycle | ElectricVehicle | Every electric bicycle has the battery, status and eligibility contract of an electric vehicle. No artificial override is needed. |
 | ElectricMotorcycle | ElectricVehicle | Every electric motorcycle has that same contract; ownership does not change its physical type. |
 | VehicleReservation | Reservation | Every vehicle hold can be cancelled/expired and specializes expiry to reservedAt + 15 minutes. |
-| ParkingReservation | Reservation | Every parking hold can be cancelled/expired and specializes expiry to scheduledArrivalAt + 30 minutes. |
+| ParkingReservation | Reservation | An unfulfilled booking can be cancelled or expired under BR08a. |
 
 No inheritance is introduced for account roles, ownership, status or simulation scenario types. Abstractness means incomplete instantiable category, not merely having subclasses. ElectricVehicle has concrete shared methods; Reservation additionally declares an abstract operation.
 
 ## Lifecycle supplement
 
-See [six supporting scenarios](../../01_Diagram/01_Usecase_Diagram/README.md#lifecycle-scenarios). VehicleService confirms private-vehicle check-in/check-out atomically, preserves fulfilled reservation history and releases occupancy only after departure; checkout is blocked by active charging/pending requests. Operator records field confirmations in the MVP. Accounts/private vehicles are provisioned; payment/reputation and technician apps are excluded. UC11A records a trip-linked incident without automatically completing the trip or physically locking a moving vehicle.
+See [six supporting scenarios](../../docs/diagrams/01_Usecase_Diagram/README.md#lifecycle-scenarios). VehicleService confirms private-vehicle check-in/check-out atomically, preserves fulfilled reservation history and releases occupancy only after departure; checkout is blocked by active charging/pending requests. Operator records field confirmations in the MVP. Accounts/private vehicles are provisioned; payment/reputation and technician apps are excluded. UC11A records a trip-linked incident without automatically completing the trip or physically locking a moving vehicle.
 
 ## Service responsibilities
 
@@ -176,7 +176,8 @@ Private attributes use `-`; public operations use `+`. `--` separates attribute 
 
 ### ParkingReservation
 ```text
--scheduledArrivalAt : DateTime
+-plannedInterval : TimeInterval [0..1]
+-parkingOutcome : ParkingOutcome [0..1]
 --
 +calculateExpiry() : DateTime
 ```
@@ -278,7 +279,7 @@ These are value types/enums, not additional domain entities. All IDs are non-emp
 
 | Enum | Values / meaning |
 | --- | --- |
-| UserRole | Student, Operator |
+| UserRole | User, Operator |
 | VehicleOwnership | Shared, Private |
 | VehicleStatus | Available, Reserved, InUse, NeedsCharging, Charging, TransferHeld, InTransit, Faulty, Maintenance, Retired |
 | ParkingStatus | Available, Held, Occupied, Suspended |
@@ -304,6 +305,8 @@ ScenarioParameters is a validated value, not an untyped object: `targetHubId : S
 | ChargingDemandSurge | chargingRequestsPerHour : Integer | >=0; charging queue and power pressure |
 | PartialChargerFailure | failedPointIds : StringSet | non-empty, distinct existing points at targetHubId; fewer than its total points |
 | VehicleClustering | clusteredVehicleCount : Integer | >=0 and <= snapshot fleet size; redistribution demand |
+
+TimeInterval holds planned arrival and checkout for advance parking; immediate parking uses inherited expiresAt. ParkingOutcome stores actual check-in, optional actual checkout and final fee when calculable; physical occupancy remains a separate current slot/vehicle association.
 
 StringSet is a set of non-empty strings. NetworkSnapshot is an immutable value containing `capturedAt : DateTime`, copies of hub/vehicle/slot/point states, active allocations and demand inputs sufficient to initialize an isolated run. IDs reference copied objects inside that snapshot; they do not grant mutable access to live resources. Parameters and snapshot contents have no domain methods selected for display.
 
@@ -349,14 +352,14 @@ Recommendation records belong exclusively to their result; removing that result 
 
 ## Allocation and lifecycle invariants
 
-1. **Ownership:** Private implies exactly one owner with Student role; Shared implies no owner. ElectricMotorcycle(Private, owner=S) is still a motorcycle, may park/charge, and cannot rent or transfer. The same rule applies to private bicycles. Roles are not mutually exclusive.
-2. **Location:** Current hub and slot may both be absent while a vehicle travels (InUse or InTransit). A slot occupant has currentSlot equal to that slot and currentHub equal to its hub. A slot has at most one current occupant; an occupied slot cannot also be held for another arrival.
+1. **Ownership:** Private implies exactly one owner with User role; Shared implies no owner. ElectricMotorcycle(Private, owner=S) is still a motorcycle, may park/charge, and cannot rent or transfer. The same rule applies to private bicycles. Roles are not mutually exclusive.
+2. **Location:** Current hub and slot may both be absent while a vehicle travels (InUse or InTransit). A slot occupant has currentSlot equal to that slot and currentHub equal to its hub. A slot has at most one current occupant; an occupied slot may have a future commitment but cannot accept another physically present vehicle.
 3. **Rental/transfer:** isRentable() requires Shared, Available, battery >=20% (current SQ01), an operable pickup location, no active vehicle hold, trip, charging session, transfer or unresolved incident. UC10 separately requires battery >=80%, shared ownership, distinct source/destination, no reservation/active trip/session/order/incident and sufficient held destination capacity. A 50% battery can pass rental checks but fails transfer checks.
 4. **Historical versus active:** A vehicle/slot can have arbitrarily many historical reservations, but at most one conflicting active vehicle hold or overlapping parking allocation. A vehicle can have many historical trips/orders but at most one active trip/transfer and never both. All check-and-allocate/release transitions must be atomic across related records; a query such as isRentable() is not an allocation lock.
-5. **Expiry:** calculateExpiry() is pure; initialize immutable expiresAt from it when creating a hold. Vehicle reservation at 10:00 expires at 10:15; parking scheduled for 10:00 expires at 10:30. FR-NI01 scans every 30 seconds; expire(now) only transitions Pending/Reserved at now >= expiresAt. Release only the associated still-held resource atomically and notify after commit. VehicleReservation.pickupClaimed is set atomically before unlock, serializing with cancellation/expiry. A claimed pickup cannot be expired or cancelled until lock/location reconciliation settles it. A completed pickup/check-in is Fulfilled, so a delayed scan cannot free its vehicle or occupied slot. Cancellation has the same guarded release rule. Each ParkingReservation identifies exactly one parkedVehicle owned by its booker; check-in must match that vehicle, Hub and held slot.
-6. **Trip:** Rider has Student role; rented vehicle is shared. Pickup retains pickupHub/pickedUpAt and fulfills the required booking; booker/rider and reservedVehicle/vehicle must agree. ReturnHub/returnedAt are absent until completed. Confirm a valid parking allocation and physical/simulated return before complete(); then update location, occupancy, trip and eligibility atomically. The Trip booking association is mandatory (1), including retained history. UC04 requires an active unexpired reservation belonging to the rider; direct pickup without a reservation is outside the MVP.
-7. **Charging:** Each request has one student requester and vehicle; targetBatteryPercent is an integer in [0,100], not below batteryAtRequest when submitted. Equal target/current battery requires no power allocation. Completion requires verified current batteryPercent >= request.targetBatteryPercent; an 80% priority yield with target 100% is Interrupted with remaining work Queued, not Completed; queued requests have zero sessions initially. At most one active session per point, request and vehicle. An interrupted session remains attached to its original point/request; mark it Interrupted and record stoppedAt and stopReason only after matching power-off confirmation. UserStop before target cancels the request without requeue; TargetReached completes it; PriorityYield and TechnicalFault retain remaining demand Queued. Keep the connector held until unplug and parking Occupied until physical departure. A later session can use another point. One interrupted and one active session in the same request is valid history. Match connector and location, reject faulty/maintenance resources and inconsistent held/traveling states, and keep summed allocatedPowerKW <= hub.powerLimitKW (the operational budget already set to 85% of rated hub power) and each allocation <= point.ratedPowerKW. Point.allocatedPowerKW reserves budget already in Reserved/Starting, before any active session exists. allocationOwner/allocatedPoint is a current 0..1-to-0..1 association, set atomically with the port/power claim. Every positive or uncertain retained power allocation has exactly one owning request, including before session creation; any active session must reference that same request and point. Cancellation/reconciliation releases only the owner's allocation. Keep this ownership link while a stopped request still holds the connector, even if power is zero or the request is Cancelled; clear it only after verified unplug or verified safe connector release. Idle points have no owner or allocation. Sum point allocations across Reserved/Starting/Charging/Stopping and uncertain Fault states; do not count an active session a second time. Use the same commandId for retries (at most 3); uncertain starts/stops retain allocation until confirmed isolation and reconciliation. Rank low battery and nearest neededBy; <10% triggers immediate FR-NI04 reprioritization. No unsupported weighting formula is imposed.
-8. **Incident XOR:** Exactly one of affectedVehicle/affectedPoint exists, although each link individually permits 0..1. Isolate that target before any new allocation; preserve reservations/sessions as history and explicitly release/reassign their active holds. assignedOperator is absent or has Operator role. reportedTrip and reporter are optional for the general incident type: a Student trip report requires both, with reporter equal to the trip rider and affectedVehicle equal to its vehicle. Save the report-time description and GPS/manual reportedLocation; later trips or vehicle movement never change these historical references. Pre-pickup damage and charger alerts need no Trip; automatic alerts may omit reporter and location when unavailable. assignedOperator and reporter are separate roles. Resolution requires confirmed maintenance/recovery and does not itself bypass normal reactivation checks. Example: faulty point interrupts its session; the expired scan cannot reactivate the faulty point.
+5. **Expiry:** calculateExpiry() is pure; initialize immutable expiresAt from it when creating a hold. Vehicle reservation at 10:00 expires at 10:15; parking expires at holdExpiresAt or planned arrival plus configured late-arrival grace under BR08a. FR-NI01 scans every 30 seconds; expire(now) only transitions Pending/Reserved at now >= expiresAt. Release only the associated still-held resource atomically and notify after commit. VehicleReservation.pickupClaimed is set atomically before unlock, serializing with cancellation/expiry. A claimed pickup cannot be expired or cancelled until lock/location reconciliation settles it. A completed pickup/check-in is Fulfilled, so a delayed scan cannot free its vehicle or occupied slot. Cancellation has the same guarded release rule. Each ParkingReservation identifies exactly one parkedVehicle owned by its booker; check-in must match that vehicle, Hub and assigned slot.
+6. **Trip:** Rider has User role; rented vehicle is shared. Pickup retains pickupHub/pickedUpAt and fulfills the required booking; booker/rider and reservedVehicle/vehicle must agree. ReturnHub/returnedAt are absent until completed. Confirm a valid parking allocation and physical/simulated return before complete(); then update location, occupancy, trip and eligibility atomically. The Trip booking association is mandatory (1), including retained history. UC04 requires an active unexpired reservation belonging to the rider; direct pickup without a reservation is outside the MVP.
+7. **Charging:** Each request has one user requester and vehicle; targetBatteryPercent is an integer in [0,100], not below batteryAtRequest when submitted. Equal target/current battery requires no power allocation. Completion requires verified current batteryPercent >= request.targetBatteryPercent; an 80% priority yield with target 100% is Interrupted with remaining work Queued, not Completed; queued requests have zero sessions initially. At most one active session per point, request and vehicle. An interrupted session remains attached to its original point/request; mark it Interrupted and record stoppedAt and stopReason only after matching power-off confirmation. UserStop before target cancels the request without requeue; TargetReached completes it; PriorityYield and TechnicalFault retain remaining demand Queued. Keep the connector held until unplug and parking Occupied until physical departure. A later session can use another point. One interrupted and one active session in the same request is valid history. Match connector and location, reject faulty/maintenance resources and inconsistent held/traveling states, and keep summed allocatedPowerKW <= hub.powerLimitKW (the operational budget already set to 85% of rated hub power) and each allocation <= point.ratedPowerKW. Point.allocatedPowerKW reserves budget already in Reserved/Starting, before any active session exists. allocationOwner/allocatedPoint is a current 0..1-to-0..1 association, set atomically with the port/power claim. Every positive or uncertain retained power allocation has exactly one owning request, including before session creation; any active session must reference that same request and point. Cancellation/reconciliation releases only the owner's allocation. Keep this ownership link while a stopped request still holds the connector, even if power is zero or the request is Cancelled; clear it only after verified unplug or verified safe connector release. Idle points have no owner or allocation. Sum point allocations across Reserved/Starting/Charging/Stopping and uncertain Fault states; do not count an active session a second time. Use the same commandId for retries (at most 3); uncertain starts/stops retain allocation until confirmed isolation and reconciliation. Rank low battery and nearest neededBy; <10% triggers immediate FR-NI04 reprioritization. No unsupported weighting formula is imposed.
+8. **Incident XOR:** Exactly one of affectedVehicle/affectedPoint exists, although each link individually permits 0..1. Isolate that target before any new allocation; preserve reservations/sessions as history and explicitly release/reassign their active holds. assignedOperator is absent or has Operator role. reportedTrip and reporter are optional for the general incident type: a User trip report requires both, with reporter equal to the trip rider and affectedVehicle equal to its vehicle. Save the report-time description and GPS/manual reportedLocation; later trips or vehicle movement never change these historical references. Pre-pickup damage and charger alerts need no Trip; automatic alerts may omit reporter and location when unavailable. assignedOperator and reporter are separate roles. Resolution requires confirmed maintenance/recovery and does not itself bypass normal reactivation checks. Example: faulty point interrupts its session; the expired scan cannot reactivate the faulty point.
 9. **Transfer:** Source and destination differ; vehicles form a non-empty set and originate at sourceHub. Create Planned with vehicle and destination-slot holds; heldDestinationSlots explicitly records current order-owned slot holds, one per assigned vehicle while Planned/InTransit, zero after completion/cancellation. No held slot may also be occupied or held by a parking reservation. Recheck Operator, Planned, battery >=80%, vehicle eligibility and destination holds atomically at departure; failure cannot dispatch or free source slots; cancellation is allowed only while Planned and releases only its own holds. Confirm actual departure before InTransit and release source occupancy atomically. InTransit removes current hub/slot for traveling vehicles; complete() requires confirmed arrival/capacity and records their destination location and completedAt. Any failed check leaves the order and inventory unchanged.
 10. **Simulation:** Each run has one immutable snapshot and scenario. Pending/Running/Failed have no result; Completed has exactly one result, and each result belongs to exactly one run. Success rate is in [0,1], average wait >=0, rejected count >=0. Zero attempts gives rate 0 and zero waits gives average 0 (chosen reporting convention). Failures preserve the run/snapshot without fabricated zero-valued results. Recommendations are advisory; accepting one rechecks live eligibility/capacity through the relevant service and only then records Accepted. Simulation never mutates live inventory.
 
@@ -364,11 +367,11 @@ These are acceptance examples for the design, not claims that the UI prototype e
 
 ## Sequence lifeline mapping
 
-Derived from the current seven [sequence declarations](../../01_Diagram/02_Sequence_Diagram/PLANTUML_SEQUENCE.md). These are responsibility mappings, not new classes or operations.
+Derived from the current seven [sequence declarations](../../docs/diagrams/02_Sequence_Diagram/README.md). These are responsibility mappings, not new classes or operations.
 
 | Exact sequence name | Kind | Domain/service interpretation |
 | --- | --- | --- |
-| User | domain role | UserAccount with Student role (the sequence calls this actor User). |
+| User | domain role | UserAccount with User role (the sequence calls this actor User). |
 | Operator | domain role | UserAccount with Operator role. |
 | :MobileApp | UI | Presentation boundary outside the domain model. |
 | :OperatorDashboard | UI | Operator presentation boundary outside the domain model. |
@@ -383,7 +386,7 @@ Derived from the current seven [sequence declarations](../../01_Diagram/02_Seque
 | :SimulatedDock | device adapter | External simulated dock adapter; no new domain class. |
 | :SimulatedCharger | device adapter | External simulated charger adapter; no new domain class. |
 
-User/Student denote the same student account role; the existing enum is unchanged. Sequence messages do not mandate matching domain methods. UC and lifecycle references below remain authoritative.
+User/User denote the same user account role; the existing enum is unchanged. Sequence messages do not mandate matching domain methods. UC and lifecycle references below remain authoritative.
 
 ## UC traceability
 
@@ -415,7 +418,7 @@ Read predicates do not reserve resources. Services must recheck authorization, l
 - **Signature:** `+hasRole(role : UserRole) : Boolean`
 - **Purpose:** Check workflow role membership (UC01–UC14).
 - **Inputs:** One declared UserRole.
-- **Output:** Boolean membership result; both Student and Operator can return true.
+- **Output:** Boolean membership result; both User and Operator can return true.
 - **Preconditions:** Account exists with a non-empty valid roles set.
 - **Algorithm:** Test whether roles contains role.
 - **Postconditions:** No mutation.
@@ -459,7 +462,7 @@ Read predicates do not reserve resources. Services must recheck authorization, l
 - **Signature:** `+canAccept(vehicle : ElectricVehicle) : Boolean`
 - **Purpose:** Check an unheld slot as a candidate for parking (UC05/UC06/UC09).
 - **Inputs:** One existing electric vehicle (shared or private).
-- **Output:** True if status is Available, no occupant/active conflicting allocation exists and the vehicle has no different occupied slot.
+- **Output:** For immediate use, true if safe, no occupant or conflicting commitment exists and the vehicle has no different occupied slot. Advance availability uses BR08 interval commitments; physical availability is rechecked at arrival.
 - **Preconditions:** Vehicle, slot and hub/allocation context are valid and current.
 - **Algorithm:** Check availability and current occupancy consistency. A service fulfilling this user's existing parking hold validates that hold separately, atomically; it does not use this unheld-candidate predicate to reject its own hold.
 - **Postconditions:** No check-in, slot acquisition or trip completion.
@@ -512,7 +515,7 @@ Read predicates do not reserve resources. Services must recheck authorization, l
 ## VehicleReservation.calculateExpiry
 
 - **Signature:** `+calculateExpiry() : DateTime` (override)
-- **Purpose:** Specialize [Reservation.calculateExpiry](#reservationcalculateexpiry) for UC03.
+- **Purpose:** Specialize [Reservation.calculateExpiry](.#reservationcalculateexpiry) for UC03.
 - **Inputs:** reservedAt : DateTime from this reservation.
 - **Output:** reservedAt + 15 minutes.
 - **Preconditions:** Base contract and a valid immutable reservedAt.
@@ -523,10 +526,10 @@ Read predicates do not reserve resources. Services must recheck authorization, l
 ## ParkingReservation.calculateExpiry
 
 - **Signature:** `+calculateExpiry() : DateTime` (override)
-- **Purpose:** Specialize [Reservation.calculateExpiry](#reservationcalculateexpiry) for UC06/BR08.
-- **Inputs:** scheduledArrivalAt : DateTime from this reservation.
-- **Output:** scheduledArrivalAt + 30 minutes.
-- **Preconditions:** Base contract and valid immutable scheduledArrivalAt.
+- **Purpose:** Specialize [Reservation.calculateExpiry](.#reservationcalculateexpiry) for UC06/BR08.
+- **Inputs:** Reservation kind and its configured hold expiry or planned arrival and late-arrival grace.
+- **Output:** holdExpiresAt for immediate parking, planned arrival plus configured late-arrival grace for advance parking.
+- **Preconditions:** Base contract and valid expiry inputs for the booking kind.
 - **Algorithm:** Add 30 minutes to scheduled arrival, regardless of booking creation time; arrival 10:00 -> 10:30.
 - **Postconditions:** Base purity contract; result equals expiresAt after creation. Never use the vehicle-hold 15-minute formula.
 - **Errors:** InvalidTime/TimeOverflow; no state change.
@@ -612,10 +615,10 @@ Read predicates do not reserve resources. Services must recheck authorization, l
 
 | Concrete class | Inherited operation descriptions |
 | --- | --- |
-| ElectricBicycle | [updateBattery](#electricvehicleupdatebattery), [isRentable](#electricvehicleisrentable); no override |
-| ElectricMotorcycle | [updateBattery](#electricvehicleupdatebattery), [isRentable](#electricvehicleisrentable); no override |
-| VehicleReservation | [cancel](#reservationcancel), [expire](#reservationexpire); calculateExpiry is overridden above |
-| ParkingReservation | [cancel](#reservationcancel), [expire](#reservationexpire); calculateExpiry is overridden above |
+| ElectricBicycle | [updateBattery](.#electricvehicleupdatebattery), [isRentable](.#electricvehicleisrentable); no override |
+| ElectricMotorcycle | [updateBattery](.#electricvehicleupdatebattery), [isRentable](.#electricvehicleisrentable); no override |
+| VehicleReservation | [cancel](.#reservationcancel), [expire](.#reservationexpire); calculateExpiry is overridden above |
+| ParkingReservation | [cancel](.#reservationcancel), [expire](.#reservationexpire); calculateExpiry is overridden above |
 
 SimulationResult and CoordinationRecommendation select no methods. No constructor, getter, setter, service API or support-value operation is silently implied to be displayed.
 

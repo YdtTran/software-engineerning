@@ -25,4 +25,4 @@ None. No runtime requirements, domain invariants or main specs change. The main 
 
 ## Impact
 
-Changes during apply are confined to `01_Diagram/05_Class_Diagram/`: generator, renderer, README, class/sequence mapping notes, notation catalog and generated assets. Preserve full member blocks and method contracts. Coordinate with the unimplemented `align-class-diagram-requirements-with-slides` change without editing its artifacts, AGENTS.md or shared UML rules. No sequence regeneration, application edits, dependency installation or domain-model reduction is included.
+Changes during apply are confined to `docs/diagrams/05_Class_Diagram/`: generator, renderer, README, class/sequence mapping notes, notation catalog and generated assets. Preserve full member blocks and method contracts. Coordinate with the unimplemented `align-class-diagram-requirements-with-slides` change without editing its artifacts, AGENTS.md or shared UML rules. No sequence regeneration, application edits, dependency installation or domain-model reduction is included.

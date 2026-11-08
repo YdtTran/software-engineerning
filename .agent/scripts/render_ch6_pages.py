@@ -1,7 +1,7 @@
 import pymupdf
 import os
 
-doc = pymupdf.open("00_Slides/06_Ch6 System Modeling_2025.pdf")
+doc = pymupdf.open("docs/slides/06_Ch6 System Modeling_2025.pdf")
 os.makedirs(".agent/scratch/ch6_images", exist_ok=True)
 
 pages_to_render = [11, 13, 17, 18, 19, 20, 22, 23, 24, 25, 26, 30, 31, 32, 33, 34, 39, 40, 42, 43, 49, 50, 51, 52]

@@ -2,7 +2,7 @@
 
 The class diagram keeps 19 classes and 18 declared operations. Four generalizations and 31 associations appear across eight focused tabs and an overview. Repeated classes share the same compact members; complete member and method contracts remain in [CLASS_CATALOG.md](CLASS_CATALOG.md).
 
-Deliverables: [editable Draw.io](../../01_Diagram/05_Class_Diagram/drawio/smart_emobility_class_diagram.drawio) and [nine PNGs](../../01_Diagram/05_Class_Diagram/png/). Only Draw.io/PNG are published in that folder. The overview is a navigation thumbnail; use the numbered tabs or focused PNGs to read signatures.
+Deliverables: [editable Draw.io](../../docs/diagrams/05_Class_Diagram/drawio/smart_emobility_class_diagram.drawio) and local PNG exports. Only the editable drawing is tracked. The overview is a navigation thumbnail; use the numbered tabs or focused PNGs to read signatures.
 
 Review corrections: each Trip retains one required booking; ParkingReservation identifies its parkedVehicle; TransferOrder owns explicit current destination-slot holds; ChargingPoint records pre-start power allocation and command ID; VehicleReservation records pickupClaimed; charging stop takes an explicit reason. Status enums, retry uncertainty and release rules follow SC01–SC03 and AD01–AD07. No implemented backend is claimed.
 
@@ -20,7 +20,7 @@ export DRAWIO_PLAYWRIGHT=/tmp/usecase-simplification/runtime/node_modules/playwr
 python3 .agent/class-diagram/build_class_diagram.py
 node .agent/class-diagram/render_class_diagram.cjs
 python3 .agent/class-diagram/build_class_diagram.py --check
-python3 .agent/class-diagram/check_compact_projection.py --output-dir 01_Diagram/05_Class_Diagram
+python3 .agent/class-diagram/check_compact_projection.py --output-dir .diagram-exports/class
 ```
 
 The temporary dependency paths above are machine-specific; use your installed tools elsewhere. DRAWIO_SKILL_ROOT and DRAWIO_VIEWER may override discovery. --output-dir allows isolated generation. Scratch/source previews are stored outside the default deliverable folder at .agent/scratch/class_model; verification is at .agent/verification/class-diagram.json. Source and export fingerprints must match before the checks pass.

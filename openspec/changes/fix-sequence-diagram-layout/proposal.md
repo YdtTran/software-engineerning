@@ -26,7 +26,7 @@ None. There are no existing OpenSpec capability specifications.
 ## Impact
 
 - Primary implementation: `.agent/scripts/generate_slide_style_sequence.py`; focused sequence validation/rendering scripts under `.agent/scripts/`.
-- Outputs: the seven existing `.drawio.svg` files and `PLANTUML_SEQUENCE.md` under `01_Diagram/02_Sequence_Diagram/`, plus corresponding PNG previews, a README, and `verification.json`.
+- Outputs: the seven existing `.drawio.svg` files and `PLANTUML_SEQUENCE.md` under `docs/diagrams/02_Sequence_Diagram/`, plus corresponding PNG previews, a README, and `verification.json`.
 - Reuse the installed draw.io viewer and Playwright pattern in `.agent/scripts/render_usecases.cjs`; do not alter its use-case checks to apply sequence-specific crossing rules.
 - Other phase-2 generators can overwrite the same filenames; document the supported sequence regeneration command and handle any sequence entry point retained as supported without regenerating activity/state diagrams.
 - Preserve use-case IDs, filenames, participant responsibilities, and intended message order. New business branches, algorithms, performance promises, application changes, other diagram families, and a generic layout framework are outside scope.

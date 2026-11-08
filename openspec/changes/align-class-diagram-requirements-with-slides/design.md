@@ -2,11 +2,11 @@
 
 ## Context
 
-See `proposal.md` for motivation. The central convention is `02_Rules/03_Class_diagram.md`; `AGENTS.md` repeats its core rules, and `.agents/skills/uml-designer/SKILL.md` plus two syntax references guide diagram generation. `.agent/rules/uml-designer.md` is already a delegating entry point.
+See `proposal.md` for motivation. The central convention is `docs/standards/03_Class_diagram.md`; `AGENTS.md` repeats its core rules, and `.agents/skills/uml-designer/SKILL.md` plus two syntax references guide diagram generation. `.agent/rules/uml-designer.md` is already a delegating entry point.
 
 The prior review visually inspected Ch6 pages 30–34. Page 30 shows attributes-only Customer, Payment, and Cash. Page 34 shows operations-only Server and Printer, and `+printInfo()` without a return type. Page 31 illustrates public/private/protected visibility; it does not itself establish package visibility. Pages 32–33 show both a bare association and an association with multiplicities. Existing wording treats these examples as a universal requirement for full signatures and populated compartments.
 
-`PROJECT_SPECIFICATION.md` Submission #3 and `README.md` separately require detailed class design and descriptions of every modeled method. Those requirements are compatible with permitting abbreviated visual notation.
+`docs/requirements/PROJECT_SPECIFICATION.md` Submission #3 and `README.md` separately require detailed class design and descriptions of every modeled method. Those requirements are compatible with permitting abbreviated visual notation.
 
 ## Goals / Non-Goals
 
@@ -24,7 +24,7 @@ The prior review visually inspected Ch6 pages 30–34. Page 30 shows attributes-
 
 ### 1. Separate evidence, project requirements, and tool syntax
 
-Update the central convention with a compact evidence table citing `00_Slides/06_Ch6 System Modeling_2025.pdf`, pages 28–35. Use three categories: slide-supported notation, project submission obligations, and supplementary UML/tool guidance. Slides remain authoritative in a conflict. External tutorial/tool details fill gaps without becoming slide mandates.
+Update the central convention with a compact evidence table citing `docs/slides/06_Ch6 System Modeling_2025.pdf`, pages 28–35. Use three categories: slide-supported notation, project submission obligations, and supplementary UML/tool guidance. Slides remain authoritative in a conflict. External tutorial/tool details fill gaps without becoming slide mandates.
 
 The table must distinguish exact slide text/examples from inferred guidance. In particular, do not present added return types on the page-30 operations as literal slide quotations, or claim page 31 establishes all four visibility symbols. Retain useful supplementary concepts such as composition and dependency with honest attribution.
 

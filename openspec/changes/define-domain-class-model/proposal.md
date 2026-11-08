@@ -23,6 +23,6 @@ None. The main OpenSpec capability inventory is empty, and existing business req
 
 ## Impact
 
-Planned deliverables live in `01_Diagram/05_Class_Diagram/`: `CLASS_CATALOG.md`, `METHOD_DESCRIPTIONS.md`, `PLANTUML_CLASS.md`, `smart_emobility_class_diagram.drawio.svg`, and `README.md`. Add a link from `PROJECT_SPECIFICATION.md` to make them discoverable.
+Planned deliverables live in `docs/diagrams/05_Class_Diagram/`: `CLASS_CATALOG.md`, `METHOD_DESCRIPTIONS.md`, `PLANTUML_CLASS.md`, `smart_emobility_class_diagram.drawio.svg`, and `README.md`. Add a link from `docs/requirements/PROJECT_SPECIFICATION.md` to make them discoverable.
 
 Reuse terminology from existing sequence diagrams and the central Class Diagram convention. Coordinate notation with the existing `align-class-diagram-requirements-with-slides` proposal without changing or applying it here. No backend classes, UI changes, database schema, infrastructure, dependencies, or physical IoT integration are included.

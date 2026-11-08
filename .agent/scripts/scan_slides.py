@@ -2,7 +2,7 @@ import pypdf
 import os
 import glob
 
-slides_dir = "00_Slides"
+slides_dir = "docs/slides"
 pdf_files = sorted(glob.glob(os.path.join(slides_dir, "*.pdf")))
 
 print(f"Found {len(pdf_files)} PDF files in {slides_dir}:")

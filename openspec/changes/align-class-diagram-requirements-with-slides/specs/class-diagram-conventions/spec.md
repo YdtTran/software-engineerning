@@ -10,7 +10,7 @@ Define consistent, lecture-grounded authoring and review requirements for Class 
 Class Diagram authoring and review SHALL prioritize the local lecture slides over project conventions, external tutorials, and rendering-tool defaults. Slide-derived rules MUST cite the PDF and page; supplementary rules MUST be identified as project or tool guidance without conflicting with the slides.
 
 #### Scenario: A local checklist contradicts a lecture example
-- **WHEN** a checklist rejects a representation explicitly shown in `00_Slides/06_Ch6 System Modeling_2025.pdf`
+- **WHEN** a checklist rejects a representation explicitly shown in `docs/slides/06_Ch6 System Modeling_2025.pdf`
 - **THEN** the review accepts the slide-supported notation and identifies the conflicting checklist rule for correction
 
 #### Scenario: Supplementary notation is documented

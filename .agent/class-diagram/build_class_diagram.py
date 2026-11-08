@@ -15,7 +15,7 @@ import xml.etree.ElementTree as ET
 
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parents[1]
-DEFAULT_OUTPUT = ROOT / '01_Diagram/05_Class_Diagram'
+DEFAULT_OUTPUT = ROOT / '.diagram-exports/class'
 SCRATCH = ROOT / '.agent/scratch/class_model'
 OUTPUT = DEFAULT_OUTPUT
 CATALOG = (BASE / 'CLASS_CATALOG.md').read_text(encoding='utf-8')
@@ -69,7 +69,7 @@ def compact_projection(classes, selection):
 
 def check_lifelines(catalog=CATALOG, sequence=None):
     if sequence is None:
-        sequence = (ROOT / '01_Diagram/02_Sequence_Diagram/PLANTUML_SEQUENCE.md').read_text(encoding='utf-8')
+        sequence = (ROOT / 'docs/diagrams/02_Sequence_Diagram/PLANTUML_SEQUENCE.md').read_text(encoding='utf-8')
     names = set(re.findall(r'^(?:actor|participant) "([^"\n]+)"', sequence, re.M))
     assert names, 'No sequence lifelines found'
     for name in names:

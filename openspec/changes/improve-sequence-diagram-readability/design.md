@@ -6,7 +6,7 @@ See `proposal.md` for motivation. The supported generator is `.agent/scripts/gen
 
 Current messages/annotations default to 11px, headers to 12px and titles to 14px. Text colors vary by role and annotation. Borders use role colors; fills are very pale. `layout()` estimates text with a fixed 7px character width, wraps messages at 31 characters, and uses fixed 16px line increments. Header widths, actor/timing positions and footer offsets also assume the small fonts. Merely changing font attributes would invalidate these measurements.
 
-`02_Rules/02_Sequence_diagram.md` recommends pale pastel role fills and red timing captions. The user's explicit request supersedes these cosmetic recommendations: retain recognizable role color families and UML notation while using stronger fills and black captions. No use-case boundary rule applies to this sequence-only change.
+`docs/standards/02_Sequence_diagram.md` recommends pale pastel role fills and red timing captions. The user's explicit request supersedes these cosmetic recommendations: retain recognizable role color families and UML notation while using stronger fills and black captions. No use-case boundary rule applies to this sequence-only change.
 
 The main spec inventory is empty. Reuse `sequence-diagram-rendering`, the path already declared by the completed but unarchived layout change, adding distinctly named style requirements. Preserve the earlier delta and its layout/notation requirements; no archive or spec synchronization is part of this work.
 

@@ -2,7 +2,7 @@ import pymupdf
 import glob
 import os
 
-pdf_files = sorted(glob.glob("00_Slides/*.pdf"))
+pdf_files = sorted(glob.glob("docs/slides/*.pdf"))
 for pdf_path in pdf_files:
     fname = os.path.basename(pdf_path)
     if fname in ["06_Ch6 System Modeling_2025.pdf", "03_Ch3_4 Requirements Engineering.pdf"]:

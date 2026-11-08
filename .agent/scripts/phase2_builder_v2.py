@@ -242,7 +242,7 @@ def build_sequence_diagram_v2(filepath, title, participants, messages, alt_boxes
 # ==============================================================================
 def build_activity_diagram_swimlanes(filepath, title, swimlanes, nodes, edges):
     """
-    swimlanes: list of strings (column names, e.g. ["Student (Người dùng)", "Mobile App", "Backend Controller", "IoT Station"])
+    swimlanes: list of strings (column names, e.g. ["User (Người dùng)", "Mobile App", "Backend Controller", "IoT Station"])
     nodes: list of dicts:
       {'id': str, 'lane': int, 'type': 'start'|'action'|'decision'|'fork'|'join'|'object'|'end', 'text': str, 'y': int, 'w': int, 'h': int}
     edges: list of dicts:

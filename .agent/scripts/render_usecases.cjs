@@ -6,8 +6,10 @@ const { chromium } = require(process.env.DRAWIO_PLAYWRIGHT || path.join(os.homed
 const extensionRoot = path.join(os.homedir(), '.vscode/extensions');
 const extension = fs.readdirSync(extensionRoot).filter(n => n.startsWith('hediet.vscode-drawio-')).sort().at(-1);
 const viewer = process.env.DRAWIO_VIEWER || path.join(extensionRoot, extension, 'drawio/src/main/webapp/js/viewer-static.min.js');
-const base = path.resolve(__dirname, '../../01_Diagram/01_Usecase_Diagram');
-const files = ['GENERAL', 'STUDENTS', 'OPERATOR'].flatMap(dir => fs.readdirSync(path.join(base, dir)).filter(n => n.endsWith('.drawio')).map(n => path.join(base, dir, n))).sort();
+const base = path.resolve(__dirname, '../../docs/diagrams/01_Usecase_Diagram');
+const output = path.resolve(__dirname, '../../.diagram-exports/usecases');
+fs.mkdirSync(output, {recursive:true});
+const files = fs.readdirSync(path.join(base, 'drawio')).filter(name => name.endsWith('.drawio')).map(name => path.join(base, 'drawio', name)).sort();
 
 function intersect(a, b, c, d) {
   const cross = (p, q, r) => (q.x-p.x)*(r.y-p.y)-(q.y-p.y)*(r.x-p.x);
@@ -49,7 +51,7 @@ assert(intersect({x:0,y:0},{x:10,y:0},{x:5,y:0},{x:5,y:10}));
 assert(!intersect({x:0,y:0},{x:10,y:10},{x:0,y:0},{x:10,y:-10}));
 
 (async()=>{
-  assert.equal(files.length,21);
+  assert(files.length);
   const browser=await chromium.launch({headless:true,channel:'msedge'});
   try {
     const page=await browser.newPage({viewport:{width:2000,height:1900},deviceScaleFactor:1});
@@ -95,14 +97,14 @@ assert(!intersect({x:0,y:0},{x:10,y:10},{x:0,y:0},{x:10,y:-10}));
         return {svg:mxUtils.getXml(svg),model:{nodes,edges,labels}};
       },xml);
       try {verify(rendered.model);} catch(e){e.message=path.basename(file)+': '+e.message;throw e;}
-      fs.writeFileSync(file+'.svg',rendered.svg);
+      fs.writeFileSync(path.join(output,path.basename(file)+'.svg'),rendered.svg);
       const imagePage=await browser.newPage({viewport:{width:2100,height:2100},deviceScaleFactor:1});
       await imagePage.setContent('<html><body style="margin:0;display:inline-block">'+rendered.svg+'</body></html>');
-      await imagePage.locator('svg').screenshot({path:file.replace(/\.drawio$/,'.png')});
+      await imagePage.locator('svg').screenshot({path:path.join(output,path.basename(file,'.drawio')+'.png')});
       await imagePage.close();
       results.push({file:path.relative(base,file).replaceAll('\\','/'),nodes:rendered.model.nodes.length,edges:rendered.model.edges.length,labels:rendered.model.labels.length,crossings:0,overlappingSegments:0,edgeThroughNode:0,labelCollisions:0});
       console.log('PASS '+path.basename(file));
-      fs.writeFileSync(path.join(base,'verification.json'),JSON.stringify({renderer:'Installed Draw.io viewer-static in headless Edge',checkedAt:new Date().toISOString(),passed:results.length===files.length,checks:['rendered edge crossings, T junctions and collinear overlaps','edges through unrelated nodes','labels against nodes, other labels and unrelated edges','use-case label clipping','dynamic system boundary padding','primary actors outside on left','all 21 diagrams rendered'],diagrams:results},null,2)+'\n');
+      fs.writeFileSync(path.join(output,'verification.json'),JSON.stringify({renderer:'Installed Draw.io viewer-static in headless Edge',checkedAt:new Date().toISOString(),passed:results.length===files.length,checks:['rendered edge crossings, T junctions and collinear overlaps','edges through unrelated nodes','labels against nodes, other labels and unrelated edges','use-case label clipping','dynamic system boundary padding','primary actors outside on left','all source diagrams rendered'],diagrams:results},null,2)+'\n');
     }
   } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

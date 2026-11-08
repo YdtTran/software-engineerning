@@ -1,38 +1,60 @@
 {
   "scenarios": [
     {
-      "id": "UC06A",
-      "name": "Check In Private Vehicle",
+      "id": "UC06-S1",
+      "name": "Create Parking Reservation",
+      "parent": "UC06",
       "fields": {
-        "Use-case ID": "UC06A",
-        "Use-case name": "Check In Private Vehicle — Xác nhận xe cá nhân vào bãi",
-        "Use-case overview": "Thực hiện lượt đặt chỗ UC06, ghi nhận xe đã tới đúng Hub và chiếm dụng slot.",
-        "Actors": "User khởi xướng; xác nhận đến từ dữ liệu thiết bị hoặc dữ liệu giả lập.",
-        "Trigger": "Sinh viên chọn phiếu đặt chỗ và xác nhận đến Hub.",
-        "Preconditions": "Tài khoản hợp lệ; phiếu thuộc sinh viên, còn hiệu lực; xe cá nhân đã được cấp sẵn; thời điểm đến không sớm hơn ScheduledArrivalTime.",
-        "Postconditions": "Phiếu Reserved → Fulfilled; slot Held → Occupied; xe gắn đúng Hub/slot. Các thay đổi được thực hiện nguyên tử.",
-        "Normal Flow (Steps 1..n)": "1. Chọn phiếu/QR. 2. Kiểm tra chủ phiếu, xe, Hub và thời hạn tại lúc xác nhận. 3. Xác nhận xe đã đến. 4. Chiếm dụng đúng slot đang giữ và hoàn thành phiếu trong một giao dịch. 5. Hiển thị xác nhận và cập nhật sức chứa.",
-        "Alternative Flows": "QR không đọc được: nhập mã phiếu; Operator có thể xác nhận thay sau khi đối chiếu xe và chủ phiếu, lưu người thực hiện. Đến sớm: chờ đến giờ hoặc hủy và đặt lại nếu có chỗ.",
-        "Exceptions": "Phiếu hết hạn/bị hủy, sai chủ xe hoặc slot bị cách ly: từ chối, giữ trạng thái hiện có và gợi ý đặt lại/Hub khác. Gửi lặp sau thành công trả lại kết quả cũ.",
-        "Notes and Issues": "Hết hạn tại ScheduledArrivalTime + 30 phút; không giải phóng slot của phiếu đã Fulfilled. Sinh viên có thể Back/Close trước xác nhận. Mã phiếu không tự thay thế kiểm tra quyền."
+        "Use-case ID": "UC06-S1",
+        "Use-case name": "Create Parking Reservation",
+        "Use-case overview": "Tạo cam kết đặt ngay hoặc đặt trước, độc lập với chiếm dụng.",
+        "Actors": "User; Notification Service.",
+        "Trigger": "User chọn tạo đặt chỗ đỗ.",
+        "Preconditions": "Tài khoản hợp lệ; xe cá nhân được cấp sẵn với biển số và loại xe.",
+        "Postconditions": "Phiếu Reserved, QR/mã phiếu và hạn đến; lưu holdExpiresAt hoặc cả hai mốc plannedArrival/plannedCheckout; không bắt đầu chiếm dụng.",
+        "Normal Flow (Steps 1..n)": "1. Chọn Hub, xe và pool. 2. Với đặt trước nhập giờ đến và giờ ra. 3. Hiển thị ô tương thích có thể cấp cho lượt ngay hoặc khoảng yêu cầu. 4. Chọn ô và xác nhận. 5. Kiểm tra lại xe, khả dụng và xung đột; ghi cam kết nguyên tử theo BR08. 6. Cấp mã và thông báo.",
+        "Alternative Flows": "Back/Close trước xác nhận không ghi phiếu. Hủy riêng: kiểm tra chủ và Reserved chưa check-in; với đặt trước giữ mốc hủy tối thiểu 10 phút trước giờ hẹn; gỡ đúng cam kết, không tính phí hủy. FR-NI01 gỡ cam kết hết hạn theo BR08a.",
+        "Exceptions": "Sai xe, sai khoảng, hết sức chứa hoặc có cam kết cạnh tranh: từ chối và không ghi dở dang; đề xuất giờ/Hub khác.",
+        "Notes and Issues": "LIM-01: khả dụng trong khoảng không bảo đảm xe trước sẽ ra đúng giờ."
       }
     },
     {
-      "id": "UC06B",
+      "id": "UC06-S2",
+      "name": "Check In Private Vehicle",
+      "fields": {
+        "Use-case ID": "UC06-S2",
+        "Use-case name": "Check In Private Vehicle — Xác nhận xe cá nhân vào bãi",
+        "Use-case overview": "Thực hiện lượt đặt chỗ UC06, ghi nhận xe đã tới đúng Hub và chiếm dụng slot.",
+        "Actors": "User; Operator xác nhận thay nếu cần; dữ liệu thiết bị hoặc giả lập.",
+        "Trigger": "Người dùng chọn phiếu đặt chỗ và xác nhận đến Hub.",
+        "Preconditions": "Tài khoản hợp lệ; phiếu thuộc User, xe được cấp sẵn; phiếu còn hiệu lực và đủ điều kiện BR08a; đúng Hub, ô tương thích, không cách ly và không có xe hiện diện.",
+        "Postconditions": "Phiếu Reserved → Fulfilled; lưu actualCheckInTime và bắt đầu đúng một lượt chiếm dụng tại Hub/ô. Không khởi động sạc.",
+        "Normal Flow (Steps 1..n)": "1. Chọn phiếu/QR và yêu cầu check-in. 2. Kiểm tra chủ phiếu, xe, Hub và cửa sổ đến BR08a. 3. Kiểm tra ô có thể sử dụng vật lý. 4. Xác nhận xe đến bằng dữ liệu thiết bị/giả lập. 5. Kiểm tra lại và ghi giờ vào, Fulfilled, chiếm dụng trong một giao dịch. 6. Xác nhận và cập nhật sức chứa.",
+        "Alternative Flows": "QR không đọc được: nhập mã phiếu; Operator có thể xác nhận thay sau khi đối chiếu xe và chủ phiếu, lưu người thực hiện. Đến sớm: chờ đến giờ hoặc hủy và đặt lại nếu có chỗ.",
+        "Exceptions": "Không tìm thấy phiếu, sai chủ/xe, hủy/hết hạn, đến muộn hoặc ô cách ly: từ chối, giữ trạng thái và gợi ý đặt lại/Hub khác. Ô còn xe: áp dụng LIM-01 nếu do quá giờ. Dữ liệu mâu thuẫn hoặc thiếu xác nhận: giữ trạng thái, chuyển Operator đối soát. Gửi lặp trả kết quả cũ.",
+        "Notes and Issues": "UC06A là mã cũ. Đến sớm áp dụng cho đặt trước. Back/Close trước xác nhận giữ nguyên trạng thái. QR không thay kiểm tra quyền."
+      },
+      "legacy_id": "UC06A",
+      "parent": "UC06"
+    },
+    {
+      "id": "UC06-S3",
       "name": "Check Out Private Vehicle",
       "fields": {
-        "Use-case ID": "UC06B",
+        "Use-case ID": "UC06-S3",
         "Use-case name": "Check Out Private Vehicle — Xác nhận xe cá nhân ra bãi",
         "Use-case overview": "Ghi nhận xe rời bãi và trả lại sức chứa sau lượt gửi xe.",
-        "Actors": "User khởi xướng; dữ liệu thiết bị/giả lập xác nhận xe rời bãi.",
-        "Trigger": "Sinh viên chọn xe đang gửi và yêu cầu lấy xe.",
-        "Preconditions": "Sinh viên là chủ xe; xe đang chiếm một slot tại Hub.",
-        "Postconditions": "Xe không còn occupant/currentSlot tại Hub; slot được giải phóng nếu không bị cách ly; cập nhật sức chứa và lưu sự kiện ra bãi.",
-        "Normal Flow (Steps 1..n)": "1. Chọn xe. 2. Kiểm tra chủ xe và slot đang chiếm. 3. Xác minh không còn sạc/cắm điện hoặc yêu cầu sạc đang chờ. 4. Xác nhận xe thực sự rời bãi. 5. Xóa liên kết chiếm chỗ và cập nhật sức chứa nguyên tử. 6. Hiển thị thành công.",
+        "Actors": "User; Operator xác nhận thay nếu cần; dữ liệu thiết bị hoặc giả lập.",
+        "Trigger": "Người dùng chọn xe đang gửi và yêu cầu lấy xe.",
+        "Preconditions": "User là chủ xe; xe đang chiếm đúng ô; hệ thống có thể xác minh xe rời bãi.",
+        "Postconditions": "Lưu actualCheckoutTime và phí cuối cùng nếu tính được; kết thúc chiếm dụng, giữ lịch sử Fulfilled và các cam kết tương lai; tính lại khả dụng có xét cách ly.",
+        "Normal Flow (Steps 1..n)": "1. Chọn xe và yêu cầu checkout. 2. Kiểm tra chủ xe và chiếm dụng. 3. Xác minh sạc đã dừng và kết nối đã tháo an toàn; nếu đang sạc, yêu cầu UC07A rồi kiểm tra lại. 4. Xác nhận xe đã rời. 5. Ghi giờ ra, tính và lưu phí BR08b, kết thúc chiếm dụng và cập nhật khả dụng nguyên tử. 6. Xác nhận checkout.",
         "Alternative Flows": "Xe đang sạc: đề nghị thực hiện UC07A rồi kiểm tra lại. Yêu cầu đang chờ: xin xác nhận hủy trước khi ra bãi. Operator được xác nhận thay sau đối chiếu và lưu vết.",
         "Exceptions": "Chưa xác nhận ngắt điện hoặc xe chưa rời bãi: giữ Occupied. Mất mạng: đọc lại kết quả theo mã giao dịch trước khi gửi lại. Gửi lặp không tăng số chỗ trống lần thứ hai.",
-        "Notes and Issues": "Dừng sạc không đồng nghĩa ra bãi. Giữ lịch sử phiếu UC06 ở Fulfilled; không sửa thành Cancelled. Back/Close trước xác nhận giữ nguyên trạng thái."
-      }
+        "Notes and Issues": "UC06B là mã cũ. Dừng sạc không giải phóng chỗ đỗ. Giữ cam kết tương lai và lịch sử LIM-01. Back/Close trước xác nhận giữ nguyên chiếm dụng. Nguồn giờ checkout dự kiến cho đặt ngay còn mở."
+      },
+      "legacy_id": "UC06B",
+      "parent": "UC06"
     },
     {
       "id": "UC07A",
@@ -42,7 +64,7 @@
         "Use-case name": "Stop Charging Session — Kết thúc phiên sạc",
         "Use-case overview": "Ngắt nguồn có xác nhận, đóng phiên sạc và giải phóng phân bổ cổng/công suất.",
         "Actors": "User khởi xướng với xe/yêu cầu thuộc quyền sử dụng. Hoàn tất tự động do scheduler là FR nền, dùng cùng hợp đồng trạng thái.",
-        "Trigger": "Sinh viên yêu cầu dừng phiên đang sạc.",
+        "Trigger": "Người dùng yêu cầu dừng phiên đang sạc.",
         "Preconditions": "Phiên Active; tài khoản được phép quản lý yêu cầu; có kết nối thiết bị hoặc mô phỏng xác nhận ngắt điện.",
         "Postconditions": "Phiên Completed nếu đủ nhu cầu, Interrupted nếu dừng sớm. Yêu cầu Completed hoặc Cancelled theo lựa chọn dừng của người dùng; phân bổ công suất được trả, lịch sử giữ lại. Chỗ đỗ vẫn Occupied.",
         "Normal Flow (Steps 1..n)": "1. Chọn phiên. 2. Kiểm tra quyền và trạng thái mới nhất. 3. Xác nhận dừng, gửi lệnh ngắt nguồn. 4. Nhận xác nhận ngắt điện. 5. Ghi giờ dừng, đóng phiên/yêu cầu và giải phóng phân bổ nguyên tử. 6. Thông báo, gọi scheduler phục vụ xe kế tiếp.",
@@ -91,9 +113,9 @@
       "fields": {
         "Use-case ID": "UC11A",
         "Use-case name": "Report Trip Incident — Báo sự cố giữa chuyến",
-        "Use-case overview": "Sinh viên báo xe hỏng/pin bất thường trong chuyến đang chạy; Operator tiếp nhận qua UC11.",
+        "Use-case overview": "Người dùng báo xe hỏng/pin bất thường trong chuyến đang chạy; Operator tiếp nhận qua UC11.",
         "Actors": "User khởi xướng; Operator tiếp nhận trong UC11.",
-        "Trigger": "Sinh viên chọn Báo sự cố trong chuyến đi.",
+        "Trigger": "Người dùng chọn Báo sự cố trong chuyến đi.",
         "Preconditions": "Tài khoản sở hữu chuyến Active; xe thuộc chuyến đó.",
         "Postconditions": "Tạo phiếu Open gắn xe/chuyến, vị trí và mô tả; gửi thông báo vận hành sau commit; chuyến chưa tự kết thúc, xe không được phân bổ lại.",
         "Normal Flow (Steps 1..n)": "1. Chọn Báo sự cố. 2. Kiểm tra chuyến và quyền. 3. Nhập loại lỗi, mô tả, vị trí; ảnh tùy chọn. 4. Xác nhận gửi. 5. Lưu phiếu với mã yêu cầu duy nhất. 6. Thông báo Operator và hiển thị mã theo dõi.",
@@ -103,5 +125,22 @@
       }
     }
   ],
-  "rules": "- Giữ 14 nhóm UC01–UC14; sáu mã hậu tố là mục tiêu phụ, không đổi số thứ tự/phân công cũ.\n- Tài khoản và thông tin xe cá nhân cấp sẵn; xác thực, kiểm tra chủ tài nguyên và vai trò vẫn bắt buộc khi triển khai. Chưa xây đăng ký tài khoản, thanh toán, nợ phí, điểm uy tín hay khuyến mãi.\n- UC04 bắt buộc đặt trước; không nhận xe trực tiếp không có phiếu. Xe thuê có pin ≥20%; xe điều chuyển có pin ≥80% lúc chọn/xuất phát.\n- Cảnh báo đỏ: lấp đầy ≥95% hoặc không còn xe khả dụng. Nếu chưa đỏ, cảnh báo vàng khi lấp đầy ≥85% hoặc tỷ lệ xe khả dụng ≤10%; còn lại bình thường. Tỷ lệ xe dùng tổng đội xe dùng chung được cấu hình tại Hub; mẫu số 0 hiển thị N/A, số xe khả dụng 0 vẫn kích hoạt đỏ.\n- `powerLimitKW` là ngân sách vận hành đã giới hạn ở 85% công suất định mức. Tổng công suất phân bổ không vượt ngân sách này; không nhân 85% lần thứ hai.\n- Chỗ giữ xe dùng chung 15 phút; chỗ đỗ giữ từ lúc xác nhận đặt đến check-in/hủy/hết hạn tại ScheduledArrivalTime + 30 phút. MVP không bán lại một slot cho nhiều lịch tương lai chồng nhau; chưa cần lịch ra dự kiến để tính khả dụng tương lai.\n- Dữ liệu giả lập phải phát được sự kiện xe vào/ra, ngắt điện, xuất phát/đến, ngoài các sự kiện giảm pin. Không yêu cầu phần cứng thật hoặc database."
+  "rules": "- Giữ 14 nhóm UC01–UC14; UC06-S1/S2/S3 thuộc UC06; UC07A, UC10A/B và UC11A là mục tiêu phụ, không đổi số thứ tự/phân công cũ.\n- Tài khoản và thông tin xe cá nhân cấp sẵn; xác thực, kiểm tra chủ tài nguyên và vai trò vẫn bắt buộc khi triển khai. Chưa xây đăng ký tài khoản, thanh toán, nợ phí, điểm uy tín hay khuyến mãi.\n- UC04 bắt buộc đặt trước; không nhận xe trực tiếp không có phiếu. Xe thuê có pin ≥20%; xe điều chuyển có pin ≥80% lúc chọn/xuất phát.\n- Cảnh báo đỏ: lấp đầy ≥95% hoặc không còn xe khả dụng. Nếu chưa đỏ, cảnh báo vàng khi lấp đầy ≥85% hoặc tỷ lệ xe khả dụng ≤10%; còn lại bình thường. Tỷ lệ xe dùng tổng đội xe dùng chung được cấu hình tại Hub; mẫu số 0 hiển thị N/A, số xe khả dụng 0 vẫn kích hoạt đỏ.\n- `powerLimitKW` là ngân sách vận hành đã giới hạn ở 85% công suất định mức. Tổng công suất phân bổ không vượt ngân sách này; không nhân 85% lần thứ hai.\n- Giữ xe dùng chung 15 phút; đặt chỗ đỗ áp dụng BR08, BR08a, BR08b và LIM-01 trong docs/requirements/PROJECT_SPECIFICATION.md.\n- Dữ liệu giả lập phải phát được sự kiện xe vào/ra, ngắt điện, xuất phát/đến, ngoài các sự kiện giảm pin. Không yêu cầu phần cứng thật hoặc database.",
+  "parking_use_case": {
+    "id": "UC06",
+    "name": "Manage Parking Reservation",
+    "fields": {
+      "Use-case ID": "UC06",
+      "Use-case name": "Manage Parking Reservation",
+      "Use-case overview": "Quản lý cam kết và chiếm dụng chỗ đỗ của xe cá nhân qua ba tương tác độc lập.",
+      "Actors": "User; Operator hỗ trợ; dữ liệu thiết bị/giả lập; Notification Service.",
+      "Trigger": "Tạo phiếu, yêu cầu check-in hoặc yêu cầu checkout.",
+      "Preconditions": "Tài khoản và xe cá nhân được cấp sẵn; áp dụng điều kiện riêng của từng kịch bản.",
+      "Postconditions": "Ghi nhận kết quả của tương tác, giữ lịch sử và các cam kết khác.",
+      "Normal Flow (Steps 1..n)": "Chọn tương tác: UC06-S1 tạo đặt chỗ, UC06-S2 xác nhận đến hoặc UC06-S3 xác nhận rời bãi.",
+      "Alternative Flows": "Hủy phiếu chưa check-in qua hành động riêng của UC06-S1; Operator hỗ trợ theo từng kịch bản.",
+      "Exceptions": "Từ chối thao tác không hợp lệ; chuyển Operator khi cần đối soát hoặc xử lý LIM-01.",
+      "Notes and Issues": "BR08, BR08a, BR08b và LIM-01. Không có include giữa ba kịch bản."
+    }
+  }
 }
