@@ -4,7 +4,7 @@
 
 See proposal.md for motivation. The existing generator `.agent/scripts/generate_slide_style_sequence.py` stores seven DIAGRAMS with 5–6 lifelines and 9–12 messages each; several messages describe hardware, payment, optimization or storage mechanics. `.agent/scripts/check_sequences.py` imports this data, so representation agreement alone does not prove use-case fidelity. The renderer `.agent/scripts/render_sequences.cjs` already protects geometry and save/reopen behavior.
 
-Sources, in priority order: CO3001 slides in `00_Slides/` (Ch6 pp.21–26, 40, 50), the assignment PDF and PROJECT_SPECIFICATION.md, then local sequence rules. Current 11-field scenarios in the use-case README and `.agent/scripts/usecase_model.py` provide traceability. No glossary or ADR directory was found. Previous layout/readability changes preserved scenario content intentionally; this change explicitly allows simplification while preserving their visual protections.
+Sources, in priority order: CO3001 slides in `docs/slides/` (Ch6 pp.21–26, 40, 50), the assignment PDF and docs/requirements/PROJECT_SPECIFICATION.md, then local sequence rules. Current 11-field scenarios in the use-case README and `.agent/scripts/usecase_model.py` provide traceability. No glossary or ADR directory was found. Previous layout/readability changes preserved scenario content intentionally; this change explicitly allows simplification while preserving their visual protections.
 
 ## Goals / Non-Goals
 

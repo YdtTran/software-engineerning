@@ -25,6 +25,6 @@ None. The project currently has no main OpenSpec capabilities.
 
 ## Impact
 
-Affected documents: `AGENTS.md`, `02_Rules/03_Class_diagram.md`, `.agents/skills/uml-designer/SKILL.md`, and the Class Diagram sections of its PlantUML and Mermaid references. `PROJECT_SPECIFICATION.md` and `README.md` provide submission constraints to preserve; clarify them only if wording must distinguish submission detail from notation. `.agent/rules/uml-designer.md` already delegates to the central documents and does not need duplicated rules.
+Affected documents: `AGENTS.md`, `docs/standards/03_Class_diagram.md`, `.agents/skills/uml-designer/SKILL.md`, and the Class Diagram sections of its PlantUML and Mermaid references. `docs/requirements/PROJECT_SPECIFICATION.md` and `README.md` provide submission constraints to preserve; clarify them only if wording must distinguish submission detail from notation. `.agent/rules/uml-designer.md` already delegates to the central documents and does not need duplicated rules.
 
 No application code, generator changes, new dependencies, or diagram regeneration are proposed. Other diagram conventions and existing submission deliverables remain outside scope.

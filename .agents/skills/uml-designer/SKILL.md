@@ -1,12 +1,12 @@
 ---
 name: uml-designer
 description: >-
-  Phân tích yêu cầu, mô hình hóa nghiệp vụ và thiết kế sơ đồ UML (Use Case, Activity, Sequence, Class, State-chart Diagram, 4+1 View) chuẩn hóa theo slide bài giảng ĐHQG-HCM và Ian Sommerville. Ưu tiên xuất mã nguồn PlantUML kỹ thuật cao, tự động khởi tạo file diagram .drawio.svg để mở canvas Draw.io trực tiếp trong VS Code, kèm Mermaid preview và checklist chống anti-pattern.
+  Phân tích yêu cầu, mô hình hóa nghiệp vụ và thiết kế sơ đồ UML (Use Case, Activity, Sequence, Class, State-chart Diagram, 4+1 View) chuẩn hóa theo slide bài giảng ĐHQG-HCM và Ian Sommerville. Ưu tiên xuất mã nguồn PlantUML kỹ thuật cao, tự động khởi tạo file diagram .drawio để mở canvas Draw.io trực tiếp trong VS Code, kèm Mermaid preview và checklist chống anti-pattern.
 ---
 
 # UML Designer Skill (Chuẩn Slide ĐHQG-HCM & Ian Sommerville)
 
-Kỹ năng chuyên gia phân tích thiết kế phần mềm và mô hình hóa hệ thống bằng các biểu đồ UML chuẩn hóa. **Nguồn chuẩn mực tối cao (Supreme Law):** Bộ slide bài giảng môn **Software Engineering (CO3001)** - Khoa KH&KT Máy tính, Trường ĐH Bách Khoa - ĐHQG-HCM (Giảng viên: Anh Nguyen-Duc, Tho Quan Thanh), biên soạn dựa trên giáo trình quốc tế **Ian Sommerville - Software Engineering (10th Edition)** lưu trữ tại `00_Slides/`.
+Kỹ năng chuyên gia phân tích thiết kế phần mềm và mô hình hóa hệ thống bằng các biểu đồ UML chuẩn hóa. **Nguồn chuẩn mực tối cao (Supreme Law):** Bộ slide bài giảng môn **Software Engineering (CO3001)** - Khoa KH&KT Máy tính, Trường ĐH Bách Khoa - ĐHQG-HCM (Giảng viên: Anh Nguyen-Duc, Tho Quan Thanh), biên soạn dựa trên giáo trình quốc tế **Ian Sommerville - Software Engineering (10th Edition)** lưu trữ tại `docs/slides/`.
 
 Tối ưu hóa sâu cho việc hiển thị trực tiếp và chỉnh sửa kéo thả offline bằng **Draw.io Integration trong VS Code** (`hediet.vscode-drawio`) và **Visual Paradigm Online**.
 
@@ -75,9 +75,9 @@ Kỹ năng này được kích hoạt khi:
 
 ```mermaid
 flowchart TD
-    Step1["Bước 1: Phân tích nghiệp vụ & Xác định loại sơ đồ"] --> Step2["Bước 2: Đọc quy tắc nghiệp vụ chuẩn slide trong 02_Rules/"]
+    Step1["Bước 1: Phân tích nghiệp vụ & Xác định loại sơ đồ"] --> Step2["Bước 2: Đọc quy tắc nghiệp vụ chuẩn slide trong docs/standards/"]
     Step2 --> Step3["Bước 3: Xuất mã PlantUML chuẩn & Mermaid preview"]
-    Step3 --> Step4["Bước 4: Tự động khởi tạo file .drawio.svg chuẩn hình học"]
+    Step3 --> Step4["Bước 4: Tự động khởi tạo file .drawio chuẩn hình học"]
     Step4 --> Step5["Bước 5: Chạy Checklist tự kiểm tra & In hướng dẫn"]
 ```
 
@@ -89,21 +89,22 @@ flowchart TD
 - **State-chart Diagram:** Vòng đời thực thể, state 2 ngăn (`entry /`, `do:`, `exit /`), chuyển trạng thái `event [guard] / action`, superstate.
 - **Architecture 4+1 View:** Phân bổ sơ đồ vào Logical, Process, Development, Physical, và Use-Case Scenarios.
 
-### Bước 2: Đọc quy tắc nghiệp vụ chuẩn slide trong `02_Rules/`
-- [00_Usecase_diagram.md](../../../02_Rules/00_Usecase_diagram.md)
-- [01_Activity_diagram.md](../../../02_Rules/01_Activity_diagram.md)
-- [02_Sequence_diagram.md](../../../02_Rules/02_Sequence_diagram.md)
-- [03_Class_diagram.md](../../../02_Rules/03_Class_diagram.md)
-- [04_Statechart_diagram.md](../../../02_Rules/04_Statechart_diagram.md)
-- [05_Architecture_4plus1_views.md](../../../02_Rules/05_Architecture_4plus1_views.md)
+### Bước 2: Đọc quy tắc nghiệp vụ chuẩn slide trong `docs/standards/`
+- [00_Usecase_diagram.md](../../../docs/standards/00_Usecase_diagram.md)
+- [01_Activity_diagram.md](../../../docs/standards/01_Activity_diagram.md)
+- [02_Sequence_diagram.md](../../../docs/standards/02_Sequence_diagram.md)
+- [03_Class_diagram.md](../../../docs/standards/03_Class_diagram.md)
+- [04_Statechart_diagram.md](../../../docs/standards/04_Statechart_diagram.md)
+- [05_Architecture_4plus1_views.md](../../../docs/standards/05_Architecture_4plus1_views.md)
 
-Tham khảo cú pháp khi xuất mã: [PlantUML](./references/05_PlantUML_Guide.md) và [Mermaid](./references/04_Mermaid_UML_Guide.md).
+Tham khảo cú pháp khi xuất mã: [PlantUML](references/05_PlantUML_Guide.md) và [Mermaid](references/04_Mermaid_UML_Guide.md).
 
 ### Bước 3: Xuất 2 Block Code song song
 1. **Khối PlantUML Code (` ```plantuml `):** Chuẩn `@startuml ... @enduml`, tối ưu cho Draw.io và Visual Paradigm Online.
 2. **Khối Mermaid Code (` ```mermaid `):** Hiển thị trực quan ngay trên Markdown preview.
 
-### Bước 4: Tự động tạo file `<ten_diagram>.drawio.svg`
+### Bước 4: Tự động tạo file `<ten_diagram>.drawio`
+- Lưu nguồn trong `docs/diagrams/`. Xuất SVG/PNG khi cần vào `.diagram-exports/`.
 - Áp dụng đầy đủ 4 nguyên tắc kỹ thuật tại Mục II (Nền xanh `#e0f2fe`, Padding động $\ge 60\text{px}$, Anti-overlap, `edgeLabel`).
 
 ### Bước 5: Checklist tự kiểm tra theo Slide & Hướng dẫn sử dụng
@@ -113,6 +114,6 @@ Tham khảo cú pháp khi xuất mã: [PlantUML](./references/05_PlantUML_Guide.
 ---
 
 **Hướng dẫn thao tác nhanh:**
-- **Chỉnh sửa offline trong VS Code:** Nhấp đúp vào file `<ten_diagram>.drawio.svg` để mở trực tiếp canvas Draw.io trong VS Code.
+- **Chỉnh sửa offline trong VS Code:** Nhấp đúp vào file `<ten_diagram>.drawio` để mở trực tiếp canvas Draw.io trong VS Code.
 - **Dán code PlantUML vào Draw.io:** Trên thanh menu Draw.io, nhấn dấu `+` -> `Advanced` -> `PlantUML`, dán đoạn mã PlantUML vào và nhấn `Insert`.
 - **Import vào Visual Paradigm Online:** Vào `File` -> `Import` -> `PlantUML...`, dán toàn bộ đoạn mã trong block PlantUML rồi nhấn `OK`.

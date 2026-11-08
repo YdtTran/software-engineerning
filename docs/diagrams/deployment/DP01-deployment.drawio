@@ -1,0 +1,128 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="dp01" name="DP01 Deployment Target">
+    <mxGraphModel dx="2289" dy="1467" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1360" pageHeight="1480" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=30;fontStyle=1;" value="Deployment Diagram | Smart E-Mobility Hub" vertex="1">
+          <mxGeometry height="42" width="1280" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="N1" parent="1" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=cube;size=10;direction=south;align=center;verticalAlign=top;spacingTop=16;container=1;collapsible=0;recursiveResize=0;fillColor=#e0f2fe;strokeColor=#42758f;" value="«device»&#xa;User Device" vertex="1">
+          <mxGeometry height="280" width="360" x="60" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="E1" parent="N1" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=cube;size=10;direction=south;align=center;verticalAlign=top;spacingTop=16;container=1;collapsible=0;recursiveResize=0;fillColor=#f0f9ff;strokeColor=#42758f;" value="«execution Environment»&#xa;Web Browser" vertex="1">
+          <mxGeometry height="180" width="320" x="20" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="A1" parent="E1" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=note;size=15;align=center;verticalAlign=middle;spacing=8;fillColor=#ffffff;strokeColor=#42758f;" value="«artifact» &#xa;User UI" vertex="1">
+          <mxGeometry height="85" width="280" x="20" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="N2" parent="1" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=cube;size=10;direction=south;align=center;verticalAlign=top;spacingTop=16;container=1;collapsible=0;recursiveResize=0;fillColor=#e0f2fe;strokeColor=#42758f;" value="«device»&#xa; Operator Mobile Device" vertex="1">
+          <mxGeometry height="280" width="360" x="500" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="E2" parent="N2" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=cube;size=10;direction=south;align=center;verticalAlign=top;spacingTop=16;container=1;collapsible=0;recursiveResize=0;fillColor=#f0f9ff;strokeColor=#42758f;" value="«execution Environment»&#xa;Web Browser" vertex="1">
+          <mxGeometry height="180" width="320" x="20" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="A2" parent="E2" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=note;size=15;align=center;verticalAlign=middle;spacing=8;fillColor=#ffffff;strokeColor=#42758f;" value="«artifact» &#xa;Operator Mobile UI" vertex="1">
+          <mxGeometry height="85" width="280" x="20" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="N3" parent="1" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=cube;size=10;direction=south;align=center;verticalAlign=top;spacingTop=16;container=1;collapsible=0;recursiveResize=0;fillColor=#e0f2fe;strokeColor=#42758f;" value="«device»&#xa;Operator Workstation" vertex="1">
+          <mxGeometry height="280" width="360" x="940" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="E3" parent="N3" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=cube;size=10;direction=south;align=center;verticalAlign=top;spacingTop=16;container=1;collapsible=0;recursiveResize=0;fillColor=#f0f9ff;strokeColor=#42758f;" value="«executionEnvironment»&#xa; Web Browser" vertex="1">
+          <mxGeometry height="180" width="320" x="20" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="A3" parent="E3" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=note;size=15;align=center;verticalAlign=middle;spacing=8;fillColor=#ffffff;strokeColor=#42758f;" value="«artifact» &#xa;Operator Web UI" vertex="1">
+          <mxGeometry height="85" width="280" x="20" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="N4" parent="1" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=cube;size=10;direction=south;align=center;verticalAlign=top;spacingTop=16;container=1;collapsible=0;recursiveResize=0;fillColor=#e0f2fe;strokeColor=#42758f;" value="«device»&#xa;Application Host " vertex="1">
+          <mxGeometry height="560" width="1240" x="60" y="560" as="geometry" />
+        </mxCell>
+        <mxCell id="E4" parent="N4" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=cube;size=10;direction=south;align=center;verticalAlign=top;spacingTop=16;container=1;collapsible=0;recursiveResize=0;fillColor=#f0f9ff;strokeColor=#42758f;" value="«executionEnvironment»&#xa;Node.js Runtime | Express API + static-file service" vertex="1">
+          <mxGeometry height="215" width="1180" x="30" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="A4" parent="E4" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=note;size=15;align=center;verticalAlign=middle;spacing=8;fillColor=#ffffff;strokeColor=#42758f;" value="«artifact» &#xa;Backend Application&#xa;mobility-backend/  [proposed package name]&#xa;" vertex="1">
+          <mxGeometry height="100" width="630" x="240" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="A5" parent="N4" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=note;size=15;align=center;verticalAlign=middle;spacing=8;fillColor=#ffffff;strokeColor=#42758f;" value="«artifact» &#xa;ui-static/  [proposed packaging]&#xa;Frontend Assets" vertex="1">
+          <mxGeometry height="110" width="570" x="65" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="A6" parent="N4" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=note;size=15;align=center;verticalAlign=middle;spacing=8;fillColor=#ffffff;strokeColor=#42758f;" value="«artifact» &#xa;mobility.sqlite  [proposed filename]&#xa;SQLite Database" vertex="1">
+          <mxGeometry height="110" width="380" x="790" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="logical" parent="1" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;rounded=0;container=1;collapsible=0;align=center;verticalAlign=top;spacingTop=8;dashed=1;fillColor=#f8fafc;strokeColor=#42758f;" value="Logical Components" vertex="1">
+          <mxGeometry height="155" width="1190" x="90" y="1210" as="geometry" />
+        </mxCell>
+        <mxCell id="C1" parent="logical" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=component;align=center;verticalAlign=middle;spacing=8;fillColor=#ffffff;strokeColor=#42758f;" value="Presentation&#xa;User UI + Operator Mobile UI + Operator Web UI" vertex="1">
+          <mxGeometry height="75" width="570" x="35" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="C2" parent="logical" style="html=0;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#17212b;strokeWidth=1.5;shape=component;align=center;verticalAlign=middle;spacing=8;fillColor=#ffffff;strokeColor=#42758f;" value="Backend Modular Monolith&#xa;API + application + domain&#xa;Infrastructure in the same process" vertex="1">
+          <mxGeometry height="75" width="380" x="760" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="CP1" edge="1" parent="1" source="N1" style="html=0;rounded=0;strokeColor=#334155;strokeWidth=1.8;startArrow=none;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=5;exitPerimeter=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="235" y="559.44" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CP1_label" connectable="0" parent="CP1" style="edgeLabel;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;strokeColor=none;fontSize=15;fontFamily=Arial;fontColor=#17212b;resizable=0;" value="HTTPS / TCP 443" vertex="1">
+          <mxGeometry height="52" relative="1" width="390" as="geometry">
+            <mxPoint x="-190" y="-35" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CP2" edge="1" parent="1" source="N2" style="html=0;rounded=0;strokeColor=#334155;strokeWidth=1.8;startArrow=none;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=5;exitPerimeter=0;entryX=-0.005;entryY=0.504;entryDx=0;entryDy=0;entryPerimeter=0;" target="N4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="CP2_label" connectable="0" parent="CP2" style="edgeLabel;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;strokeColor=none;fontSize=15;fontFamily=Arial;fontColor=#17212b;resizable=0;" value=" HTTPS / TCP 443" vertex="1">
+          <mxGeometry height="52" relative="1" width="390" as="geometry">
+            <mxPoint x="-185" y="-34" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CP3" edge="1" parent="1" source="N3" style="html=0;rounded=0;strokeColor=#334155;strokeWidth=1.8;startArrow=none;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=5;exitPerimeter=0;entryX=-0.003;entryY=0.15;entryDx=0;entryDy=0;entryPerimeter=0;" target="N4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="930" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="CP3_label" connectable="0" parent="CP3" style="edgeLabel;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;strokeColor=none;fontSize=15;fontFamily=Arial;fontColor=#17212b;resizable=0;" value=" HTTPS / TCP 443" vertex="1">
+          <mxGeometry height="52" relative="1" width="390" as="geometry">
+            <mxPoint x="-184" y="-34" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="U1" edge="1" parent="1" source="A4" style="html=0;rounded=0;strokeColor=#334155;strokeWidth=1.8;startArrow=none;endArrow=open;endFill=0;dashed=1;dashPattern=6 4;exitX=1.0;exitY=0.9;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" target="A6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1040" y="805" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="U1_label" connectable="0" parent="U1" style="edgeLabel;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;strokeColor=none;fontSize=15;fontFamily=Arial;fontColor=#17212b;resizable=0;" value="SQLite API / file I/O" vertex="1">
+          <mxGeometry height="30" relative="1" width="420" as="geometry">
+            <mxPoint x="-190" y="42" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M1" edge="1" parent="1" source="A5" style="html=0;rounded=0;strokeColor=#334155;strokeWidth=1.8;startArrow=none;endArrow=open;endFill=0;dashed=1;dashPattern=6 4;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" target="C1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="M1_label" connectable="0" parent="M1" style="edgeLabel;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;strokeColor=none;fontSize=15;fontFamily=Arial;fontColor=#17212b;resizable=0;" value="«manifest»" vertex="1">
+          <mxGeometry height="30" relative="1" width="210" as="geometry">
+            <mxPoint x="-105" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M2" edge="1" parent="1" source="A4" style="html=0;rounded=0;strokeColor=#334155;strokeWidth=1.8;startArrow=none;endArrow=open;endFill=0;dashed=1;dashPattern=6 4;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;entryPerimeter=0;" target="C2">
+          <mxGeometry relative="1" x="-0.2095" as="geometry">
+            <Array as="points">
+              <mxPoint x="645" y="910" />
+              <mxPoint x="785" y="910" />
+              <mxPoint x="785" y="1160" />
+              <mxPoint x="910" y="1160" />
+              <mxPoint x="1040" y="1160" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="M2_label" connectable="0" parent="M2" style="edgeLabel;html=0;whiteSpace=wrap;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;strokeColor=none;fontSize=15;fontFamily=Arial;fontColor=#17212b;resizable=0;" value="«manifest» " vertex="1">
+          <mxGeometry height="30" relative="1" width="210" x="-0.2095" as="geometry">
+            <mxPoint x="145" y="163" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

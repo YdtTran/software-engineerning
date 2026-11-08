@@ -1,6 +1,6 @@
 import os
 
-doc_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "01_Diagram", "01_Usecase_Diagram", "PLANTUML_ALL.md"))
+doc_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".diagram-exports/legacy", "01_Usecase_Diagram", "PLANTUML_ALL.md"))
 
 content = """# TỔNG HỢP MÃ NGUỒN PLANTUML & MERMAID TOÀN BỘ SƠ ĐỒ USE CASE
 > Hệ thống: **Smart E-Mobility Hub System**
@@ -10,7 +10,7 @@ content = """# TỔNG HỢP MÃ NGUỒN PLANTUML & MERMAID TOÀN BỘ SƠ ĐỒ 
 
 ## MỤC LỤC
 1. [Sơ đồ tổng quan (General Use Case Diagram)](#1-sơ-đồ-tổng-quan-general-use-case-diagram)
-2. [Nhóm chức năng Sinh viên (Student Use Cases UC01 - UC07)](#2-nhóm-chức-năng-sinh-viên-student-use-cases)
+2. [Nhóm chức năng Người dùng (User Use Cases UC01 - UC07)](#2-nhóm-chức-năng-người-dùng-user-use-cases)
    - [UC01: Search Mobility Hub](#uc01-search-mobility-hub)
    - [UC02: View Available Vehicles](#uc02-view-available-vehicles)
    - [UC03: Reserve Vehicle](#uc03-reserve-vehicle)
@@ -30,7 +30,7 @@ content = """# TỔNG HỢP MÃ NGUỒN PLANTUML & MERMAID TOÀN BỘ SƠ ĐỒ 
 ---
 
 ## 1. Sơ đồ tổng quan (General Use Case Diagram)
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/GENERAL/general_usecase_diagram.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/GENERAL/general_usecase_diagram.drawio.svg`
 
 ### Mã PlantUML
 ```plantuml
@@ -40,7 +40,7 @@ skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam actorStyle awesome
 
-actor "Student" as Student
+actor "User" as User
 actor "Operator" as Operator
 
 rectangle "Smart E-Mobility Hub System" {
@@ -61,13 +61,13 @@ rectangle "Smart E-Mobility Hub System" {
     usecase "View Simulation Results" as UC_O7
 }
 
-Student -- UC_S1
-Student -- UC_S2
-Student -- UC_S3
-Student -- UC_S4
-Student -- UC_S5
-Student -- UC_S6
-Student -- UC_S7
+User -- UC_S1
+User -- UC_S2
+User -- UC_S3
+User -- UC_S4
+User -- UC_S5
+User -- UC_S6
+User -- UC_S7
 
 UC_O1 -- Operator
 UC_O2 -- Operator
@@ -83,7 +83,7 @@ UC_O7 -- Operator
 ```mermaid
 flowchart LR
     subgraph LeftActors [" "]
-        Student(["👤 Student"])
+        User(["👤 User"])
     end
 
     subgraph SystemBoundary ["Smart E-Mobility Hub System"]
@@ -108,13 +108,13 @@ flowchart LR
         Operator(["👤 Operator"])
     end
 
-    Student --- UC_S1
-    Student --- UC_S2
-    Student --- UC_S3
-    Student --- UC_S4
-    Student --- UC_S5
-    Student --- UC_S6
-    Student --- UC_S7
+    User --- UC_S1
+    User --- UC_S2
+    User --- UC_S3
+    User --- UC_S4
+    User --- UC_S5
+    User --- UC_S6
+    User --- UC_S7
 
     UC_O1 --- Operator
     UC_O2 --- Operator
@@ -131,10 +131,10 @@ flowchart LR
 
 ---
 
-## 2. Nhóm chức năng Sinh viên (Student Use Cases)
+## 2. Nhóm chức năng Người dùng (User Use Cases)
 
 ### UC01: Search Mobility Hub
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/STUDENTS/UC01-Search_Mobility_Hub.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/STUDENTS/UC01-Search_Mobility_Hub.drawio.svg`
 
 ```plantuml
 @startuml
@@ -142,7 +142,7 @@ left to right direction
 skinparam packageStyle rectangle
 skinparam shadowing false
 
-actor "Student" as Student
+actor "User" as User
 
 rectangle "Smart E-Mobility Hub System" {
     usecase "Search Mobility Hub" as UC_Search
@@ -153,12 +153,12 @@ rectangle "Smart E-Mobility Hub System" {
     UC_Dist ..> UC_Search : <<extend>>
 }
 
-Student -- UC_Search
+User -- UC_Search
 @enduml
 ```
 
 ### UC02: View Available Vehicles
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/STUDENTS/UC02-View_Available_Vehicles.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/STUDENTS/UC02-View_Available_Vehicles.drawio.svg`
 
 ```plantuml
 @startuml
@@ -166,7 +166,7 @@ left to right direction
 skinparam packageStyle rectangle
 skinparam shadowing false
 
-actor "Student" as Student
+actor "User" as User
 
 rectangle "Smart E-Mobility Hub System" {
     usecase "View Available Vehicles" as UC_View
@@ -175,12 +175,12 @@ rectangle "Smart E-Mobility Hub System" {
     UC_Detail ..> UC_View : <<extend>>
 }
 
-Student -- UC_View
+User -- UC_View
 @enduml
 ```
 
 ### UC03: Reserve Vehicle
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/STUDENTS/UC03-Reserve_Vehicle.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/STUDENTS/UC03-Reserve_Vehicle.drawio.svg`
 
 ```plantuml
 @startuml
@@ -188,7 +188,7 @@ left to right direction
 skinparam packageStyle rectangle
 skinparam shadowing false
 
-actor "Student" as Student
+actor "User" as User
 
 rectangle "Smart E-Mobility Hub System" {
     usecase "Reserve Vehicle" as UC_Reserve
@@ -197,12 +197,12 @@ rectangle "Smart E-Mobility Hub System" {
     UC_Reserve ..> UC_Verify : <<include>>
 }
 
-Student -- UC_Reserve
+User -- UC_Reserve
 @enduml
 ```
 
 ### UC04: Pick Up Vehicle
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/STUDENTS/UC04-Pick_Up_Vehicle.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/STUDENTS/UC04-Pick_Up_Vehicle.drawio.svg`
 
 ```plantuml
 @startuml
@@ -210,7 +210,7 @@ left to right direction
 skinparam packageStyle rectangle
 skinparam shadowing false
 
-actor "Student" as Student
+actor "User" as User
 
 rectangle "Smart E-Mobility Hub System" {
     usecase "Pick Up Vehicle" as UC_PickUp
@@ -223,12 +223,12 @@ rectangle "Smart E-Mobility Hub System" {
     UC_Damage ..> UC_PickUp : <<extend>>
 }
 
-Student -- UC_PickUp
+User -- UC_PickUp
 @enduml
 ```
 
 ### UC05: Return Vehicle
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/STUDENTS/UC05-Return_Vehicle.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/STUDENTS/UC05-Return_Vehicle.drawio.svg`
 
 ```plantuml
 @startuml
@@ -236,7 +236,7 @@ left to right direction
 skinparam packageStyle rectangle
 skinparam shadowing false
 
-actor "Student" as Student
+actor "User" as User
 
 rectangle "Smart E-Mobility Hub System" {
     usecase "Return vehicle" as UC_Return
@@ -249,12 +249,12 @@ rectangle "Smart E-Mobility Hub System" {
     UC_Return ..> UC_Confirm : <<include>>
 }
 
-Student -- UC_Return
+User -- UC_Return
 @enduml
 ```
 
 ### UC06: Reserve Parking Space
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/STUDENTS/UC06-Reserve_Parking_Space.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/STUDENTS/UC06-Reserve_Parking_Space.drawio.svg`
 
 ```plantuml
 @startuml
@@ -262,7 +262,7 @@ left to right direction
 skinparam packageStyle rectangle
 skinparam shadowing false
 
-actor "Student" as Student
+actor "User" as User
 
 rectangle "Smart E-Mobility Hub System" {
     usecase "Cancel Parking Reservation" as UC_Cancel
@@ -276,13 +276,13 @@ rectangle "Smart E-Mobility Hub System" {
     UC_Reserve ..> UC_Check : <<include>>
 }
 
-Student -- UC_Cancel
-Student -- UC_Reserve
+User -- UC_Cancel
+User -- UC_Reserve
 @enduml
 ```
 
 ### UC07: Request Charging
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/STUDENTS/UC07-Request_Charging.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/STUDENTS/UC07-Request_Charging.drawio.svg`
 
 ```plantuml
 @startuml
@@ -290,7 +290,7 @@ left to right direction
 skinparam packageStyle rectangle
 skinparam shadowing false
 
-actor "Student" as Student
+actor "User" as User
 
 rectangle "Smart E-Mobility Hub System" {
     usecase "Request Charging" as UC_Request
@@ -304,8 +304,8 @@ rectangle "Smart E-Mobility Hub System" {
     UC_Request ..> UC_Validate : <<include>>
 }
 
-Student -- UC_Request
-Student -- UC_Cancel
+User -- UC_Request
+User -- UC_Cancel
 @enduml
 ```
 
@@ -314,7 +314,7 @@ Student -- UC_Cancel
 ## 3. Nhóm chức năng Quản trị / Điều hành (Operator Use Cases)
 
 ### UC08: Monitor Mobility Hub Network
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/OPERATOR/UC8-Monitor_Mobility_Hub_Network.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/OPERATOR/UC8-Monitor_Mobility_Hub_Network.drawio.svg`
 
 ```plantuml
 @startuml
@@ -342,7 +342,7 @@ Operator -- UC_Monitor
 ```
 
 ### UC09: Manage Mobility Resources
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/OPERATOR/UC9-Manage_Mobility_Resources.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/OPERATOR/UC9-Manage_Mobility_Resources.drawio.svg`
 
 ```plantuml
 @startuml
@@ -374,7 +374,7 @@ Operator -- UC_Manage
 ```
 
 ### UC10: Redistribute Vehicles
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/OPERATOR/UC10-Redistribute_Vehicles.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/OPERATOR/UC10-Redistribute_Vehicles.drawio.svg`
 
 ```plantuml
 @startuml
@@ -402,7 +402,7 @@ Operator -- UC_Redist
 ```
 
 ### UC11: Handle Operational Incident
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/OPERATOR/UC11-Handle_Operational_Incident.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/OPERATOR/UC11-Handle_Operational_Incident.drawio.svg`
 
 ```plantuml
 @startuml
@@ -432,7 +432,7 @@ Operator -- UC_Handle
 ```
 
 ### UC12: Manage Charging Schedule
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/OPERATOR/UC12-Manage_Charging_Schedule.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/OPERATOR/UC12-Manage_Charging_Schedule.drawio.svg`
 
 ```plantuml
 @startuml
@@ -462,7 +462,7 @@ Operator -- UC_Manage
 ```
 
 ### UC13: Run What-if Simulation
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/OPERATOR/UC13-Run_What-if_Simulation.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/OPERATOR/UC13-Run_What-if_Simulation.drawio.svg`
 
 ```plantuml
 @startuml
@@ -494,7 +494,7 @@ Operator -- UC_Sim
 ```
 
 ### UC14: View Simulation Results
-- **File Draw.io:** `01_Diagram/01_Usecase_Diagram/OPERATOR/UC14-View_Simulation_Results.drawio.svg`
+- **File Draw.io:** `.diagram-exports/legacy/01_Usecase_Diagram/OPERATOR/UC14-View_Simulation_Results.drawio.svg`
 
 ```plantuml
 @startuml

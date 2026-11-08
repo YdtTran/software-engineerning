@@ -15,4 +15,4 @@ def dump_slides(pdf_path, filter_words=None):
             print(f"--- Page {idx+1} ---")
             print(text)
 
-dump_slides("00_Slides/03_Ch3_4 Requirements Engineering.pdf", ["use case", "use-case", "scenario", "actor", "system boundary", "functional", "non-functional", "tabular", "template"])
+dump_slides("docs/slides/03_Ch3_4 Requirements Engineering.pdf", ["use case", "use-case", "scenario", "actor", "system boundary", "functional", "non-functional", "tabular", "template"])

@@ -245,13 +245,13 @@ def catalog_block(d, mermaid=False):
 
 
 def write_catalog(directory):
-    source = Path(__file__).resolve().parents[2] / '01_Diagram/02_Sequence_Diagram/PLANTUML_SEQUENCE.md'
-    content = source.read_text(encoding='utf-8').replace('tô màu pastel phân biệt', 'tô màu đậm hơn phân biệt')
-    for language in ('plantuml','mermaid'):
-        blocks=iter(catalog_block(d,language=='mermaid') for d in DIAGRAMS)
-        content,count=re.subn(r'```'+language+r'\n.*?```',lambda _: '```'+language+'\n'+next(blocks)+'\n```',content,flags=re.S)
-        assert count == 7, f'Expected seven {language} blocks, found {count}'
-    (directory/'PLANTUML_SEQUENCE.md').write_text(content,encoding='utf-8')
+    sections = ['# Sequence diagrams']
+    for diagram in DIAGRAMS:
+        sections.append(f"## {diagram['title']}")
+        for language in ('plantuml', 'mermaid'):
+            block = catalog_block(diagram, language == 'mermaid')
+            sections.append(f"```{language}\n{block}\n```")
+    (directory / 'PLANTUML_SEQUENCE.md').write_text('\n\n'.join(sections) + '\n', encoding='utf-8')
 
 # ==============================================================================
 # CONFIGURATION FOR ALL 7 SEQUENCE DIAGRAMS
@@ -259,7 +259,7 @@ def write_catalog(directory):
 
 DIAGRAMS = [
     {
-        "filepath": "01_Diagram/02_Sequence_Diagram/SQ01-Reserve_Vehicle.drawio.svg",
+        "filepath": "docs/diagrams/02_Sequence_Diagram/SQ01-Reserve_Vehicle.drawio.svg",
         "title": "Sequence Diagram: SQ01 - Reserve Vehicle (UC03)",
         "participants": [
             {"name": "User", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
@@ -294,7 +294,7 @@ DIAGRAMS = [
         }
     },
     {
-        "filepath": "01_Diagram/02_Sequence_Diagram/SQ02-Pick_Up_Vehicle.drawio.svg",
+        "filepath": "docs/diagrams/02_Sequence_Diagram/SQ02-Pick_Up_Vehicle.drawio.svg",
         "title": "Sequence Diagram: SQ02 - Pick Up Vehicle (UC04)",
         "participants": [
             {"name": "User", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
@@ -331,7 +331,7 @@ DIAGRAMS = [
         }
     },
     {
-        "filepath": "01_Diagram/02_Sequence_Diagram/SQ03-Return_Vehicle.drawio.svg",
+        "filepath": "docs/diagrams/02_Sequence_Diagram/SQ03-Return_Vehicle.drawio.svg",
         "title": "Sequence Diagram: SQ03 - Return Vehicle (UC05)",
         "participants": [
             {"name": "User", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
@@ -370,7 +370,7 @@ DIAGRAMS = [
         }
     },
     {
-        "filepath": "01_Diagram/02_Sequence_Diagram/SQ04-Request_Charging.drawio.svg",
+        "filepath": "docs/diagrams/02_Sequence_Diagram/SQ04-Request_Charging.drawio.svg",
         "title": "Sequence Diagram: SQ04 - Request Charging (UC07)",
         "participants": [
             {"name": "User", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
@@ -382,7 +382,7 @@ DIAGRAMS = [
         "messages": [
             {"src": 0, "dst": 1, "text": "select charging slot & power tier", "is_resp": False, "is_self": False, "time_mark": "{a}"},
             {"src": 1, "dst": 2, "text": "submit charging session request", "is_resp": False, "is_self": False},
-            {"src": 2, "dst": 4, "text": "verify student wallet & subscription", "is_resp": False, "is_self": False},
+            {"src": 2, "dst": 4, "text": "verify user wallet & subscription", "is_resp": False, "is_self": False},
             {"src": 4, "dst": 2, "text": "account verified", "is_resp": True, "is_self": False},
             {"src": 2, "dst": 3, "text": "check charger port status & grid load", "is_resp": False, "is_self": False},
             {"src": 3, "dst": 2, "text": "port ready & power allocated", "is_resp": True, "is_self": False},
@@ -408,7 +408,7 @@ DIAGRAMS = [
         }
     },
     {
-        "filepath": "01_Diagram/02_Sequence_Diagram/SQ05-Redistribute_Vehicles.drawio.svg",
+        "filepath": "docs/diagrams/02_Sequence_Diagram/SQ05-Redistribute_Vehicles.drawio.svg",
         "title": "Sequence Diagram: SQ05 - Redistribute Vehicles (UC10)",
         "participants": [
             {"name": "Operator", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
@@ -448,7 +448,7 @@ DIAGRAMS = [
         }
     },
     {
-        "filepath": "01_Diagram/02_Sequence_Diagram/SQ06-Handle_Operational_Incident.drawio.svg",
+        "filepath": "docs/diagrams/02_Sequence_Diagram/SQ06-Handle_Operational_Incident.drawio.svg",
         "title": "Sequence Diagram: SQ06 - Handle Operational Incident (UC11)",
         "participants": [
             {"name": "Technician", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
@@ -484,7 +484,7 @@ DIAGRAMS = [
         }
     },
     {
-        "filepath": "01_Diagram/02_Sequence_Diagram/SQ07-Run_What_if_Simulation.drawio.svg",
+        "filepath": "docs/diagrams/02_Sequence_Diagram/SQ07-Run_What_if_Simulation.drawio.svg",
         "title": "Sequence Diagram: SQ07 - Run What-if Simulation (UC13)",
         "participants": [
             {"name": "Planner", "type": "actor", "fill": "#f3e8ff", "stroke": "#9333ea", "text_c": "#6b21a8"},
@@ -524,7 +524,7 @@ DIAGRAMS = [
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Regenerate only SQ01–SQ07.')
-    parser.add_argument('--output-dir', type=Path, default=Path(__file__).resolve().parents[2] / '01_Diagram/02_Sequence_Diagram')
+    parser.add_argument('--output-dir', type=Path, default=Path(__file__).resolve().parents[2] / '.diagram-exports/sequences')
     args = parser.parse_args()
     for d in DIAGRAMS:
         create_slide_sequence_diagram(

@@ -26,6 +26,6 @@ None registered in `openspec/specs/`. The earlier layout change remains intact; 
 ## Impact
 
 - Implementation: `.agent/scripts/generate_slide_style_sequence.py`, its existing `layout`, drawing helpers and catalog generation; reuse `.agent/scripts/check_sequences.py` and `.agent/scripts/render_sequences.cjs` for focused style/geometry checks.
-- Outputs: the existing seven `.drawio.svg` paths and their PNGs, `PLANTUML_SEQUENCE.md`, `README.md` and `verification.json` under `01_Diagram/02_Sequence_Diagram/`.
+- Outputs: the existing seven `.drawio.svg` paths and their PNGs, `PLANTUML_SEQUENCE.md`, `README.md` and `verification.json` under `docs/diagrams/02_Sequence_Diagram/`.
 - No new dependencies or application/API changes. Implementation builds on the completed layout repair present in the working tree and must preserve unrelated local edits.
 - Interpretation: the requested scope is SQ01–SQ07 from the immediately preceding work. Exact palette/font values are proposed defaults recorded in the design; no diagram exports or project code are changed during proposal creation.

@@ -8,8 +8,8 @@ import textwrap
 import xml.etree.ElementTree as ET
 
 BASE = Path(__file__).resolve().parents[2]
-ACT = BASE / '01_Diagram/03_Activity_Diagram'
-STA = BASE / '01_Diagram/04_Statechart_Diagram'
+ACT = BASE / 'docs/diagrams/03_Activity_Diagram'
+STA = BASE / 'docs/diagrams/04_Statechart_Diagram'
 
 
 def a(lane, text): return ('action', lane, text)
@@ -22,7 +22,7 @@ def confirm(lane=0):
 
 
 ACTIVITIES = [
- ('AD01-Reserve_Vehicle', 'Reserve Vehicle', 'UC03', ['Student / App', 'Backend', 'Notification Service'], [
+ ('AD01-Reserve_Vehicle', 'Reserve Vehicle', 'UC03', ['User / App', 'Backend', 'Notification Service'], [
     a(0, 'Select Hub and vehicle'), confirm(),
     a(1, 'Validate identity and request ID\nRead current vehicle state'),
     branch(1, 'Eligible and available?', '[Available, battery >=20%, no hold]', [
@@ -31,7 +31,7 @@ ACTIVITIES = [
         ('fork', 1, '', [a(0, 'Display ticket and expiry time')], [a(2, 'Queue confirmation after commit\nRetry delivery without rollback')]),
     ], fail('Show availability conflict\nReturn to vehicle list')),
  ]),
- ('AD02-Pick_Up_Vehicle', 'Pick Up Vehicle', 'UC04', ['Student / App', 'Backend', 'IoT / Simulated Station'], [
+ ('AD02-Pick_Up_Vehicle', 'Pick Up Vehicle', 'UC04', ['User / App', 'Backend', 'IoT / Simulated Station'], [
     a(0, 'Select ticket and scan QR / PIN'), confirm(),
     a(1, 'Validate owner, Hub, reservation\nnow < expiresAt and request ID'),
     branch(1, 'Valid reservation?', '[valid]', [
@@ -43,7 +43,7 @@ ACTIVITIES = [
         ], fail('Keep vehicle unavailable\nReconcile uncertain unlock via UC11\nDo not start trip or charge time')),
     ], fail('Show invalid / expired ticket\nRelease only expired reservation hold\nReturn to ticket screen')),
  ]),
- ('AD03-Return_Vehicle', 'Return Vehicle', 'UC05, UC11A', ['Student / App', 'Backend', 'IoT / Simulated Station'], [
+ ('AD03-Return_Vehicle', 'Return Vehicle', 'UC05, UC11A', ['User / App', 'Backend', 'IoT / Simulated Station'], [
     a(0, 'Select destination Hub / slot'), confirm(),
     a(1, 'Validate active-trip owner\nClaim usable destination slot'),
     branch(1, 'Destination claim succeeded?', '[claimed]', [
@@ -57,7 +57,7 @@ ACTIVITIES = [
         ], fail('Keep trip Active; block uncertain slot\nShow return screen / alternate slot\nEscalate to Operator; do not free vehicle')),
     ], fail('Suggest another slot / Hub\nKeep trip Active; return to Hub selection')),
  ]),
- ('AD04-Reserve_Parking_and_Charging', 'Private Parking and Charging', 'UC06, UC06A/B, UC07, UC07A, UC12', ['Student / App', 'Backend / Scheduler', 'IoT / Simulated Station'], [
+ ('AD04-Reserve_Parking_and_Charging', 'Private Parking and Charging', 'UC06, UC06A/B, UC07, UC07A, UC12', ['User / App', 'Backend / Scheduler', 'IoT / Simulated Station'], [
     a(0, 'Select Hub, private vehicle and arrival'), confirm(),
     a(1, 'Validate owner and arrival time\nAtomically claim a usable slot'),
     branch(1, 'Parking hold committed?', '[committed]', [
@@ -104,7 +104,7 @@ ACTIVITIES = [
         ], [a(0, 'Close order / Back\nKeep Planned and its holds')])]),
     ], fail('Show conflict; suggest fewer vehicles\nReturn to source / target selection')),
  ]),
- ('AD06-Handle_Operational_Incident', 'Handle Operational Incident', 'UC11, UC11A, UC12', ['Operator / Student', 'Incident Service', 'Field / IoT / Simulated Telemetry'], [
+ ('AD06-Handle_Operational_Incident', 'Handle Operational Incident', 'UC11, UC11A, UC12', ['Operator / User', 'Incident Service', 'Field / IoT / Simulated Telemetry'], [
     a(0, 'Submit trip report / inspect sensor alert'),
     a(1, 'Validate report ownership / Operator role\nDeduplicate request and save incident'),
     branch(1, 'Electrical hazard?', '[hazard]', [a(2, 'Cut supply; quarantine affected port')], [a(1, 'Block new allocations\nDo not lock a moving vehicle')]),
@@ -454,7 +454,7 @@ def statechart(stem,title,uc,groups,states,transitions):
 
 
 def write_catalog(folder,name,diagrams):
-    lines=['# '+name,'', 'Nguồn: `PROJECT_SPECIFICATION.md` §3, `LIFECYCLE_SCENARIOS.md`; slide CO3001 Ch6.',
+    lines=['# '+name,'', 'Nguồn: `docs/requirements/PROJECT_SPECIFICATION.md` §3, `LIFECYCLE_SCENARIOS.md`; slide CO3001 Ch6.',
            'Dữ liệu gốc: `.agent/scripts/generate_process_diagrams.py`. SVG và PNG được render bằng Draw.io thật.', '',
            'PlantUML/Mermaid là bản xem mã; Draw.io là bản ký hiệu chi tiết. PlantUML dùng stereotype `<<object>>` cho nút dữ liệu; Mermaid mô phỏng thanh fork/join bằng ô đen. Không dùng hai bản preview để kiểm tra hình học UML.', '']
     for stem,title,pu,mm in diagrams:
@@ -496,6 +496,11 @@ def check_activity(nodes,edges):
 
 
 def main():
+    global ACT, STA
+    ACT = BASE / '.diagram-exports' / ACT.name
+    STA = BASE / '.diagram-exports' / STA.name
+    ACT.mkdir(parents=True, exist_ok=True)
+    STA.mkdir(parents=True, exist_ok=True)
     activity_catalog=[]; state_catalog=[]
     statecharts_only='--statecharts-only' in sys.argv
     for d in ([] if statecharts_only else ACTIVITIES):

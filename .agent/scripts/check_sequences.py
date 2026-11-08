@@ -6,7 +6,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 from generate_slide_style_sequence import DIAGRAMS, layout, typed_name, message_label, catalog_block, text_width, line_height, header_lines, header_width, header_height, MESSAGE_SIZE, HEADER_SIZE
 
-BASE = Path(__file__).resolve().parents[2] / '01_Diagram/02_Sequence_Diagram'
+BASE = Path(__file__).resolve().parents[2] / 'docs/diagrams/02_Sequence_Diagram'
 NS = '{http://www.w3.org/2000/svg}'
 
 
@@ -192,6 +192,12 @@ if __name__ == '__main__':
                         op,p,*_=line.split();index=int(p[1:]);balances[index]+=1 if op=='activate' else -1
                         assert balances[index]>=0
                 assert all(value==0 for value in balances.values())
+    if args.directory == BASE:
+        from check_diagram_sources import check as check_sources
+        files = sorted((BASE / 'drawio').glob('SQ*.drawio'))
+        assert len(files) == len(DIAGRAMS)
+        check_sources(files)
+        raise SystemExit(0)
     files = sorted(args.directory.glob('SQ*.drawio.svg'))
     assert len(files) == 7, f'Expected seven diagrams, found {len(files)}'
     count = 0

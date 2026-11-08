@@ -75,7 +75,7 @@ function selfCheck() {
 async function main() {
   selfCheck();
   if(process.argv.includes('--self-test')) {console.log('PASS renderer negative fixtures and allowed lifeline crossing'); return;}
-  const base=path.resolve(process.argv[2] || path.join(__dirname,'../../01_Diagram/02_Sequence_Diagram'));
+  const base=path.resolve(process.argv[2] || path.join(__dirname,'../../.diagram-exports/sequences'));
   const record=path.join(base,'verification.json');
   const report={renderer:'Installed Draw.io viewer-static / Playwright / headless Edge',sourceDirectory:base,checkedAt:new Date().toISOString(),passed:false,diagrams:[]};
   fs.writeFileSync(record,JSON.stringify(report,null,2)+'\n');

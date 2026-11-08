@@ -11,23 +11,23 @@ def update_file(filepath, replacements):
         f.write(content)
     print(f"Updated {filepath}")
 
-# 1. Update PROJECT_SPECIFICATION.md
+# 1. Update docs/requirements/PROJECT_SPECIFICATION.md
 update_file(
-    "PROJECT_SPECIFICATION.md",
+    "docs/requirements/PROJECT_SPECIFICATION.md",
     [
-        ("file:///c:/Users/Triet/Documents/03_Year3/02_SE/01_Usecase_diagram/", "./01_Diagram/01_Usecase_Diagram/"),
-        ("01_Usecase_diagram/", "01_Diagram/01_Usecase_Diagram/"),
-        ("01_Usecase_diagram", "01_Diagram/01_Usecase_Diagram")
+        ("file:///c:/Users/Triet/Documents/03_Year3/02_SE/01_Usecase_diagram/", "./docs/diagrams/01_Usecase_Diagram/"),
+        ("01_Usecase_diagram/", "docs/diagrams/01_Usecase_Diagram/"),
+        ("01_Usecase_diagram", "docs/diagrams/01_Usecase_Diagram")
     ]
 )
 
-# 2. Update SUBMISSION_1_REPORT.md
+# 2. Update docs/reports/SUBMISSION_1_REPORT.md
 update_file(
-    "SUBMISSION_1_REPORT.md",
+    "docs/reports/SUBMISSION_1_REPORT.md",
     [
-        ("./01_Usecase_diagram/", "./01_Diagram/01_Usecase_Diagram/"),
-        ("01_Usecase_diagram/", "01_Diagram/01_Usecase_Diagram/"),
-        ("01_Usecase_diagram", "01_Diagram/01_Usecase_Diagram")
+        ("./01_Usecase_diagram/", "./docs/diagrams/01_Usecase_Diagram/"),
+        ("01_Usecase_diagram/", "docs/diagrams/01_Usecase_Diagram/"),
+        ("01_Usecase_diagram", "docs/diagrams/01_Usecase_Diagram")
     ]
 )
 print("Finished updating documentation paths.")

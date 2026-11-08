@@ -6,7 +6,7 @@ See proposal.md for motivation and the user's choice to preserve essential class
 
 `build_class_diagram.py` parses selected-member blocks from CLASS_CATALOG.md, writes PLANTUML_CLASS.md and native Draw.io, and verifies SVG parity. `render_class_diagram.cjs` exports the overview, previews and geometry evidence; its Playwright path is currently fixed to an absent Codex runtime directory. The Draw.io skill path is also fixed in the builder and needs discovery/override support if unavailable on this machine. Existing available dependencies can be supplied explicitly, without adding packages.
 
-Sources: CO3001 Ch6 pp.28–35; assignment Submission #3 requires a class diagram and descriptions of all its methods; PROJECT_SPECIFICATION.md and current use-case scenarios define domain scope. The central class rules distinguish abbreviated examples from detailed submission completeness. The user-supplied workspace instructions require three compartments, typed displayed members, abstract italics, roles and multiplicities; this design preserves them. The separate notation-alignment change remains unapplied and is not a prerequisite.
+Sources: CO3001 Ch6 pp.28–35; assignment Submission #3 requires a class diagram and descriptions of all its methods; docs/requirements/PROJECT_SPECIFICATION.md and current use-case scenarios define domain scope. The central class rules distinguish abbreviated examples from detailed submission completeness. The user-supplied workspace instructions require three compartments, typed displayed members, abstract italics, roles and multiplicities; this design preserves them. The separate notation-alignment change remains unapplied and is not a prerequisite.
 
 ## Goals / Non-Goals
 
@@ -73,7 +73,7 @@ Derive the current lifeline inventory from the current sequence source rather th
 - :Simulation coordinates SimulationScenario, SimulationRun, SimulationResult and CoordinationRecommendation.
 - :SimulatedDock and :SimulatedCharger are device adapters outside the domain class set, not aliases for new domain classes.
 
-The mapping describes design responsibilities; do not invent domain operations just to mirror method-style sequence messages. Keep UC01–UC14 and lifecycle-source references valid. User/Student role naming in existing enum documentation is explained rather than renamed in this change.
+The mapping describes design responsibilities; do not invent domain operations just to mirror method-style sequence messages. Keep UC01–UC14 and lifecycle-source references valid. User/User role naming in existing enum documentation is explained rather than renamed in this change.
 
 ### 5. Separate semantic preservation from presentation parity
 

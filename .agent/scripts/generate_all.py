@@ -4,7 +4,7 @@ import subprocess
 
 from diagram_builder import build_drawio_svg, write_catalog
 
-base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "01_Diagram", "01_Usecase_Diagram"))
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".diagram-exports/legacy", "01_Usecase_Diagram"))
 
 print(f"Target base directory: {base_dir}")
 
@@ -13,7 +13,7 @@ build_drawio_svg(
     filepath=os.path.join(base_dir, "GENERAL", "general_usecase_diagram.drawio.svg"),
     width=960, height=700,
     system_title="Smart E-Mobility Hub System",
-    actor_left="Student",
+    actor_left="User",
     actor_right="Operator",
     usecases=[
         {"id": "uc_s1", "text": "Search Mobility Hub", "x": 260, "y": 80, "w": 180, "h": 50, "fill": "#bae6fd", "is_bold": True},
@@ -44,7 +44,7 @@ build_drawio_svg(
     filepath=os.path.join(base_dir, "STUDENTS", "UC01-Search_Mobility_Hub.drawio.svg"),
     width=840, height=440,
     system_title="Smart E-Mobility Hub System",
-    actor_left="Student", actor_right=None,
+    actor_left="User", actor_right=None,
     usecases=[
         {"id": "uc_base", "text": "Search Mobility Hub", "x": 260, "y": 180, "w": 160, "h": 65, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_ext1", "text": "Filter by Vehicle Type", "x": 550, "y": 90, "w": 180, "h": 60},
@@ -62,7 +62,7 @@ build_drawio_svg(
     filepath=os.path.join(base_dir, "STUDENTS", "UC02-View_Available_Vehicles.drawio.svg"),
     width=820, height=360,
     system_title="Smart E-Mobility Hub System",
-    actor_left="Student", actor_right=None,
+    actor_left="User", actor_right=None,
     usecases=[
         {"id": "uc_base", "text": "View Available\nVehicles", "x": 250, "y": 140, "w": 160, "h": 65, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_ext", "text": "View Vehicle Details", "x": 540, "y": 140, "w": 180, "h": 60},
@@ -78,7 +78,7 @@ build_drawio_svg(
     filepath=os.path.join(base_dir, "STUDENTS", "UC03-Reserve_Vehicle.drawio.svg"),
     width=820, height=360,
     system_title="Smart E-Mobility Hub System",
-    actor_left="Student", actor_right=None,
+    actor_left="User", actor_right=None,
     usecases=[
         {"id": "uc_base", "text": "Reserve Vehicle", "x": 250, "y": 140, "w": 160, "h": 65, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_inc", "text": "Verify Vehicle\nAvailability", "x": 540, "y": 140, "w": 180, "h": 60},
@@ -94,7 +94,7 @@ build_drawio_svg(
     filepath=os.path.join(base_dir, "STUDENTS", "UC04-Pick_Up_Vehicle.drawio.svg"),
     width=860, height=500,
     system_title="Smart E-Mobility Hub System",
-    actor_left="Student", actor_right=None,
+    actor_left="User", actor_right=None,
     usecases=[
         {"id": "uc_base", "text": "Pick Up Vehicle", "x": 260, "y": 200, "w": 160, "h": 65, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_ext", "text": "Report Vehicle Damage", "x": 260, "y": 360, "w": 170, "h": 60},
@@ -114,7 +114,7 @@ build_drawio_svg(
     filepath=os.path.join(base_dir, "STUDENTS", "UC05-Return_Vehicle.drawio.svg"),
     width=860, height=480,
     system_title="Smart E-Mobility Hub System",
-    actor_left="Student", actor_right=None,
+    actor_left="User", actor_right=None,
     usecases=[
         {"id": "uc_base", "text": "Return Vehicle", "x": 250, "y": 200, "w": 160, "h": 70, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_inc1", "text": "Check Hub Space\nAvailability", "x": 560, "y": 80, "w": 180, "h": 70},
@@ -134,7 +134,7 @@ build_drawio_svg(
     filepath=os.path.join(base_dir, "STUDENTS", "UC06-Reserve_Parking_Space.drawio.svg"),
     width=860, height=480,
     system_title="Smart E-Mobility Hub System",
-    actor_left="Student", actor_right=None,
+    actor_left="User", actor_right=None,
     usecases=[
         {"id": "uc_cancel", "text": "Cancel Parking\nReservation", "x": 260, "y": 90, "w": 160, "h": 60},
         {"id": "uc_base", "text": "Reserve Parking\nSpace", "x": 260, "y": 250, "w": 160, "h": 65, "fill": "#bae6fd", "is_bold": True},
@@ -156,7 +156,7 @@ build_drawio_svg(
     filepath=os.path.join(base_dir, "STUDENTS", "UC07-Request_Charging.drawio.svg"),
     width=860, height=520,
     system_title="Smart E-Mobility Hub System",
-    actor_left="Student", actor_right=None,
+    actor_left="User", actor_right=None,
     usecases=[
         {"id": "uc_base", "text": "Request Charging", "x": 260, "y": 180, "w": 160, "h": 65, "fill": "#bae6fd", "is_bold": True},
         {"id": "uc_inc1", "text": "Check Charging\nAvailability", "x": 570, "y": 70, "w": 170, "h": 60},
@@ -344,17 +344,17 @@ build_drawio_svg(
 
 # Separate goals occur after booking/request creation; they are not mandatory includes of it.
 supplements = [
-    ("STUDENTS", "UC06A-Check_In_Private_Vehicle", "Student", "Check In Private Vehicle",
+    ("STUDENTS", "UC06A-Check_In_Private_Vehicle", "User", "Check In Private Vehicle",
      ["Validate Parking Reservation", "Confirm Vehicle Arrival", "Occupy Reserved Parking Slot"]),
-    ("STUDENTS", "UC06B-Check_Out_Private_Vehicle", "Student", "Check Out Private Vehicle",
+    ("STUDENTS", "UC06B-Check_Out_Private_Vehicle", "User", "Check Out Private Vehicle",
      ["Validate Vehicle Ownership", "Verify Charging Has Stopped", "Confirm Vehicle Departure"]),
-    ("STUDENTS", "UC07A-Stop_Charging_Session", "Student", "Stop Charging Session",
+    ("STUDENTS", "UC07A-Stop_Charging_Session", "User", "Stop Charging Session",
      ["Validate Charging Entitlement", "Confirm Power Disconnection", "Release Charging Allocation"]),
     ("OPERATOR", "UC10A-Confirm_Transfer_Arrival", "Operator", "Confirm Transfer Arrival",
      ["Verify Transfer Manifest", "Confirm Destination Parking", "Complete Transfer Order"]),
     ("OPERATOR", "UC10B-Cancel_Transfer_Order", "Operator", "Cancel Transfer Order",
      ["Validate Planned Transfer", "Release Transfer Holds"]),
-    ("STUDENTS", "UC11A-Report_Trip_Incident", "Student", "Report Trip Incident",
+    ("STUDENTS", "UC11A-Report_Trip_Incident", "User", "Report Trip Incident",
      ["Validate Active Trip", "Record Incident Details", "Notify Operator"]),
 ]
 for folder, name, actor, goal, required in supplements:

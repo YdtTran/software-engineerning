@@ -6,9 +6,9 @@ sys.path.append(os.path.dirname(__file__))
 from phase2_builder import build_sequence_diagram, build_activity_diagram, build_statechart_diagram
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-SEQ_DIR = os.path.join(BASE_DIR, "01_Diagram", "02_Sequence_Diagram")
-ACT_DIR = os.path.join(BASE_DIR, "01_Diagram", "03_Activity_Diagram")
-STA_DIR = os.path.join(BASE_DIR, "01_Diagram", "04_Statechart_Diagram")
+SEQ_DIR = os.path.join(BASE_DIR, ".diagram-exports/legacy", "02_Sequence_Diagram")
+ACT_DIR = os.path.join(BASE_DIR, ".diagram-exports/legacy", "03_Activity_Diagram")
+STA_DIR = os.path.join(BASE_DIR, ".diagram-exports/legacy", "04_Statechart_Diagram")
 
 os.makedirs(SEQ_DIR, exist_ok=True)
 os.makedirs(ACT_DIR, exist_ok=True)
@@ -24,7 +24,7 @@ print("Starting generation of Phase 2 diagrams...")
 build_sequence_diagram(
     filepath=os.path.join(SEQ_DIR, "SQ01-Reserve_Vehicle.drawio.svg"),
     title="Sequence Diagram: SQ01 - Reserve Vehicle (UC03)",
-    actor_name="Student",
+    actor_name="User",
     lifelines=[":MobileApp", ":ReservationController", ":VehicleService", ":Database"],
     messages=[
         (0, 1, "1: selectVehicle(vehicleId)", False),
@@ -50,7 +50,7 @@ build_sequence_diagram(
 build_sequence_diagram(
     filepath=os.path.join(SEQ_DIR, "SQ02-Pick_Up_Vehicle.drawio.svg"),
     title="Sequence Diagram: SQ02 - Pick Up Vehicle (UC04)",
-    actor_name="Student",
+    actor_name="User",
     lifelines=[":MobileApp", ":PickupController", ":TripService", ":IoTStation", ":Database"],
     messages=[
         (0, 1, "1: scanQR / inputCode(vehicleId)", False),
@@ -78,7 +78,7 @@ build_sequence_diagram(
 build_sequence_diagram(
     filepath=os.path.join(SEQ_DIR, "SQ03-Return_Vehicle.drawio.svg"),
     title="Sequence Diagram: SQ03 - Return Vehicle (UC05)",
-    actor_name="Student",
+    actor_name="User",
     lifelines=[":MobileApp", ":ReturnController", ":TripService", ":IoTStation", ":Database"],
     messages=[
         (0, 3, "1: dockVehicleIntoSlot(slotId)", False),
@@ -100,7 +100,7 @@ build_sequence_diagram(
 build_sequence_diagram(
     filepath=os.path.join(SEQ_DIR, "SQ04-Request_Charging.drawio.svg"),
     title="Sequence Diagram: SQ04 - Request Charging (UC07)",
-    actor_name="Student",
+    actor_name="User",
     lifelines=[":MobileApp", ":ChargingController", ":ChargingService", ":PowerHub", ":Database"],
     messages=[
         (0, 1, "1: submitChargingRequest(hubId, currBattery, targetBattery)", False),
@@ -257,9 +257,9 @@ build_activity_diagram(
         {'id': 'act2', 'type': 'action', 'text': 'Đưa xe vào khe đỗ\nvà đẩy khóa chốt', 'x': 195, 'y': 290, 'w': 140, 'h': 50},
         {'id': 'dec2', 'type': 'decision', 'text': 'Cảm biến xác nhận\nđã khóa chặt?', 'x': 195, 'y': 370, 'w': 140, 'h': 70},
         {'id': 'act3', 'type': 'action', 'text': 'Đọc mức pin thực tế\n& Chốt hành trình', 'x': 195, 'y': 470, 'w': 140, 'h': 50},
-        {'id': 'act4', 'type': 'action', 'text': 'Tính phí & Gửi hóa đơn\ncho sinh viên', 'x': 195, 'y': 550, 'w': 140, 'h': 50},
+        {'id': 'act4', 'type': 'action', 'text': 'Tính phí & Gửi hóa đơn\ncho người dùng', 'x': 195, 'y': 550, 'w': 140, 'h': 50},
         {'id': 'end1', 'type': 'end', 'x': 250, 'y': 630, 'w': 30, 'h': 30},
-        {'id': 'act_reroute', 'type': 'action', 'text': 'Điều hướng sinh viên\nsang Hub phụ', 'x': 390, 'y': 205, 'w': 140, 'h': 50},
+        {'id': 'act_reroute', 'type': 'action', 'text': 'Điều hướng người dùng\nsang Hub phụ', 'x': 390, 'y': 205, 'w': 140, 'h': 50},
         {'id': 'act_warn', 'type': 'action', 'text': 'Cảnh báo đẩy chặt\nchốt khóa vật lý', 'x': 390, 'y': 380, 'w': 140, 'h': 50},
     ],
     edges=[

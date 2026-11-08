@@ -7,7 +7,7 @@ const { chromium } = require(process.env.DRAWIO_PLAYWRIGHT || path.join(os.homed
 const extensions = path.join(os.homedir(), '.vscode/extensions');
 const extension = fs.readdirSync(extensions).filter(n=>n.startsWith('hediet.vscode-drawio-')).sort().at(-1);
 const viewer = path.join(extensions,extension,'drawio/src/main/webapp/js/viewer-static.min.js');
-const base = path.resolve(__dirname,'../../01_Diagram');
+const base = path.resolve(__dirname,'../../.diagram-exports');
 const dirs = process.argv.includes('--statecharts-only') ? ['04_Statechart_Diagram'] : ['03_Activity_Diagram','04_Statechart_Diagram'];
 function write(file,content) {
   // Atomic replacement also avoids transient locks from desktop SVG previews.

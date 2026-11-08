@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const arg = process.argv.indexOf('--output-dir');
 const root = path.resolve(__dirname,'../..');
-const defaultOutput = path.join(root,'01_Diagram/05_Class_Diagram');
+const defaultOutput = path.join(root,'.diagram-exports/class');
 const base = arg < 0 ? defaultOutput : path.resolve(process.argv[arg+1]);
 const scratch = base===defaultOutput ? path.join(root,'.agent/scratch/class_model') : path.join(base,'.scratch');
 const reportFile = base===defaultOutput ? path.join(root,'.agent/verification/class-diagram.json') : path.join(scratch,'class-verification.json');

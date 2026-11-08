@@ -31,7 +31,7 @@ CORE = [
  'Destination full: select another slot or Hub. Low battery queues charging. Back before confirmed return keeps Trip active.',
  'Missing or mismatched return confirmation: keep Trip active, block uncertain capacity and request Operator assistance.',
  'Confirmed return completes Trip and records consistent location/occupancy; MVP performs no payment.'),
-('UC06','UC06-Reserve_Parking_Space','Reserve Parking Space',
+('UC06','UC06-S1-Create_Parking_Reservation','Reserve Parking Space',
  'User and vehicle are identified; destination Hub and scheduled arrival are supplied.',
  'Select Hub, vehicle and arrival; validate vehicle information and arrival; check compatible parking availability; atomically create ParkingReservation and hold a slot; issue check-in QR and expiry at scheduled arrival +30 minutes.',
  'Back before confirmation changes nothing. Cancel Parking Reservation is a separate later action: validate owner and active unfulfilled hold; cancel and release only that hold. Actual arrival is UC06A.',
@@ -87,8 +87,8 @@ CORE = [
  'Results are viewed; export creates an output artifact only; accepted recommendations use normal live checks.'),
 ]
 SUPPLEMENTS = [
- ('UC06A','UC06A-Check_In_Private_Vehicle','User','Check In Private Vehicle'),
- ('UC06B','UC06B-Check_Out_Private_Vehicle','User','Check Out Private Vehicle'),
+ ('UC06A','UC06-S2-Check_In_Private_Vehicle','User','Check In Private Vehicle'),
+ ('UC06B','UC06-S3-Check_Out_Private_Vehicle','User','Check Out Private Vehicle'),
  ('UC07A','UC07A-Stop_Charging_Session','User','Stop Charging Session'),
  ('UC10A','UC10A-Confirm_Transfer_Arrival','Operator','Confirm Transfer Arrival'),
  ('UC10B','UC10B-Cancel_Transfer_Order','Operator','Cancel Transfer Order'),
@@ -112,7 +112,7 @@ FIELDS = ['Use-case ID','Use-case name','Use-case overview','Actors','Trigger','
 def scenario_markdown():
     lines = ['# Core use-case scenarios', '',
       'Current simplified model: 14 core goals. Routine validation, allocation and presentation remain scenario steps, not separate use cases. Six later lifecycle goals are specified below in the same document.', '',
-      'Sources: assignment pp.1–4; PROJECT_SPECIFICATION.md §3; CO3001 Ch6 pp.16–20. Timing/battery thresholds are project design decisions, not numbers mandated by the assignment. Existing UC IDs are preserved.', '']
+      'Sources: assignment pp.1–4; docs/requirements/PROJECT_SPECIFICATION.md §3; CO3001 Ch6 pp.16–20. Timing/battery thresholds are project design decisions, not numbers mandated by the assignment. Existing UC IDs are preserved.', '']
     for uid,filename,goal,pre,flow,alt,errors,post in CORE:
         actor = 'User' if int(uid[2:]) <= 7 else 'Operator'
         steps = '<br>'.join(f'{i}. {s.strip().rstrip(".")}.' for i,s in enumerate(flow.split(';'),1))

@@ -31,7 +31,7 @@ SQ01–SQ07 SHALL retain their identifiers and mappings to UC03, UC04, UC05, UC0
 The diagrams SHALL omit wallet/subscription verification, fee deduction, AI implementation, fixed historical-dataset sizes, optimization algorithms and device-internal mechanics. Required business checks SHALL be summarized in concise domain messages. Numerical timing limits SHALL be sourced or explicitly labeled illustrative assumptions.
 
 #### Scenario: Explain simplified messages
-- **WHEN** a student explains the sequence using its source use case
+- **WHEN** a user explains the sequence using its source use case
 - **THEN** no unexplained production mechanism is needed to justify a message
 - **AND** hidden internal work and omitted alternatives are documented in the coverage notes
 

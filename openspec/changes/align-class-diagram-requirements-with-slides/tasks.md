@@ -2,7 +2,7 @@
 
 ## 1. Correct the central Class Diagram convention
 
-- [ ] 1.1 Update `02_Rules/03_Class_diagram.md` with slide-first precedence and an evidence table tied to the local Ch6 PDF; verify the citations visually against pages 28–35 and label supplementary visibility, composition, dependency, and tool guidance without unsupported slide attribution.
+- [ ] 1.1 Update `docs/standards/03_Class_diagram.md` with slide-first precedence and an evidence table tied to the local Ch6 PDF; verify the citations visually against pages 28–35 and label supplementary visibility, composition, dependency, and tool guidance without unsupported slide attribution.
 - [ ] 1.2 Replace universal compartment/signature requirements with full and abbreviated presentation rules, then revise the checklist; verify it accepts page-30 attributes-only classes, page-34 operations-only classes, and `+printInfo()` without inventing members or types, while preserving abstract notation and relationship meaning.
 - [ ] 1.3 Add a distinct detailed-submission completeness check referencing the existing master specification and README; verify a missing method description is reported as submission incompleteness and that descriptions of every modeled method and detailed business multiplicities remain required. Clarify the master specification or README only if necessary to remove a contradiction; preserve their deliverables.
 
