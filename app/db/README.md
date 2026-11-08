@@ -1,0 +1,23 @@
+# Local SQLite demo inventory
+
+Install the `sqlite3` command-line tool and run these commands from the repository root.
+
+```sh
+./app/db/init.sh
+sqlite3 app/db/.local/hub.sqlite 'PRAGMA quick_check;'
+```
+
+The initializer seeds four hubs, 62 electric vehicles, 39 parking slots, and nine charging points into an empty database. Repeat runs preserve local edits and deletions. Pass a database path as the first argument to create an isolated copy. The default database directory is ignored by Git.
+
+Query inventory counts per hub with SQLite.
+
+```sql
+SELECT h.name,
+       (SELECT COUNT(*) FROM electric_vehicles WHERE hub_id = h.id) AS vehicles,
+       (SELECT COUNT(*) FROM parking_slots WHERE hub_id = h.id) AS parking_slots,
+       (SELECT COUNT(*) FROM charging_points WHERE hub_id = h.id) AS charging_points
+FROM mobility_hubs AS h
+ORDER BY h.name;
+```
+
+The [seed](seed.sql) contains fixed demo inventory counts. When opening a separate SQLite connection to edit the inventory, run `PRAGMA foreign_keys = ON;` before making changes. The initializer tracks the applied [migration](migrations/README.md) with SQLite's `user_version`.
