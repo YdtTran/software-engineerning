@@ -206,20 +206,20 @@ Agent cần thực hiện tuần tự qua 5 giai đoạn (không nhảy cóc):
 ### GIAI ĐOẠN 3: Application Services & Core Use Cases
 *Tập trung tại thư mục `application/`.*
 
-- [ ] **Bước 3.1: Hiện thực `inventory-service.js` (UC09):**
+- [x] **Bước 3.1: Hiện thực `inventory-service.js` (UC09):**
   - Quản lý danh mục tài nguyên: tra cứu danh sách, tạo mới, cập nhật thông số, tạm ngưng (`suspend`), kích hoạt lại (`reactivate`).
-- [ ] **Bước 3.2: Hiện thực `monitoring-service.js` (UC08):**
+- [x] **Bước 3.2: Hiện thực `monitoring-service.js` (UC08):**
   - Đọc dữ liệu từ repo để tính toán KPI toàn mạng lưới.
   - Áp dụng thuật toán màu cảnh báo theo **BR10 / FR-NI03**:
     - 🔴 **Đỏ:** Tỷ lệ lấp đầy bãi đỗ $\ge 95\%$ HOẶC không còn xe khả dụng.
     - 🟡 **Vàng (nếu chưa Đỏ):** Lấp đầy $\ge 85\%$ HOẶC tỷ lệ xe khả dụng $\le 10\%$.
     - 🟢 **Bình thường:** Các trường hợp còn lại.
-- [ ] **Bước 3.3: Hiện thực `transfer-service.js` (UC10, UC10A, UC10B):**
+- [x] **Bước 3.3: Hiện thực `transfer-service.js` (UC10, UC10A, UC10B):**
   - `createTransfer()`: Kiểm tra pin $\ge 80\%$, kiểm tra sức chứa Hub đích, tạo lệnh `planned`.
   - `departTransfer()`: Kiểm tra lại pin và trạng thái xe, chuyển `in_transit`, giải phóng slot nguồn.
   - `arriveTransfer()`: Kiểm tra số lượng xe thực tế đến nơi (UC10A). Nếu đủ, chuyển `completed`, xe cập nhật `hub_id` mới và chuyển `available`. Hỗ trợ đổi Hub đích thay thế nếu phát sinh sự cố.
   - `cancelTransfer()`: Hủy lệnh `planned` (UC10B), thu hồi các slot giữ chỗ tại Hub đích, trả xe về `available`.
-- [ ] **Bước 3.4: Hiện thực `incident-service.js` (UC11, UC11A):**
+- [x] **Bước 3.4: Hiện thực `incident-service.js` (UC11, UC11A):**
   - `reportTripIncident()` (UC11A): Tiếp nhận báo cáo từ User, ghi nhận vị trí GPS/thủ công, tạo sự cố `open`.
   - `handleIncident()` (UC11): Cách ly tài nguyên (`faulted`/`maintenance`), lập phiếu bảo trì, gán kỹ thuật viên với SLA thời gian cụ thể.
 
