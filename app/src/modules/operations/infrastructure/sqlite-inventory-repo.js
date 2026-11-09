@@ -5,6 +5,7 @@
  * Implements the database persistence for `InventoryInterface` and resource management:
  * - ElectricVehicles, ParkingSlots, ChargingPoints, MobilityHubs
  * - Atomic state transitions and snapshot capture
+ * - Case-insensitive status matching with canonical PascalCase output
  */
 
 const { InventoryInterface } = require('../domain/inventory-interface');
@@ -37,7 +38,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
   async getAvailableVehicles(hubId, vehicleType = null) {
     let sql = `SELECT id, hub_id, vehicle_type, battery_percent, status, owner_id 
                FROM electric_vehicles 
-               WHERE hub_id = ? AND status = 'available' AND owner_id IS NULL`;
+               WHERE hub_id = ? AND LOWER(status) = 'available' AND owner_id IS NULL`;
     const params = [hubId];
 
     if (vehicleType) {
@@ -51,7 +52,8 @@ class SQLiteInventoryRepository extends InventoryInterface {
       id: r.id,
       hubId: r.hub_id,
       vehicleType: r.vehicle_type,
-      batteryPercent: r.battery_percent
+      batteryPercent: r.battery_percent,
+      status: r.status
     }));
   }
 
@@ -80,7 +82,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
 
   async releaseVehicleHold(vehicleId) {
     await this.client.run(
-      `UPDATE electric_vehicles SET status = 'available' WHERE id = ? AND status = 'reserved';`,
+      `UPDATE electric_vehicles SET status = 'Available' WHERE id = ? AND LOWER(status) = 'reserved';`,
       [vehicleId]
     );
   }
@@ -126,16 +128,14 @@ class SQLiteInventoryRepository extends InventoryInterface {
 
       vehicle.returnToHub(destinationHubId, finalBatteryPercent);
 
-      // Update vehicle placement and battery
       await this.client.run(
         'UPDATE electric_vehicles SET hub_id = ?, battery_percent = ?, status = ? WHERE id = ?;',
         [vehicle.hubId, vehicle.batteryPercent, vehicle.status, vehicle.id]
       );
 
-      // Occupy destination slot
       if (slotId) {
         await this.client.run(
-          `UPDATE parking_slots SET status = 'occupied' WHERE id = ?;`,
+          `UPDATE parking_slots SET status = 'Occupied' WHERE id = ?;`,
           [slotId]
         );
       }
@@ -147,14 +147,14 @@ class SQLiteInventoryRepository extends InventoryInterface {
   // =========================================================================
 
   async getAvailableSlots(hubId, pool = null) {
-    const sql = `SELECT id, hub_id, code, status FROM parking_slots WHERE hub_id = ? AND status = 'available' ORDER BY code ASC;`;
+    const sql = `SELECT id, hub_id, code, status FROM parking_slots WHERE hub_id = ? AND LOWER(status) = 'available' ORDER BY code ASC;`;
     const rows = await this.client.all(sql, [hubId]);
     return rows.map(r => ({ id: r.id, hubId: r.hub_id, code: r.code, status: r.status }));
   }
 
   async holdSlotForReservation(slotId, reservationId) {
     const res = await this.client.run(
-      `UPDATE parking_slots SET status = 'reserved' WHERE id = ? AND status = 'available';`,
+      `UPDATE parking_slots SET status = 'Held' WHERE id = ? AND LOWER(status) = 'available';`,
       [slotId]
     );
     if (res.changes === 0) {
@@ -164,21 +164,21 @@ class SQLiteInventoryRepository extends InventoryInterface {
 
   async releaseSlotHold(slotId) {
     await this.client.run(
-      `UPDATE parking_slots SET status = 'available' WHERE id = ? AND status = 'reserved';`,
+      `UPDATE parking_slots SET status = 'Available' WHERE id = ? AND LOWER(status) = 'held';`,
       [slotId]
     );
   }
 
   async occupySlot(slotId, occupancyId) {
     await this.client.run(
-      `UPDATE parking_slots SET status = 'occupied' WHERE id = ?;`,
+      `UPDATE parking_slots SET status = 'Occupied' WHERE id = ?;`,
       [slotId]
     );
   }
 
   async vacateSlot(slotId) {
     await this.client.run(
-      `UPDATE parking_slots SET status = 'available' WHERE id = ?;`,
+      `UPDATE parking_slots SET status = 'Available' WHERE id = ?;`,
       [slotId]
     );
   }
@@ -227,7 +227,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
   async listResources({ hubId = null, kind = null } = {}) {
     const results = [];
 
-    if (!kind || kind === 'vehicle') {
+    if (!kind || kind.toLowerCase() === 'vehicle') {
       let sql = 'SELECT id, hub_id, vehicle_type, battery_percent, status FROM electric_vehicles';
       const params = [];
       if (hubId) {
@@ -240,7 +240,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
       }
     }
 
-    if (!kind || kind === 'slot') {
+    if (!kind || kind.toLowerCase() === 'slot') {
       let sql = 'SELECT id, hub_id, code, status FROM parking_slots';
       const params = [];
       if (hubId) {
@@ -253,7 +253,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
       }
     }
 
-    if (!kind || kind === 'charging_point') {
+    if (!kind || kind.toLowerCase() === 'charging_point') {
       let sql = 'SELECT id, hub_id, code, status FROM charging_points';
       const params = [];
       if (hubId) {
@@ -303,7 +303,6 @@ class SQLiteInventoryRepository extends InventoryInterface {
       ownerId: row.owner_id
     });
 
-    // BR11 assertion
     vehicle.assertCanDelete();
 
     await this.client.run('DELETE FROM electric_vehicles WHERE id = ?;', [vehicleId]);

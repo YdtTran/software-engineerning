@@ -27,13 +27,6 @@ class TransferService {
 
   /**
    * Create a new vehicle transfer order (UC10)
-   * @param {{
-   *   sourceHubId: string,
-   *   destinationHubId: string,
-   *   vehicleIds: string[],
-   *   destinationSlotIds: string[],
-   *   createdBy?: string
-   * }} data
    */
   async createTransfer({ sourceHubId, destinationHubId, vehicleIds, destinationSlotIds, createdBy = 'operator' }) {
     if (!sourceHubId || !destinationHubId) {
@@ -109,13 +102,13 @@ class TransferService {
       status: transfer.status,
       vehicleIds: transfer.vehicleIds,
       destinationSlotIds: transfer.destinationSlotIds,
+      destinationHolds: transfer.destinationSlotIds,
       createdAt: transfer.createdAt
     };
   }
 
   /**
-   * Get transfer details by ID (UC10)
-   * @param {string} id
+   * Get transfer details by ID (UC10, API_CONTRACTS.md: transfer state, vehicle IDs and destination holds)
    */
   async getTransfer(id) {
     const transfer = await this.transferRepo.getTransferById(id);
@@ -129,6 +122,7 @@ class TransferService {
       status: transfer.status,
       vehicleIds: transfer.vehicleIds,
       destinationSlotIds: transfer.destinationSlotIds,
+      destinationHolds: transfer.destinationSlotIds,
       createdAt: transfer.createdAt,
       departedAt: transfer.departedAt,
       arrivedAt: transfer.arrivedAt,
@@ -139,9 +133,7 @@ class TransferService {
   }
 
   /**
-   * Depart transfer (UC10 Main Flow Step 7)
-   * Moves transfer to 'in_transit' and vehicles to 'in_transfer'
-   * @param {string} id
+   * Depart transfer (UC10)
    */
   async departTransfer(id) {
     const transfer = await this.transferRepo.getTransferById(id);
@@ -164,10 +156,8 @@ class TransferService {
       }
     }
 
-    // Domain transition (checks contention & battery >= 80%)
     transfer.depart({ vehicles, now: new Date() });
 
-    // Atomic DB update
     await this.transferRepo.departTransfer(transfer);
 
     return {
@@ -179,12 +169,6 @@ class TransferService {
 
   /**
    * Confirm transfer arrival (UC10A)
-   * @param {string} id
-   * @param {{
-   *   observedVehicleIds: string[],
-   *   replacementDestinationHubId?: string,
-   *   replacementSlotIds?: string[]
-   * }} payload
    */
   async arriveTransfer(id, { observedVehicleIds, replacementDestinationHubId = null, replacementSlotIds = null }) {
     const transfer = await this.transferRepo.getTransferById(id);
@@ -192,7 +176,6 @@ class TransferService {
       throw new DomainError('TRANSFER_NOT_FOUND', `Transfer order ${id} does not exist.`);
     }
 
-    // Domain transition (verifies complete vehicle set)
     transfer.arrive({
       observedVehicleIds,
       replacementDestinationHubId,
@@ -200,7 +183,6 @@ class TransferService {
       now: new Date()
     });
 
-    // Atomic DB update
     await this.transferRepo.arriveTransfer(transfer);
 
     return {
@@ -213,8 +195,6 @@ class TransferService {
 
   /**
    * Cancel planned transfer order (UC10B)
-   * @param {string} id
-   * @param {{ reason?: string }} options
    */
   async cancelTransfer(id, { reason = 'Operator cancelled order' } = {}) {
     const transfer = await this.transferRepo.getTransferById(id);
@@ -222,10 +202,8 @@ class TransferService {
       throw new DomainError('TRANSFER_NOT_FOUND', `Transfer order ${id} does not exist.`);
     }
 
-    // Domain transition (rejects if already in_transit or completed)
     transfer.cancel({ reason, now: new Date() });
 
-    // Atomic DB update (releases held slots)
     await this.transferRepo.cancelTransfer(transfer);
 
     return {

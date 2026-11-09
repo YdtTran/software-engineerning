@@ -2,36 +2,43 @@
  * Domain Models for Physical Resources (Vehicles, Slots, Charging Points, Hubs)
  * Module: Operations (UC09)
  * 
- * Rules enforced:
- * - BR11: Hard delete is forbidden if a vehicle is in 'IN_USE' or 'RESERVED' state.
- * - Battery bounds [0..100].
- * - Valid state transitions for physical resources.
+ * Aligned with:
+ * - CLASS_CATALOG.md (VehicleStatus, ParkingStatus, ChargingPointStatus)
+ * - API_CONTRACTS.md (Canonical statuses)
+ * - BR11: Hard delete is forbidden if a vehicle is in 'InUse' or 'Reserved' state.
  */
 
 const VehicleStatus = Object.freeze({
-  AVAILABLE: 'available',
-  RESERVED: 'reserved',
-  IN_USE: 'in_use',
-  IN_TRANSFER: 'in_transfer',
-  FAULTED: 'faulted',
-  SUSPENDED: 'suspended',
-  MAINTENANCE: 'maintenance'
+  AVAILABLE: 'Available',
+  RESERVED: 'Reserved',
+  IN_USE: 'InUse',
+  NEEDS_CHARGING: 'NeedsCharging',
+  CHARGING: 'Charging',
+  TRANSFER_HELD: 'TransferHeld',
+  IN_TRANSIT: 'InTransit',
+  FAULTY: 'Faulty',
+  MAINTENANCE: 'Maintenance',
+  RETIRED: 'Retired'
 });
 
 const SlotStatus = Object.freeze({
-  AVAILABLE: 'available',
-  RESERVED: 'reserved',
-  OCCUPIED: 'occupied',
-  HELD_FOR_TRANSFER: 'held_for_transfer',
-  BLOCKED: 'blocked'
+  AVAILABLE: 'Available',
+  HELD: 'Held',
+  OCCUPIED: 'Occupied',
+  SUSPENDED: 'Suspended'
 });
 
 const ChargingPointStatus = Object.freeze({
-  AVAILABLE: 'available',
-  OCCUPIED: 'occupied',
-  CHARGING: 'charging',
-  FAULTED: 'faulted',
-  MAINTENANCE: 'maintenance'
+  IDLE: 'Idle',
+  AVAILABLE: 'Available', // alias to Idle
+  RESERVED: 'Reserved',
+  STARTING: 'Starting',
+  CHARGING: 'Charging',
+  STOPPING: 'Stopping',
+  COMPLETE: 'Complete',
+  FAULT: 'Fault',
+  REPAIR: 'Repair',
+  RETIRED: 'Retired'
 });
 
 const ResourceKind = Object.freeze({
@@ -47,6 +54,26 @@ class DomainError extends Error {
     this.code = code;
     this.details = details;
   }
+}
+
+/**
+ * Normalize status strings to canonical PascalCase
+ */
+function normalizeStatus(str, defaultVal) {
+  if (!str) return defaultVal;
+  const s = String(str).toLowerCase().replace(/[_\s-]/g, '');
+  if (['available', 'ready'].includes(s)) return 'Available';
+  if (['reserved', 'held'].includes(s)) return 'Reserved';
+  if (['inuse', 'using'].includes(s)) return 'InUse';
+  if (['intransit', 'intransfer'].includes(s)) return 'InTransit';
+  if (['transferheld'].includes(s)) return 'TransferHeld';
+  if (['fault', 'faulted', 'faulty'].includes(s)) return 'Faulty';
+  if (['maintenance', 'suspended'].includes(s)) return 'Maintenance';
+  if (['occupied'].includes(s)) return 'Occupied';
+  if (['charging'].includes(s)) return 'Charging';
+  if (['needscharging'].includes(s)) return 'NeedsCharging';
+  if (['idle'].includes(s)) return 'Idle';
+  return str;
 }
 
 class ElectricVehicle {
@@ -68,7 +95,7 @@ class ElectricVehicle {
     this.hubId = hubId;
     this.vehicleType = vehicleType;
     this.batteryPercent = Math.round(batteryPercent);
-    this.status = status;
+    this.status = normalizeStatus(status, VehicleStatus.AVAILABLE);
     this.ownerId = ownerId; // null = shared vehicle; non-null = private vehicle
   }
 
@@ -77,18 +104,20 @@ class ElectricVehicle {
   }
 
   isAvailable() {
-    return this.status === VehicleStatus.AVAILABLE;
+    const s = this.status.toLowerCase();
+    return s === 'available';
   }
 
   canTransfer() {
-    return this.status === VehicleStatus.AVAILABLE && this.batteryPercent >= 80;
+    return this.isAvailable() && this.batteryPercent >= 80;
   }
 
   /**
    * BR11: Check if vehicle can be removed from system
    */
   canDelete() {
-    if (this.status === VehicleStatus.IN_USE || this.status === VehicleStatus.RESERVED) {
+    const s = this.status.toLowerCase();
+    if (s === 'inuse' || s === 'reserved') {
       return false;
     }
     return true;
@@ -105,48 +134,54 @@ class ElectricVehicle {
   }
 
   reserve() {
-    if (this.status !== VehicleStatus.AVAILABLE) {
+    if (!this.isAvailable()) {
       throw new DomainError('VEHICLE_NOT_AVAILABLE', `Vehicle ${this.id} is not available for reservation (status: ${this.status}).`);
     }
     this.status = VehicleStatus.RESERVED;
   }
 
   releaseReservation() {
-    if (this.status === VehicleStatus.RESERVED) {
+    if (this.status.toLowerCase() === 'reserved') {
       this.status = VehicleStatus.AVAILABLE;
     }
   }
 
   pickup() {
-    if (this.status !== VehicleStatus.RESERVED && this.status !== VehicleStatus.AVAILABLE) {
+    const s = this.status.toLowerCase();
+    if (s !== 'reserved' && s !== 'available') {
       throw new DomainError('VEHICLE_CANNOT_PICKUP', `Vehicle ${this.id} cannot be picked up from state '${this.status}'.`);
     }
     this.status = VehicleStatus.IN_USE;
   }
 
   returnToHub(destinationHubId, newBatteryPercent) {
-    if (this.status !== VehicleStatus.IN_USE) {
+    if (this.status.toLowerCase() !== 'inuse') {
       throw new DomainError('VEHICLE_NOT_IN_USE', `Vehicle ${this.id} cannot be returned because it is not currently in use.`);
     }
     this.hubId = destinationHubId;
     if (typeof newBatteryPercent === 'number') {
       this.batteryPercent = Math.max(0, Math.min(100, Math.round(newBatteryPercent)));
     }
-    this.status = VehicleStatus.AVAILABLE;
+    this.status = this.batteryPercent < 20 ? VehicleStatus.NEEDS_CHARGING : VehicleStatus.AVAILABLE;
   }
 
-  markInTransfer() {
+  markTransferHeld() {
     if (!this.canTransfer()) {
       throw new DomainError(
         'VEHICLE_INELIGIBLE_FOR_TRANSFER',
         `Vehicle ${this.id} must be available and have >= 80% battery to transfer (status: ${this.status}, battery: ${this.batteryPercent}%).`
       );
     }
-    this.status = VehicleStatus.IN_TRANSFER;
+    this.status = VehicleStatus.TRANSFER_HELD;
+  }
+
+  markInTransit() {
+    this.status = VehicleStatus.IN_TRANSIT;
   }
 
   completeTransfer(destinationHubId) {
-    if (this.status !== VehicleStatus.IN_TRANSFER) {
+    const s = this.status.toLowerCase();
+    if (s !== 'intransit' && s !== 'intransfer' && s !== 'transferheld') {
       throw new DomainError('VEHICLE_NOT_IN_TRANSFER', `Vehicle ${this.id} is not currently in transfer.`);
     }
     this.hubId = destinationHubId;
@@ -154,28 +189,27 @@ class ElectricVehicle {
   }
 
   cancelTransfer() {
-    if (this.status === VehicleStatus.IN_TRANSFER) {
-      this.status = VehicleStatus.AVAILABLE;
-    }
+    this.status = VehicleStatus.AVAILABLE;
   }
 
   suspend(reason) {
-    if (this.status === VehicleStatus.IN_USE || this.status === VehicleStatus.RESERVED) {
+    const s = this.status.toLowerCase();
+    if (s === 'inuse' || s === 'reserved') {
       throw new DomainError('CANNOT_SUSPEND_ACTIVE_VEHICLE', `Cannot suspend vehicle ${this.id} while in state '${this.status}'.`);
     }
-    this.status = VehicleStatus.SUSPENDED;
+    this.status = VehicleStatus.MAINTENANCE;
   }
 
   reactivate() {
-    if (![VehicleStatus.SUSPENDED, VehicleStatus.MAINTENANCE, VehicleStatus.FAULTED].includes(this.status)) {
+    const s = this.status.toLowerCase();
+    if (!['maintenance', 'suspended', 'faulty', 'fault', 'needscharging'].includes(s)) {
       throw new DomainError('INVALID_REACTIVATION', `Vehicle ${this.id} is already active or in an invalid state for reactivation.`);
     }
     this.status = VehicleStatus.AVAILABLE;
   }
 
   isolateFault() {
-    // If vehicle is in use, we flag fault without remotely halting active riding
-    this.status = VehicleStatus.FAULTED;
+    this.status = VehicleStatus.FAULTY;
   }
 }
 
@@ -187,22 +221,22 @@ class ParkingSlot {
     this.id = id;
     this.hubId = hubId;
     this.code = code;
-    this.status = status;
+    this.status = normalizeStatus(status, SlotStatus.AVAILABLE);
   }
 
   isAvailable() {
-    return this.status === SlotStatus.AVAILABLE;
+    return this.status.toLowerCase() === 'available';
   }
 
   holdForTransfer() {
-    if (this.status !== SlotStatus.AVAILABLE) {
+    if (!this.isAvailable()) {
       throw new DomainError('SLOT_NOT_AVAILABLE', `Slot ${this.id} (${this.code}) is not available to hold for transfer.`);
     }
-    this.status = SlotStatus.HELD_FOR_TRANSFER;
+    this.status = SlotStatus.HELD;
   }
 
   releaseTransferHold() {
-    if (this.status === SlotStatus.HELD_FOR_TRANSFER) {
+    if (this.status.toLowerCase() === 'held') {
       this.status = SlotStatus.AVAILABLE;
     }
   }
@@ -216,7 +250,7 @@ class ParkingSlot {
   }
 
   block(reason) {
-    this.status = SlotStatus.BLOCKED;
+    this.status = SlotStatus.SUSPENDED;
   }
 
   unblock() {
@@ -232,34 +266,35 @@ class ChargingPoint {
     this.id = id;
     this.hubId = hubId;
     this.code = code;
-    this.status = status;
+    this.status = normalizeStatus(status, ChargingPointStatus.AVAILABLE);
   }
 
   isAvailable() {
-    return this.status === ChargingPointStatus.AVAILABLE;
+    const s = this.status.toLowerCase();
+    return s === 'available' || s === 'idle';
   }
 
   startCharging() {
-    if (this.status === ChargingPointStatus.FAULTED || this.status === ChargingPointStatus.MAINTENANCE) {
+    const s = this.status.toLowerCase();
+    if (s === 'fault' || s === 'faulty' || s === 'repair' || s === 'maintenance') {
       throw new DomainError('POINT_UNAVAILABLE', `Charging point ${this.id} is faulted or under maintenance.`);
     }
     this.status = ChargingPointStatus.CHARGING;
   }
 
   stopCharging() {
-    if (this.status === ChargingPointStatus.CHARGING) {
-      this.status = ChargingPointStatus.OCCUPIED;
-    }
+    this.status = ChargingPointStatus.COMPLETE;
   }
 
   vacate() {
-    if (this.status !== ChargingPointStatus.FAULTED && this.status !== ChargingPointStatus.MAINTENANCE) {
+    const s = this.status.toLowerCase();
+    if (s !== 'fault' && s !== 'repair') {
       this.status = ChargingPointStatus.AVAILABLE;
     }
   }
 
   markFaulted() {
-    this.status = ChargingPointStatus.FAULTED;
+    this.status = ChargingPointStatus.FAULT;
   }
 
   recover() {
@@ -273,6 +308,7 @@ module.exports = {
   ChargingPointStatus,
   ResourceKind,
   DomainError,
+  normalizeStatus,
   ElectricVehicle,
   ParkingSlot,
   ChargingPoint

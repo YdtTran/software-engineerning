@@ -2,10 +2,10 @@
  * Incident & Maintenance Application Service (UC11, UC11A)
  * Module: Operations
  * 
- * Coordinates incident intake, safety isolation, technician dispatch, and resolution:
- * - Report Trip Incident (UC11A): User reports incident on an active trip; safely isolates resource
- * - Review & Handle Incident (UC11): Operator reviews incident and schedules maintenance with SLA (BR14)
- * - Resolve Incident (UC11 Alt 8a): Technicians complete repair and reactivate equipment
+ * Aligned with API_CONTRACTS.md:
+ * - POST /trips/{id}/incidents -> incident ID and status
+ * - GET /incidents (optional status, hubId) -> incident records
+ * - POST /incidents/{id}/handle (resourceId, technicianId, scheduledAt) -> incident and maintenance assignment IDs and statuses
  */
 
 const { Incident, IncidentSeverity, IncidentStatus, ReporterRole } = require('../domain/incident');
@@ -26,17 +26,21 @@ class IncidentService {
 
   /**
    * Report an incident during an active user trip (UC11A)
+   * HTTP POST /api/v1/trips/{id}/incidents
    * @param {{
    *   tripId: string,
-   *   vehicleId: string,
-   *   userId: string,
    *   description: string,
+   *   userId?: string,
+   *   vehicleId?: string,
    *   reportedLocation?: string
    * }} data
    */
-  async reportTripIncident({ tripId, vehicleId, userId, description, reportedLocation = null }) {
-    if (!tripId || !vehicleId || !userId || !description) {
-      throw new DomainError('INVALID_INPUT', 'tripId, vehicleId, userId, and description are required.');
+  async reportTripIncident({ tripId, description, userId = 'user', vehicleId = null, reportedLocation = null }) {
+    if (!tripId) {
+      throw new DomainError('MISSING_TRIP_ID', 'tripId is required to report an incident on a trip.');
+    }
+    if (!description || typeof description !== 'string') {
+      throw new DomainError('INVALID_DESCRIPTION', 'description is required.');
     }
 
     const incidentId = `INC-TRIP-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1000)}`;
@@ -53,27 +57,16 @@ class IncidentService {
 
     return {
       id: incident.id,
-      reporterId: incident.reporterId,
+      status: incident.status,
       reportedTripId: incident.reportedTripId,
       resourceId: incident.resourceId,
-      resourceKind: incident.resourceKind,
       description: incident.description,
-      status: incident.status,
       reportedAt: incident.reportedAt
     };
   }
 
   /**
    * Report equipment failure by Operator or IoT automated alert (UC11)
-   * @param {{
-   *   resourceKind: 'vehicle'|'slot'|'charging_point',
-   *   resourceId: string,
-   *   description: string,
-   *   severity?: 'emergency'|'critical'|'standard',
-   *   reporterId?: string,
-   *   reporterRole?: 'operator'|'system',
-   *   reportedLocation?: string
-   * }} data
    */
   async reportEquipmentIncident({
     resourceKind,
@@ -113,10 +106,6 @@ class IncidentService {
     };
   }
 
-  /**
-   * Get incident by ID (UC11)
-   * @param {string} id
-   */
   async getIncident(id) {
     const incident = await this.incidentRepo.getIncidentById(id);
     if (!incident) {
@@ -126,23 +115,25 @@ class IncidentService {
   }
 
   /**
-   * List incidents with filters (UC11)
-   * @param {{ status?: string, resourceKind?: string, reporterId?: string }} filters
+   * List incidents with filters: status, hubId, resourceKind, reporterId (UC11, API_CONTRACTS.md)
+   * @param {{ status?: string, hubId?: string, resourceKind?: string, reporterId?: string }} filters
    */
   async listIncidents(filters = {}) {
     return this.incidentRepo.listIncidents(filters);
   }
 
   /**
-   * Handle incident & schedule technician with SLA deadline (UC11)
+   * Handle incident & schedule technician (UC11)
+   * Matches API_CONTRACTS.md: resourceId, technicianId, scheduledAt -> incident and assignment IDs and statuses
    * @param {string} id
    * @param {{
+   *   resourceId?: string,
    *   technicianId: string,
    *   scheduledAt?: string,
    *   customSlaMinutes?: number
    * }} payload
    */
-  async handleIncident(id, { technicianId, scheduledAt = new Date().toISOString(), customSlaMinutes = null }) {
+  async handleIncident(id, { resourceId = null, technicianId, scheduledAt = new Date().toISOString(), customSlaMinutes = null }) {
     if (!technicianId) {
       throw new DomainError('MISSING_TECHNICIAN', 'technicianId is required to schedule maintenance.');
     }
@@ -152,9 +143,17 @@ class IncidentService {
       throw new DomainError('INCIDENT_NOT_FOUND', `Incident ${id} does not exist.`);
     }
 
+    // Verify resourceId matches if supplied by operator
+    if (resourceId && incident.resourceId && resourceId !== incident.resourceId) {
+      throw new DomainError(
+        'RESOURCE_ID_MISMATCH',
+        `Supplied resourceId '${resourceId}' does not match incident resourceId '${incident.resourceId}'.`,
+        { expected: incident.resourceId, supplied: resourceId }
+      );
+    }
+
     const assignmentId = `MNT-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1000)}`;
 
-    // Domain transition (calculates BR14 SLA deadline)
     incident.handle({
       assignmentId,
       technicianId,
@@ -168,28 +167,23 @@ class IncidentService {
     return {
       id: incident.id,
       status: incident.status,
+      resourceId: incident.resourceId,
       assignment: {
         id: incident.assignment.id,
+        status: incident.assignment.status,
         technicianId: incident.assignment.technicianId,
         scheduledAt: incident.assignment.scheduledAt,
-        slaDeadline: incident.assignment.slaDeadline,
-        status: incident.assignment.status
+        slaDeadline: incident.assignment.slaDeadline
       }
     };
   }
 
-  /**
-   * Resolve incident upon completed maintenance (UC11 Alt 8a)
-   * @param {string} id
-   * @param {{ resolutionNotes?: string }} options
-   */
   async resolveIncident(id, { resolutionNotes = 'Maintenance completed successfully' } = {}) {
     const incident = await this.incidentRepo.getIncidentById(id);
     if (!incident) {
       throw new DomainError('INCIDENT_NOT_FOUND', `Incident ${id} does not exist.`);
     }
 
-    // Domain transition
     incident.resolve({ notes: resolutionNotes, now: new Date() });
 
     await this.incidentRepo.resolveIncident(incident);

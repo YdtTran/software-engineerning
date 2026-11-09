@@ -5,7 +5,7 @@
  * Persists incidents, SLA assignments, and resolves equipment faults:
  * - Records incidents from User trips or Operator alerts.
  * - Manages technician dispatch with SLA deadlines.
- * - Isolates resource state on fault.
+ * - Supports hubId and status filtering per API_CONTRACTS.md.
  */
 
 const { Incident, MaintenanceAssignment } = require('../domain/incident');
@@ -22,9 +22,6 @@ class SQLiteIncidentRepository {
     this.client = client;
   }
 
-  /**
-   * Save a newly reported incident (UC11, UC11A)
-   */
   async createIncident(incident) {
     return this.client.transaction(async () => {
       await this.client.run(
@@ -48,23 +45,22 @@ class SQLiteIncidentRepository {
         ]
       );
 
-      // Isolate resource status if it is a vehicle, slot, or charging point
+      // Isolate resource status
       if (incident.resourceKind === 'vehicle') {
-        // Flag vehicle status as faulted if not currently in active trip
         if (!incident.reportedTripId) {
           await this.client.run(
-            `UPDATE electric_vehicles SET status = 'faulted' WHERE id = ? AND status != 'in_use';`,
+            `UPDATE electric_vehicles SET status = 'Faulty' WHERE id = ? AND status != 'InUse' AND status != 'in_use';`,
             [incident.resourceId]
           );
         }
       } else if (incident.resourceKind === 'charging_point') {
         await this.client.run(
-          `UPDATE charging_points SET status = 'faulted' WHERE id = ?;`,
+          `UPDATE charging_points SET status = 'Fault' WHERE id = ?;`,
           [incident.resourceId]
         );
       } else if (incident.resourceKind === 'slot') {
         await this.client.run(
-          `UPDATE parking_slots SET status = 'blocked' WHERE id = ?;`,
+          `UPDATE parking_slots SET status = 'Suspended' WHERE id = ?;`,
           [incident.resourceId]
         );
       }
@@ -73,9 +69,6 @@ class SQLiteIncidentRepository {
     });
   }
 
-  /**
-   * Retrieve incident by ID along with its maintenance assignment if present
-   */
   async getIncidentById(id) {
     const row = await this.client.get('SELECT * FROM incidents WHERE id = ?;', [id]);
     if (!row) {
@@ -118,26 +111,38 @@ class SQLiteIncidentRepository {
   }
 
   /**
-   * List incidents with optional filters (UC11)
+   * List incidents with filters including status and hubId (API_CONTRACTS.md)
+   * @param {{ status?: string, hubId?: string, resourceKind?: string, reporterId?: string }} filters
    */
-  async listIncidents({ status = null, resourceKind = null, reporterId = null } = {}) {
-    let sql = `SELECT * FROM incidents WHERE 1=1`;
+  async listIncidents({ status = null, hubId = null, resourceKind = null, reporterId = null } = {}) {
+    let sql = `
+      SELECT DISTINCT i.* 
+      FROM incidents i
+      LEFT JOIN electric_vehicles v ON (i.resource_kind = 'vehicle' AND i.resource_id = v.id)
+      LEFT JOIN parking_slots s ON (i.resource_kind = 'slot' AND i.resource_id = s.id)
+      LEFT JOIN charging_points cp ON (i.resource_kind = 'charging_point' AND i.resource_id = cp.id)
+      WHERE 1=1
+    `;
     const params = [];
 
     if (status) {
-      sql += ` AND status = ?`;
+      sql += ` AND LOWER(i.status) = LOWER(?)`;
       params.push(status);
     }
+    if (hubId) {
+      sql += ` AND (v.hub_id = ? OR s.hub_id = ? OR cp.hub_id = ?)`;
+      params.push(hubId, hubId, hubId);
+    }
     if (resourceKind) {
-      sql += ` AND resource_kind = ?`;
+      sql += ` AND LOWER(i.resource_kind) = LOWER(?)`;
       params.push(resourceKind);
     }
     if (reporterId) {
-      sql += ` AND reporter_id = ?`;
+      sql += ` AND i.reporter_id = ?`;
       params.push(reporterId);
     }
 
-    sql += ` ORDER BY reported_at DESC;`;
+    sql += ` ORDER BY i.reported_at DESC;`;
 
     const rows = await this.client.all(sql, params);
     const incidents = [];
@@ -163,22 +168,17 @@ class SQLiteIncidentRepository {
     return incidents;
   }
 
-  /**
-   * Assign maintenance technician and update incident (UC11)
-   */
   async assignMaintenance(incident) {
     if (!incident.assignment) {
       throw new DomainError('NO_ASSIGNMENT', 'Incident has no assignment attached.');
     }
 
     return this.client.transaction(async () => {
-      // 1. Update incident status to in_progress
       await this.client.run(
         `UPDATE incidents SET status = ? WHERE id = ?;`,
         [incident.status, incident.id]
       );
 
-      // 2. Insert or replace assignment row
       await this.client.run(
         `INSERT OR REPLACE INTO maintenance_assignments (
           id, incident_id, technician_id, scheduled_at, sla_deadline, status
@@ -197,12 +197,8 @@ class SQLiteIncidentRepository {
     });
   }
 
-  /**
-   * Resolve incident upon technician verification (UC11 Alt 8a)
-   */
   async resolveIncident(incident) {
     return this.client.transaction(async () => {
-      // 1. Update incident
       await this.client.run(
         `UPDATE incidents 
          SET status = ?, resolved_at = ?, resolution_notes = ? 
@@ -210,28 +206,26 @@ class SQLiteIncidentRepository {
         [incident.status, incident.resolvedAt, incident.resolutionNotes, incident.id]
       );
 
-      // 2. Complete assignment if exists
       if (incident.assignment) {
         await this.client.run(
-          `UPDATE maintenance_assignments SET status = 'completed' WHERE incident_id = ?;`,
+          `UPDATE maintenance_assignments SET status = 'Completed' WHERE incident_id = ?;`,
           [incident.id]
         );
       }
 
-      // 3. Reactivate resource if appropriate
       if (incident.resourceKind === 'vehicle') {
         await this.client.run(
-          `UPDATE electric_vehicles SET status = 'available' WHERE id = ? AND status = 'faulted';`,
+          `UPDATE electric_vehicles SET status = 'Available' WHERE id = ? AND (status = 'Faulty' OR status = 'faulted');`,
           [incident.resourceId]
         );
       } else if (incident.resourceKind === 'charging_point') {
         await this.client.run(
-          `UPDATE charging_points SET status = 'available' WHERE id = ? AND status = 'faulted';`,
+          `UPDATE charging_points SET status = 'Available' WHERE id = ? AND (status = 'Fault' OR status = 'faulted');`,
           [incident.resourceId]
         );
       } else if (incident.resourceKind === 'slot') {
         await this.client.run(
-          `UPDATE parking_slots SET status = 'available' WHERE id = ? AND status = 'blocked';`,
+          `UPDATE parking_slots SET status = 'Available' WHERE id = ? AND (status = 'Suspended' OR status = 'blocked');`,
           [incident.resourceId]
         );
       }

@@ -2,21 +2,31 @@
  * Domain Model for Vehicle Redistribution / Transfer (UC10, UC10A, UC10B)
  * Module: Operations
  * 
- * Rules enforced:
- * - BR12: sourceHubId !== destinationHubId.
- * - BR13: Every vehicle participating in a transfer must have batteryPercent >= 80% and be in available state.
- * - Concurrency: 'depart' and 'cancel' compete on 'planned'. Once departed or cancelled, the other is rejected (409 Conflict).
- * - Complete arrival (UC10A): All vehicles must arrive together; supports alternate destination reallocation if needed.
+ * Aligned with:
+ * - API_CONTRACTS.md: Returns 'Planned', 'InTransit', 'Completed', 'Cancelled'
+ * - CLASS_CATALOG.md: TransferStatus enum (Planned, InTransit, Completed, Cancelled)
+ * - BR12: sourceHubId !== destinationHubId
+ * - BR13: Every vehicle participating must have batteryPercent >= 80% and be Available
  */
 
-const { DomainError, VehicleStatus } = require('./resource');
+const { DomainError } = require('./resource');
 
 const TransferStatus = Object.freeze({
-  PLANNED: 'planned',
-  IN_TRANSIT: 'in_transit',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled'
+  PLANNED: 'Planned',
+  IN_TRANSIT: 'InTransit',
+  COMPLETED: 'Completed',
+  CANCELLED: 'Cancelled'
 });
+
+function normalizeTransferStatus(status) {
+  if (!status) return TransferStatus.PLANNED;
+  const s = String(status).toLowerCase().replace(/[_\s-]/g, '');
+  if (s === 'planned') return TransferStatus.PLANNED;
+  if (s === 'intransit') return TransferStatus.IN_TRANSIT;
+  if (s === 'completed') return TransferStatus.COMPLETED;
+  if (s === 'cancelled') return TransferStatus.CANCELLED;
+  return status;
+}
 
 class Transfer {
   constructor({
@@ -61,7 +71,7 @@ class Transfer {
     this.id = id;
     this.sourceHubId = sourceHubId;
     this.destinationHubId = destinationHubId;
-    this.status = status;
+    this.status = normalizeTransferStatus(status);
     this.vehicleIds = [...vehicleIds];
     this.destinationSlotIds = [...destinationSlotIds];
     this.createdAt = createdAt;
@@ -72,10 +82,6 @@ class Transfer {
     this.createdBy = createdBy || 'operator';
   }
 
-  /**
-   * Factory method to plan a new transfer order
-   * Validates BR12, BR13, and initial readiness of vehicles and destination slots
-   */
   static plan({ id, sourceHubId, destinationHubId, vehicles, destinationSlots, createdBy, now = new Date() }) {
     if (!Array.isArray(vehicles) || vehicles.length === 0) {
       throw new DomainError('EMPTY_VEHICLE_LIST', 'Transfer order requires at least one vehicle.');
@@ -86,7 +92,7 @@ class Transfer {
       if (!v.isAvailable() || v.batteryPercent < 80) {
         throw new DomainError(
           'VEHICLE_NOT_ELIGIBLE_FOR_TRANSFER',
-          `Vehicle ${v.id} is ineligible for transfer: status must be 'available' and battery >= 80% (BR13 violation: status=${v.status}, battery=${v.batteryPercent}%).`,
+          `Vehicle ${v.id} is ineligible for transfer: status must be 'Available' and battery >= 80% (BR13 violation: status=${v.status}, battery=${v.batteryPercent}%).`,
           { vehicleId: v.id, status: v.status, batteryPercent: v.batteryPercent }
         );
       }
@@ -99,7 +105,6 @@ class Transfer {
       }
     }
 
-    // Validate destination slots belong to destination hub and are available
     if (!Array.isArray(destinationSlots) || destinationSlots.length < vehicles.length) {
       throw new DomainError('INSUFFICIENT_DESTINATION_SLOTS', 'Not enough destination slots provided for the vehicles.');
     }
@@ -128,26 +133,22 @@ class Transfer {
     });
   }
 
-  /**
-   * Depart transfer (UC10)
-   * Precondition: status must be PLANNED
-   * Contention check: Cannot depart if already cancelled or in transit
-   */
   depart({ vehicles = [], now = new Date() }) {
-    if (this.status === TransferStatus.IN_TRANSIT) {
+    const s = this.status.toLowerCase();
+    if (s === 'intransit') {
       throw new DomainError('ALREADY_IN_TRANSIT', `Transfer order ${this.id} is already in transit.`);
     }
-    if (this.status === TransferStatus.CANCELLED) {
+    if (s === 'cancelled') {
       throw new DomainError('TRANSFER_ALREADY_CANCELLED', `Cannot depart transfer order ${this.id} because it was cancelled.`);
     }
-    if (this.status === TransferStatus.COMPLETED) {
+    if (s === 'completed') {
       throw new DomainError('TRANSFER_ALREADY_COMPLETED', `Cannot depart transfer order ${this.id} because it was already completed.`);
     }
-    if (this.status !== TransferStatus.PLANNED) {
+    if (s !== 'planned') {
       throw new DomainError('INVALID_STATE_TRANSITION', `Transfer ${this.id} cannot depart from status '${this.status}'.`);
     }
 
-    // Recheck vehicle readiness if provided
+    // Recheck vehicle readiness
     if (vehicles.length > 0) {
       for (const v of vehicles) {
         if (v.batteryPercent < 80) {
@@ -163,20 +164,15 @@ class Transfer {
     this.departedAt = now.toISOString();
   }
 
-  /**
-   * Arrive transfer at destination (UC10A)
-   * Precondition: status must be IN_TRANSIT
-   * All planned vehicles must arrive together; supports replacement destination hub/slots if specified
-   */
   arrive({ observedVehicleIds = [], replacementDestinationHubId = null, replacementSlotIds = null, now = new Date() }) {
-    if (this.status !== TransferStatus.IN_TRANSIT) {
+    const s = this.status.toLowerCase();
+    if (s !== 'intransit') {
       throw new DomainError(
         'NOT_IN_TRANSIT',
         `Transfer ${this.id} cannot arrive because it is currently in status '${this.status}'.`
       );
     }
 
-    // Check complete vehicle set
     if (!Array.isArray(observedVehicleIds) || observedVehicleIds.length !== this.vehicleIds.length) {
       throw new DomainError(
         'INCOMPLETE_ARRIVAL_SET',
@@ -209,25 +205,21 @@ class Transfer {
     this.arrivedAt = now.toISOString();
   }
 
-  /**
-   * Cancel transfer order (UC10B)
-   * Precondition: status must be PLANNED
-   * Contention: Cannot cancel if already departed or completed
-   */
   cancel({ reason = 'Operator cancelled order', now = new Date() }) {
-    if (this.status === TransferStatus.IN_TRANSIT) {
+    const s = this.status.toLowerCase();
+    if (s === 'intransit') {
       throw new DomainError(
         'CANNOT_CANCEL_IN_TRANSIT',
         `Cannot cancel transfer order ${this.id} because vehicles have already departed and are in transit (UC10B exception).`
       );
     }
-    if (this.status === TransferStatus.COMPLETED) {
+    if (s === 'completed') {
       throw new DomainError('CANNOT_CANCEL_COMPLETED', `Transfer order ${this.id} is already completed.`);
     }
-    if (this.status === TransferStatus.CANCELLED) {
+    if (s === 'cancelled') {
       throw new DomainError('ALREADY_CANCELLED', `Transfer order ${this.id} is already cancelled.`);
     }
-    if (this.status !== TransferStatus.PLANNED) {
+    if (s !== 'planned') {
       throw new DomainError('INVALID_STATE_TRANSITION', `Cannot cancel transfer ${this.id} from status '${this.status}'.`);
     }
 
@@ -239,5 +231,6 @@ class Transfer {
 
 module.exports = {
   TransferStatus,
+  normalizeTransferStatus,
   Transfer
 };

@@ -42,7 +42,84 @@ Module **Operations** giữ vai trò là **nguồn dữ liệu vật lý có th�
 
 ---
 
-## 2. Cấu trúc Thư mục Module Mục tiêu (Target Directory Layout)
+## 2. Bản đồ Truy vết & Tham chiếu Toàn diện (Repo-wide Traceability & Mapping)
+
+Để đảm bảo Agent khi triển khai không bị lạc hướng (get lost) hoặc tạo ra các hiện thực xung đột (conflicting implementation), toàn bộ các file liên quan trong repository được ánh xạ chi tiết theo bảng dưới đây:
+
+### 2.1. Quy chuẩn Kiến trúc & Nguyên tắc Hoạt động
+| File đường dẫn | Vai trò & Trọng tâm kỹ thuật | Lưu ý bắt buộc cho Agent |
+| :--- | :--- | :--- |
+| [`AGENTS.md`](../../AGENTS.md) | Thẩm quyền nguồn, quy tắc bảo toàn tài liệu, quy ước ranh giới use case. | Luôn ưu tiên slide và đề bài; giữ ID use case UC08–11 ổn định. |
+| [`DECISION.md`](DECISION.md) | Quyết định kiến trúc mục tiêu: Modular monolith, 5 layers, Node.js + Express, SQLite. | Tuân thủ 5 tầng; không cài thêm web framework/ORM ngoài thỏa thuận. |
+| [`DEVELOPMENT_GUIDE.md`](DEVELOPMENT_GUIDE.md) | Hướng dẫn phát triển 4 module song song (Duy, Ý, Minh, Triết). | Duy sở hữu quyền ghi Physical Inventory; Minh/Triết chỉ đọc/gọi qua interface. |
+| [`API_CONTRACTS.md`](API_CONTRACTS.md) | Hợp đồng HTTP API chi tiết (`/api/v1/operations/*`, `/transfers/*`, `/incidents/*`). | Tuân thủ chính xác URL, HTTP method, định dạng JSON và mã lỗi (400, 403, 404, 409, 422). |
+
+### 2.2. Đặc tả Nghiệp vụ, Kịch bản & Quy tắc (Business Rules)
+| Mã UC / Quy tắc | Văn bản Đặc tả nguồn | File kịch bản & Luồng chi tiết | Ràng buộc nghiệp vụ cần giữ |
+| :---: | :--- | :--- | :--- |
+| **UC08** | [`PROJECT_SPECIFICATION.md`](../requirements/PROJECT_SPECIFICATION.md) §3.2 | [`SUBMISSION_1_REPORT.md`](../reports/SUBMISSION_1_REPORT.md) tr. 471 | **BR10 / FR-NI03:** Cảnh báo Đỏ (lấp đầy $\ge 95\%$ hoặc hết xe), Vàng (lấp đầy $\ge 85\%$ hoặc xe $\le 10\%$). |
+| **UC09** | [`PROJECT_SPECIFICATION.md`](../requirements/PROJECT_SPECIFICATION.md) §3.2 | [`SUBMISSION_1_REPORT.md`](../reports/SUBMISSION_1_REPORT.md) tr. 508 | **BR11:** Cấm xóa xe đang ở trạng thái `in_use` hoặc `reserved`. Hỗ trợ suspend / reactivate. |
+| **UC10** | [`PROJECT_SPECIFICATION.md`](../requirements/PROJECT_SPECIFICATION.md) §3.2 | [`SUBMISSION_1_REPORT.md`](../reports/SUBMISSION_1_REPORT.md) tr. 547 | **BR12:** Hub nguồn $\ne$ Hub đích.<br>**BR13:** Xe điều chuyển bắt buộc Pin $\ge 80\%$ và trạng thái `available`. |
+| **UC10A** | [`LIFECYCLE_SCENARIOS.md`](../diagrams/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md) tr. 85 | [`SUBMISSION_1_REPORT.md`](../reports/SUBMISSION_1_REPORT.md) tr. 567 | Xác nhận hoàn tất điều chuyển; kiểm tra đủ 100% xe đến; cho phép đổi đích thay thế nếu trạm lỗi. |
+| **UC10B** | [`LIFECYCLE_SCENARIOS.md`](../diagrams/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md) tr. 101 | [`SUBMISSION_1_REPORT.md`](../reports/SUBMISSION_1_REPORT.md) tr. 568 | Hủy lệnh điều chuyển; chỉ cho phép hủy khi xe chưa xuất phát (`planned`); tự động nhả slot đích. |
+| **UC11** | [`PROJECT_SPECIFICATION.md`](../requirements/PROJECT_SPECIFICATION.md) §3.2 | [`SUBMISSION_1_REPORT.md`](../reports/SUBMISSION_1_REPORT.md) tr. 589 | **BR14:** SLA xử lý sự cố khẩn cấp $\le 60\text{s}$. Tự động cách ly thiết bị; lập phiếu phân công kỹ thuật. |
+| **UC11A** | [`LIFECYCLE_SCENARIOS.md`](../diagrams/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md) tr. 117 | [`SUBMISSION_1_REPORT.md`](../reports/SUBMISSION_1_REPORT.md) tr. 608 | User báo hỏng xe trong chuyến đi; lưu vị trí hiện trường; không khóa xe vật lý từ xa khi xe đang chạy. |
+
+### 2.3. Sơ đồ UML Đối sánh (Diagram Parity)
+| Loại sơ đồ | Tên file sơ đồ nguồn | Đường dẫn vector `.drawio` | Trọng tâm thiết kế |
+| :--- | :--- | :--- | :--- |
+| **Use Case** | UC08, UC09, UC10, UC11 | [`docs/diagrams/01_Usecase_Diagram/drawio/`](../diagrams/01_Usecase_Diagram/drawio/) | `operator_usecases.drawio`, `UC10-Redistribute_Vehicles.drawio`, `UC11-Handle_Operational_Incident.drawio`,... |
+| **Sequence** | SQ05 (Điều phối xe) | [`SQ05-Redistribute_Vehicles.drawio`](../diagrams/02_Sequence_Diagram/drawio/SQ05-Redistribute_Vehicles.drawio) | Chuỗi gọi UI $\rightarrow$ Controller $\rightarrow$ Service $\rightarrow$ Repo: Khóa slot đích, đổi trạng thái xe. |
+| **Sequence** | SQ06 (Xử lý sự cố) | [`SQ06-Handle_Operational_Incident.drawio`](../diagrams/02_Sequence_Diagram/drawio/SQ06-Handle_Operational_Incident.drawio) | Tiếp nhận sự cố $\rightarrow$ Cách ly tài nguyên $\rightarrow$ Phân công kỹ thuật viên hiện trường. |
+| **Activity** | AD05 (Quy trình điều phối) | [`AD05-Redistribute_Vehicles.drawio`](../diagrams/03_Activity_Diagram/drawio/AD05-Redistribute_Vehicles.drawio) | Fork/Join kiểm tra pin $\ge 80\%$ và kiểm tra sức chứa trạm đích; luồng rẽ nhánh đổi trạm thay thế. |
+| **Activity** | AD06 (Quy trình xử lý sự cố) | [`AD06-Handle_Operational_Incident.drawio`](../diagrams/03_Activity_Diagram/drawio/AD06-Handle_Operational_Incident.drawio) | Tiếp nhận $\rightarrow$ Phân loại mức độ $\rightarrow$ Cách ly tài nguyên $\rightarrow$ Gán SLA kỹ thuật viên. |
+| **Statechart** | Vòng đời Xe điện | [`SC01-Vehicle_State_Machine.drawio`](../diagrams/04_Statechart_Diagram/drawio/SC01-Vehicle_State_Machine.drawio) | Chuyển trạng thái: `available` $\leftrightarrow$ `in_transfer`, `faulted`, `suspended`, `maintenance`. |
+| **Statechart** | Vòng đời Cổng sạc | [`SC02-Charging_Point_State_Machine.drawio`](../diagrams/04_Statechart_Diagram/drawio/SC02-Charging_Point_State_Machine.drawio) | Chuyển trạng thái: `available` $\leftrightarrow$ `faulted`, `maintenance`. |
+| **Class Model** | Danh mục thực thể miền | [`.agent/class-diagram/CLASS_CATALOG.md`](../../.agent/class-diagram/CLASS_CATALOG.md) | Định nghĩa thuộc tính/quan hệ: `Transfer`, `Incident`, `ElectricVehicle`, `ParkingSlot`, `ChargingPoint`. |
+| **Architecture** | Component & Package Views | [`06_Component_Diagram`](../diagrams/06_Component_Diagram/) & [`07_Package_Diagram`](../diagrams/07_Package_Diagram/) | `DV01` (Interfaces, Ports & Adapters) và `DV02` (Cấu trúc module `operations`). |
+
+### 2.4. Bản mẫu Giao diện Prototype (`app/prototype/`)
+| Màn hình | Route Hash | File hàm hiển thị trong `app.js` | Tương tác & Action thực hiện | Ảnh chụp màn hình chuẩn |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tổng quan** (UC08) | `#overview` | `function overview()` (dòng 56) | Hiển thị KPI 4 Hub, cảnh báo lấp đầy, nút chuyển nhanh sang điều phối. | [`screens/overview.png`](../../app/prototype/screens/overview.png) |
+| **Tài nguyên** (UC09) | `#resources` | `function resources()` (dòng 57) | Bảng danh sách xe, nút chuyển bảo trì `data-action="maintenance"`. | [`screens/resources.png`](../../app/prototype/screens/resources.png) |
+| **Điều phối** (UC10) | `#redistribute` | `function redistribute()` (dòng 58) | Form chọn Hub nguồn/đích (`#dispatch-form`), nhập số xe, tạo lệnh. | [`screens/redistribute.png`](../../app/prototype/screens/redistribute.png) |
+| **Sự cố** (UC11) | `#incidents` | `function incidents()` (dòng 59) | Danh sách sự cố SC-014, nút `data-action="incident"` cô lập cổng sạc C03. | [`screens/incidents.png`](../../app/prototype/screens/incidents.png) |
+| **Mobile Op** | `#op-menu` | `function operatorMobileShell()` (dòng 65) | Thanh điều hướng dưới (Bottom Nav) cho kỹ thuật viên tại hiện trường. | [`screens/op-mobile-resources.png`](../../app/prototype/screens/op-mobile-resources.png) |
+
+### 2.5. Cơ sở dữ liệu & Migrations (`app/db/`)
+| File đường dẫn | Vai trò trong hệ thống | Nội dung liên quan Operations |
+| :--- | :--- | :--- |
+| [`0001_hub_inventory.sql`](../../app/db/migrations/0001_hub_inventory.sql) | Migration gốc (Version 1) | Tạo bảng `mobility_hubs`, `electric_vehicles`, `parking_slots`, `charging_points`. |
+| [`0002_operations_schema.sql`](../../app/db/migrations/0002_operations_schema.sql) | Migration Operations (Version 2) | Mở rộng cột `status`, tạo `transfers`, `transfer_vehicles`, `transfer_destination_slots`, `incidents`, `maintenance_assignments`, kèm indexes. |
+| [`seed.sql`](../../app/db/seed.sql) | Dữ liệu mẫu ban đầu | Khởi tạo 4 Hubs (`metro`, `bku`, `dorm-a`, `library`), 62 xe điện, 39 slots, 9 ports. |
+| [`init.sh`](../../app/db/init.sh) | Script khởi tạo DB | Đã hỗ trợ tự động nâng cấp user_version từ 1 lên 2 khi chạy migration. |
+
+### 2.6. Ma trận Phối hợp Liên Module (Cross-Module Collaboration Matrix)
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                               OPERATIONS MODULE (Duy)                                  │
+│  - Owns: Physical Inventory Writes, Hubs, Vehicles, Slots, Ports (UC09)                 │
+│  - Real-time Monitoring & Alerts (UC08)                                                │
+│  - Inter-hub Transfers (UC10, 10A, 10B) & Incident Management (UC11, 11A)               │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+          │                                 ▲                                 ▲
+          │ provides                        │ provides                        │ provides
+          ▼ InventoryInterface              ▼ InventoryInterface              ▼ captureNetworkSnapshot()
+┌───────────────────────┐         ┌───────────────────────┐         ┌───────────────────────┐
+│     MOBILITY (Minh)   │         │ PARKING & CHARGE(Triết│         │   SIMULATION (Minh)   │
+│ UC01 - UC05           │         │ UC06, UC07, UC12      │         │ UC13, UC14            │
+│ Đặt/Nhận/Trả xe:      │         │ Giữ slot, check-in,   │         │ Nhận snapshot mạng    │
+│ - getAvailableVehicles│         │ sạc điện:             │         │ lưới bất biến, chạy   │
+│ - reserveVehicle      │         │ - getAvailableSlots   │         │ kịch bản giả lập,     │
+│ - pickupVehicle       │         │ - holdSlotForReserv   │         │ sinh đề xuất điều phối│
+│ - returnVehicle       │         │ - occupySlot/vacate   │         │ mà KHÔNG sửa trực tiếp│
+└───────────────────────┘         └───────────────────────┘         └───────────────────────┘
+```
+
+---
+
+## 3. Cấu trúc Thư mục Module Mục tiêu (Target Directory Layout)
 
 Được chuẩn hóa theo đúng Package Diagram (`DV02`) và kiến trúc 5 tầng:
 
@@ -69,7 +146,7 @@ app/src/modules/operations/
 
 ---
 
-## 3. Thiết kế Dữ liệu & SQLite Schema (`app/db/migrations/`)
+## 4. Thiết kế Dữ liệu & SQLite Schema (`app/db/migrations/`)
 
 Kế thừa schema ban đầu [`app/db/migrations/0001_hub_inventory.sql`](../../app/db/migrations/0001_hub_inventory.sql), tạo migration bổ sung: `0002_operations_schema.sql`:
 
@@ -135,7 +212,7 @@ CREATE TABLE maintenance_assignments (
 
 ---
 
-## 4. Đặc tả Hợp đồng Giao tiếp Nội bộ (`InventoryInterface`)
+## 5. Đặc tả Hợp đồng Giao tiếp Nội bộ (`InventoryInterface`)
 
 Được export từ `domain/inventory-interface.js` để server composition nạp và cung cấp cho module của Minh & Triết:
 
@@ -163,7 +240,7 @@ class InventoryInterface {
 
 ---
 
-## 5. Quy trình Thực thi Từng Bước cho Agent (Step-by-Step Execution Phases)
+## 6. Quy trình Thực thi Từng Bước cho Agent (Step-by-Step Execution Phases)
 
 Agent cần thực hiện tuần tự qua 5 giai đoạn (không nhảy cóc):
 
@@ -228,13 +305,13 @@ Agent cần thực hiện tuần tự qua 5 giai đoạn (không nhảy cóc):
 ### GIAI ĐOẠN 4: Express API Handlers & HTTP Contracts
 *Tập trung tại thư mục `api/` — Tuân thủ 100% [`API_CONTRACTS.md`](API_CONTRACTS.md).*
 
-- [ ] **Bước 4.1: Xây dựng `operations-controller.js`:**
+- [x] **Bước 4.1: Xây dựng `operations-controller.js`:**
   - Kiểm tra thẩm quyền vai trò (`Operator` đối với UC08, UC09, UC10, UC11; `User` đối với UC11A).
   - Xử lý header `Idempotency-Key` cho toàn bộ các route POST: Nếu trùng key nhưng khác payload trả về `409 IDEMPOTENCY_KEY_REUSED`; nếu trùng key và payload, trả kết quả đã lưu.
   - Chuẩn hóa cấu trúc response:
     - Thành công: `{"data": ...}` kèm HTTP 200 hoặc 201.
     - Lỗi: `{"error":{"code":"...","message":"...","details":{}}}`.
-- [ ] **Bước 4.2: Cấu hình `operations-router.js` kết nối đúng đường dẫn:**
+- [x] **Bước 4.2: Cấu hình `operations-router.js` kết nối đúng đường dẫn:**
   ```text
   GET    /api/v1/operations/hubs             (UC08)
   GET    /api/v1/operations/resources        (UC09)
@@ -248,6 +325,7 @@ Agent cần thực hiện tuần tự qua 5 giai đoạn (không nhảy cóc):
   POST   /api/v1/trips/:id/incidents         (UC11A)
   GET    /api/v1/incidents                   (UC11)
   POST   /api/v1/incidents/:id/handle        (UC11)
+  POST   /api/v1/incidents/:id/resolve       (UC11 Alt 8a)
   ```
 
 ---
@@ -265,7 +343,7 @@ Agent cần thực hiện tuần tự qua 5 giai đoạn (không nhảy cóc):
 
 ---
 
-## 6. Checklist Nghiệm thu Chất lượng (Acceptance Checklist)
+## 7. Checklist Nghiệm thu Chất lượng (Acceptance Checklist)
 
 Trước khi bàn giao code cho module khác tích hợp, Agent phải xác nhận đạt đủ 100% các tiêu chí sau:
 

@@ -1,19 +1,29 @@
 -- Migration: 0002_operations_schema.sql
 -- Description: Add operational states to resources, tables for vehicle transfers (UC10) and incidents (UC11).
--- Target: Operations Module (Duy)
+-- Conforms to: CLASS_CATALOG.md, API_CONTRACTS.md, and LIFECYCLE_SCENARIOS.md.
+-- Supports both canonical PascalCase (API contracts / UML) and lowercase aliases.
 
 -- 1. Extend Resource Tables with Operational Status
-ALTER TABLE electric_vehicles ADD COLUMN status TEXT NOT NULL DEFAULT 'available' CHECK (
-    status IN ('available', 'reserved', 'in_use', 'in_transfer', 'faulted', 'suspended', 'maintenance')
+ALTER TABLE electric_vehicles ADD COLUMN status TEXT NOT NULL DEFAULT 'Available' CHECK (
+    status IN (
+        'Available', 'Reserved', 'InUse', 'NeedsCharging', 'Charging', 'TransferHeld', 'InTransit', 'Faulty', 'Maintenance', 'Retired',
+        'available', 'reserved', 'in_use', 'in_transfer', 'faulted', 'suspended', 'maintenance'
+    )
 );
 ALTER TABLE electric_vehicles ADD COLUMN owner_id TEXT DEFAULT NULL;
 
-ALTER TABLE parking_slots ADD COLUMN status TEXT NOT NULL DEFAULT 'available' CHECK (
-    status IN ('available', 'reserved', 'occupied', 'held_for_transfer', 'blocked')
+ALTER TABLE parking_slots ADD COLUMN status TEXT NOT NULL DEFAULT 'Available' CHECK (
+    status IN (
+        'Available', 'Held', 'Occupied', 'Suspended',
+        'available', 'reserved', 'occupied', 'held_for_transfer', 'blocked'
+    )
 );
 
-ALTER TABLE charging_points ADD COLUMN status TEXT NOT NULL DEFAULT 'available' CHECK (
-    status IN ('available', 'occupied', 'charging', 'faulted', 'maintenance')
+ALTER TABLE charging_points ADD COLUMN status TEXT NOT NULL DEFAULT 'Available' CHECK (
+    status IN (
+        'Available', 'Idle', 'Reserved', 'Starting', 'Charging', 'Stopping', 'Complete', 'Fault', 'Repair', 'Retired',
+        'available', 'occupied', 'charging', 'faulted', 'maintenance'
+    )
 );
 
 -- 2. Vehicle Redistribution / Transfers (UC10, UC10A, UC10B)
@@ -21,7 +31,9 @@ CREATE TABLE IF NOT EXISTS transfers (
     id TEXT PRIMARY KEY,
     source_hub_id TEXT NOT NULL REFERENCES mobility_hubs(id),
     destination_hub_id TEXT NOT NULL REFERENCES mobility_hubs(id),
-    status TEXT NOT NULL CHECK (status IN ('planned', 'in_transit', 'completed', 'cancelled')),
+    status TEXT NOT NULL CHECK (
+        status IN ('Planned', 'InTransit', 'Completed', 'Cancelled', 'planned', 'in_transit', 'completed', 'cancelled')
+    ),
     created_at TEXT NOT NULL,
     departed_at TEXT,
     arrived_at TEXT,
@@ -46,13 +58,15 @@ CREATE TABLE IF NOT EXISTS transfer_destination_slots (
 CREATE TABLE IF NOT EXISTS incidents (
     id TEXT PRIMARY KEY,
     reporter_id TEXT NOT NULL,
-    reporter_role TEXT NOT NULL CHECK (reporter_role IN ('user', 'operator', 'system')),
+    reporter_role TEXT NOT NULL CHECK (reporter_role IN ('user', 'operator', 'system', 'User', 'Operator', 'System')),
     reported_trip_id TEXT,
-    resource_kind TEXT NOT NULL CHECK (resource_kind IN ('vehicle', 'slot', 'charging_point')),
+    resource_kind TEXT NOT NULL CHECK (resource_kind IN ('vehicle', 'slot', 'charging_point', 'Vehicle', 'Slot', 'ChargingPoint')),
     resource_id TEXT NOT NULL,
     description TEXT NOT NULL,
-    severity TEXT NOT NULL CHECK (severity IN ('emergency', 'critical', 'standard')),
-    status TEXT NOT NULL CHECK (status IN ('open', 'investigating', 'in_progress', 'resolved', 'closed')),
+    severity TEXT NOT NULL CHECK (severity IN ('emergency', 'critical', 'standard', 'Emergency', 'Critical', 'Standard')),
+    status TEXT NOT NULL CHECK (
+        status IN ('Open', 'Investigating', 'Resolved', 'open', 'investigating', 'in_progress', 'resolved', 'closed')
+    ),
     reported_at TEXT NOT NULL,
     resolved_at TEXT,
     resolution_notes TEXT,
@@ -65,7 +79,7 @@ CREATE TABLE IF NOT EXISTS maintenance_assignments (
     technician_id TEXT NOT NULL,
     scheduled_at TEXT NOT NULL,
     sla_deadline TEXT NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('assigned', 'on_site', 'completed'))
+    status TEXT NOT NULL CHECK (status IN ('assigned', 'on_site', 'completed', 'Assigned', 'OnSite', 'Completed'))
 );
 
 -- 4. Performance Indexes for Real-time Monitoring (UC08) and Fast Lookups

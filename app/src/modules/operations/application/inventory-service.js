@@ -7,6 +7,11 @@
  * - Registration of new assets
  * - Updating specs, operational states (suspend, reactivate)
  * - Deletion with BR11 safety assertions
+ * 
+ * Aligned with API_CONTRACTS.md:
+ * - GET /operations/resources (Optional hubId, kind) -> resource IDs, kinds and operational states
+ * - POST /operations/resources (kind, hubId, attributes) -> resource record
+ * - PATCH /operations/resources/{id} (Kind-specific mutable attributes) -> resource record
  */
 
 const {
@@ -32,7 +37,7 @@ class InventoryService {
   }
 
   /**
-   * List resources with optional filters (UC09)
+   * List resources with optional filters (UC09, API_CONTRACTS.md)
    * @param {{ hubId?: string, kind?: string }} filters
    */
   async listResources(filters = {}) {
@@ -40,7 +45,7 @@ class InventoryService {
   }
 
   /**
-   * Register a new resource (UC09 Main Flow TH1)
+   * Register a new resource (UC09, POST /operations/resources)
    * @param {{ kind: string, hubId: string, attributes: object }} data
    */
   async createResource({ kind, hubId, attributes = {} }) {
@@ -53,9 +58,10 @@ class InventoryService {
       throw new DomainError('HUB_NOT_FOUND', `Hub with ID ${hubId} does not exist.`);
     }
 
-    const id = attributes.id || `${kind.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+    const normalizedKind = String(kind).toLowerCase();
+    const id = attributes.id || `${normalizedKind.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
 
-    if (kind === ResourceKind.VEHICLE) {
+    if (normalizedKind === 'vehicle') {
       const vehicle = new ElectricVehicle({
         id,
         hubId,
@@ -68,7 +74,7 @@ class InventoryService {
       await this.inventoryRepo.createVehicle(vehicle);
       return {
         id: vehicle.id,
-        kind: ResourceKind.VEHICLE,
+        kind: 'vehicle',
         hubId: vehicle.hubId,
         status: vehicle.status,
         attributes: {
@@ -79,7 +85,7 @@ class InventoryService {
       };
     }
 
-    if (kind === ResourceKind.SLOT) {
+    if (normalizedKind === 'slot') {
       const code = attributes.code || `SLOT-${id.slice(-4)}`;
       const slot = new ParkingSlot({
         id,
@@ -88,7 +94,6 @@ class InventoryService {
         status: attributes.status || SlotStatus.AVAILABLE
       });
 
-      // Insert slot through client
       await this.inventoryRepo.client.run(
         `INSERT INTO parking_slots (id, hub_id, code, status) VALUES (?, ?, ?, ?);`,
         [slot.id, slot.hubId, slot.code, slot.status]
@@ -96,14 +101,14 @@ class InventoryService {
 
       return {
         id: slot.id,
-        kind: ResourceKind.SLOT,
+        kind: 'slot',
         hubId: slot.hubId,
         status: slot.status,
         attributes: { code: slot.code }
       };
     }
 
-    if (kind === ResourceKind.CHARGING_POINT) {
+    if (normalizedKind === 'charging_point') {
       const code = attributes.code || `CP-${id.slice(-4)}`;
       const point = new ChargingPoint({
         id,
@@ -119,7 +124,7 @@ class InventoryService {
 
       return {
         id: point.id,
-        kind: ResourceKind.CHARGING_POINT,
+        kind: 'charging_point',
         hubId: point.hubId,
         status: point.status,
         attributes: { code: point.code }
@@ -130,12 +135,11 @@ class InventoryService {
   }
 
   /**
-   * Update mutable resource attributes or operational status (UC09 Main Flow TH2/TH3/TH4)
+   * Update mutable resource attributes or operational status (UC09, PATCH /operations/resources/{id})
    * @param {string} id
    * @param {object} patch
    */
   async updateResource(id, patch = {}) {
-    // Check if vehicle
     const vehicleRow = await this.inventoryRepo.client.get('SELECT * FROM electric_vehicles WHERE id = ?;', [id]);
     if (vehicleRow) {
       const vehicle = new ElectricVehicle({
@@ -147,13 +151,13 @@ class InventoryService {
         ownerId: vehicleRow.owner_id
       });
 
-      // Handle status transitions
       if (patch.status && patch.status !== vehicle.status) {
-        if (patch.status === VehicleStatus.SUSPENDED) {
+        const s = String(patch.status).toLowerCase();
+        if (s === 'maintenance' || s === 'suspended') {
           vehicle.suspend(patch.reason);
-        } else if (patch.status === VehicleStatus.AVAILABLE) {
+        } else if (s === 'available') {
           vehicle.reactivate();
-        } else if (patch.status === VehicleStatus.FAULTED) {
+        } else if (s === 'faulty' || s === 'faulted') {
           vehicle.isolateFault();
         } else {
           vehicle.status = patch.status;
@@ -163,7 +167,7 @@ class InventoryService {
       await this.inventoryRepo.updateVehicle(vehicle);
       return {
         id: vehicle.id,
-        kind: ResourceKind.VEHICLE,
+        kind: 'vehicle',
         hubId: vehicle.hubId,
         status: vehicle.status,
         attributes: {
@@ -174,7 +178,6 @@ class InventoryService {
       };
     }
 
-    // Check if slot
     const slotRow = await this.inventoryRepo.client.get('SELECT * FROM parking_slots WHERE id = ?;', [id]);
     if (slotRow) {
       const newStatus = patch.status || slotRow.status;
@@ -185,14 +188,13 @@ class InventoryService {
       );
       return {
         id,
-        kind: ResourceKind.SLOT,
+        kind: 'slot',
         hubId: slotRow.hub_id,
         status: newStatus,
         attributes: { code: newCode }
       };
     }
 
-    // Check if charging point
     const pointRow = await this.inventoryRepo.client.get('SELECT * FROM charging_points WHERE id = ?;', [id]);
     if (pointRow) {
       const newStatus = patch.status || pointRow.status;
@@ -203,7 +205,7 @@ class InventoryService {
       );
       return {
         id,
-        kind: ResourceKind.CHARGING_POINT,
+        kind: 'charging_point',
         hubId: pointRow.hub_id,
         status: newStatus,
         attributes: { code: newCode }
@@ -213,9 +215,6 @@ class InventoryService {
     throw new DomainError('RESOURCE_NOT_FOUND', `Resource with ID ${id} not found.`);
   }
 
-  /**
-   * Delete vehicle with BR11 safety check (UC09)
-   */
   async deleteVehicle(vehicleId) {
     return this.inventoryRepo.deleteVehicle(vehicleId);
   }

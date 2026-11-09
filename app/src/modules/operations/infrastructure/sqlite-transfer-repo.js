@@ -21,37 +21,34 @@ class SQLiteTransferRepository {
     this.client = client;
   }
 
-  /**
-   * Save a newly planned transfer order
-   * Atomically inserts transfer record, child tables, and marks destination slots as held
-   */
   async createTransfer(transfer) {
     return this.client.transaction(async () => {
-      // 1. Insert main transfer row
       await this.client.run(
         `INSERT INTO transfers (id, source_hub_id, destination_hub_id, status, created_at, created_by)
          VALUES (?, ?, ?, ?, ?, ?);`,
         [transfer.id, transfer.sourceHubId, transfer.destinationHubId, transfer.status, transfer.createdAt, transfer.createdBy]
       );
 
-      // 2. Insert vehicle links
       for (const vehicleId of transfer.vehicleIds) {
         await this.client.run(
           `INSERT INTO transfer_vehicles (transfer_id, vehicle_id) VALUES (?, ?);`,
           [transfer.id, vehicleId]
         );
+        // Mark vehicle as transfer held
+        await this.client.run(
+          `UPDATE electric_vehicles SET status = 'TransferHeld' WHERE id = ?;`,
+          [vehicleId]
+        );
       }
 
-      // 3. Insert and hold destination slots
       for (const slotId of transfer.destinationSlotIds) {
         await this.client.run(
           `INSERT INTO transfer_destination_slots (transfer_id, slot_id) VALUES (?, ?);`,
           [transfer.id, slotId]
         );
 
-        // Mark slot as held for transfer
         const res = await this.client.run(
-          `UPDATE parking_slots SET status = 'held_for_transfer' WHERE id = ? AND status = 'available';`,
+          `UPDATE parking_slots SET status = 'Held' WHERE id = ? AND (status = 'Available' OR status = 'available');`,
           [slotId]
         );
         if (res.changes === 0) {
@@ -63,9 +60,6 @@ class SQLiteTransferRepository {
     });
   }
 
-  /**
-   * Retrieve a transfer by ID, hydrating vehicle and destination slot arrays
-   */
   async getTransferById(id) {
     const row = await this.client.get('SELECT * FROM transfers WHERE id = ?;', [id]);
     if (!row) {
@@ -97,15 +91,12 @@ class SQLiteTransferRepository {
     });
   }
 
-  /**
-   * Depart transfer (UC10)
-   * Atomically updates transfer status to in_transit and vehicles to in_transfer
-   */
   async departTransfer(transfer) {
     return this.client.transaction(async () => {
-      // Concurrency guard: update only if still planned
       const res = await this.client.run(
-        `UPDATE transfers SET status = ?, departed_at = ? WHERE id = ? AND status = 'planned';`,
+        `UPDATE transfers 
+         SET status = ?, departed_at = ? 
+         WHERE id = ? AND (status = 'Planned' OR status = 'planned');`,
         [TransferStatus.IN_TRANSIT, transfer.departedAt, transfer.id]
       );
 
@@ -117,10 +108,9 @@ class SQLiteTransferRepository {
         );
       }
 
-      // Mark vehicles as in_transfer
       for (const vehicleId of transfer.vehicleIds) {
         await this.client.run(
-          `UPDATE electric_vehicles SET status = 'in_transfer' WHERE id = ?;`,
+          `UPDATE electric_vehicles SET status = 'InTransit' WHERE id = ?;`,
           [vehicleId]
         );
       }
@@ -129,17 +119,12 @@ class SQLiteTransferRepository {
     });
   }
 
-  /**
-   * Complete transfer arrival (UC10A)
-   * Atomically updates transfer to completed, updates vehicle locations and releases/occupies slots
-   */
   async arriveTransfer(transfer) {
     return this.client.transaction(async () => {
-      // Concurrency guard: update only if in_transit
       const res = await this.client.run(
         `UPDATE transfers 
          SET status = ?, arrived_at = ?, destination_hub_id = ? 
-         WHERE id = ? AND status = 'in_transit';`,
+         WHERE id = ? AND (status = 'InTransit' OR status = 'in_transit');`,
         [TransferStatus.COMPLETED, transfer.arrivedAt, transfer.destinationHubId, transfer.id]
       );
 
@@ -151,18 +136,16 @@ class SQLiteTransferRepository {
         );
       }
 
-      // Update vehicles to destination hub and available
       for (const vehicleId of transfer.vehicleIds) {
         await this.client.run(
-          `UPDATE electric_vehicles SET hub_id = ?, status = 'available' WHERE id = ?;`,
+          `UPDATE electric_vehicles SET hub_id = ?, status = 'Available' WHERE id = ?;`,
           [transfer.destinationHubId, vehicleId]
         );
       }
 
-      // Occupy destination slots
       for (const slotId of transfer.destinationSlotIds) {
         await this.client.run(
-          `UPDATE parking_slots SET status = 'occupied' WHERE id = ?;`,
+          `UPDATE parking_slots SET status = 'Occupied' WHERE id = ?;`,
           [slotId]
         );
       }
@@ -171,17 +154,12 @@ class SQLiteTransferRepository {
     });
   }
 
-  /**
-   * Cancel transfer (UC10B)
-   * Atomically updates transfer to cancelled and releases held destination slots
-   */
   async cancelTransfer(transfer) {
     return this.client.transaction(async () => {
-      // Concurrency guard: update only if still planned
       const res = await this.client.run(
         `UPDATE transfers 
          SET status = ?, cancelled_at = ?, cancel_reason = ? 
-         WHERE id = ? AND status = 'planned';`,
+         WHERE id = ? AND (status = 'Planned' OR status = 'planned');`,
         [TransferStatus.CANCELLED, transfer.cancelledAt, transfer.cancelReason, transfer.id]
       );
 
@@ -193,10 +171,18 @@ class SQLiteTransferRepository {
         );
       }
 
+      // Release vehicle holds
+      for (const vehicleId of transfer.vehicleIds) {
+        await this.client.run(
+          `UPDATE electric_vehicles SET status = 'Available' WHERE id = ? AND (status = 'TransferHeld' OR status = 'in_transfer');`,
+          [vehicleId]
+        );
+      }
+
       // Release destination slot holds
       for (const slotId of transfer.destinationSlotIds) {
         await this.client.run(
-          `UPDATE parking_slots SET status = 'available' WHERE id = ? AND status = 'held_for_transfer';`,
+          `UPDATE parking_slots SET status = 'Available' WHERE id = ? AND (status = 'Held' OR status = 'held_for_transfer');`,
           [slotId]
         );
       }
