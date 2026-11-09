@@ -29,7 +29,17 @@ PRAGMA user_version = 1;
 COMMIT;
 SQL
         ;;
-    1) ;;
+    1)
+        ops_sql=$(cat "$script_dir/migrations/0002_operations_schema.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$ops_sql
+PRAGMA user_version = 2;
+COMMIT;
+SQL
+        ;;
+    2) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
