@@ -332,13 +332,13 @@ Agent cần thực hiện tuần tự qua 5 giai đoạn (không nhảy cóc):
 
 ### GIAI ĐOẠN 5: Fixtures & Verification Tests
 
-- [ ] **Bước 5.1: Xây dựng Test Fixtures (`tests/fixtures/operations-fixtures.js`):**
+- [x] **Bước 5.1: Xây dựng Test Fixtures (`tests/fixtures/operations-fixtures.js`):**
   - Tạo sẵn dữ liệu mẫu cho: 1 Hub dư xe, 1 Hub thiếu xe, 1 xe pin <80% (không đủ chuẩn điều phối), 1 cổng sạc bị lỗi (`faulted`).
-- [ ] **Bước 5.2: Kiểm thử tranh chấp (Contention & Concurrency Tests):**
+- [x] **Bước 5.2: Kiểm thử tranh chấp (Contention & Concurrency Tests):**
   - Chạy đồng thời `POST /transfers/:id/depart` và `POST /transfers/:id/cancel` trên cùng 1 transfer $\rightarrow$ Đảm bảo đúng 1 request thành công, request còn lại trả `409 Conflict`.
-- [ ] **Bước 5.3: Kiểm thử cách ly sự cố an toàn (Incident Isolation Tests):**
+- [x] **Bước 5.3: Kiểm thử cách ly sự cố an toàn (Incident Isolation Tests):**
   - Báo sự cố cho xe đang trong chuyến đi (`active trip`) $\rightarrow$ Xác nhận xe bị chặn phân bổ mới (`reserved`), nhưng chuyến đi không bị ngắt đột ngột.
-- [ ] **Bước 5.4: Kiểm thử quy tắc cảnh báo BR10:**
+- [x] **Bước 5.4: Kiểm thử quy tắc cảnh báo BR10:**
   - Kiểm tra màu trạng thái khi trạm đạt 95% sức chứa (đỏ) và 85% sức chứa (vàng).
 
 ---
@@ -347,12 +347,12 @@ Agent cần thực hiện tuần tự qua 5 giai đoạn (không nhảy cóc):
 
 Trước khi bàn giao code cho module khác tích hợp, Agent phải xác nhận đạt đủ 100% các tiêu chí sau:
 
-- [ ] Toàn bộ mã nguồn nằm gọn trong thư mục `app/src/modules/operations/`.
-- [ ] Không có bất kỳ câu lệnh SQL raw nào nằm trong tầng Domain hay Controller; 100% truy vấn nằm trong thư mục `infrastructure/`.
-- [ ] Đã export đầy đủ `InventoryInterface` chuẩn xác cho Minh (Mobility) và Triết (Parking & Charging) sử dụng.
-- [ ] Mọi endpoint tuân thủ đúng định dạng dữ liệu và mã lỗi trong `API_CONTRACTS.md`.
-- [ ] Chạy kiểm thử tự động với SQLite file tạm (`:memory:` hoặc file temp) thành công không lỗi.
-- [ ] Không import trực tiếp code từ các module khác; không gây circular dependency.
+- [x] Toàn bộ mã nguồn nằm gọn trong thư mục `app/src/modules/operations/`.
+- [x] Không có bất kỳ câu lệnh SQL raw nào nằm trong tầng Domain hay Controller; 100% truy vấn nằm trong thư mục `infrastructure/`.
+- [x] Đã export đầy đủ `InventoryInterface` chuẩn xác cho Minh (Mobility) và Triết (Parking & Charging) sử dụng.
+- [x] Mọi endpoint tuân thủ đúng định dạng dữ liệu và mã lỗi trong `API_CONTRACTS.md`.
+- [x] Chạy kiểm thử tự động với SQLite file tạm (`:memory:` hoặc file temp) thành công không lỗi.
+- [x] Không import trực tiếp code từ các module khác; không gây circular dependency.
 
 ---
 *Kế hoạch này là tài liệu chuẩn để AI agent đọc và bắt đầu triển khai code từng bước một cách an toàn và chuẩn mực.*
