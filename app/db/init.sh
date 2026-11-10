@@ -28,12 +28,121 @@ $inventory_sql
 PRAGMA user_version = 1;
 COMMIT;
 SQL
+        version=1
         ;;
-    1) ;;
+    1|2|3|4|5|6|7|8) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
         ;;
+esac
+
+case "$version" in
+    1)
+        ops_sql=$(cat "$script_dir/migrations/0002_operations_schema.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$ops_sql
+PRAGMA user_version = 2;
+COMMIT;
+SQL
+        version=2
+        ;;
+    2|3|4|5|6|7|8) ;;
+    *)
+        printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
+        exit 1
+        ;;
+esac
+
+case "$version" in
+    2)
+        idempotency_sql=$(cat "$script_dir/migrations/0003_idempotency.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$idempotency_sql
+PRAGMA user_version = 3;
+COMMIT;
+SQL
+        version=3
+        ;;
+    3|4|5|6|7|8) ;;
+esac
+
+case "$version" in
+    3)
+        ownership_sql=$(cat "$script_dir/migrations/0004_inventory_ownership.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$ownership_sql
+PRAGMA user_version = 4;
+COMMIT;
+SQL
+        version=4
+        ;;
+    4|5|6|7|8) ;;
+esac
+
+case "$version" in
+    4)
+        parking_sql=$(cat "$script_dir/migrations/0005_parked_vehicle.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$parking_sql
+PRAGMA user_version = 5;
+COMMIT;
+SQL
+        version=5
+        ;;
+    5|6|7|8) ;;
+esac
+
+case "$version" in
+    5)
+        commitment_sql=$(cat "$script_dir/migrations/0006_parking_commitments.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$commitment_sql
+PRAGMA user_version = 6;
+COMMIT;
+SQL
+        version=6
+        ;;
+    6|7|8) ;;
+esac
+
+case "$version" in
+    6)
+        pickup_sql=$(cat "$script_dir/migrations/0007_vehicle_pickup_claim.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$pickup_sql
+PRAGMA user_version = 7;
+COMMIT;
+SQL
+        version=7
+        ;;
+    7|8) ;;
+esac
+
+case "$version" in
+    7)
+        isolation_sql=$(cat "$script_dir/migrations/0008_incident_isolation.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$isolation_sql
+PRAGMA user_version = 8;
+COMMIT;
+SQL
+        ;;
+    8) ;;
 esac
 
 printf '%s\n' "$database"
