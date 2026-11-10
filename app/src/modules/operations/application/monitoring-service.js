@@ -9,6 +9,10 @@
  * - GREEN: Normal operational conditions
  */
 
+function statusKey(status) {
+  return String(status).toLowerCase().replace(/[_\s-]/g, '');
+}
+
 class MonitoringService {
   /**
    * @param {import('../infrastructure/sqlite-inventory-repo').SQLiteInventoryRepository} inventoryRepo
@@ -69,17 +73,17 @@ class MonitoringService {
 
       // 1. Capacity metrics
       const totalSlots = hubSlots.length;
-      const occupiedSlots = hubSlots.filter(s => s.status === 'occupied').length;
-      const heldSlots = hubSlots.filter(s => s.status === 'held_for_transfer' || s.status === 'reserved').length;
-      const availableSlots = hubSlots.filter(s => s.status === 'available').length;
+      const occupiedSlots = hubSlots.filter(s => statusKey(s.status) === 'occupied').length;
+      const heldSlots = hubSlots.filter(s => ['held', 'heldfortransfer', 'reserved'].includes(statusKey(s.status))).length;
+      const availableSlots = hubSlots.filter(s => statusKey(s.status) === 'available').length;
       const occupancyRate = totalSlots > 0 ? (occupiedSlots / totalSlots) * 100 : 0;
 
       // 2. Vehicle metrics
       const totalVehicles = hubVehicles.length;
-      const availableVehicles = hubVehicles.filter(v => v.status === 'available').length;
-      const inUseVehicles = hubVehicles.filter(v => v.status === 'in_use').length;
-      const inTransferVehicles = hubVehicles.filter(v => v.status === 'in_transfer').length;
-      const faultedVehicles = hubVehicles.filter(v => v.status === 'faulted').length;
+      const availableVehicles = hubVehicles.filter(v => statusKey(v.status) === 'available').length;
+      const inUseVehicles = hubVehicles.filter(v => statusKey(v.status) === 'inuse').length;
+      const inTransferVehicles = hubVehicles.filter(v => ['transferheld', 'intransfer', 'intransit'].includes(statusKey(v.status))).length;
+      const faultedVehicles = hubVehicles.filter(v => ['fault', 'faulted', 'faulty'].includes(statusKey(v.status))).length;
 
       const batterySum = hubVehicles.reduce((acc, v) => acc + (v.batteryPercent || 0), 0);
       const avgBattery = totalVehicles > 0 ? Math.round(batterySum / totalVehicles) : 0;
@@ -88,9 +92,9 @@ class MonitoringService {
 
       // 3. Charging points metrics
       const totalPoints = hubPoints.length;
-      const availablePoints = hubPoints.filter(cp => cp.status === 'available').length;
-      const chargingPoints = hubPoints.filter(cp => cp.status === 'charging').length;
-      const faultedPoints = hubPoints.filter(cp => cp.status === 'faulted').length;
+      const availablePoints = hubPoints.filter(cp => ['available', 'idle'].includes(statusKey(cp.status))).length;
+      const chargingPoints = hubPoints.filter(cp => statusKey(cp.status) === 'charging').length;
+      const faultedPoints = hubPoints.filter(cp => ['fault', 'faulted', 'faulty'].includes(statusKey(cp.status))).length;
 
       // 4. BR10 Alert Evaluation
       const { alertLevel, reasons } = MonitoringService.evaluateAlertLevel(

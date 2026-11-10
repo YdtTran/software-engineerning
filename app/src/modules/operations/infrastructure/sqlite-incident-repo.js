@@ -24,6 +24,16 @@ class SQLiteIncidentRepository {
 
   async createIncident(incident) {
     return this.client.transaction(async () => {
+      const table = { vehicle: 'electric_vehicles', slot: 'parking_slots', charging_point: 'charging_points' }[incident.resourceKind];
+      if (!table || !await this.client.get(`SELECT id FROM ${table} WHERE id = ?;`, [incident.resourceId])) {
+        throw new DomainError('RESOURCE_NOT_FOUND', `Resource ${incident.resourceId} not found.`);
+      }
+      if (incident.reportedTripId && !await this.client.get(
+        `SELECT id FROM electric_vehicles WHERE id = ? AND trip_id = ? AND status IN ('InUse', 'in_use');`,
+        [incident.resourceId, incident.reportedTripId]
+      )) {
+        throw new DomainError('TRIP_NOT_ACTIVE', 'Vehicle is not assigned to the active trip.');
+      }
       await this.client.run(
         `INSERT INTO incidents (
           id, reporter_id, reporter_role, reported_trip_id,
@@ -174,13 +184,14 @@ class SQLiteIncidentRepository {
     }
 
     return this.client.transaction(async () => {
-      await this.client.run(
-        `UPDATE incidents SET status = ? WHERE id = ?;`,
+      const updated = await this.client.run(
+        `UPDATE incidents SET status = ? WHERE id = ? AND status IN ('Open', 'open');`,
         [incident.status, incident.id]
       );
+      if (updated.changes !== 1) throw new DomainError('INCIDENT_ASSIGNMENT_CONFLICT', 'Incident is no longer open for assignment.');
 
       await this.client.run(
-        `INSERT OR REPLACE INTO maintenance_assignments (
+        `INSERT INTO maintenance_assignments (
           id, incident_id, technician_id, scheduled_at, sla_deadline, status
         ) VALUES (?, ?, ?, ?, ?, ?);`,
         [
@@ -199,12 +210,14 @@ class SQLiteIncidentRepository {
 
   async resolveIncident(incident) {
     return this.client.transaction(async () => {
-      await this.client.run(
+      const updated = await this.client.run(
         `UPDATE incidents 
          SET status = ?, resolved_at = ?, resolution_notes = ? 
-         WHERE id = ?;`,
+         WHERE id = ? AND status IN ('Investigating', 'investigating', 'in_progress')
+           AND EXISTS (SELECT 1 FROM maintenance_assignments WHERE incident_id = incidents.id);`,
         [incident.status, incident.resolvedAt, incident.resolutionNotes, incident.id]
       );
+      if (updated.changes !== 1) throw new DomainError('INCIDENT_ALREADY_CLOSED', 'Incident is already resolved.');
 
       if (incident.assignment) {
         await this.client.run(
@@ -215,17 +228,20 @@ class SQLiteIncidentRepository {
 
       if (incident.resourceKind === 'vehicle') {
         await this.client.run(
-          `UPDATE electric_vehicles SET status = 'Available' WHERE id = ? AND (status = 'Faulty' OR status = 'faulted');`,
-          [incident.resourceId]
-        );
-      } else if (incident.resourceKind === 'charging_point') {
-        await this.client.run(
-          `UPDATE charging_points SET status = 'Available' WHERE id = ? AND (status = 'Fault' OR status = 'faulted');`,
+          `UPDATE electric_vehicles SET status = CASE
+             WHEN trip_id IS NOT NULL THEN 'InUse'
+             WHEN reservation_id IS NOT NULL THEN 'Reserved'
+             WHEN transfer_hold_id IS NOT NULL THEN CASE WHEN EXISTS (SELECT 1 FROM transfers WHERE id = electric_vehicles.transfer_hold_id AND status IN ('InTransit','in_transit')) THEN 'InTransit' ELSE 'TransferHeld' END
+             WHEN battery_percent < 20 THEN 'NeedsCharging' ELSE 'Available' END
+           WHERE id = ? AND (status = 'Faulty' OR status = 'faulted')
+           AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved', 'closed'));`,
           [incident.resourceId]
         );
       } else if (incident.resourceKind === 'slot') {
         await this.client.run(
-          `UPDATE parking_slots SET status = 'Available' WHERE id = ? AND (status = 'Suspended' OR status = 'blocked');`,
+          `UPDATE parking_slots SET status = CASE WHEN occupancy_id IS NOT NULL THEN 'Occupied' WHEN reservation_id IS NOT NULL OR transfer_hold_id IS NOT NULL THEN 'Held' ELSE 'Available' END
+           WHERE id = ? AND (status = 'Suspended' OR status = 'blocked')
+           AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'slot' AND resource_id = parking_slots.id AND LOWER(status) NOT IN ('resolved', 'closed'));`,
           [incident.resourceId]
         );
       }

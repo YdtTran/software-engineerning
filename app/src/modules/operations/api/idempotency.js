@@ -83,7 +83,41 @@ class IdempotencyStore {
 
 const defaultIdempotencyStore = new IdempotencyStore();
 
+class SQLiteIdempotencyStore {
+  constructor(client, ttlMs = 24 * 60 * 60 * 1000) {
+    this.client = client;
+    this.ttlMs = ttlMs;
+  }
+
+  async execute(req, actorId, action) {
+    const key = req.headers['idempotency-key'];
+    const scope = JSON.stringify([actorId, req.method, req.path, key]);
+    const hash = crypto.createHash('sha256').update(JSON.stringify(req.body || {})).digest('hex');
+    const failed = Symbol('failed response');
+    try {
+      return await this.client.transaction(async () => {
+        const now = Date.now();
+        await this.client.run('DELETE FROM idempotency_outcomes WHERE scope = ? AND expires_at <= ?;', [scope, now]);
+        const existing = await this.client.get('SELECT * FROM idempotency_outcomes WHERE scope = ?;', [scope]);
+        if (existing) {
+          if (existing.payload_hash !== hash) return { status: 409, body: { error: { code: 'IDEMPOTENCY_KEY_REUSED', message: 'Idempotency key was previously used with a different request payload.', details: {} } } };
+          return { status: existing.status_code, body: JSON.parse(existing.response_body) };
+        }
+        const response = await action();
+        if (response.status < 200 || response.status >= 300) throw { marker: failed, response };
+        await this.client.run('INSERT INTO idempotency_outcomes (scope, payload_hash, status_code, response_body, expires_at) VALUES (?, ?, ?, ?, ?);',
+          [scope, hash, response.status, JSON.stringify(response.body), Date.now() + this.ttlMs]);
+        return response;
+      });
+    } catch (err) {
+      if (err && err.marker === failed) return err.response;
+      throw err;
+    }
+  }
+}
+
 module.exports = {
   IdempotencyStore,
+  SQLiteIdempotencyStore,
   defaultIdempotencyStore
 };

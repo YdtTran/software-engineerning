@@ -21,10 +21,11 @@ const { IncidentService } = require('./application/incident-service');
 
 const { OperationsController } = require('./api/operations-controller');
 const { createOperationsRouter, routesTable } = require('./api/operations-router');
-const { IdempotencyStore, defaultIdempotencyStore } = require('./api/idempotency');
+const { SQLiteIdempotencyStore } = require('./api/idempotency');
 
-function createOperationsModule({ client = null, db = null, idempotencyStore = defaultIdempotencyStore } = {}) {
+function createOperationsModule({ client = null, db = null, tripReader = null, idempotencyStore = null } = {}) {
   const sqliteClient = client || new SQLiteClient(db);
+  idempotencyStore = idempotencyStore || new SQLiteIdempotencyStore(sqliteClient);
 
   // 1. Repositories (Infrastructure)
   const inventoryRepo = new SQLiteInventoryRepository(sqliteClient);
@@ -35,7 +36,7 @@ function createOperationsModule({ client = null, db = null, idempotencyStore = d
   const inventoryService = new InventoryService(inventoryRepo);
   const monitoringService = new MonitoringService(inventoryRepo);
   const transferService = new TransferService(transferRepo, inventoryRepo);
-  const incidentService = new IncidentService(incidentRepo, inventoryRepo);
+  const incidentService = new IncidentService(incidentRepo, inventoryRepo, tripReader);
 
   // 3. API Controller & Router
   const controller = new OperationsController({

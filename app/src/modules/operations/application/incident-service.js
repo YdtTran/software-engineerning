@@ -16,12 +16,13 @@ class IncidentService {
    * @param {import('../infrastructure/sqlite-incident-repo').SQLiteIncidentRepository} incidentRepo
    * @param {import('../infrastructure/sqlite-inventory-repo').SQLiteInventoryRepository} inventoryRepo
    */
-  constructor(incidentRepo, inventoryRepo) {
+  constructor(incidentRepo, inventoryRepo, tripReader = null) {
     if (!incidentRepo || !inventoryRepo) {
       throw new Error('IncidentService requires incidentRepo and inventoryRepo instances.');
     }
     this.incidentRepo = incidentRepo;
     this.inventoryRepo = inventoryRepo;
+    this.tripReader = tripReader;
   }
 
   /**
@@ -35,12 +36,23 @@ class IncidentService {
    *   reportedLocation?: string
    * }} data
    */
-  async reportTripIncident({ tripId, description, userId = 'user', vehicleId = null, reportedLocation = null }) {
+  async reportTripIncident({ tripId, description, userId, reportedLocation = null }) {
     if (!tripId) {
       throw new DomainError('MISSING_TRIP_ID', 'tripId is required to report an incident on a trip.');
     }
     if (!description || typeof description !== 'string') {
       throw new DomainError('INVALID_DESCRIPTION', 'description is required.');
+    }
+    if (!userId) throw new DomainError('INVALID_REPORTER', 'Authenticated user is required.');
+    if (!this.tripReader || typeof this.tripReader.getTrip !== 'function') {
+      throw new DomainError('TRIP_READER_UNAVAILABLE', 'Trip verification is unavailable.');
+    }
+    const trip = await this.tripReader.getTrip(tripId);
+    if (!trip || trip.id !== tripId) throw new DomainError('TRIP_NOT_FOUND', 'Trip not found.');
+    if (trip.userId !== userId) throw new DomainError('FORBIDDEN_OPERATION', 'Trip does not belong to this user.');
+    if (String(trip.status).toLowerCase() !== 'active') throw new DomainError('TRIP_NOT_ACTIVE', 'Trip is not active.');
+    if (!trip.vehicleId || !await this.inventoryRepo.client.get('SELECT id FROM electric_vehicles WHERE id = ?;', [trip.vehicleId])) {
+      throw new DomainError('VEHICLE_NOT_FOUND', 'Trip vehicle not found.');
     }
 
     const incidentId = `INC-TRIP-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1000)}`;
@@ -48,7 +60,7 @@ class IncidentService {
       id: incidentId,
       userId,
       tripId,
-      vehicleId,
+      vehicleId: trip.vehicleId,
       description,
       reportedLocation
     });

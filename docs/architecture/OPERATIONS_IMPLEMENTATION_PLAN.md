@@ -220,17 +220,17 @@ CREATE TABLE maintenance_assignments (
 class InventoryInterface {
   // === Dành cho Module Mobility (Minh) ===
   async getAvailableVehicles(hubId, vehicleType) {}
-  async reserveVehicle(vehicleId, reservationId) {}     // Chuyển xe -> 'reserved'
-  async releaseVehicleHold(vehicleId) {}                // Trả xe về 'available' khi hủy đặt
-  async pickupVehicle(vehicleId, tripId) {}             // Chuyển xe -> 'in_use'
-  async returnVehicle(vehicleId, hubId, slotId) {}      // Cập nhật hub mới, xe -> 'available' / 'needs_charging'
+  async reserveVehicle(vehicleId, reservationId, hubId) {} // Chuyển xe -> 'reserved'
+  async releaseVehicleHold(vehicleId, reservationId) {} // Chỉ trả giữ chỗ của chính phiếu
+  async pickupVehicle(vehicleId, tripId, reservationId, hubId) {}
+  async returnVehicle(vehicleId, hubId, slotId, finalBatteryPercent, tripId, slotReservationId) {}
   
   // === Dành cho Module Parking & Charging (Triết) ===
   async getAvailableSlots(hubId, pool) {}
   async holdSlotForReservation(slotId, reservationId) {}
-  async releaseSlotHold(slotId) {}
-  async occupySlot(slotId, occupancyId) {}
-  async vacateSlot(slotId) {}
+  async releaseSlotHold(slotId, reservationId) {}
+  async occupySlot(slotId, occupancyId, reservationId) {}
+  async vacateSlot(slotId, occupancyId) {}
   async updateChargingPointStatus(pointId, status) {}   // 'available' | 'charging' | 'faulted'
 
   // === Đọc Snapshot phục vụ Mô phỏng & Giám sát ===

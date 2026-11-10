@@ -76,6 +76,21 @@ function normalizeStatus(str, defaultVal) {
   return str;
 }
 
+function normalizeResourceStatus(status, aliases) {
+  const key = typeof status === 'string' ? status.toLowerCase().replace(/[_\s-]/g, '') : '';
+  const normalized = aliases[key];
+  if (!normalized) throw new DomainError('INVALID_STATE_TRANSITION', `Unsupported resource status '${status}'.`);
+  return normalized;
+}
+
+const vehicleStatuses = {
+  available: 'Available', reserved: 'Reserved', inuse: 'InUse', needscharging: 'NeedsCharging', charging: 'Charging',
+  transferheld: 'TransferHeld', intransit: 'InTransit', intransfer: 'InTransit', faulty: 'Faulty', faulted: 'Faulty',
+  maintenance: 'Maintenance', suspended: 'Maintenance', retired: 'Retired'
+};
+const slotStatuses = { available: 'Available', held: 'Held', reserved: 'Held', heldfortransfer: 'Held', occupied: 'Occupied', suspended: 'Suspended', blocked: 'Suspended' };
+const pointStatuses = { available: 'Available', idle: 'Idle', reserved: 'Reserved', occupied: 'Reserved', starting: 'Starting', charging: 'Charging', stopping: 'Stopping', complete: 'Complete', fault: 'Fault', faulted: 'Fault', repair: 'Repair', maintenance: 'Repair', retired: 'Retired' };
+
 class ElectricVehicle {
   constructor({ id, hubId, vehicleType, batteryPercent, status = VehicleStatus.AVAILABLE, ownerId = null }) {
     if (!id || typeof id !== 'string') {
@@ -95,7 +110,7 @@ class ElectricVehicle {
     this.hubId = hubId;
     this.vehicleType = vehicleType;
     this.batteryPercent = Math.round(batteryPercent);
-    this.status = normalizeStatus(status, VehicleStatus.AVAILABLE);
+    this.status = normalizeResourceStatus(status, vehicleStatuses);
     this.ownerId = ownerId; // null = shared vehicle; non-null = private vehicle
   }
 
@@ -117,7 +132,7 @@ class ElectricVehicle {
    */
   canDelete() {
     const s = this.status.toLowerCase();
-    if (s === 'inuse' || s === 'reserved') {
+    if (['inuse', 'reserved', 'transferheld', 'intransit'].includes(s)) {
       return false;
     }
     return true;
@@ -221,7 +236,7 @@ class ParkingSlot {
     this.id = id;
     this.hubId = hubId;
     this.code = code;
-    this.status = normalizeStatus(status, SlotStatus.AVAILABLE);
+    this.status = normalizeResourceStatus(status, slotStatuses);
   }
 
   isAvailable() {
@@ -266,7 +281,7 @@ class ChargingPoint {
     this.id = id;
     this.hubId = hubId;
     this.code = code;
-    this.status = normalizeStatus(status, ChargingPointStatus.AVAILABLE);
+    this.status = normalizeResourceStatus(status, pointStatuses);
   }
 
   isAvailable() {

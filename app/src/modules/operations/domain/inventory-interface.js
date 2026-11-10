@@ -30,18 +30,20 @@ class InventoryInterface {
    * Moves vehicle status from 'available' to 'reserved'.
    * @param {string} vehicleId
    * @param {string} reservationId
+   * @param {string} hubId Expected source hub.
    * @returns {Promise<void>}
    */
-  async reserveVehicle(vehicleId, reservationId) {
+  async reserveVehicle(vehicleId, reservationId, hubId) {
     throw new Error('Not implemented: reserveVehicle');
   }
 
   /**
    * Release a reserved vehicle back to 'available' if reservation is cancelled/expired.
    * @param {string} vehicleId
+   * @param {string} reservationId The reservation that owns the hold.
    * @returns {Promise<void>}
    */
-  async releaseVehicleHold(vehicleId) {
+  async releaseVehicleHold(vehicleId, reservationId) {
     throw new Error('Not implemented: releaseVehicleHold');
   }
 
@@ -49,9 +51,11 @@ class InventoryInterface {
    * Mark vehicle as 'in_use' when rider confirms pickup at the Hub (UC04).
    * @param {string} vehicleId
    * @param {string} tripId
+   * @param {string} reservationId Verified reservation for this trip.
+   * @param {string} hubId Expected pickup hub.
    * @returns {Promise<void>}
    */
-  async pickupVehicle(vehicleId, tripId) {
+  async pickupVehicle(vehicleId, tripId, reservationId, hubId) {
     throw new Error('Not implemented: pickupVehicle');
   }
 
@@ -62,9 +66,11 @@ class InventoryInterface {
    * @param {string} destinationHubId
    * @param {string} slotId
    * @param {number} finalBatteryPercent
+   * @param {string} tripId Trip that currently owns the vehicle.
+   * @param {string|null} slotReservationId Required when the destination slot is held.
    * @returns {Promise<void>}
    */
-  async returnVehicle(vehicleId, destinationHubId, slotId, finalBatteryPercent) {
+  async returnVehicle(vehicleId, destinationHubId, slotId, finalBatteryPercent, tripId, slotReservationId = null) {
     throw new Error('Not implemented: returnVehicle');
   }
 
@@ -95,9 +101,10 @@ class InventoryInterface {
   /**
    * Release hold on a slot.
    * @param {string} slotId
+   * @param {string} reservationId The reservation that owns the hold.
    * @returns {Promise<void>}
    */
-  async releaseSlotHold(slotId) {
+  async releaseSlotHold(slotId, reservationId) {
     throw new Error('Not implemented: releaseSlotHold');
   }
 
@@ -105,18 +112,20 @@ class InventoryInterface {
    * Mark slot as occupied upon check-in (UC06-S2).
    * @param {string} slotId
    * @param {string} occupancyId
+   * @param {string|null} reservationId Required when the slot is held.
    * @returns {Promise<void>}
    */
-  async occupySlot(slotId, occupancyId) {
+  async occupySlot(slotId, occupancyId, reservationId = null) {
     throw new Error('Not implemented: occupySlot');
   }
 
   /**
    * Mark slot as available upon checkout (UC06-S3).
    * @param {string} slotId
+   * @param {string} occupancyId The occupancy being ended.
    * @returns {Promise<void>}
    */
-  async vacateSlot(slotId) {
+  async vacateSlot(slotId, occupancyId) {
     throw new Error('Not implemented: vacateSlot');
   }
 

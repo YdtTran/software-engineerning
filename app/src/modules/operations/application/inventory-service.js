@@ -60,6 +60,9 @@ class InventoryService {
 
     const normalizedKind = String(kind).toLowerCase();
     const id = attributes.id || `${normalizedKind.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+    if (attributes.status && !['available', ...(normalizedKind === 'charging_point' ? ['idle'] : [])].includes(String(attributes.status).toLowerCase())) {
+      throw new DomainError('INVALID_STATE_TRANSITION', 'New resources must begin available.');
+    }
 
     if (normalizedKind === 'vehicle') {
       const vehicle = new ElectricVehicle({
@@ -140,8 +143,18 @@ class InventoryService {
    * @param {object} patch
    */
   async updateResource(id, patch = {}) {
+    return this.inventoryRepo.client.transaction(() => this.updateResourceInTransaction(id, patch));
+  }
+
+  async updateResourceInTransaction(id, patch = {}) {
     const vehicleRow = await this.inventoryRepo.client.get('SELECT * FROM electric_vehicles WHERE id = ?;', [id]);
     if (vehicleRow) {
+      if (vehicleRow.reservation_id || vehicleRow.trip_id || vehicleRow.transfer_hold_id || ['inuse', 'reserved', 'transferheld', 'intransit', 'intransfer'].includes(String(vehicleRow.status).toLowerCase().replace(/_/g, ''))) {
+        throw new DomainError('INVALID_STATE_TRANSITION', 'An active or committed vehicle cannot be modified.');
+      }
+      if (patch.hubId && patch.hubId !== vehicleRow.hub_id && await this.inventoryRepo.client.get('SELECT id FROM parking_slots WHERE parked_vehicle_id = ?;', [id])) {
+        throw new DomainError('INVALID_STATE_TRANSITION', 'A parked vehicle cannot be reassigned to another hub.');
+      }
       const vehicle = new ElectricVehicle({
         id: vehicleRow.id,
         hubId: patch.hubId || vehicleRow.hub_id,
@@ -150,6 +163,11 @@ class InventoryService {
         status: vehicleRow.status,
         ownerId: vehicleRow.owner_id
       });
+
+      if (patch.status && String(patch.status).toLowerCase() === 'available' && await this.inventoryRepo.client.get(
+        `SELECT id FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = ? AND LOWER(status) NOT IN ('resolved','closed') LIMIT 1;`, [id])) {
+        throw new DomainError('INVALID_STATE_TRANSITION', 'Vehicle has an unresolved incident.');
+      }
 
       if (patch.status && patch.status !== vehicle.status) {
         const s = String(patch.status).toLowerCase();
@@ -160,7 +178,7 @@ class InventoryService {
         } else if (s === 'faulty' || s === 'faulted') {
           vehicle.isolateFault();
         } else {
-          vehicle.status = patch.status;
+          throw new DomainError('INVALID_STATE_TRANSITION', `Unsupported administrative vehicle transition to '${patch.status}'.`);
         }
       }
 
@@ -180,7 +198,16 @@ class InventoryService {
 
     const slotRow = await this.inventoryRepo.client.get('SELECT * FROM parking_slots WHERE id = ?;', [id]);
     if (slotRow) {
-      const newStatus = patch.status || slotRow.status;
+      const current = String(slotRow.status).toLowerCase();
+      if (!['available', 'suspended', 'blocked'].includes(current) || slotRow.reservation_id || slotRow.transfer_hold_id || slotRow.occupancy_id || slotRow.parked_vehicle_id) {
+        throw new DomainError('INVALID_STATE_TRANSITION', 'A committed or occupied slot cannot be modified.');
+      }
+      const requested = String(patch.status || slotRow.status).toLowerCase();
+      if (!['available', 'suspended', 'blocked'].includes(requested)) throw new DomainError('INVALID_STATE_TRANSITION', 'Unsupported administrative slot status.');
+      if (requested === 'available' && await this.inventoryRepo.client.get(`SELECT id FROM incidents WHERE resource_kind = 'slot' AND resource_id = ? AND LOWER(status) NOT IN ('resolved','closed') LIMIT 1;`, [id])) {
+        throw new DomainError('INVALID_STATE_TRANSITION', 'Slot has an unresolved incident.');
+      }
+      const newStatus = requested === 'available' ? 'Available' : 'Suspended';
       const newCode = patch.code || slotRow.code;
       await this.inventoryRepo.client.run(
         'UPDATE parking_slots SET status = ?, code = ? WHERE id = ?;',
@@ -197,7 +224,16 @@ class InventoryService {
 
     const pointRow = await this.inventoryRepo.client.get('SELECT * FROM charging_points WHERE id = ?;', [id]);
     if (pointRow) {
-      const newStatus = patch.status || pointRow.status;
+      const current = String(pointRow.status).toLowerCase();
+      if (!['available', 'idle', 'fault', 'faulted', 'repair', 'maintenance'].includes(current)) {
+        throw new DomainError('INVALID_STATE_TRANSITION', 'An active charging point cannot be modified.');
+      }
+      const requested = String(patch.status || pointRow.status).toLowerCase();
+      if (!['available', 'idle', 'fault', 'faulted', 'repair', 'maintenance'].includes(requested)) throw new DomainError('INVALID_STATE_TRANSITION', 'Unsupported administrative charging point status.');
+      if (['available', 'idle'].includes(requested) && await this.inventoryRepo.client.get(`SELECT id FROM incidents WHERE resource_kind = 'charging_point' AND resource_id = ? AND LOWER(status) NOT IN ('resolved','closed') LIMIT 1;`, [id])) {
+        throw new DomainError('INVALID_STATE_TRANSITION', 'Charging point has an unresolved incident.');
+      }
+      const newStatus = ['available', 'idle'].includes(requested) ? 'Available' : ['fault', 'faulted'].includes(requested) ? 'Fault' : 'Repair';
       const newCode = patch.code || pointRow.code;
       await this.inventoryRepo.client.run(
         'UPDATE charging_points SET status = ?, code = ? WHERE id = ?;',

@@ -15,20 +15,14 @@ const { defaultIdempotencyStore } = require('./idempotency');
 const { DomainError } = require('../domain/resource');
 
 function extractActor(req) {
-  const actorId = req.headers['x-user-id'] || req.headers['x-actor-id'] || (req.user && req.user.id) || 'demo-actor';
-  const roleHeader = req.headers['x-user-role'] || (req.user && req.user.role) || (req.query && req.query.role);
-  // Default to operator for operations module endpoints if not explicitly provided, unless path is /trips/:id/incidents
-  const isTripIncident = req.path && req.path.includes('/trips/');
-  const defaultRole = isTripIncident ? 'user' : 'operator';
-  const role = (roleHeader ? String(roleHeader).toLowerCase() : defaultRole);
-
-  return { actorId, role };
+  const user = req.user;
+  return { actorId: user && user.id, role: user && typeof user.role === 'string' ? user.role.toLowerCase() : null };
 }
 
 function sendSuccess(res, statusCode, data, req, idempotencyStore = defaultIdempotencyStore) {
   const body = { data };
   const idempotencyKey = req.headers['idempotency-key'];
-  if (idempotencyKey && req.method !== 'GET') {
+  if (idempotencyKey && req.method !== 'GET' && typeof idempotencyStore.execute !== 'function') {
     const actor = extractActor(req);
     idempotencyStore.save(idempotencyKey, actor.actorId, req.method, req.path, req.body, statusCode, body);
   }
@@ -36,6 +30,11 @@ function sendSuccess(res, statusCode, data, req, idempotencyStore = defaultIdemp
 }
 
 function sendError(res, statusCode, code, message, details = {}) {
+  if (statusCode === 500) {
+    code = 'INTERNAL_ERROR';
+    message = 'Unable to process the request.';
+    details = {};
+  }
   return res.status(statusCode).json({
     error: {
       code,
@@ -61,10 +60,12 @@ function mapDomainErrorToHttpStatus(err) {
   // 404 Not Found
   if ([
     'NOT_FOUND', 'VEHICLE_NOT_FOUND', 'SLOT_NOT_FOUND', 'TRANSFER_NOT_FOUND',
-    'INCIDENT_NOT_FOUND', 'HUB_NOT_FOUND', 'RESOURCE_NOT_FOUND', 'POINT_NOT_FOUND'
+    'INCIDENT_NOT_FOUND', 'HUB_NOT_FOUND', 'RESOURCE_NOT_FOUND', 'POINT_NOT_FOUND', 'TRIP_NOT_FOUND'
   ].includes(code)) {
     return 404;
   }
+  if (code === 'FORBIDDEN_OPERATION') return 403;
+  if (code === 'TRIP_READER_UNAVAILABLE') return 503;
 
   // 409 Conflict
   if ([
@@ -72,7 +73,7 @@ function mapDomainErrorToHttpStatus(err) {
     'TRANSFER_ARRIVE_CONFLICT', 'ALREADY_IN_TRANSIT', 'ALREADY_CANCELLED',
     'CANNOT_CANCEL_IN_TRANSIT', 'CANNOT_CANCEL_COMPLETED', 'TRANSFER_ALREADY_CANCELLED',
     'TRANSFER_ALREADY_COMPLETED', 'ALREADY_RESOLVED', 'INCIDENT_ALREADY_CLOSED',
-    'SLOT_HOLD_FAILED', 'SLOT_UNAVAILABLE', 'VEHICLE_NOT_AVAILABLE', 'POINT_UNAVAILABLE'
+    'SLOT_HOLD_FAILED', 'SLOT_UNAVAILABLE', 'VEHICLE_NOT_AVAILABLE', 'POINT_UNAVAILABLE', 'INCIDENT_ASSIGNMENT_CONFLICT'
   ].includes(code)) {
     return 409;
   }
@@ -84,7 +85,7 @@ function mapDomainErrorToHttpStatus(err) {
     'VEHICLE_MISMATCH_ON_ARRIVAL', 'CANNOT_DELETE_ACTIVE_VEHICLE', 'CANNOT_SUSPEND_ACTIVE_VEHICLE',
     'RESOURCE_ID_MISMATCH', 'VEHICLE_NOT_AT_SOURCE_HUB', 'SLOT_WRONG_HUB', 'VEHICLE_CANNOT_PICKUP',
     'VEHICLE_NOT_IN_USE', 'VEHICLE_NOT_IN_TRANSFER', 'INVALID_REACTIVATION', 'NOT_IN_TRANSIT',
-    'INVALID_STATE_TRANSITION', 'UNSUPPORTED_RESOURCE_KIND'
+    'INVALID_STATE_TRANSITION', 'UNSUPPORTED_RESOURCE_KIND', 'TRIP_NOT_ACTIVE', 'MAINTENANCE_NOT_ASSIGNED'
   ].includes(code)) {
     return 422;
   }
@@ -105,6 +106,28 @@ class OperationsController {
     this.transferService = transferService;
     this.incidentService = incidentService;
     this.idempotencyStore = idempotencyStore;
+    if (typeof idempotencyStore.execute === 'function') {
+      for (const name of ['createResource', 'patchResource', 'deleteResource', 'createTransfer', 'departTransfer', 'arriveTransfer', 'cancelTransfer', 'reportTripIncident', 'handleIncident', 'resolveIncident']) {
+        const handler = this[name].bind(this);
+        this[name] = async (req, res) => {
+          if (!this.requireRole(req, res, name === 'reportTripIncident' ? 'user' : 'operator')) return;
+          if (typeof req.headers['idempotency-key'] !== 'string' || !req.headers['idempotency-key'].trim()) {
+            return sendError(res, 400, 'INVALID_INPUT', 'Idempotency-Key is required for writes.');
+          }
+          try {
+            const result = await idempotencyStore.execute(req, extractActor(req).actorId, async () => {
+              const captured = { status: 200, body: null };
+              const proxy = { status(code) { captured.status = code; return this; }, json(body) { captured.body = body; return this; } };
+              await handler(req, proxy);
+              return captured;
+            });
+            return res.status(result.status).json(result.body);
+          } catch (err) {
+            return sendError(res, 500, 'INTERNAL_ERROR', 'Unable to process the request.');
+          }
+        };
+      }
+    }
   }
 
   /**
@@ -112,11 +135,15 @@ class OperationsController {
    */
   requireRole(req, res, requiredRole) {
     const actor = extractActor(req);
+    if (!actor.actorId || !actor.role) {
+      sendError(res, 401, 'UNAUTHENTICATED', 'Authentication is required.');
+      return false;
+    }
     if (requiredRole === 'operator' && actor.role !== 'operator') {
       sendError(res, 403, 'FORBIDDEN_OPERATION', 'This endpoint requires an Operator account.');
       return false;
     }
-    if (requiredRole === 'user' && actor.role !== 'user' && actor.role !== 'operator') {
+    if (requiredRole === 'user' && actor.role !== 'user') {
       sendError(res, 403, 'FORBIDDEN_OPERATION', 'This endpoint requires a User account.');
       return false;
     }
@@ -127,6 +154,7 @@ class OperationsController {
    * Helper to check Idempotency-Key
    */
   checkIdempotency(req, res) {
+    if (typeof this.idempotencyStore.execute === 'function') return true;
     const key = req.headers['idempotency-key'];
     if (!key) return true;
 
@@ -323,11 +351,10 @@ class OperationsController {
     try {
       const actor = extractActor(req);
       const tripId = req.params.id;
-      const { description, reportedLocation, vehicleId } = req.body;
+      const { description, reportedLocation } = req.body;
       const data = await this.incidentService.reportTripIncident({
         tripId,
         userId: actor.actorId,
-        vehicleId,
         description,
         reportedLocation
       });

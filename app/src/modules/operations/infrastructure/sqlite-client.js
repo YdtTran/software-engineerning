@@ -10,6 +10,8 @@
  * - `transaction(callback)`: Executes callback within a database transaction (BEGIN IMMEDIATE ... COMMIT/ROLLBACK)
  */
 
+const { AsyncLocalStorage } = require('node:async_hooks');
+
 class SQLiteClient {
   /**
    * @param {object} db Driver instance (better-sqlite3, node:sqlite, or mock)
@@ -19,13 +21,35 @@ class SQLiteClient {
       throw new Error('SQLiteClient requires a database connection instance.');
     }
     this.db = db;
+    this.callbackDriver = typeof db.serialize === 'function' && typeof db.transaction !== 'function';
+    this.context = new AsyncLocalStorage();
+    this.pending = Promise.resolve();
+    this.savepointId = 0;
+    this.ready = (async () => {
+      await this.runDirect('PRAGMA foreign_keys = ON;');
+      const state = await this.getDirect('PRAGMA foreign_keys;');
+      if (!state || state.foreign_keys !== 1) throw new Error('SQLite foreign keys could not be enabled.');
+    })();
+    this.ready.catch(() => {});
+  }
+
+  schedule(fn) {
+    const scope = this.context.getStore();
+    if (scope && scope.client === this && scope.active) return fn();
+    const result = this.pending.then(() => this.ready).then(fn);
+    this.pending = result.catch(() => {});
+    return result;
   }
 
   /**
    * Execute an INSERT/UPDATE/DELETE query
    */
   async run(sql, params = []) {
-    if (typeof this.db.prepare === 'function') {
+    return this.schedule(() => this.runDirect(sql, params));
+  }
+
+  async runDirect(sql, params = []) {
+    if (typeof this.db.prepare === 'function' && !this.callbackDriver) {
       const stmt = this.db.prepare(sql);
       const info = stmt.run(...params);
       return { changes: info.changes, lastInsertRowid: info.lastInsertRowid };
@@ -45,7 +69,11 @@ class SQLiteClient {
    * Execute a SELECT query returning a single row
    */
   async get(sql, params = []) {
-    if (typeof this.db.prepare === 'function') {
+    return this.schedule(() => this.getDirect(sql, params));
+  }
+
+  async getDirect(sql, params = []) {
+    if (typeof this.db.prepare === 'function' && !this.callbackDriver) {
       const stmt = this.db.prepare(sql);
       return stmt.get(...params);
     }
@@ -64,7 +92,11 @@ class SQLiteClient {
    * Execute a SELECT query returning an array of rows
    */
   async all(sql, params = []) {
-    if (typeof this.db.prepare === 'function') {
+    return this.schedule(() => this.allDirect(sql, params));
+  }
+
+  async allDirect(sql, params = []) {
+    if (typeof this.db.prepare === 'function' && !this.callbackDriver) {
       const stmt = this.db.prepare(sql);
       return stmt.all(...params);
     }
@@ -83,6 +115,13 @@ class SQLiteClient {
    * Execute multi-statement SQL script (DDL/Pragmas)
    */
   async exec(sql) {
+    return this.schedule(() => this.execDirect(sql));
+  }
+
+  async execDirect(sql) {
+    if (this.callbackDriver) {
+      return new Promise((resolve, reject) => this.db.exec(sql, err => err ? reject(err) : resolve()));
+    }
     if (typeof this.db.exec === 'function') {
       return this.db.exec(sql);
     }
@@ -94,26 +133,54 @@ class SQLiteClient {
    * Preserves Atomicity (ACID) for resource state transitions and holds
    */
   async transaction(fn) {
-    if (typeof this.db.transaction === 'function') {
-      // better-sqlite3 native synchronous transaction wrapper
-      const txn = this.db.transaction(fn);
-      return txn();
+    const parent = this.context.getStore();
+    if (parent && parent.client === this && parent.active) {
+      const nested = parent.childPending.then(async () => {
+        if (!parent.active) throw new Error('Parent transaction has ended.');
+        const name = `nested_${++this.savepointId}`;
+        await this.run(`SAVEPOINT ${name};`);
+        const scope = { client: this, active: true, childPending: Promise.resolve() };
+        try {
+          const result = await this.context.run(scope, () => fn(this));
+          await scope.childPending;
+          await this.run(`RELEASE SAVEPOINT ${name};`);
+          return result;
+        } catch (err) {
+          await scope.childPending;
+          await this.run(`ROLLBACK TO SAVEPOINT ${name};`);
+          await this.run(`RELEASE SAVEPOINT ${name};`);
+          throw err;
+        } finally {
+          scope.active = false;
+        }
+      });
+      parent.childPending = nested.catch(() => {});
+      return nested;
     }
-    
-    // Manual SQL transaction for async/sqlite3 drivers
-    await this.run('BEGIN IMMEDIATE;');
-    try {
-      const result = await fn(this);
-      await this.run('COMMIT;');
-      return result;
-    } catch (err) {
+    const scope = { client: this, active: true, childPending: Promise.resolve() };
+    return this.schedule(() => this.context.run(scope, async () => {
+      let started = false;
       try {
-        await this.run('ROLLBACK;');
-      } catch (rollbackErr) {
-        // preserve original error
+        await this.run('BEGIN IMMEDIATE;');
+        started = true;
+        const result = await fn(this);
+        await scope.childPending;
+        await this.run('COMMIT;');
+        return result;
+      } catch (err) {
+        if (started) {
+          try {
+            await scope.childPending;
+            await this.run('ROLLBACK;');
+          } catch (rollbackErr) {
+            // Preserve the original error.
+          }
+        }
+        throw err;
+      } finally {
+        scope.active = false;
       }
-      throw err;
-    }
+    }));
   }
 }
 

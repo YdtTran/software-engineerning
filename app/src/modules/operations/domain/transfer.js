@@ -67,6 +67,9 @@ class Transfer {
         { required: vehicleIds.length, provided: destinationSlotIds ? destinationSlotIds.length : 0 }
       );
     }
+    if (new Set(vehicleIds).size !== vehicleIds.length || new Set(destinationSlotIds).size !== destinationSlotIds.length) {
+      throw new DomainError('INVALID_INPUT', 'Vehicle and slot IDs must be unique.');
+    }
 
     this.id = id;
     this.sourceHubId = sourceHubId;
@@ -83,6 +86,9 @@ class Transfer {
   }
 
   static plan({ id, sourceHubId, destinationHubId, vehicles, destinationSlots, createdBy, now = new Date() }) {
+    if (sourceHubId === destinationHubId) {
+      throw new DomainError('SOURCE_DESTINATION_SAME', 'Source and destination hubs must be different (BR12 violation).');
+    }
     if (!Array.isArray(vehicles) || vehicles.length === 0) {
       throw new DomainError('EMPTY_VEHICLE_LIST', 'Transfer order requires at least one vehicle.');
     }
@@ -107,6 +113,9 @@ class Transfer {
 
     if (!Array.isArray(destinationSlots) || destinationSlots.length < vehicles.length) {
       throw new DomainError('INSUFFICIENT_DESTINATION_SLOTS', 'Not enough destination slots provided for the vehicles.');
+    }
+    if (new Set(vehicles.map(v => v.id)).size !== vehicles.length || new Set(destinationSlots.map(s => s.id)).size !== destinationSlots.length) {
+      throw new DomainError('INVALID_INPUT', 'Vehicle and slot IDs must be unique.');
     }
 
     for (const slot of destinationSlots) {
@@ -176,7 +185,7 @@ class Transfer {
     if (!Array.isArray(observedVehicleIds) || observedVehicleIds.length !== this.vehicleIds.length) {
       throw new DomainError(
         'INCOMPLETE_ARRIVAL_SET',
-        `Transfer arrival requires the complete set of ${this.vehicleIds.length} vehicles (observed: ${observedVehicleIds.length}).`,
+        `Transfer arrival requires the complete set of ${this.vehicleIds.length} vehicles (observed: ${Array.isArray(observedVehicleIds) ? observedVehicleIds.length : 0}).`,
         { planned: this.vehicleIds, observed: observedVehicleIds }
       );
     }
@@ -196,6 +205,9 @@ class Transfer {
           'INSUFFICIENT_REPLACEMENT_SLOTS',
           `Replacement destination ${replacementDestinationHubId} must provide at least ${this.vehicleIds.length} slots.`
         );
+      }
+      if (new Set(replacementSlotIds).size !== replacementSlotIds.length) {
+        throw new DomainError('INVALID_INPUT', 'Replacement slot IDs must be unique.');
       }
       this.destinationHubId = replacementDestinationHubId;
       this.destinationSlotIds = [...replacementSlotIds.slice(0, this.vehicleIds.length)];

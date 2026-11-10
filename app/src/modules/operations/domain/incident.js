@@ -140,7 +140,7 @@ class Incident {
       reporterRole: ReporterRole.USER,
       reportedTripId: tripId,
       resourceKind: ResourceKind.VEHICLE,
-      resourceId: vehicleId || `VEHICLE-OF-${tripId}`,
+      resourceId: vehicleId,
       description,
       severity: IncidentSeverity.STANDARD,
       status: IncidentStatus.OPEN,
@@ -167,7 +167,9 @@ class Incident {
     }
 
     let slaDeadline;
-    if (typeof customSlaMinutes === 'number') {
+    if (String(this.severity).toLowerCase() === 'emergency') {
+      slaDeadline = Incident.calculateSlaDeadline(this.severity, new Date(this.reportedAt));
+    } else if (typeof customSlaMinutes === 'number') {
       slaDeadline = new Date(now.getTime() + customSlaMinutes * 60 * 1000).toISOString();
     } else {
       slaDeadline = Incident.calculateSlaDeadline(this.severity, now);
@@ -185,9 +187,12 @@ class Incident {
     this.status = IncidentStatus.INVESTIGATING;
   }
 
-  resolve({ notes = 'Maintenance successfully completed and verified', now = new Date() }) {
+  resolve({ notes = 'Maintenance successfully completed and verified', now = new Date() } = {}) {
     if (this.status === IncidentStatus.RESOLVED) {
       throw new DomainError('ALREADY_RESOLVED', `Incident ${this.id} is already resolved.`);
+    }
+    if (this.status !== IncidentStatus.INVESTIGATING || !this.assignment) {
+      throw new DomainError('MAINTENANCE_NOT_ASSIGNED', 'Incident must have an active maintenance assignment before resolution.');
     }
 
     this.status = IncidentStatus.RESOLVED;
