@@ -26,6 +26,8 @@ Proposed implementation contract for the [Development View](DECISION.md). Busine
 
 Recheck vehicle availability at reservation and verify the unexpired reservation and matching vehicle at pickup. Return checks destination capacity and records the trip closure and vehicle placement together. Return can leave the vehicle `Needs Charging`. The trip carries no MVP rental charge.
 
+Discovery implementation notes (UC01–02): `q` searches hub ID/name with case-insensitive Unicode-normalized text; blank `q` returns all hubs. `type` accepts `electric_bicycle` or `electric_motorbike`. Repeated query values or unsupported types return `400 INVALID_INPUT`. An unknown Hub returns `404 HUB_NOT_FOUND`; an existing Hub with no eligible vehicles returns `200` and an empty array. The current inventory schema has no geographic coordinates, so `location` is `null`. Agree the location source and shape with Operations and UX/UI before map integration.
+
 ### Simulation
 
 | UC | Role | Method and path | Request → response |

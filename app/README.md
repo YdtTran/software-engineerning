@@ -1,4 +1,4 @@
-# Operations demo backend
+# Operations and Mobility discovery demo backend
 
 The demo server uses Express and Node's built-in `node:sqlite` adapter. This is a local demo adapter, not a decision on the project's production SQLite driver. Node.js 22 or newer and the `sqlite3` CLI are required.
 
@@ -26,6 +26,8 @@ DEMO_INSECURE_HTTP=1 node app/src/demo-server.js
 
 The server binds to `127.0.0.1` and defaults to port 3000; `DEMO_PORT` changes the port. `DEMO_INSECURE_HTTP=1` disables the Secure cookie attribute for local HTTP and is rejected when `NODE_ENV=production`. Without it, cookies have the Secure attribute and require a suitable HTTPS deployment. The demo server does not configure TLS. Demo sessions are held in server memory and expire after eight hours or restart. POST `/api/v1/session` with JSON `{ "username": "...", "password": "..." }`; DELETE the same path to sign out. Protected operations use the resulting HttpOnly, SameSite=Strict cookie and do not trust actor headers. Cookie-authenticated writes require a matching `Origin`; business writes also require `Idempotency-Key`.
 
-The server mounts Operations but does not implement Mobility, Parking/Charging or production identity. Trip reports and charging transitions fail closed until their trusted integrations are supplied to `createApp`. The existing frontend remains a prototype and is not wired to this server.
+The server mounts Operations and Mobility discovery (UC01–02), using the same provisioned sessions and inventory adapter. Vehicle reservations, pickup, return, Simulation, Parking/Charging and production identity remain unimplemented. Trip reports and charging transitions fail closed until their trusted integrations are supplied to `createApp`. The existing frontend remains a prototype and is not wired to this server. See the [Mobility module](src/modules/mobility-simulation/README.md) for its current scope and focused test command.
 
 Run `npm test --prefix app`; tests for optional SQLite drivers are skipped unless the drivers are available. The detailed integration limits are documented in [Operations](src/modules/operations/README.md).
+
+Stage 1 is verified on Node.js 22.13.1. The inherited Operations driver detection misclassifies Node.js 24.19.0's SQLite API as a callback driver; use Node.js 22 for this demo until that adapter is updated. On native Windows the two inherited migration tests that spawn `init.sh` fail; the remaining regression results and baseline comparison are recorded in the [Minh implementation plan](../docs/architecture/MINH_IMPLEMENTATION_PLAN.md).
