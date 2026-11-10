@@ -1,7 +1,8 @@
 const {test}=require('node:test'); const assert=require('node:assert/strict');
 const fs=require('node:fs'); const path=require('node:path'); const {DatabaseSync}=require('node:sqlite');
 const {SQLiteClient}=require('../infrastructure/sqlite-client'); const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo');
-function setup(){const db=new DatabaseSync(':memory:'); const base=path.resolve(__dirname,'../../../../db'); for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8')); const repo=new SQLiteInventoryRepository(new SQLiteClient(db)); return {db,repo};}
+const {applyMigrations}=require('./fixtures/operations-fixtures');
+function setup(){const db=new DatabaseSync(':memory:'); applyMigrations(db); const repo=new SQLiteInventoryRepository(new SQLiteClient(db)); return {db,repo};}
 function at(hours){return new Date(Date.now()+hours*3600000).toISOString();}
 test('future commitments can coexist with occupancy but overlapping intervals cannot',async()=>{
  const {db,repo}=setup(); db.exec("UPDATE parking_slots SET pool='advance',status='Occupied',occupancy_id='existing' WHERE id='bku-A01'");
@@ -69,8 +70,8 @@ test('new parking slots require and persist a fixed pool',async()=>{
 });
 test('concurrent overlapping commitments on separate connections have one winner',async t=>{
  const os=require('node:os'), {Worker}=require('node:worker_threads'); const dir=fs.mkdtempSync(path.join(os.tmpdir(),'parking-race-')); t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
- const file=path.join(dir,'db.sqlite'), db=new DatabaseSync(file), base=path.resolve(__dirname,'../../../../db');
- for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ const file=path.join(dir,'db.sqlite'), db=new DatabaseSync(file);
+ applyMigrations(db);
  db.exec("UPDATE parking_slots SET pool='advance' WHERE id='bku-A01'");
  const barrier=new SharedArrayBuffer(4), client=require.resolve('../infrastructure/sqlite-client'), repo=require.resolve('../infrastructure/sqlite-inventory-repo');
  const req={pool:'advance',hubId:'bku',plannedArrival:at(24),plannedCheckout:at(26),expiresAt:at(25)};
@@ -90,8 +91,8 @@ test('owning module can atomically roll back its reservation and slot commitment
 });
 test('future commitment and transfer contend atomically on separate connections',async t=>{
  const os=require('node:os'), {Worker}=require('node:worker_threads'); const dir=fs.mkdtempSync(path.join(os.tmpdir(),'parking-transfer-')); t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
- const file=path.join(dir,'db.sqlite'), db=new DatabaseSync(file), base=path.resolve(__dirname,'../../../../db');
- for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ const file=path.join(dir,'db.sqlite'), db=new DatabaseSync(file);
+ applyMigrations(db);
  db.exec("UPDATE parking_slots SET pool='advance' WHERE id='bku-A01'");
  const barrier=new SharedArrayBuffer(4), client=require.resolve('../infrastructure/sqlite-client'), inventory=require.resolve('../infrastructure/sqlite-inventory-repo'), transfers=require.resolve('../infrastructure/sqlite-transfer-repo'), domain=require.resolve('../domain/transfer');
  const req={pool:'advance',hubId:'bku',plannedArrival:at(24),plannedCheckout:at(26),expiresAt:at(25)};

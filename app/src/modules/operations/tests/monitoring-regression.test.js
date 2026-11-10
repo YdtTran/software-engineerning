@@ -1,6 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { MonitoringService } = require('../application/monitoring-service');
+const { applyMigrations } = require('./fixtures/operations-fixtures');
 
 test('monitoring counts canonical and legacy resource states', async () => {
   const snapshot = { capturedAt: 'now', hubs: [{id:'h',name:'Hub'}],
@@ -16,8 +17,8 @@ test('monitoring counts canonical and legacy resource states', async () => {
 test('monitoring counts a current advance commitment as held', async () => {
  const {DatabaseSync}=require('node:sqlite'); const fs=require('node:fs'); const path=require('node:path');
  const {SQLiteClient}=require('../infrastructure/sqlite-client'); const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo');
- const db=new DatabaseSync(':memory:'),base=path.resolve(__dirname,'../../../../db');
- for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ const db=new DatabaseSync(':memory:');
+ applyMigrations(db);
  db.exec("UPDATE parking_slots SET pool='advance' WHERE id='bku-A01'");
  const stamp=minutes=>new Date(Date.now()+minutes*60000).toISOString();
  db.prepare("INSERT INTO parking_commitments(reservation_id,slot_id,pool,starts_at,ends_at,expires_at,status) VALUES('r','bku-A01','advance',?,?,?,'Reserved')").run(stamp(-10),stamp(60),stamp(30));
@@ -28,8 +29,8 @@ test('monitoring counts a current advance commitment as held', async () => {
 
 test('monitoring tracks transfer holds, cancellation, incidents and maintenance', async () => {
  const {DatabaseSync}=require('node:sqlite');const fs=require('node:fs');const path=require('node:path');const {createOperationsModule}=require('../index');
- const db=new DatabaseSync(':memory:'),base=path.resolve(__dirname,'../../../../db');
- for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql'])db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ const db=new DatabaseSync(':memory:');
+ applyMigrations(db);
  const app=createOperationsModule({db}); const hubs=async()=>Object.fromEntries((await app.monitoringService.getNetworkOverview()).map(h=>[h.hubId,h]));
  const before=await hubs(); const transfer=await app.transferService.createTransfer({sourceHubId:'metro',destinationHubId:'bku',vehicleIds:['EB-024'],destinationSlotIds:['bku-A01'],createdBy:'op'});
  const held=await hubs();assert.equal(held.metro.vehicles.available,before.metro.vehicles.available-1);assert.equal(held.metro.vehicles.inTransfer,before.metro.vehicles.inTransfer+1);assert.equal(held.bku.capacity.heldSlots,before.bku.capacity.heldSlots+1);

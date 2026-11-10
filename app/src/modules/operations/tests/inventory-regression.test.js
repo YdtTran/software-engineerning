@@ -6,10 +6,10 @@ const { DatabaseSync } = require('node:sqlite');
 const { SQLiteClient } = require('../infrastructure/sqlite-client');
 const { SQLiteInventoryRepository } = require('../infrastructure/sqlite-inventory-repo');
 const { InventoryService } = require('../application/inventory-service');
+const { applyMigrations } = require('./fixtures/operations-fixtures');
 function setup() {
   const db = new DatabaseSync(':memory:');
-  const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  applyMigrations(db);
   db.exec("UPDATE parking_slots SET pool='immediate'");
   const repo = new SQLiteInventoryRepository(new SQLiteClient(db));
   return { db, repo, service: new InventoryService(repo) };

@@ -19,6 +19,12 @@ function extractActor(req) {
   return { actorId: user && user.id, role: user && typeof user.role === 'string' ? user.role.toLowerCase() : null };
 }
 
+function assertObject(body, message = 'Request body must be a JSON object.') {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    throw new DomainError('INVALID_INPUT', message);
+  }
+}
+
 function sendSuccess(res, statusCode, data, req, idempotencyStore = defaultIdempotencyStore) {
   const body = { data };
   const idempotencyKey = req.headers['idempotency-key'];
@@ -212,7 +218,17 @@ class OperationsController {
     if (!this.requireRole(req, res, 'operator')) return;
     if (!this.checkIdempotency(req, res)) return;
     try {
+      assertObject(req.body, 'Resource creation requires a valid JSON object.');
       const { kind, hubId, attributes } = req.body;
+      if (typeof kind !== 'string' || !kind.trim()) {
+        throw new DomainError('INVALID_RESOURCE_KIND', 'Resource kind is required.');
+      }
+      if (typeof hubId !== 'string' || !hubId.trim()) {
+        throw new DomainError('INVALID_HUB_ID', 'Hub ID is required.');
+      }
+      if (!attributes || typeof attributes !== 'object' || Array.isArray(attributes)) {
+        throw new DomainError('INVALID_INPUT', 'Resource attributes must be an object.');
+      }
       const data = await this.inventoryService.createResource({ kind, hubId, attributes });
       return sendSuccess(res, 201, data, req, this.idempotencyStore);
     } catch (err) {
@@ -229,6 +245,10 @@ class OperationsController {
     if (!this.checkIdempotency(req, res)) return;
     try {
       const { id } = req.params;
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new DomainError('INVALID_ID', 'Resource ID is required.');
+      }
+      assertObject(req.body, 'Resource patch requires a valid JSON object.');
       const data = await this.inventoryService.updateResource(id, req.body);
       return sendSuccess(res, 200, data, req, this.idempotencyStore);
     } catch (err) {
@@ -244,6 +264,9 @@ class OperationsController {
     if (!this.requireRole(req, res, 'operator')) return;
     try {
       const { id } = req.params;
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new DomainError('INVALID_ID', 'Resource ID is required.');
+      }
       await this.inventoryService.deleteVehicle(id);
       return sendSuccess(res, 200, { deleted: true, id }, req, this.idempotencyStore);
     } catch (err) {
@@ -260,12 +283,26 @@ class OperationsController {
     if (!this.checkIdempotency(req, res)) return;
     try {
       const actor = extractActor(req);
-      const { sourceHubId, destinationHubId, vehicleIds, destinationSlotIds } = req.body;
+      assertObject(req.body, 'Transfer creation requires a valid JSON object.');
+      const { sourceHubId, destinationHubId, vehicleIds, destinationSlotIds, vehicleSlotAssignments } = req.body;
+      if (typeof sourceHubId !== 'string' || !sourceHubId.trim() || typeof destinationHubId !== 'string' || !destinationHubId.trim()) {
+        throw new DomainError('INVALID_HUBS', 'Source and destination hub IDs are required strings.');
+      }
+      if (!Array.isArray(vehicleIds) || vehicleIds.length === 0 || vehicleIds.some(v => typeof v !== 'string' || !v.trim())) {
+        throw new DomainError('EMPTY_VEHICLE_LIST', 'vehicleIds must be a non-empty array of vehicle IDs.');
+      }
+      if (!Array.isArray(destinationSlotIds) || destinationSlotIds.length === 0 || destinationSlotIds.some(s => typeof s !== 'string' || !s.trim())) {
+        throw new DomainError('INSUFFICIENT_DESTINATION_SLOTS', 'destinationSlotIds must be a non-empty array of slot IDs.');
+      }
+      if (vehicleSlotAssignments !== undefined && vehicleSlotAssignments !== null && !Array.isArray(vehicleSlotAssignments)) {
+        throw new DomainError('INVALID_INPUT', 'vehicleSlotAssignments must be an array when provided.');
+      }
       const data = await this.transferService.createTransfer({
         sourceHubId,
         destinationHubId,
         vehicleIds,
         destinationSlotIds,
+        vehicleSlotAssignments,
         createdBy: actor.actorId
       });
       return sendSuccess(res, 201, data, req, this.idempotencyStore);
@@ -282,6 +319,9 @@ class OperationsController {
     if (!this.requireRole(req, res, 'operator')) return;
     try {
       const { id } = req.params;
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new DomainError('INVALID_TRANSFER_ID', 'Transfer ID is required.');
+      }
       const data = await this.transferService.getTransfer(id);
       return sendSuccess(res, 200, data, req, this.idempotencyStore);
     } catch (err) {
@@ -298,6 +338,9 @@ class OperationsController {
     if (!this.checkIdempotency(req, res)) return;
     try {
       const { id } = req.params;
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new DomainError('INVALID_TRANSFER_ID', 'Transfer ID is required.');
+      }
       const data = await this.transferService.departTransfer(id);
       return sendSuccess(res, 200, data, req, this.idempotencyStore);
     } catch (err) {
@@ -314,11 +357,28 @@ class OperationsController {
     if (!this.checkIdempotency(req, res)) return;
     try {
       const { id } = req.params;
-      const { observedVehicleIds, replacementDestinationHubId, replacementSlotIds } = req.body;
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new DomainError('INVALID_TRANSFER_ID', 'Transfer ID is required.');
+      }
+      assertObject(req.body, 'Transfer arrival requires a valid JSON object.');
+      const { observedVehicleIds, replacementDestinationHubId, replacementSlotIds, vehicleSlotAssignments } = req.body;
+      if (!Array.isArray(observedVehicleIds) || observedVehicleIds.some(v => typeof v !== 'string' || !v.trim())) {
+        throw new DomainError('INVALID_INPUT', 'observedVehicleIds must be an array of vehicle IDs.');
+      }
+      if (replacementDestinationHubId !== undefined && replacementDestinationHubId !== null && (typeof replacementDestinationHubId !== 'string' || !replacementDestinationHubId.trim())) {
+        throw new DomainError('INVALID_HUB_ID', 'replacementDestinationHubId must be a valid hub ID string.');
+      }
+      if (replacementSlotIds !== undefined && replacementSlotIds !== null && (!Array.isArray(replacementSlotIds) || replacementSlotIds.some(s => typeof s !== 'string' || !s.trim()))) {
+        throw new DomainError('INVALID_INPUT', 'replacementSlotIds must be an array of slot IDs.');
+      }
+      if (vehicleSlotAssignments !== undefined && vehicleSlotAssignments !== null && !Array.isArray(vehicleSlotAssignments)) {
+        throw new DomainError('INVALID_INPUT', 'vehicleSlotAssignments must be an array when provided.');
+      }
       const data = await this.transferService.arriveTransfer(id, {
         observedVehicleIds,
         replacementDestinationHubId,
-        replacementSlotIds
+        replacementSlotIds,
+        vehicleSlotAssignments
       });
       return sendSuccess(res, 200, data, req, this.idempotencyStore);
     } catch (err) {
@@ -335,7 +395,16 @@ class OperationsController {
     if (!this.checkIdempotency(req, res)) return;
     try {
       const { id } = req.params;
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new DomainError('INVALID_TRANSFER_ID', 'Transfer ID is required.');
+      }
+      if (req.body !== undefined && req.body !== null && (typeof req.body !== 'object' || Array.isArray(req.body))) {
+        throw new DomainError('INVALID_INPUT', 'Cancel transfer body must be an object.');
+      }
       const { reason } = req.body || {};
+      if (reason !== undefined && reason !== null && (typeof reason !== 'string' || !reason.trim())) {
+        throw new DomainError('INVALID_INPUT', 'Cancel reason must be a non-empty string when provided.');
+      }
       const data = await this.transferService.cancelTransfer(id, { reason });
       return sendSuccess(res, 200, data, req, this.idempotencyStore);
     } catch (err) {
@@ -353,7 +422,17 @@ class OperationsController {
     try {
       const actor = extractActor(req);
       const tripId = req.params.id;
+      if (typeof tripId !== 'string' || !tripId.trim()) {
+        throw new DomainError('MISSING_TRIP_ID', 'Trip ID is required.');
+      }
+      assertObject(req.body, 'Trip incident reporting requires a valid JSON object.');
       const { description, reportedLocation } = req.body;
+      if (typeof description !== 'string' || !description.trim()) {
+        throw new DomainError('INVALID_DESCRIPTION', 'description is required.');
+      }
+      if (reportedLocation !== undefined && reportedLocation !== null && typeof reportedLocation !== 'string') {
+        throw new DomainError('INVALID_INPUT', 'reportedLocation must be a string.');
+      }
       const data = await this.incidentService.reportTripIncident({
         tripId,
         userId: actor.actorId,
@@ -390,7 +469,23 @@ class OperationsController {
     if (!this.checkIdempotency(req, res)) return;
     try {
       const { id } = req.params;
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new DomainError('INVALID_ID', 'Incident ID is required.');
+      }
+      assertObject(req.body, 'Maintenance assignment requires a valid JSON object.');
       const { resourceId, technicianId, scheduledAt, customSlaMinutes } = req.body;
+      if (typeof technicianId !== 'string' || !technicianId.trim()) {
+        throw new DomainError('MISSING_TECHNICIAN', 'technicianId is required.');
+      }
+      if (resourceId !== undefined && resourceId !== null && (typeof resourceId !== 'string' || !resourceId.trim())) {
+        throw new DomainError('INVALID_RESOURCE_ID', 'resourceId must be a string.');
+      }
+      if (scheduledAt !== undefined && scheduledAt !== null && (typeof scheduledAt !== 'string' || Number.isNaN(Date.parse(scheduledAt)))) {
+        throw new DomainError('INVALID_INPUT', 'scheduledAt must be a valid ISO timestamp.');
+      }
+      if (customSlaMinutes !== undefined && customSlaMinutes !== null && (typeof customSlaMinutes !== 'number' || customSlaMinutes <= 0)) {
+        throw new DomainError('INVALID_INPUT', 'customSlaMinutes must be a positive number.');
+      }
       const data = await this.incidentService.handleIncident(id, {
         resourceId,
         technicianId,
@@ -412,7 +507,16 @@ class OperationsController {
     if (!this.checkIdempotency(req, res)) return;
     try {
       const { id } = req.params;
+      if (typeof id !== 'string' || !id.trim()) {
+        throw new DomainError('INVALID_ID', 'Incident ID is required.');
+      }
+      if (req.body !== undefined && req.body !== null && (typeof req.body !== 'object' || Array.isArray(req.body))) {
+        throw new DomainError('INVALID_INPUT', 'Incident resolution body must be an object.');
+      }
       const { resolutionNotes } = req.body || {};
+      if (resolutionNotes !== undefined && resolutionNotes !== null && typeof resolutionNotes !== 'string') {
+        throw new DomainError('INVALID_INPUT', 'resolutionNotes must be a string.');
+      }
       const data = await this.incidentService.resolveIncident(id, { resolutionNotes });
       return sendSuccess(res, 200, data, req, this.idempotencyStore);
     } catch (err) {

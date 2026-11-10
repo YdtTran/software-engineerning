@@ -5,7 +5,7 @@ let createApp; try {({createApp}=require('../app'));} catch (err) {if(err.code!=
 test('server-side demo sessions authenticate and authorize operations',async t=>{
  assert.equal(typeof createApp,'function','Express composition root must exist');
  const db=new DatabaseSync(':memory:'), base=path.resolve(__dirname,'../../db');
- for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql'])db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql','migrations/0008_incident_isolation.sql','migrations/0009_transfer_slot_assignment.sql'])db.exec(fs.readFileSync(path.join(base,f),'utf8'));
  const salt='0123456789abcdef0123456789abcdef'; const account=(username,id,roles,password)=>({username,id,roles,salt,passwordHash:scryptSync(password,Buffer.from(salt,'hex'),64).toString('hex')});
  const app=createApp({db,secureCookies:false,demoAccounts:[account('rider','u',['User'],'rider-secret'),account('operator','o',['Operator'],'operator-secret')]});
  const server=await new Promise(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s))});t.after(async()=>{await new Promise(resolve=>server.close(resolve));db.close()});
@@ -43,7 +43,7 @@ test('unknown endpoints use the API error envelope',async t=>{
 
 test('cookie-authenticated writes require a same-origin request',async t=>{
  assert.equal(typeof createApp,'function');const db=new DatabaseSync(':memory:'),base=path.resolve(__dirname,'../../db');
- for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql'])db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql','migrations/0008_incident_isolation.sql','migrations/0009_transfer_slot_assignment.sql'])db.exec(fs.readFileSync(path.join(base,f),'utf8'));
  const salt='0123456789abcdef0123456789abcdef',app=createApp({db,secureCookies:false,demoAccounts:[{username:'op',id:'o',roles:['operator'],salt,passwordHash:scryptSync('secret',Buffer.from(salt,'hex'),64).toString('hex')}]});
  const server=await new Promise(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s))});t.after(async()=>{await new Promise(resolve=>server.close(resolve));db.close()});
  const origin=`http://127.0.0.1:${server.address().port}`,login=await fetch(origin+'/api/v1/session',{method:'POST',headers:{'content-type':'application/json',origin},body:JSON.stringify({username:'op',password:'secret'})});

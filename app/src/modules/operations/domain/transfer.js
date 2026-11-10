@@ -36,6 +36,7 @@ class Transfer {
     status = TransferStatus.PLANNED,
     vehicleIds = [],
     destinationSlotIds = [],
+    vehicleSlotAssignments = null,
     createdAt = new Date().toISOString(),
     departedAt = null,
     arrivedAt = null,
@@ -80,6 +81,37 @@ class Transfer {
     this.status = normalizeTransferStatus(status);
     this.vehicleIds = [...vehicleIds];
     this.destinationSlotIds = [...destinationSlotIds];
+
+    if (Array.isArray(vehicleSlotAssignments) && vehicleSlotAssignments.length > 0) {
+      if (vehicleSlotAssignments.length !== vehicleIds.length) {
+        throw new DomainError('INVALID_INPUT', 'Vehicle-to-slot assignments count must match vehicle count.');
+      }
+      const seenVehicles = new Set();
+      const seenSlots = new Set();
+      for (const a of vehicleSlotAssignments) {
+        if (!a || typeof a.vehicleId !== 'string' || typeof a.slotId !== 'string') {
+          throw new DomainError('INVALID_INPUT', 'Each assignment must have valid vehicleId and slotId strings.');
+        }
+        if (!vehicleIds.includes(a.vehicleId)) {
+          throw new DomainError('INVALID_INPUT', `Vehicle ${a.vehicleId} is not part of this transfer order.`);
+        }
+        if (!destinationSlotIds.includes(a.slotId)) {
+          throw new DomainError('INVALID_INPUT', `Slot ${a.slotId} is not in held destination slots.`);
+        }
+        seenVehicles.add(a.vehicleId);
+        seenSlots.add(a.slotId);
+      }
+      if (seenVehicles.size !== vehicleIds.length || seenSlots.size !== vehicleIds.length) {
+        throw new DomainError('INVALID_INPUT', 'Vehicle-to-slot assignments must be a 1-to-1 bijection.');
+      }
+      this.vehicleSlotAssignments = vehicleSlotAssignments.map(a => ({ vehicleId: a.vehicleId, slotId: a.slotId }));
+    } else {
+      this.vehicleSlotAssignments = vehicleIds.map((vId, idx) => ({
+        vehicleId: vId,
+        slotId: destinationSlotIds[idx]
+      }));
+    }
+
     this.createdAt = createdAt;
     this.departedAt = departedAt;
     this.arrivedAt = arrivedAt;
@@ -176,7 +208,13 @@ class Transfer {
     this.departedAt = now.toISOString();
   }
 
-  arrive({ observedVehicleIds = [], replacementDestinationHubId = null, replacementSlotIds = null, now = new Date() }) {
+  arrive({
+    observedVehicleIds = [],
+    replacementDestinationHubId = null,
+    replacementSlotIds = null,
+    vehicleSlotAssignments = null,
+    now = new Date()
+  }) {
     const s = this.status.toLowerCase();
     if (s !== 'intransit') {
       throw new DomainError(
@@ -193,6 +231,10 @@ class Transfer {
       );
     }
 
+    if (observedVehicleIds.some(id => typeof id !== 'string' || !id.trim()) || new Set(observedVehicleIds).size !== observedVehicleIds.length) {
+      throw new DomainError('INVALID_INPUT', 'Observed vehicle IDs must be unique non-empty strings.');
+    }
+
     const missing = this.vehicleIds.filter(id => !observedVehicleIds.includes(id));
     if (missing.length > 0) {
       throw new DomainError(
@@ -202,18 +244,62 @@ class Transfer {
       );
     }
 
-    if (replacementDestinationHubId) {
+    if (replacementDestinationHubId || Array.isArray(replacementSlotIds)) {
+      const targetHubId = replacementDestinationHubId || this.destinationHubId;
+      if (targetHubId === this.sourceHubId) {
+        throw new DomainError('SOURCE_DESTINATION_SAME', `Replacement destination hub cannot be the source hub (${targetHubId}).`);
+      }
       if (!Array.isArray(replacementSlotIds) || replacementSlotIds.length < this.vehicleIds.length) {
         throw new DomainError(
           'INSUFFICIENT_REPLACEMENT_SLOTS',
-          `Replacement destination ${replacementDestinationHubId} must provide at least ${this.vehicleIds.length} slots.`
+          `Replacement destination ${targetHubId} must provide at least ${this.vehicleIds.length} slots.`
         );
       }
-      if (new Set(replacementSlotIds).size !== replacementSlotIds.length) {
-        throw new DomainError('INVALID_INPUT', 'Replacement slot IDs must be unique.');
+      if (replacementSlotIds.some(slot => typeof slot !== 'string' || !slot.trim()) || new Set(replacementSlotIds).size !== replacementSlotIds.length) {
+        throw new DomainError('INVALID_INPUT', 'Replacement slot IDs must be unique non-empty strings.');
       }
-      this.destinationHubId = replacementDestinationHubId;
-      this.destinationSlotIds = [...replacementSlotIds.slice(0, this.vehicleIds.length)];
+
+      this.destinationHubId = targetHubId;
+      const targetSlots = replacementSlotIds.slice(0, this.vehicleIds.length);
+
+      const oldAssignments = this.vehicleSlotAssignments || [];
+      const retainedAssignments = oldAssignments.filter(a => targetSlots.includes(a.slotId));
+      const assignedVehicles = new Set(retainedAssignments.map(a => a.vehicleId));
+      const unassignedVehicles = this.vehicleIds.filter(vId => !assignedVehicles.has(vId));
+      const newSlots = targetSlots.filter(sId => !retainedAssignments.some(a => a.slotId === sId));
+
+      const newAssignments = [...retainedAssignments];
+      for (let i = 0; i < unassignedVehicles.length; i++) {
+        newAssignments.push({ vehicleId: unassignedVehicles[i], slotId: newSlots[i] });
+      }
+
+      this.destinationSlotIds = newAssignments.map(a => a.slotId);
+      this.vehicleSlotAssignments = newAssignments;
+    }
+
+    if (Array.isArray(vehicleSlotAssignments) && vehicleSlotAssignments.length > 0) {
+      if (vehicleSlotAssignments.length !== this.vehicleIds.length) {
+        throw new DomainError('INVALID_INPUT', 'Arrival vehicle-to-slot assignments count must match vehicle count.');
+      }
+      const seenVehicles = new Set();
+      const seenSlots = new Set();
+      for (const a of vehicleSlotAssignments) {
+        if (!a || typeof a.vehicleId !== 'string' || typeof a.slotId !== 'string') {
+          throw new DomainError('INVALID_INPUT', 'Each arrival assignment must have valid vehicleId and slotId strings.');
+        }
+        if (!this.vehicleIds.includes(a.vehicleId)) {
+          throw new DomainError('INVALID_INPUT', `Vehicle ${a.vehicleId} is not part of this transfer.`);
+        }
+        if (!this.destinationSlotIds.includes(a.slotId)) {
+          throw new DomainError('INVALID_INPUT', `Slot ${a.slotId} is not in destination slots.`);
+        }
+        seenVehicles.add(a.vehicleId);
+        seenSlots.add(a.slotId);
+      }
+      if (seenVehicles.size !== this.vehicleIds.length || seenSlots.size !== this.vehicleIds.length) {
+        throw new DomainError('INVALID_INPUT', 'Arrival vehicle-to-slot assignments must be a 1-to-1 bijection.');
+      }
+      this.vehicleSlotAssignments = vehicleSlotAssignments.map(a => ({ vehicleId: a.vehicleId, slotId: a.slotId }));
     }
 
     this.status = TransferStatus.COMPLETED;
