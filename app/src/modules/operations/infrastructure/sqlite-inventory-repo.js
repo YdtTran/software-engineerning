@@ -19,7 +19,7 @@ const {
   DomainError
 } = require('../domain/resource');
 
-function parkingInstant(value) {
+function parseInstant(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT.*(?:Z|[+-]\d\d:\d\d)$/.test(value)) throw new DomainError('INVALID_INPUT', 'Parking times must be ISO timestamps with an offset.');
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) throw new DomainError('INVALID_INPUT', 'Invalid parking time.');
@@ -47,7 +47,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
     let sql = `SELECT id, hub_id, vehicle_type, battery_percent, status, owner_id 
                FROM electric_vehicles 
                WHERE hub_id = ? AND LOWER(status) = 'available' AND owner_id IS NULL AND battery_percent >= 20
-                 AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL
+                 AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL AND pickup_claimed = 0
                  AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved','closed'))`;
     const params = [hubId];
 
@@ -69,6 +69,11 @@ class SQLiteInventoryRepository extends InventoryInterface {
 
   async reserveVehicle(vehicleId, reservationId, hubId) {
     if (!reservationId || typeof reservationId !== 'string' || !hubId) throw new DomainError('INVALID_INPUT', 'Reservation and hub IDs are required.');
+    return this.client.transaction(() => this.reserveVehicleInTransaction(vehicleId, reservationId, hubId));
+  }
+
+  async reserveVehicleInTransaction(vehicleId, reservationId, hubId) {
+    const expiry = new Date(Date.now() + 15 * 60 * 1000).toISOString();
     const row = await this.client.get('SELECT * FROM electric_vehicles WHERE id = ?;', [vehicleId]);
     if (!row) {
       throw new DomainError('VEHICLE_NOT_FOUND', `Vehicle ${vehicleId} not found.`);
@@ -86,21 +91,52 @@ class SQLiteInventoryRepository extends InventoryInterface {
     vehicle.reserve();
 
     const result = await this.client.run(
-      `UPDATE electric_vehicles SET status = ?, reservation_id = ? WHERE id = ? AND hub_id = ? AND LOWER(status) = 'available' AND owner_id IS NULL AND battery_percent >= 20 AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL
+      `UPDATE electric_vehicles SET status = ?, reservation_id = ?, reservation_expires_at = ?, pickup_claimed = 0 WHERE id = ? AND hub_id = ? AND LOWER(status) = 'available' AND owner_id IS NULL AND battery_percent >= 20 AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL AND pickup_claimed = 0
        AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved','closed'));`,
-      [vehicle.status, reservationId, vehicle.id, hubId]
+      [vehicle.status, reservationId, expiry, vehicle.id, hubId]
     );
     if (result.changes !== 1) throw new DomainError('VEHICLE_NOT_AVAILABLE', `Vehicle ${vehicleId} is not available for reservation.`);
+    return { expiresAt: expiry };
   }
 
   async releaseVehicleHold(vehicleId, reservationId) {
     if (!reservationId) throw new DomainError('INVALID_INPUT', 'Reservation ID is required.');
     const result = await this.client.run(
-      `UPDATE electric_vehicles SET status = CASE WHEN LOWER(status) = 'reserved' THEN 'Available' ELSE status END, reservation_id = NULL
-       WHERE id = ? AND status IN ('Reserved', 'reserved', 'Faulty', 'faulted') AND reservation_id = ?;`,
+      `UPDATE electric_vehicles SET status = CASE WHEN LOWER(status) = 'reserved' THEN 'Available' ELSE status END, reservation_id = NULL, reservation_expires_at = NULL
+       WHERE id = ? AND status IN ('Reserved', 'reserved', 'Faulty', 'faulted') AND reservation_id = ? AND pickup_claimed = 0;`,
       [vehicleId, reservationId]
     );
     if (result.changes !== 1) throw new DomainError('VEHICLE_NOT_AVAILABLE', 'Vehicle hold does not belong to this reservation.');
+  }
+
+  async expireVehicleHold(vehicleId, reservationId) {
+    if (!reservationId) throw new DomainError('INVALID_INPUT', 'Reservation ID is required.');
+    const result = await this.client.run(
+      `UPDATE electric_vehicles SET status = CASE WHEN LOWER(status) = 'reserved' THEN 'Available' ELSE status END, reservation_id = NULL, reservation_expires_at = NULL
+       WHERE id = ? AND reservation_id = ? AND status IN ('Reserved','reserved','Faulty','faulted') AND pickup_claimed = 0
+       AND reservation_expires_at IS NOT NULL AND reservation_expires_at <= strftime('%Y-%m-%dT%H:%M:%fZ','now');`, [vehicleId, reservationId]
+    );
+    if (result.changes !== 1) throw new DomainError('VEHICLE_NOT_AVAILABLE', 'Vehicle hold is not eligible for expiration.');
+  }
+
+  async claimVehiclePickup(vehicleId, reservationId, hubId) {
+    if (!reservationId || !hubId) throw new DomainError('INVALID_INPUT', 'Reservation and hub IDs are required.');
+    const result = await this.client.run(
+      `UPDATE electric_vehicles SET pickup_claimed = 1 WHERE id = ? AND hub_id = ? AND reservation_id = ? AND status IN ('Reserved','reserved')
+       AND pickup_claimed = 0 AND reservation_expires_at > strftime('%Y-%m-%dT%H:%M:%fZ','now') AND battery_percent >= 20
+       AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved','closed'));`,
+      [vehicleId, hubId, reservationId]
+    );
+    if (result.changes !== 1) throw new DomainError('VEHICLE_CANNOT_PICKUP', 'Vehicle reservation cannot be claimed for pickup.');
+  }
+
+  async releasePickupClaim(vehicleId, reservationId) {
+    if (!reservationId) throw new DomainError('INVALID_INPUT', 'Reservation ID is required.');
+    const result = await this.client.run(
+      `UPDATE electric_vehicles SET pickup_claimed = 0 WHERE id = ? AND reservation_id = ? AND pickup_claimed = 1 AND status IN ('Reserved','reserved','Faulty','faulted');`,
+      [vehicleId, reservationId]
+    );
+    if (result.changes !== 1) throw new DomainError('VEHICLE_CANNOT_PICKUP', 'No matching pickup claim exists.');
   }
 
   async pickupVehicle(vehicleId, tripId, reservationId, hubId) {
@@ -126,7 +162,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
     vehicle.pickup();
 
     const result = await this.client.run(
-      `UPDATE electric_vehicles SET status = ?, reservation_id = NULL, trip_id = ? WHERE id = ? AND hub_id = ? AND LOWER(status) = 'reserved' AND reservation_id = ? AND battery_percent >= 20
+      `UPDATE electric_vehicles SET status = ?, reservation_id = NULL, reservation_expires_at = NULL, pickup_claimed = 0, trip_id = ? WHERE id = ? AND hub_id = ? AND LOWER(status) = 'reserved' AND reservation_id = ? AND pickup_claimed = 1 AND battery_percent >= 20
        AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved','closed'));`,
       [vehicle.status, tripId, vehicle.id, hubId, reservationId]
     );
@@ -176,7 +212,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
       if (slotId) {
         let occupied;
         if (slotReservationId) {
-          await this.occupySlot(slotId, tripId, slotReservationId);
+          await this.occupySlot(slotId, tripId, slotReservationId, destinationHubId);
           occupied = await this.client.run(`UPDATE parking_slots SET parked_vehicle_id = ? WHERE id = ? AND hub_id = ? AND occupancy_id = ? AND parked_vehicle_id IS NULL;`, [vehicleId, slotId, destinationHubId, tripId]);
         } else {
           const now = new Date().toISOString();
@@ -203,7 +239,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
     let starts = now.toISOString(), ends = '9999-12-31T23:59:59.999Z';
     if (pool === 'advance') {
       if (!interval) throw new DomainError('INVALID_INPUT', 'Advance parking requires an interval.');
-      const start = parkingInstant(interval.plannedArrival), end = parkingInstant(interval.plannedCheckout);
+      const start = parseInstant(interval.plannedArrival), end = parseInstant(interval.plannedCheckout);
       if (start < now || end <= start) throw new DomainError('INVALID_INPUT', 'Invalid parking interval.');
       starts = start.toISOString(); ends = end.toISOString();
     }
@@ -219,12 +255,12 @@ class SQLiteInventoryRepository extends InventoryInterface {
 
   async holdSlotForReservation(slotId, reservationId, request) {
     if (!reservationId || typeof reservationId !== 'string') throw new DomainError('INVALID_INPUT', 'Reservation ID is required.');
-    if (!request || !['immediate', 'advance'].includes(request.pool)) throw new DomainError('INVALID_INPUT', 'Parking pool is required.');
-    const expiry = parkingInstant(request.expiresAt);
+    if (!request || !request.hubId || !['immediate', 'advance'].includes(request.pool)) throw new DomainError('INVALID_INPUT', 'Parking hub and pool are required.');
+    const expiry = parseInstant(request.expiresAt);
     return this.client.transaction(async () => {
       const now = new Date();
-      const start = request.pool === 'immediate' ? now : parkingInstant(request.plannedArrival);
-      const end = request.pool === 'immediate' ? expiry : parkingInstant(request.plannedCheckout);
+      const start = request.pool === 'immediate' ? now : parseInstant(request.plannedArrival);
+      const end = request.pool === 'immediate' ? expiry : parseInstant(request.plannedCheckout);
       if (expiry <= now || (request.pool === 'advance' && (start < now || expiry < start)) || end <= start) {
         throw new DomainError('INVALID_INPUT', 'Parking reservation interval or expiry is invalid.');
       }
@@ -234,7 +270,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
       }
       const slot = await this.client.get('SELECT * FROM parking_slots WHERE id = ?;', [slotId]);
       const physicalAvailable = slot && ['Available', 'available'].includes(slot.status) && !slot.occupancy_id && !slot.parked_vehicle_id;
-      if (!slot || slot.pool !== request.pool || slot.transfer_hold_id || slot.reservation_id ||
+      if (!slot || slot.hub_id !== request.hubId || slot.pool !== request.pool || slot.transfer_hold_id || slot.reservation_id ||
           !['Available', 'available', 'Occupied', 'occupied'].includes(slot.status) || (request.pool === 'immediate' && !physicalAvailable)) {
         throw new DomainError('SLOT_UNAVAILABLE', `Slot ${slotId} is not available for this reservation.`);
       }
@@ -279,8 +315,8 @@ class SQLiteInventoryRepository extends InventoryInterface {
     });
   }
 
-  async occupySlot(slotId, occupancyId, reservationId = null) {
-    if (!occupancyId || !reservationId) throw new DomainError('INVALID_INPUT', 'Occupancy and reservation IDs are required.');
+  async occupySlot(slotId, occupancyId, reservationId, hubId) {
+    if (!occupancyId || !reservationId || !hubId) throw new DomainError('INVALID_INPUT', 'Occupancy, reservation and hub IDs are required.');
     return this.client.transaction(async () => {
       const now = new Date().toISOString();
       const commitment = await this.client.get(
@@ -289,10 +325,10 @@ class SQLiteInventoryRepository extends InventoryInterface {
       );
       if (!commitment) throw new DomainError('SLOT_UNAVAILABLE', 'Reservation is not valid for check-in.');
       const result = await this.client.run(
-        `UPDATE parking_slots SET status = 'Occupied', reservation_id = NULL, occupancy_id = ? WHERE id = ? AND pool = ?
+        `UPDATE parking_slots SET status = 'Occupied', reservation_id = NULL, occupancy_id = ? WHERE id = ? AND hub_id = ? AND pool = ?
          AND parked_vehicle_id IS NULL AND transfer_hold_id IS NULL AND occupancy_id IS NULL
          AND ((status IN ('Available', 'available') AND reservation_id IS NULL) OR (status IN ('Held', 'reserved') AND reservation_id = ?));`,
-        [occupancyId, slotId, commitment.pool, reservationId]
+        [occupancyId, slotId, hubId, commitment.pool, reservationId]
       );
       if (result.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', `Slot ${slotId} is unavailable for this occupancy.`);
       await this.client.run(`UPDATE parking_commitments SET status = 'Fulfilled', occupancy_id = ? WHERE reservation_id = ? AND status = 'Reserved';`, [occupancyId, reservationId]);

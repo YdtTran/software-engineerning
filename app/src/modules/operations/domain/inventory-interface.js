@@ -31,10 +31,25 @@ class InventoryInterface {
    * @param {string} vehicleId
    * @param {string} reservationId
    * @param {string} hubId Expected source hub.
-   * @returns {Promise<void>}
+   * @returns {Promise<{expiresAt: string}>} Server-generated expiry 15 minutes after the hold.
    */
   async reserveVehicle(vehicleId, reservationId, hubId) {
     throw new Error('Not implemented: reserveVehicle');
+  }
+
+  /** Atomically claim an unexpired reservation before attempting physical pickup. */
+  async claimVehiclePickup(vehicleId, reservationId, hubId) {
+    throw new Error('Not implemented: claimVehiclePickup');
+  }
+
+  /** Release a pickup claim only after lock and location reconciliation. */
+  async releasePickupClaim(vehicleId, reservationId) {
+    throw new Error('Not implemented: releasePickupClaim');
+  }
+
+  /** Expire only an unclaimed, overdue reservation. */
+  async expireVehicleHold(vehicleId, reservationId) {
+    throw new Error('Not implemented: expireVehicleHold');
   }
 
   /**
@@ -48,7 +63,7 @@ class InventoryInterface {
   }
 
   /**
-   * Mark vehicle as 'in_use' when rider confirms pickup at the Hub (UC04).
+   * Mark vehicle as 'in_use' after a claimed pickup is physically confirmed at the Hub (UC04).
    * @param {string} vehicleId
    * @param {string} tripId
    * @param {string} reservationId Verified reservation for this trip.
@@ -93,7 +108,7 @@ class InventoryInterface {
    * Hold a slot for private vehicle reservation (UC06-S1).
    * @param {string} slotId
    * @param {string} reservationId
-   * @param {{pool: 'immediate'|'advance', expiresAt: string, plannedArrival?: string, plannedCheckout?: string}} request Times are ISO timestamps with an offset; the owning module computes expiry.
+   * @param {{hubId: string, pool: 'immediate'|'advance', expiresAt: string, plannedArrival?: string, plannedCheckout?: string}} request Times are ISO timestamps with an offset; the owning module computes expiry.
    * @returns {Promise<void>}
    */
   async holdSlotForReservation(slotId, reservationId, request) {
@@ -119,10 +134,11 @@ class InventoryInterface {
    * Mark slot as occupied upon check-in (UC06-S2).
    * @param {string} slotId
    * @param {string} occupancyId
-   * @param {string|null} reservationId Required when the slot is held.
+   * @param {string} reservationId The reservation being fulfilled.
+   * @param {string} hubId Expected arrival hub.
    * @returns {Promise<void>}
    */
-  async occupySlot(slotId, occupancyId, reservationId = null) {
+  async occupySlot(slotId, occupancyId, reservationId, hubId) {
     throw new Error('Not implemented: occupySlot');
   }
 

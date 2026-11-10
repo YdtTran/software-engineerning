@@ -17,7 +17,7 @@ test('fresh initialization applies all migrations and repeat is safe', t => {
   let result = run();
   assert.equal(result.status, 0, result.stderr);
   let db = new DatabaseSync(file);
-  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 6);
+  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 7);
   assert.ok(db.prepare("SELECT name FROM sqlite_schema WHERE name = 'transfers'").get());
   const count = db.prepare('SELECT count(*) AS n FROM mobility_hubs').get().n;
   db.close();
@@ -46,7 +46,7 @@ test('version 1 upgrades without data loss and failed migration rolls back', t =
   assert.equal(db.prepare("SELECT count(*) AS n FROM pragma_table_info('electric_vehicles') WHERE name='status'").get().n,0); db.close();
   fs.writeFileSync(migration,sql);
   const result=run(); assert.equal(result.status,0,result.stderr);
-  db=new DatabaseSync(file); assert.equal(db.prepare('PRAGMA user_version').get().user_version,6);
+  db=new DatabaseSync(file); assert.equal(db.prepare('PRAGMA user_version').get().user_version,7);
   assert.equal(db.prepare("SELECT name FROM mobility_hubs WHERE id='custom'").get().name,'Preserved'); db.close();
 });
 
@@ -59,4 +59,15 @@ test('ownership migration reconstructs active transfer holds without claiming le
   assert.equal(db.prepare("SELECT transfer_hold_id FROM parking_slots WHERE id='bku-A01'").get().transfer_hold_id,'t');
   assert.equal(db.prepare("SELECT reservation_id FROM parking_slots WHERE id='bku-A02'").get().reservation_id,null);
   db.close();
+});
+
+test('legacy vehicle holds with unknown expiry remain locked for reconciliation', async () => {
+ const {SQLiteClient}=require('../infrastructure/sqlite-client'); const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo');
+ const db=new DatabaseSync(':memory:'), base=path.resolve(__dirname,'../../../../db');
+ for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ db.exec("UPDATE electric_vehicles SET status='Reserved',reservation_id='legacy' WHERE id='EB-024'");
+ db.exec(fs.readFileSync(path.join(base,'migrations/0007_vehicle_pickup_claim.sql'),'utf8'));
+ const repo=new SQLiteInventoryRepository(new SQLiteClient(db));
+ await assert.rejects(repo.claimVehiclePickup('EB-024','legacy','metro'),{code:'VEHICLE_CANNOT_PICKUP'});
+ assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Reserved'); db.close();
 });

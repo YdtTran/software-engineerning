@@ -30,7 +30,7 @@ COMMIT;
 SQL
         version=1
         ;;
-    1|2|3|4|5|6) ;;
+    1|2|3|4|5|6|7) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -49,7 +49,7 @@ COMMIT;
 SQL
         version=2
         ;;
-    2|3|4|5|6) ;;
+    2|3|4|5|6|7) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -68,7 +68,7 @@ COMMIT;
 SQL
         version=3
         ;;
-    3|4|5|6) ;;
+    3|4|5|6|7) ;;
 esac
 
 case "$version" in
@@ -83,7 +83,7 @@ COMMIT;
 SQL
         version=4
         ;;
-    4|5|6) ;;
+    4|5|6|7) ;;
 esac
 
 case "$version" in
@@ -98,7 +98,7 @@ COMMIT;
 SQL
         version=5
         ;;
-    5|6) ;;
+    5|6|7) ;;
 esac
 
 case "$version" in
@@ -111,8 +111,23 @@ $commitment_sql
 PRAGMA user_version = 6;
 COMMIT;
 SQL
+        version=6
         ;;
-    6) ;;
+    6|7) ;;
+esac
+
+case "$version" in
+    6)
+        pickup_sql=$(cat "$script_dir/migrations/0007_vehicle_pickup_claim.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$pickup_sql
+PRAGMA user_version = 7;
+COMMIT;
+SQL
+        ;;
+    7) ;;
 esac
 
 printf '%s\n' "$database"

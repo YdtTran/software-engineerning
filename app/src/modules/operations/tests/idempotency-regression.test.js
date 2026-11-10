@@ -19,7 +19,7 @@ test('duplicate request survives a process restart and rejects a different paylo
   const file = path.join(dir, 'db.sqlite');
   let db = new DatabaseSync(file);
   const base = path.resolve(__dirname, '../../../../db');
-  for (const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+  for (const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   const request = (batteryPercent=80) => ({user:{id:'op',role:'operator'},headers:{'idempotency-key':'K'},body:{kind:'vehicle',hubId:'metro',attributes:{id:'idem-vehicle',batteryPercent}}});
   let app = createOperationsModule({db});
   const first = await createResource(app,request());
@@ -77,7 +77,7 @@ test('same idempotency key serializes writes across separate SQLite connections'
 
 test('write without idempotency key is rejected before changing data', async () => {
  const db=new DatabaseSync(':memory:'); const base=path.resolve(__dirname,'../../../../db');
- for (const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ for (const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
  const app=createOperationsModule({db}); const result=await createResource(app,{user:{id:'op',role:'operator'},headers:{},body:{kind:'vehicle',hubId:'metro',attributes:{id:'without-key'}}});
  assert.equal(result.statusCode,400); assert.equal(db.prepare("SELECT count(*) AS n FROM electric_vehicles WHERE id='without-key'").get().n,0); db.close();
 });

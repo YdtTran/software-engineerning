@@ -31,7 +31,7 @@ test('separate SQLite connections reject conflicting vehicle and slot claims', a
   const dir = fs.mkdtempSync(path.join(os.tmpdir(),'ops-race-')); t.after(() => fs.rmSync(dir,{recursive:true,force:true}));
   const file = path.join(dir,'race.sqlite'); const db = new DatabaseSync(file);
   const base = path.resolve(__dirname,'../../../../db');
-  for (const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+  for (const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   async function race(first, second) {
     const barrier = new SharedArrayBuffer(4);
     return Promise.all([first,second].map(data => new Promise((resolve,reject) => {
@@ -54,4 +54,18 @@ test('separate SQLite connections reject conflicting vehicle and slot claims', a
   assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-102'").get().status,state === 'InTransit' ? 'InTransit' : 'Available');
   assert.equal(db.prepare("SELECT status FROM parking_slots WHERE id='bku-A04'").get().status,state === 'InTransit' ? 'Held' : 'Available');
   db.close();
+});
+
+test('pickup claim and cancellation have one winner across SQLite connections', async t => {
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pickup-race-')); t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const file=path.join(dir,'race.sqlite'), db=new DatabaseSync(file), base=path.resolve(__dirname,'../../../../db');
+ for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ const {SQLiteClient}=require(clientPath), {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo');
+ await new SQLiteInventoryRepository(new SQLiteClient(db)).reserveVehicle('EB-024','r','metro');
+ const barrier=new SharedArrayBuffer(4), inventory=require.resolve('../infrastructure/sqlite-inventory-repo');
+ const code=`const {parentPort,workerData}=require('node:worker_threads');const {DatabaseSync}=require('node:sqlite');const {SQLiteClient}=require(workerData.clientPath),{SQLiteInventoryRepository}=require(workerData.inventory);(async()=>{const db=new DatabaseSync(workerData.file);db.exec('PRAGMA busy_timeout=5000');const repo=new SQLiteInventoryRepository(new SQLiteClient(db)),b=new Int32Array(workerData.barrier);Atomics.add(b,0,1);Atomics.notify(b,0);while(Atomics.load(b,0)<2)Atomics.wait(b,0,1);try{if(workerData.action==='claim')await repo.claimVehiclePickup('EB-024','r','metro');else await repo.releaseVehicleHold('EB-024','r');parentPort.postMessage('ok')}catch(e){parentPort.postMessage(e.code||e.message)}db.close()})().catch(e=>{throw e});`;
+ const results=await Promise.all(['claim','cancel'].map(action=>new Promise((resolve,reject)=>{const worker=new Worker(code,{eval:true,workerData:{action,file,barrier,clientPath,inventory}});worker.once('message',resolve);worker.once('error',reject)})));
+ assert.equal(results.filter(x=>x==='ok').length,1,JSON.stringify(results));
+ const row=db.prepare("SELECT status,pickup_claimed FROM electric_vehicles WHERE id='EB-024'").get();
+ assert.ok((row.status==='Reserved'&&row.pickup_claimed===1)||(row.status==='Available'&&row.pickup_claimed===0)); db.close();
 });

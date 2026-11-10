@@ -29,7 +29,7 @@ test('vehicle with an unresolved trip incident is not rentable after return', as
   const { SQLiteIncidentRepository } = require('../infrastructure/sqlite-incident-repo');
   const db = new DatabaseSync(':memory:');
   const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   db.exec("UPDATE electric_vehicles SET status='InUse', trip_id='t' WHERE id='EB-024'");
   const client = new SQLiteClient(db);
   const inventory = new SQLiteInventoryRepository(client);
@@ -48,7 +48,7 @@ test('equipment incident validates resource and isolates reserved vehicle', asyn
   const { SQLiteInventoryRepository } = require('../infrastructure/sqlite-inventory-repo');
   const { SQLiteIncidentRepository } = require('../infrastructure/sqlite-incident-repo');
   const db = new DatabaseSync(':memory:'); const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   const client = new SQLiteClient(db);
   const service = new IncidentService(new SQLiteIncidentRepository(client), new SQLiteInventoryRepository(client));
   await assert.rejects(service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'missing',description:'broken'}));
@@ -71,7 +71,7 @@ test('resolving one incident does not reactivate a resource with another open in
   const { SQLiteClient } = require('../infrastructure/sqlite-client'); const { SQLiteInventoryRepository } = require('../infrastructure/sqlite-inventory-repo');
   const { SQLiteIncidentRepository } = require('../infrastructure/sqlite-incident-repo');
   const db = new DatabaseSync(':memory:'); const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   const client = new SQLiteClient(db); const service = new IncidentService(new SQLiteIncidentRepository(client), new SQLiteInventoryRepository(client));
   const first = await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'one'});
   await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'two'});
@@ -85,7 +85,7 @@ test('resolving a vehicle fault preserves its existing reservation', async () =>
   const {DatabaseSync} = require('node:sqlite'); const fs=require('node:fs'); const path=require('node:path');
   const {SQLiteClient}=require('../infrastructure/sqlite-client'); const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo'); const {SQLiteIncidentRepository}=require('../infrastructure/sqlite-incident-repo');
   const db=new DatabaseSync(':memory:'); const base=path.resolve(__dirname,'../../../../db');
-  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   const client=new SQLiteClient(db); const inventory=new SQLiteInventoryRepository(client); const service=new IncidentService(new SQLiteIncidentRepository(client),inventory);
   await inventory.reserveVehicle('EB-024','r1','metro');
   const incident=await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'fault'});
@@ -99,7 +99,7 @@ test('concurrent maintenance assignments do not replace each other', async () =>
   const {DatabaseSync}=require('node:sqlite'); const fs=require('node:fs'); const path=require('node:path');
   const {SQLiteClient}=require('../infrastructure/sqlite-client'); const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo'); const {SQLiteIncidentRepository}=require('../infrastructure/sqlite-incident-repo');
   const db=new DatabaseSync(':memory:'); const base=path.resolve(__dirname,'../../../../db');
-  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   const client=new SQLiteClient(db); const service=new IncidentService(new SQLiteIncidentRepository(client),new SQLiteInventoryRepository(client));
   const incident=await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'fault'});
   const results=await Promise.allSettled([service.handleIncident(incident.id,{technicianId:'one'}),service.handleIncident(incident.id,{technicianId:'two'})]);
@@ -112,7 +112,7 @@ test('resolving an incident does not bypass charging point repair', async () => 
   const {DatabaseSync}=require('node:sqlite'); const fs=require('node:fs'); const path=require('node:path');
   const {SQLiteClient}=require('../infrastructure/sqlite-client'); const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo'); const {SQLiteIncidentRepository}=require('../infrastructure/sqlite-incident-repo');
   const db=new DatabaseSync(':memory:'); const base=path.resolve(__dirname,'../../../../db');
-  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   const client=new SQLiteClient(db); const service=new IncidentService(new SQLiteIncidentRepository(client),new SQLiteInventoryRepository(client));
   const point=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
   const incident=await service.reportEquipmentIncident({resourceKind:'charging_point',resourceId:point,description:'fault'});
@@ -131,7 +131,7 @@ test('trip incident rejects a trusted trip whose vehicle is not assigned to that
  const {DatabaseSync}=require('node:sqlite'); const fs=require('node:fs'); const path=require('node:path');
  const {SQLiteClient}=require('../infrastructure/sqlite-client'); const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo'); const {SQLiteIncidentRepository}=require('../infrastructure/sqlite-incident-repo');
  const db=new DatabaseSync(':memory:'); const base=path.resolve(__dirname,'../../../../db');
- for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
  const client=new SQLiteClient(db); const inventory=new SQLiteInventoryRepository(client); const service=new IncidentService(new SQLiteIncidentRepository(client),inventory,{getTrip:async()=>({id:'t',userId:'u',vehicleId:'EB-024',status:'Active'})});
  await assert.rejects(service.reportTripIncident({tripId:'t',userId:'u',description:'fault'}));
  assert.equal(db.prepare('SELECT count(*) AS n FROM incidents').get().n,0); db.close();

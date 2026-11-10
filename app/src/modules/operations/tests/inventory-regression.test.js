@@ -9,7 +9,7 @@ const { InventoryService } = require('../application/inventory-service');
 function setup() {
   const db = new DatabaseSync(':memory:');
   const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   db.exec("UPDATE parking_slots SET pool='immediate'");
   const repo = new SQLiteInventoryRepository(new SQLiteClient(db));
   return { db, repo, service: new InventoryService(repo) };
@@ -35,7 +35,7 @@ test('only the reservation owning a vehicle or slot can release it', async () =>
   await assert.rejects(repo.releaseVehicleHold('EB-024','reservation-b'));
   assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Reserved');
   await repo.releaseVehicleHold('EB-024','reservation-a');
-  await repo.holdSlotForReservation('bku-A01','reservation-a',{pool:'immediate',expiresAt:new Date(Date.now()+3600000).toISOString()});
+  await repo.holdSlotForReservation('bku-A01','reservation-a',{pool:'immediate',hubId:'bku',expiresAt:new Date(Date.now()+3600000).toISOString()});
   await assert.rejects(repo.releaseSlotHold('bku-A01','reservation-b'));
   assert.equal(db.prepare("SELECT status FROM parking_slots WHERE id='bku-A01'").get().status,'Held');
   await repo.releaseSlotHold('bku-A01','reservation-a');
@@ -46,9 +46,10 @@ test('pickup, return and parking occupancy require the owning identities', async
   const {db,repo} = setup();
   await repo.reserveVehicle('EB-024','reservation-a','metro');
   await assert.rejects(repo.pickupVehicle('EB-024','trip-a','reservation-b','metro'));
+  await repo.claimVehiclePickup('EB-024','reservation-a','metro');
   await repo.pickupVehicle('EB-024','trip-a','reservation-a','metro');
   await assert.rejects(repo.returnVehicle('EB-024','bku','bku-A01',80,'trip-b'));
-  await repo.holdSlotForReservation('bku-A01','slot-a',{pool:'immediate',expiresAt:new Date(Date.now()+3600000).toISOString()});
+  await repo.holdSlotForReservation('bku-A01','slot-a',{pool:'immediate',hubId:'bku',expiresAt:new Date(Date.now()+3600000).toISOString()});
   await assert.rejects(repo.returnVehicle('EB-024','bku','bku-A01',80,'trip-a','slot-b'));
   assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'InUse');
   await repo.returnVehicle('EB-024','bku','bku-A01',80,'trip-a','slot-a');
@@ -64,14 +65,14 @@ test('a parking action cannot consume or release a transfer hold', async () => {
   const transfers = new SQLiteTransferRepository(repo.client);
   await transfers.createTransfer(new Transfer({id:'owned-transfer',sourceHubId:'metro',destinationHubId:'bku',vehicleIds:['EB-024'],destinationSlotIds:['bku-A01'],createdBy:'op'}));
   await assert.rejects(repo.releaseSlotHold('bku-A01','unrelated'));
-  await assert.rejects(repo.occupySlot('bku-A01','occupancy','unrelated'));
+  await assert.rejects(repo.occupySlot('bku-A01','occupancy','unrelated','bku'));
   assert.equal(db.prepare("SELECT transfer_hold_id FROM parking_slots WHERE id='bku-A01'").get().transfer_hold_id,'owned-transfer');
   db.close();
 });
 
 test('administration cannot overwrite an active slot or charging point', async () => {
   const {db,repo,service}=setup();
-  await repo.holdSlotForReservation('bku-A01','held-reservation',{pool:'immediate',expiresAt:new Date(Date.now()+3600000).toISOString()});
+  await repo.holdSlotForReservation('bku-A01','held-reservation',{pool:'immediate',hubId:'bku',expiresAt:new Date(Date.now()+3600000).toISOString()});
   await assert.rejects(service.updateResource('bku-A01',{status:'Available'}));
   db.exec("UPDATE charging_points SET status='Charging' WHERE id=(SELECT id FROM charging_points LIMIT 1)");
   const point=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
@@ -122,6 +123,7 @@ test('reservations and returns enforce hub and physical capacity', async () => {
  await assert.rejects(repo.reserveVehicle('EB-024','wrong-hub','bku'));
  await repo.reserveVehicle('EB-024','correct','metro');
  await assert.rejects(repo.pickupVehicle('EB-024','trip','correct','bku'));
+ await repo.claimVehiclePickup('EB-024','correct','metro');
  await repo.pickupVehicle('EB-024','trip','correct','metro');
  await assert.rejects(repo.returnVehicle('EB-024','bku',null,90,'trip'));
  await assert.rejects(repo.returnVehicle('EB-024','bku','bku-A01',150,'trip'));
@@ -130,9 +132,9 @@ test('reservations and returns enforce hub and physical capacity', async () => {
 
 test('picking up a returned shared vehicle vacates its physical slot', async () => {
  const {db,repo}=setup();
- await repo.reserveVehicle('EB-024','r1','metro'); await repo.pickupVehicle('EB-024','t1','r1','metro');
+ await repo.reserveVehicle('EB-024','r1','metro'); await repo.claimVehiclePickup('EB-024','r1','metro'); await repo.pickupVehicle('EB-024','t1','r1','metro');
  await repo.returnVehicle('EB-024','bku','bku-A01',90,'t1');
- await repo.reserveVehicle('EB-024','r2','bku'); await repo.pickupVehicle('EB-024','t2','r2','bku');
+ await repo.reserveVehicle('EB-024','r2','bku'); await repo.claimVehiclePickup('EB-024','r2','bku'); await repo.pickupVehicle('EB-024','t2','r2','bku');
  assert.equal(db.prepare("SELECT status FROM parking_slots WHERE id='bku-A01'").get().status,'Available'); db.close();
 });
 
@@ -155,7 +157,7 @@ test('resource constructors normalize legacy states by resource type and reject 
 
 test('administration rejects deleting or relocating a physically parked vehicle', async () => {
  const {db,repo,service}=setup();
- await repo.reserveVehicle('EB-024','r','metro'); await repo.pickupVehicle('EB-024','t','r','metro'); await repo.returnVehicle('EB-024','bku','bku-A01',90,'t');
+ await repo.reserveVehicle('EB-024','r','metro'); await repo.claimVehiclePickup('EB-024','r','metro'); await repo.pickupVehicle('EB-024','t','r','metro'); await repo.returnVehicle('EB-024','bku','bku-A01',90,'t');
  await assert.rejects(repo.deleteVehicle('EB-024'),{code:'CANNOT_DELETE_ACTIVE_VEHICLE'});
  await assert.rejects(service.updateResource('EB-024',{hubId:'metro'}),{code:'INVALID_STATE_TRANSITION'});
  assert.equal(db.prepare("SELECT hub_id FROM electric_vehicles WHERE id='EB-024'").get().hub_id,'bku'); db.close();
@@ -193,7 +195,49 @@ test('vehicles below the rental battery threshold are not offered or reserved', 
 
 test('reservation pickup rechecks current battery eligibility', async () => {
  const {db,repo}=setup(); await repo.reserveVehicle('EB-024','r-low','metro');
+ await repo.claimVehiclePickup('EB-024','r-low','metro');
  db.exec("UPDATE electric_vehicles SET battery_percent=19 WHERE id='EB-024'");
  await assert.rejects(repo.pickupVehicle('EB-024','t-low','r-low','metro'),{code:'VEHICLE_CANNOT_PICKUP'});
  assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Reserved'); db.close();
+});
+
+test('an expired vehicle reservation cannot be picked up', async () => {
+ const {db,repo}=setup();
+ await repo.reserveVehicle('EB-024','expired','metro');
+ db.exec("UPDATE electric_vehicles SET reservation_expires_at='2000-01-01T00:00:00.000Z' WHERE id='EB-024'");
+ await assert.rejects(repo.claimVehiclePickup('EB-024','expired','metro'),{code:'VEHICLE_CANNOT_PICKUP'});
+ assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Reserved'); db.close();
+});
+
+test('a claimed pickup blocks expiry and cancellation until pickup reconciliation', async () => {
+ const {db,repo}=setup(); await repo.reserveVehicle('EB-024','claim','metro');
+ await repo.claimVehiclePickup('EB-024','claim','metro');
+ db.exec("UPDATE electric_vehicles SET reservation_expires_at='2000-01-01T00:00:00.000Z' WHERE id='EB-024'");
+ await assert.rejects(repo.releaseVehicleHold('EB-024','claim'));
+ await assert.rejects(repo.expireVehicleHold('EB-024','claim'));
+ await repo.pickupVehicle('EB-024','trip-claim','claim','metro');
+ assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'InUse');
+ await assert.rejects(repo.expireVehicleHold('EB-024','claim')); db.close();
+});
+test('reconciled pickup claim can be released then expired', async () => {
+ const {db,repo}=setup(); await repo.reserveVehicle('EB-024','claim','metro');
+ await repo.claimVehiclePickup('EB-024','claim','metro');
+ db.exec("UPDATE electric_vehicles SET reservation_expires_at='2000-01-01T00:00:00.000Z' WHERE id='EB-024'");
+ await repo.releasePickupClaim('EB-024','claim'); await repo.expireVehicleHold('EB-024','claim');
+ assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Available'); db.close();
+});
+
+test('vehicle reservation receives a server-generated fifteen-minute expiry', async () => {
+ const {db,repo}=setup(); const before=Date.now();
+ const hold=await repo.reserveVehicle('EB-024','server-expiry','metro'); const after=Date.now();
+ const expires=Date.parse(hold.expiresAt);
+ assert.ok(expires>=before+15*60000 && expires<=after+15*60000);
+ assert.equal(db.prepare("SELECT reservation_expires_at FROM electric_vehicles WHERE id='EB-024'").get().reservation_expires_at,hold.expiresAt); db.close();
+});
+
+test('physical pickup cannot complete without claiming the reservation', async () => {
+ const {db,repo}=setup(); await repo.reserveVehicle('EB-024','unclaimed','metro');
+ await assert.rejects(repo.pickupVehicle('EB-024','trip','unclaimed','metro'),{code:'VEHICLE_CANNOT_PICKUP'});
+ const row=db.prepare("SELECT status,pickup_claimed FROM electric_vehicles WHERE id='EB-024'").get();
+ assert.equal(row.status,'Reserved'); assert.equal(row.pickup_claimed,0); db.close();
 });

@@ -38,7 +38,7 @@ class SQLiteTransferRepository {
         const claimed = await this.client.run(
           `UPDATE electric_vehicles SET status = 'TransferHeld', transfer_hold_id = ?
            WHERE id = ? AND hub_id = ? AND status IN ('Available', 'available') AND battery_percent >= 80
-             AND owner_id IS NULL AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL
+             AND owner_id IS NULL AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL AND pickup_claimed = 0
              AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved','closed'));`,
           [transfer.id, vehicleId, transfer.sourceHubId]
         );

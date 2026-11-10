@@ -221,6 +221,9 @@ class InventoryInterface {
   // === Dành cho Module Mobility (Minh) ===
   async getAvailableVehicles(hubId, vehicleType) {}
   async reserveVehicle(vehicleId, reservationId, hubId) {} // Chuyển xe -> 'reserved'
+  async claimVehiclePickup(vehicleId, reservationId, hubId) {} // Claim trước lệnh mở khóa
+  async releasePickupClaim(vehicleId, reservationId) {} // Chỉ sau đối soát
+  async expireVehicleHold(vehicleId, reservationId) {}
   async releaseVehicleHold(vehicleId, reservationId) {} // Chỉ trả giữ chỗ của chính phiếu
   async pickupVehicle(vehicleId, tripId, reservationId, hubId) {}
   async returnVehicle(vehicleId, hubId, slotId, finalBatteryPercent, tripId, slotReservationId) {}
@@ -230,7 +233,7 @@ class InventoryInterface {
   async holdSlotForReservation(slotId, reservationId, request) {}
   async releaseSlotHold(slotId, reservationId) {}
   async expireSlotHold(slotId, reservationId) {}
-  async occupySlot(slotId, occupancyId, reservationId) {}
+  async occupySlot(slotId, occupancyId, reservationId, hubId) {}
   async vacateSlot(slotId, occupancyId) {}
   async updateChargingPointStatus(pointId, status) {}   // 'available' | 'charging' | 'faulted'
 
