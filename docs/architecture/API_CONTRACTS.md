@@ -20,6 +20,7 @@ Proposed implementation contract for the [Development View](DECISION.md). Busine
 | UC02 | U, O | GET /hubs/{hubId}/vehicles | Optional `type` → available vehicle IDs, types and battery percentages |
 | UC03 | U | POST /vehicle-reservations | `vehicleId, hubId` → reservation ID, vehicle ID, status, ticket code, expiry |
 | UC03 | U | GET /vehicle-reservations/{id} | → reservation record |
+| UC03 | U | POST /vehicle-reservations/{id}/cancel | Empty object → cancelled reservation |
 | UC04 | U | POST /vehicle-reservations/{id}/pickup | `vehicleCode` → trip ID, vehicle ID, status, start time |
 | UC05 | U | POST /trips/{id}/return | `hubId, slotId, confirmed` → trip ID, status, end time, distance |
 | UC04–05 | U | GET /trips/{id} | → trip record |
@@ -27,6 +28,8 @@ Proposed implementation contract for the [Development View](DECISION.md). Busine
 Recheck vehicle availability at reservation and verify the unexpired reservation and matching vehicle at pickup. Return checks destination capacity and records the trip closure and vehicle placement together. Return can leave the vehicle `Needs Charging`. The trip carries no MVP rental charge.
 
 Discovery implementation notes (UC01–02): `q` searches hub ID/name with case-insensitive Unicode-normalized text; blank `q` returns all hubs. `type` accepts `electric_bicycle` or `electric_motorbike`. Repeated query values or unsupported types return `400 INVALID_INPUT`. An unknown Hub returns `404 HUB_NOT_FOUND`; an existing Hub with no eligible vehicles returns `200` and an empty array. The current inventory schema has no geographic coordinates, so `location` is `null`. Agree the location source and shape with Operations and UX/UI before map integration.
+
+Rental implementation notes (UC03–05): only the owning User can read or change a reservation/trip. Cancellation is allowed before pickup is claimed. Business writes require an idempotency key; completed outcomes are retained without automatic pruning until a retention policy is agreed. GET responses include any pending command ID for reconnect/reconciliation. An unconfirmed device command returns `503 DEVICE_UNCONFIRMED` and preserves the pickup claim or return capacity hold; retry the original payload and key. At most three execute attempts use the same durable device command ID, followed by read-only confirmation inspection. Reservation expiry skips claimed/uncertain pickup. The demo device adapter is explicitly opt-in. `distance` is nullable when the adapter has no measured odometer data; no distance or rental price is invented.
 
 ### Simulation
 

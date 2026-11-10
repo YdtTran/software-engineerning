@@ -3,10 +3,12 @@ const { randomBytes, scrypt, timingSafeEqual } = require('node:crypto');
 const { promisify } = require('node:util');
 const { createOperationsModule } = require('./modules/operations');
 const { createMobilitySimulationModule } = require('./modules/mobility-simulation');
+const { SimulatedDock } = require('./modules/mobility-simulation/infrastructure/simulated-dock');
 
 const deriveKey = promisify(scrypt);
 
-function createApp({ db = null, client = null, demoAccounts, tripReader = null, chargingGuard = null, secureCookies = true } = {}) {
+function createApp({ db = null, client = null, demoAccounts, tripReader = null, chargingGuard = null,
+  secureCookies = true, deviceAdapter = null, simulateDevices = false } = {}) {
   if (!Array.isArray(demoAccounts) || demoAccounts.length === 0) throw new Error('Provision at least one demo account.');
   const accounts = new Map();
   for (const account of demoAccounts) {
@@ -63,8 +65,12 @@ function createApp({ db = null, client = null, demoAccounts, tripReader = null, 
     res.clearCookie('demo_session', { httpOnly: true, sameSite: 'strict', secure: secureCookies, path: '/' });
     return res.status(200).json({ data: { signedOut: true } });
   });
-  const operations = createOperationsModule({ db, client, tripReader, chargingGuard });
-  const mobility = createMobilitySimulationModule({ inventory: operations.inventoryInterface });
+  let mobility;
+  const verifiedTripReader = tripReader || { getTrip: (id, transactionClient) => mobility.rentalRepository.getTrip(id, transactionClient) };
+  const operations = createOperationsModule({ db, client, tripReader: verifiedTripReader, chargingGuard });
+  const device = deviceAdapter || (simulateDevices ? new SimulatedDock(operations.inventoryInterface) : null);
+  mobility = createMobilitySimulationModule({ inventory: operations.inventoryInterface, client: operations.inventoryRepo.client, device });
+  app.locals.mobility = mobility;
   app.use('/api/v1', operations.router);
   app.use('/api/v1', mobility.router);
   app.use((req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found.', details: {} } }));

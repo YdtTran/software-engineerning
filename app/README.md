@@ -1,4 +1,4 @@
-# Operations and Mobility discovery demo backend
+# Operations and Mobility demo backend
 
 The demo server uses Express and Node's built-in `node:sqlite` adapter. This is a local demo adapter, not a decision on the project's production SQLite driver. Node.js 22 or newer and the `sqlite3` CLI are required.
 
@@ -26,7 +26,9 @@ DEMO_INSECURE_HTTP=1 node app/src/demo-server.js
 
 The server binds to `127.0.0.1` and defaults to port 3000; `DEMO_PORT` changes the port. `DEMO_INSECURE_HTTP=1` disables the Secure cookie attribute for local HTTP and is rejected when `NODE_ENV=production`. Without it, cookies have the Secure attribute and require a suitable HTTPS deployment. The demo server does not configure TLS. Demo sessions are held in server memory and expire after eight hours or restart. POST `/api/v1/session` with JSON `{ "username": "...", "password": "..." }`; DELETE the same path to sign out. Protected operations use the resulting HttpOnly, SameSite=Strict cookie and do not trust actor headers. Cookie-authenticated writes require a matching `Origin`; business writes also require `Idempotency-Key`.
 
-The server mounts Operations and Mobility discovery (UC01–02), using the same provisioned sessions and inventory adapter. Vehicle reservations, pickup, return, Simulation, Parking/Charging and production identity remain unimplemented. Trip reports and charging transitions fail closed until their trusted integrations are supplied to `createApp`. The existing frontend remains a prototype and is not wired to this server. See the [Mobility module](src/modules/mobility-simulation/README.md) for its current scope and focused test command.
+The server mounts Operations and Mobility (UC01–05), using the same provisioned sessions and inventory adapter. Mobility provides the trusted trip reader for UC11A. Simulation, Parking/Charging and production identity remain unimplemented. Charging transitions fail closed until their trusted integration is supplied to `createApp`. The existing frontend remains a prototype and is not wired to this server. See the [Mobility module](src/modules/mobility-simulation/README.md) for its current scope and focused test command.
+
+Migration 0008 adds the Mobility lifecycle and command/outcome tables; initialize or upgrade to version 8 before starting the server. Set `DEMO_SIMULATED_DEVICES=1` to opt in to local lock/arrival confirmation simulation. Without a trusted device adapter, pickup/return fails closed. The demo server scans overdue, unclaimed vehicle reservations every 30 seconds and persists expiry/uncertain-device events in a local outbox; an external notification provider is not selected.
 
 Run `npm test --prefix app`; tests for optional SQLite drivers are skipped unless the drivers are available. The detailed integration limits are documented in [Operations](src/modules/operations/README.md).
 

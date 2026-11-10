@@ -99,6 +99,16 @@ class InventoryInterface {
     throw new Error('Not implemented: returnVehicle');
   }
 
+  /** Claim an uncommitted destination before return-device I/O. */
+  async claimVehicleReturn(vehicleId, tripId, slotId, hubId, commandId) {
+    throw new Error('Not implemented: claimVehicleReturn');
+  }
+
+  /** Consume only that return command's claim after verified arrival and lock. */
+  async confirmVehicleReturn(vehicleId, tripId, slotId, hubId, commandId, batteryPercent) {
+    throw new Error('Not implemented: confirmVehicleReturn');
+  }
+
   // =========================================================================
   // PARKING & CHARGING MODULE CONTRACT (Triết: UC06, UC07, UC12)
   // =========================================================================

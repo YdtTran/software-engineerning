@@ -1,6 +1,6 @@
 # Mobility and Simulation — Minh
 
-Stage 1 implements UC01–02 only. This branch builds on Operations commit `b78c4b6` from [PR #9](https://github.com/YdtTran/software-engineerning/pull/9), which was still open during the branch audit. Operations provides the demo server, authentication, SQLite adapter and physical inventory. Keep this dependency visible when reviewing or merging Minh's commits.
+Stages 1–2 implement UC01–05. This branch builds on Operations commit `b78c4b6` from [PR #9](https://github.com/YdtTran/software-engineerning/pull/9), which was still open during the branch audit. Operations provides the demo server, authentication, SQLite adapter and physical inventory. Keep this dependency visible when reviewing or merging Minh's commits.
 
 ## Discovery API
 
@@ -45,4 +45,18 @@ The six tests cover standalone discovery, Vietnamese query normalization, filter
 
 Run `npm test --prefix app` for the combined suite. See the [implementation plan](../../../../docs/architecture/MINH_IMPLEMENTATION_PLAN.md) for baseline failures and remaining stages.
 
-UC03–05, UC13–14 and frontend integration are subsequent stages. No Mobility schema migration or production driver decision is introduced in Stage 1.
+## Rental lifecycle — Stage 2
+
+Migration 0008 adds reservations, trips, durable idempotency outcomes, device commands and local outbox events, using the existing demo SQLite client. This extends the demo implementation; it does not select a production driver or a notification provider.
+
+The owning User can create/read/cancel a reservation, pick up the reserved vehicle and read/return the trip through the [HTTP contracts](../../../../docs/architecture/API_CONTRACTS.md). The same SQLite transaction includes business records, inventory changes and successful idempotency outcomes. Input hashes ignore JSON property order. Outcomes are retained without an automatic deletion policy.
+
+Pickup persists a command and claims the reservation before unlock. Return claims destination capacity before arrival/lock I/O. Both perform I/O outside the write transaction, use the original command ID for at most three execute attempts and persist confirmation before finalizing. Uncertain commands keep their claims. GET includes the pending command ID; retrying the original payload/key uses recorded confirmation or read-only `device.inspect(command)` for reconciliation. A device adapter must return matching command/vehicle/Hub IDs, plus unlock confirmation for pickup, or arrival/lock/slot/battery evidence for return. Optional measured `distanceKm` becomes the trip distance; otherwise distance is `null`.
+
+The explicit local `SimulatedDock` provides demo acknowledgements without physical hardware. Enable it on the demo server with `DEMO_SIMULATED_DEVICES=1`. Do not expose device acknowledgements as client-controlled HTTP fields.
+
+The server scans unclaimed reservations every 30 seconds. Expiry and uncertain-device events are committed to `mobility_events`; a future notification/incident-outbox consumer must deduplicate by command/record ID. Pickup claims are never released just because the original ticket expires. Unresolved physical ambiguity still requires trusted reconciliation; there is no public endpoint to force-release a claim.
+
+Operations now receives a trusted trip reader at composition, so UC11A verifies real trip ownership without circular module imports. Purpose-specific `claimVehicleReturn` and `confirmVehicleReturn` protect the shared destination capacity without consuming private parking commitments.
+
+The lifecycle tests cover contention, rollback, ownership, cancellation versus pickup, expiry, device retries/reconciliation, duplicate returns, future parking commitments, low-battery classification and the complete authenticated HTTP workflow including incident reporting. UC13–14 and frontend integration are subsequent stages.
