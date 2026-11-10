@@ -44,6 +44,7 @@ function validateScenario(input) {
   if (input.scenario === 'charging-demand') parameters.chargingMultiplier = number(p.chargingMultiplier, 'chargingMultiplier', 1, 10);
   if (input.scenario === 'charging') parameters.failedPorts = number(p.failedPorts, 'failedPorts', 0, 100, true);
   if (input.scenario === 'clustering') {
+    if (input.hubIds.length < 2) throw new RentalError('INVALID_SCENARIO', 'Clustering requires at least two Hubs.');
     if (!input.hubIds.includes(p.targetHubId)) throw new RentalError('INVALID_SCENARIO', 'targetHubId must be one of the selected Hubs.');
     parameters.targetHubId = p.targetHubId;
     parameters.returnBias = number(p.returnBias, 'returnBias', 0, 1);

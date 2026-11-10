@@ -84,6 +84,7 @@ class Incident {
     severity = IncidentSeverity.STANDARD,
     status = IncidentStatus.OPEN,
     reportedAt = new Date().toISOString(),
+    isolationVerifiedAt = null,
     resolvedAt = null,
     resolutionNotes = null,
     reportedLocation = null,
@@ -116,6 +117,9 @@ class Incident {
     this.severity = severity;
     this.status = normalizeIncidentStatus(status);
     this.reportedAt = reportedAt;
+    this.slaDeadline = String(severity).toLowerCase() === 'emergency' ? Incident.calculateSlaDeadline(severity, new Date(reportedAt)) : null;
+    this.isolationVerifiedAt = isolationVerifiedAt;
+    this.isolationSlaMet = this.slaDeadline && isolationVerifiedAt ? Date.parse(isolationVerifiedAt) <= Date.parse(this.slaDeadline) : null;
     this.resolvedAt = resolvedAt;
     this.resolutionNotes = resolutionNotes;
     this.reportedLocation = reportedLocation;
@@ -185,6 +189,13 @@ class Incident {
     });
 
     this.status = IncidentStatus.INVESTIGATING;
+  }
+
+  confirmIsolation({ verifiedAt = new Date().toISOString() } = {}) {
+    if (!this.isolationVerifiedAt) {
+      this.isolationVerifiedAt = verifiedAt;
+      this.isolationSlaMet = this.slaDeadline && this.isolationVerifiedAt ? Date.parse(this.isolationVerifiedAt) <= Date.parse(this.slaDeadline) : null;
+    }
   }
 
   resolve({ notes = 'Maintenance successfully completed and verified', now = new Date() } = {}) {

@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "engines": { "node": ">=22" },
   "scripts": {
+    "db:init": "node db/initialize.js",
+    "start": "node src/demo-server.js",
     "test": "node --test src/tests/*.test.js src/modules/operations/tests/*.test.js src/modules/mobility-simulation/tests/*.test.js",
     "test:mobility": "node --test src/modules/mobility-simulation/tests/*.test.js"
   },

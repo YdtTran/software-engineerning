@@ -36,10 +36,13 @@ function createRentalRouter(service) {
     }
   };
   router.post('/vehicle-reservations', requireUser, handle((req, key) => service.reserve(req.user.id, req.body, key), true));
+  router.get('/vehicle-reservations', requireUser, handle(req => service.listReservations(req.user.id)));
   router.get('/vehicle-reservations/:id', requireUser, handle(req => service.getReservation(req.user.id, req.params.id)));
   router.post('/vehicle-reservations/:id/cancel', requireUser, handle((req, key) => service.cancel(req.user.id, req.params.id, req.body, key), true));
   router.post('/vehicle-reservations/:id/pickup', requireUser, handle((req, key) => service.pickup(req.user.id, req.params.id, req.body, key), true));
   router.get('/trips/:id', requireUser, handle(req => service.getTrip(req.user.id, req.params.id)));
+  router.get('/trips', requireUser, handle(req => service.listTrips(req.user.id)));
+  router.get('/hubs/:hubId/return-slots', requireUser, handle(req => service.returnSlots(req.user.id, req.query.tripId, req.params.hubId)));
   router.post('/trips/:id/return', requireUser, handle((req, key) => service.returnTrip(req.user.id, req.params.id, req.body, key), true));
   return router;
 }

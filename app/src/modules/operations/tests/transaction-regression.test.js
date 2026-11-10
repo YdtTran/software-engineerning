@@ -3,6 +3,16 @@ const assert = require('node:assert/strict');
 const { DatabaseSync } = require('node:sqlite');
 const { SQLiteClient } = require('../infrastructure/sqlite-client');
 
+test('a synchronous SQLite serialization API is not mistaken for a callback driver', async () => {
+  const db = new DatabaseSync(':memory:');
+  if (typeof db.serialize !== 'function') db.serialize = () => new Uint8Array();
+  const client = new SQLiteClient(db);
+  await client.exec('CREATE TABLE synchronous_api(value TEXT)');
+  await client.run("INSERT INTO synchronous_api VALUES ('ok')");
+  assert.equal((await client.get('SELECT value FROM synchronous_api')).value, 'ok');
+  db.close();
+});
+
 test('transaction rolls back asynchronous callback failures', async () => {
   const db = new DatabaseSync(':memory:');
   db.exec('CREATE TABLE entries (value TEXT)');

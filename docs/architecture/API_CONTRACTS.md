@@ -10,6 +10,8 @@ Proposed implementation contract for the [Development View](DECISION.md). Busine
 - Send `Idempotency-Key` on each business write. Scope it to actor and operation, bind it to the original payload, and return `409 IDEMPOTENCY_KEY_REUSED` for a different payload. Store committed outcomes atomically with the write. Retrying the same command after a timeout returns its recorded result or resumes its unresolved attempt. Concurrent attempts must share one execution. Use the relevant GET to refresh state after reconnecting. Demo session creation and logout are authentication operations and do not use an idempotency key.
 - Route tables list request fields and minimum response fields. Fields in brackets are optional. Action names map to separate POST routes. Roles and use-case IDs apply to every operation in their row.
 
+GET `/session` returns the authenticated demo identity (`id`, `roles`) for reconnect; it returns 401 without a current session. The served UI uses this identity, not a role selected in a URL.
+
 ## 1. Mobility and Simulation
 
 ### Mobility
@@ -20,10 +22,13 @@ Proposed implementation contract for the [Development View](DECISION.md). Busine
 | UC02 | U, O | GET /hubs/{hubId}/vehicles | Optional `type` → available vehicle IDs, types and battery percentages |
 | UC03 | U | POST /vehicle-reservations | `vehicleId, hubId` → reservation ID, vehicle ID, status, ticket code, expiry |
 | UC03 | U | GET /vehicle-reservations/{id} | → reservation record |
+| UC03 | U | GET /vehicle-reservations | → up to 100 own reservations, newest first |
 | UC03 | U | POST /vehicle-reservations/{id}/cancel | Empty object → cancelled reservation |
 | UC04 | U | POST /vehicle-reservations/{id}/pickup | `vehicleCode` → trip ID, vehicle ID, status, start time |
 | UC05 | U | POST /trips/{id}/return | `hubId, slotId, confirmed` → trip ID, status, end time, distance |
 | UC04–05 | U | GET /trips/{id} | → trip record |
+| UC04–05 | U | GET /trips | → up to 100 own trips, newest first |
+| UC05 | U | GET /hubs/{hubId}/return-slots | Required `tripId` → currently usable slots; verify active trip ownership |
 
 Recheck vehicle availability at reservation and verify the unexpired reservation and matching vehicle at pickup. Return checks destination capacity and records the trip closure and vehicle placement together. Return can leave the vehicle `Needs Charging`. The trip carries no MVP rental charge.
 
@@ -37,6 +42,7 @@ Rental implementation notes (UC03–05): only the owning User can read or change
 |---|---|---|---|
 | UC13 | O | POST /simulations | `scenario, hubIds, parameters` → result ID, status, input snapshot time |
 | UC14 | O | GET /simulations/{id} | → inputs, baseline metrics, projected metrics, and recommendations |
+| UC14 | O | GET /simulations | → up to 100 saved result summaries, newest first |
 
 Use the five scenarios from UC13. Validate scenario-specific parameters before running. Compute against a captured network snapshot and persist the result for later viewing. Applying recommendations requires normal operator actions through the owning module.
 

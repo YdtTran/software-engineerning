@@ -21,6 +21,7 @@ function createSimulationRouter(service) {
     }
   };
   router.post('/simulations', requireOperator, handle(req => service.run(req.user.id, req.body, req.get('Idempotency-Key')), true));
+  router.get('/simulations', requireOperator, handle(req => service.listResults(req.user.id), false));
   router.get('/simulations/:id', requireOperator, handle(req => service.getResult(req.user.id, req.params.id), false));
   return router;
 }

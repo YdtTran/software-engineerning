@@ -19,6 +19,12 @@ class SQLiteRentalRepository {
   async getReservation(id) {
     return reservation(await this.client.get('SELECT * FROM vehicle_reservations WHERE id = ?', [id]));
   }
+  async listReservations(userId) {
+    return (await this.client.all('SELECT * FROM vehicle_reservations WHERE user_id=? ORDER BY created_at DESC LIMIT 100', [userId])).map(reservation);
+  }
+  async listTrips(userId) {
+    return (await this.client.all('SELECT * FROM mobility_trips WHERE user_id=? ORDER BY started_at DESC LIMIT 100', [userId])).map(trip);
+  }
   async getTrip(id, client = this.client) {
     return trip(await client.get('SELECT * FROM mobility_trips WHERE id = ?', [id]));
   }

@@ -130,8 +130,9 @@ function recommendations(metrics, config) {
   const sorted = [...metrics.hubs].sort((a, b) => b.availableVehicles - a.availableVehicles);
   const source = sorted[0], target = sorted[sorted.length - 1];
   if (source && target && source.id !== target.id && source.availableVehicles > target.availableVehicles + 1) {
-    result.push({ kind: 'redistribute', sourceHubId: source.id, destinationHubId: target.id,
-      quantity: Math.min(source.availableVehicles, Math.ceil((source.availableVehicles - target.availableVehicles) / 2)) });
+    const quantity = Math.min(source.availableVehicles, target.freeSlots,
+      Math.ceil((source.availableVehicles - target.availableVehicles) / 2));
+    if (quantity > 0) result.push({ kind: 'redistribute', sourceHubId: source.id, destinationHubId: target.id, quantity });
   }
   for (const hub of metrics.hubs) {
     if (hub.rejectedReturns || hub.peakOccupancyPercent >= 95) {

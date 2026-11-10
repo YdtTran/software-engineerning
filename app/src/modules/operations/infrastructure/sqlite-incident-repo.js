@@ -113,6 +113,7 @@ class SQLiteIncidentRepository {
       severity: row.severity,
       status: row.status,
       reportedAt: row.reported_at,
+      isolationVerifiedAt: row.isolation_verified_at,
       resolvedAt: row.resolved_at,
       resolutionNotes: row.resolution_notes,
       reportedLocation: row.reported_location,
@@ -169,6 +170,7 @@ class SQLiteIncidentRepository {
         severity: r.severity,
         status: r.status,
         reportedAt: r.reported_at,
+        isolationVerifiedAt: r.isolation_verified_at,
         resolvedAt: r.resolved_at,
         resolutionNotes: r.resolution_notes,
         reportedLocation: r.reported_location
@@ -176,6 +178,22 @@ class SQLiteIncidentRepository {
     }
 
     return incidents;
+  }
+
+  async recordIsolation(id, verifiedAt = new Date().toISOString()) {
+    return this.client.transaction(async () => {
+      const existing = await this.getIncidentById(id);
+      if (!existing) {
+        throw new DomainError('INCIDENT_NOT_FOUND', `Incident ${id} does not exist.`);
+      }
+      if (!existing.isolationVerifiedAt) {
+        await this.client.run(
+          `UPDATE incidents SET isolation_verified_at = ? WHERE id = ? AND isolation_verified_at IS NULL;`,
+          [verifiedAt, id]
+        );
+      }
+      return this.getIncidentById(id);
+    });
   }
 
   async assignMaintenance(incident) {

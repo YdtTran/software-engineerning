@@ -16,13 +16,14 @@ class IncidentService {
    * @param {import('../infrastructure/sqlite-incident-repo').SQLiteIncidentRepository} incidentRepo
    * @param {import('../infrastructure/sqlite-inventory-repo').SQLiteInventoryRepository} inventoryRepo
    */
-  constructor(incidentRepo, inventoryRepo, tripReader = null) {
+  constructor(incidentRepo, inventoryRepo, tripReader = null, isolationVerifier = null) {
     if (!incidentRepo || !inventoryRepo) {
       throw new Error('IncidentService requires incidentRepo and inventoryRepo instances.');
     }
     this.incidentRepo = incidentRepo;
     this.inventoryRepo = inventoryRepo;
     this.tripReader = tripReader;
+    this.isolationVerifier = isolationVerifier;
   }
 
   /**
@@ -121,7 +122,10 @@ class IncidentService {
       resourceId: incident.resourceId,
       severity: incident.severity,
       status: incident.status,
-      reportedAt: incident.reportedAt
+      reportedAt: incident.reportedAt,
+      slaDeadline: incident.slaDeadline,
+      isolationVerifiedAt: incident.isolationVerifiedAt,
+      isolationSlaMet: incident.isolationSlaMet
     };
   }
 
@@ -131,6 +135,25 @@ class IncidentService {
       throw new DomainError('INCIDENT_NOT_FOUND', `Incident ${id} does not exist.`);
     }
     return incident;
+  }
+
+  async confirmIsolation(id, evidence, { now = new Date() } = {}) {
+    if (!id) {
+      throw new DomainError('INVALID_INCIDENT_ID', 'Incident ID is required.');
+    }
+    const incident = await this.getIncident(id);
+    if (incident.isolationVerifiedAt) {
+      return incident;
+    }
+    if (!this.isolationVerifier || typeof this.isolationVerifier.verify !== 'function') {
+      throw new DomainError('VERIFIER_UNAVAILABLE', 'Isolation verifier is unavailable.');
+    }
+    const verified = await this.isolationVerifier.verify(evidence);
+    if (!verified) {
+      throw new DomainError('DEVICE_UNCONFIRMED', 'Device isolation could not be confirmed.');
+    }
+    const verifiedAt = now instanceof Date ? now.toISOString() : new Date(now).toISOString();
+    return this.incidentRepo.recordIsolation(id, verifiedAt);
   }
 
   /**

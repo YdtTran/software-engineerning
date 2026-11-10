@@ -45,6 +45,19 @@ class RentalService {
     const pending = await this.repository.pendingCommand('pickup', id);
     return { ...record, pendingCommandId: pending?.id ?? null };
   }
+  async listReservations(actorId) {
+    requiredString(actorId, 'Actor');
+    await this.expireReservations();
+    return this.repository.listReservations(actorId);
+  }
+  async listTrips(actorId) { requiredString(actorId, 'Actor'); return this.repository.listTrips(actorId); }
+  async returnSlots(actorId, tripId, hubId) {
+    requiredString(tripId, 'tripId');
+    const trip = owned(await this.repository.getTrip(tripId), actorId, 'TRIP_NOT_FOUND');
+    if (trip.status !== 'Active') throw new RentalError('TRIP_NOT_ACTIVE', 'Trip is not active.');
+    if (!await this.inventory.getHubById(hubId)) throw new RentalError('HUB_NOT_FOUND', 'Hub not found.');
+    return this.inventory.getAvailableSlots(hubId);
+  }
   async getTrip(actorId, id) {
     const record = owned(await this.repository.getTrip(id), actorId, 'TRIP_NOT_FOUND');
     const pending = await this.repository.pendingCommand('return', id);

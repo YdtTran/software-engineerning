@@ -41,6 +41,14 @@ class SimulationService {
     if (!row) throw new RentalError('SIMULATION_NOT_FOUND', 'Simulation result not found.');
     return JSON.parse(row.result_json);
   }
+  async listResults(actorId) {
+    requiredString(actorId, 'Actor');
+    const rows = await this.repository.client.all('SELECT result_json FROM simulation_results ORDER BY created_at DESC LIMIT 100');
+    return rows.map(row => {
+      const result = JSON.parse(row.result_json);
+      return { id: result.id, status: result.status, inputSnapshotTime: result.inputSnapshotTime, scenario: result.inputs.scenario };
+    });
+  }
 }
 
 module.exports = { SimulationService };

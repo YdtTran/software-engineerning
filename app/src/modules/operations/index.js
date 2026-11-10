@@ -23,7 +23,7 @@ const { OperationsController } = require('./api/operations-controller');
 const { createOperationsRouter, routesTable } = require('./api/operations-router');
 const { SQLiteIdempotencyStore } = require('./api/idempotency');
 
-function createOperationsModule({ client = null, db = null, tripReader = null, chargingGuard = null, idempotencyStore = null } = {}) {
+function createOperationsModule({ client = null, db = null, tripReader = null, chargingGuard = null, idempotencyStore = null, isolationVerifier = null } = {}) {
   const sqliteClient = client || new SQLiteClient(db);
   idempotencyStore = idempotencyStore || new SQLiteIdempotencyStore(sqliteClient);
 
@@ -36,7 +36,7 @@ function createOperationsModule({ client = null, db = null, tripReader = null, c
   const inventoryService = new InventoryService(inventoryRepo);
   const monitoringService = new MonitoringService(inventoryRepo);
   const transferService = new TransferService(transferRepo, inventoryRepo);
-  const incidentService = new IncidentService(incidentRepo, inventoryRepo, tripReader);
+  const incidentService = new IncidentService(incidentRepo, inventoryRepo, tripReader, isolationVerifier);
 
   // 3. API Controller & Router
   const controller = new OperationsController({

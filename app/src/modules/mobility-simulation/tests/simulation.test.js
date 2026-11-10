@@ -38,6 +38,9 @@ test('all five scenarios produce reproducible persisted results without mutating
     assert.equal(first.modelVersion, 'demo-des-v1');
     assert.deepEqual(await service.getResult('another-operator', first.id), first);
     assert.ok(first.assumptions.length > 0);
+    for (const recommendation of first.recommendations.filter(item => item.kind === 'redistribute')) {
+      assert.ok(recommendation.quantity <= first.projectedMetrics.hubs.find(hub => hub.id === recommendation.destinationHubId).freeSlots);
+    }
   }
   assert.deepEqual(snapshot, original);
   assert.equal(JSON.stringify(db.prepare('SELECT * FROM electric_vehicles ORDER BY id').all()), before);

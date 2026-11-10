@@ -1,6 +1,6 @@
 # Mobility and Simulation — Minh
 
-Stages 1–3 implement UC01–05 and UC13–14. This branch builds on Operations commit `b78c4b6` from [PR #9](https://github.com/YdtTran/software-engineerning/pull/9), which was still open during the branch audit. Operations provides the demo server, authentication, SQLite adapter and physical inventory. Keep this dependency visible when reviewing or merging Minh's commits.
+Stages 1–4 implement UC01–05 and UC13–14 with live mobile/desktop workflows. The branch now incorporates upstream main `3611831`, including the merged [Operations PR #9](https://github.com/YdtTran/software-engineerning/pull/9) and its isolation-verification update. Operations provides authentication, the SQLite adapter and physical inventory. See the [demo walkthrough](../../../../docs/architecture/MINH_DEMO_GUIDE.md) to run the integrated application.
 
 ## Discovery API
 
@@ -34,7 +34,7 @@ For independent development, `tests/fixtures/discovery-fixtures.js` provides an 
 
 ## Verify
 
-From the repository root, with Node.js 22 installed:
+From the repository root, with Node.js 22 or 24 installed:
 
 ```powershell
 npm ci --prefix app
@@ -43,11 +43,11 @@ npm run test:mobility --prefix app
 
 The six tests cover standalone discovery, Vietnamese query normalization, filters, missing hubs, empty results, malformed queries, User/Operator permissions, forged headers and real inventory eligibility. The composed test also checks logout, Operations role separation and that discovery leaves vehicle inventory unchanged.
 
-Run `npm test --prefix app` for the combined suite. See the [implementation plan](../../../../docs/architecture/MINH_IMPLEMENTATION_PLAN.md) for baseline failures and remaining stages.
+Run `npm test --prefix app` for the combined suite. See the [implementation plan](../../../../docs/architecture/MINH_IMPLEMENTATION_PLAN.md) for current results and historical baseline comparisons.
 
 ## Rental lifecycle — Stage 2
 
-Migration 0008 adds reservations, trips, durable idempotency outcomes, device commands and local outbox events, using the existing demo SQLite client. This extends the demo implementation; it does not select a production driver or a notification provider.
+Migration 0009 adds reservations, trips, durable idempotency outcomes, device commands and local outbox events, using the existing demo SQLite client. This was 0008 in earlier Minh-only commits; the portable initializer upgrades those databases without deleting their records. This extends the demo implementation; it does not select a production driver or a notification provider.
 
 The owning User can create/read/cancel a reservation, pick up the reserved vehicle and read/return the trip through the [HTTP contracts](../../../../docs/architecture/API_CONTRACTS.md). The same SQLite transaction includes business records, inventory changes and successful idempotency outcomes. Input hashes ignore JSON property order. Outcomes are retained without an automatic deletion policy.
 
@@ -63,7 +63,7 @@ The lifecycle tests cover contention, rollback, ownership, cancellation versus p
 
 ## Simulation — Stage 3
 
-Operators can POST `/api/v1/simulations` and reopen a result using GET `/api/v1/simulations/:id`. Each POST requires an Idempotency-Key. Results include inputs, snapshot time, baseline/projected metrics, recommendations, model version and assumptions. Migration 0009 persists both the immutable input snapshot and the result. The engine is a bounded discrete-event demo with seeded request arrivals; it does not mutate live inventory or automatically apply recommendations.
+Operators can POST `/api/v1/simulations` and reopen a result using GET `/api/v1/simulations/:id`. Each POST requires an Idempotency-Key. Results include inputs, snapshot time, baseline/projected metrics, recommendations, model version and assumptions. Migration 0010 (formerly 0009 in the Minh-only branch) persists both snapshot and result. The engine is a bounded discrete-event demo with seeded request arrivals; it does not mutate live inventory or automatically apply recommendations.
 
 The composition root supplies `snapshotProvider.capture()`, reading inventory, rental eligibility and usable capacity in one shared SQLite transaction. Independent tests inject a fixed snapshot through the same port. The snapshot explicitly includes `availableVehicleIds` and `availableSlotIds` so the engine cannot mistake a private, committed or faulted resource for usable capacity.
 
@@ -80,7 +80,7 @@ These are explicit demo modeling choices. They do not change business eligibilit
 | `chargeMinutes` | 1–240; default 45 |
 | `batteryDrainPerTrip` | 0–100 percentage points; default 10 |
 
-Select one to ten distinct `hubIds`. Additional required fields depend on `scenario`:
+Select one to ten distinct `hubIds`, with at least two for clustering. Additional required fields depend on `scenario`:
 
 | Scenario | Required parameters | Change relative to baseline |
 |---|---|---|
@@ -94,4 +94,12 @@ Power budget is a scenario input because the current inventory schema has no ele
 
 Rental waiting time is averaged over served rentals; unserved requests at the end of the horizon are reported as rejected trips. Full destinations reject modeled returns. Existing active trips and charging completion times are not forecast because their authoritative time data is unavailable. Geographic travel times, private-parking charging interactions and calibrated arrival distributions remain outside this model. All stored results retain these assumptions.
 
-Recommendations are data only: redistribute vehicles, reroute to another Hub, inspect failed ports or reschedule charging. Their application requires normal live checks by Operations/Parking and Charging. Frontend integration is the next stage.
+Recommendations are data only: redistribute vehicles, reroute to another Hub, inspect failed ports or reschedule charging. Redistributed quantities are capped by projected destination free slots; their application still requires normal live checks by Operations/Parking and Charging.
+
+## Integrated UI — Stage 4
+
+The Express server serves `live.html`, `live.js` and `live.css` from the prototype directory. Its User/Operator entry routes select the appropriate layout; access still depends on the authenticated server identity. The original design viewer and offline/static-preview entry files keep mock behavior.
+
+The UI supports own reservation/trip history, cancellation, pickup/return, trip incident reporting, all five simulations, saved result retrieval and JSON export. Local storage retains payload-bound idempotency keys and request paths across reload; a visible retry action recovers an unknown outcome. It stores no passwords or session tokens. State conflicts refresh server data. A transfer recommendation opens a review form with live resources and creates a Planned transfer through Operations only after explicit selection/confirmation.
+
+The portable initializer applies migrations on Windows without SQLite CLI or Unix dependencies. It also preserves data from the earlier branch numbering. Server and capacity tests cover rollback, ownership and contention with the Parking inventory port and Operations transfers; the full Parking/Charging HTTP module is not present in this branch.
