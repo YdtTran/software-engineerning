@@ -151,3 +151,28 @@ test('trip status and incident creation share the owning database transaction', 
  await new Promise(resolve=>setImmediate(resolve));const closedBeforeReport=closeFinished;release();await reporting;await closing;
  assert.equal(closedBeforeReport,false,'trip completion must wait for incident commit');db.close();
 });
+
+test('emergency report exposes the receipt-based deadline without claiming isolation', async () => {
+ const {DatabaseSync}=require('node:sqlite');const fs=require('node:fs');const path=require('node:path');
+ const {SQLiteClient}=require('../infrastructure/sqlite-client');const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo');const {SQLiteIncidentRepository}=require('../infrastructure/sqlite-incident-repo');
+ const db=new DatabaseSync(':memory:'),base=path.resolve(__dirname,'../../../../db');
+ for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql','migrations/0008_incident_isolation.sql'])db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ const client=new SQLiteClient(db),service=new IncidentService(new SQLiteIncidentRepository(client),new SQLiteInventoryRepository(client));
+ const reported=await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'emergency',severity:'Emergency',reporterId:'op',reporterRole:'Operator'});
+ assert.equal(Date.parse(reported.slaDeadline)-Date.parse(reported.reportedAt),60000);
+ assert.equal(reported.isolationVerifiedAt,null);assert.equal(reported.isolationSlaMet,null);db.close();
+});
+
+test('isolation compliance requires verified evidence and persists the first confirmation', async () => {
+ const {DatabaseSync}=require('node:sqlite');const fs=require('node:fs');const path=require('node:path');
+ const {SQLiteClient}=require('../infrastructure/sqlite-client');const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo');const {SQLiteIncidentRepository}=require('../infrastructure/sqlite-incident-repo');
+ const db=new DatabaseSync(':memory:'),base=path.resolve(__dirname,'../../../../db');
+ for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql','migrations/0008_incident_isolation.sql'])db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ const client=new SQLiteClient(db),repo=new SQLiteIncidentRepository(client),inventory=new SQLiteInventoryRepository(client);
+ const service=new IncidentService(repo,inventory,null,{verify:async evidence=>evidence==='verified'});
+ const report=await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'emergency',severity:'Emergency',reporterId:'op',reporterRole:'Operator'});
+ await assert.rejects(service.confirmIsolation(report.id,'unverified'),{code:'DEVICE_UNCONFIRMED'});
+ assert.equal((await service.getIncident(report.id)).isolationVerifiedAt,null);
+ const confirmed=await service.confirmIsolation(report.id,'verified');assert.ok(confirmed.isolationVerifiedAt);assert.equal(confirmed.isolationSlaMet,true);
+ const again=await service.confirmIsolation(report.id,'verified');assert.equal(again.isolationVerifiedAt,confirmed.isolationVerifiedAt);db.close();
+});

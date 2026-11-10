@@ -5,7 +5,7 @@ const { createOperationsModule } = require('./modules/operations');
 
 const deriveKey = promisify(scrypt);
 
-function createApp({ db = null, client = null, demoAccounts, tripReader = null, chargingGuard = null, secureCookies = true } = {}) {
+function createApp({ db = null, client = null, demoAccounts, tripReader = null, chargingGuard = null, isolationVerifier = null, secureCookies = true } = {}) {
   if (!Array.isArray(demoAccounts) || demoAccounts.length === 0) throw new Error('Provision at least one demo account.');
   const accounts = new Map();
   for (const account of demoAccounts) {
@@ -62,7 +62,7 @@ function createApp({ db = null, client = null, demoAccounts, tripReader = null, 
     res.clearCookie('demo_session', { httpOnly: true, sameSite: 'strict', secure: secureCookies, path: '/' });
     return res.status(200).json({ data: { signedOut: true } });
   });
-  app.use('/api/v1', createOperationsModule({ db, client, tripReader, chargingGuard }).router);
+  app.use('/api/v1', createOperationsModule({ db, client, tripReader, chargingGuard, isolationVerifier }).router);
   app.use((req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found.', details: {} } }));
   app.use((err, req, res, next) => {
     const status = err.type === 'entity.parse.failed' ? 400 : err.type === 'entity.too.large' ? 413 : 500;
