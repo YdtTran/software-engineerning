@@ -9,7 +9,8 @@ const { InventoryService } = require('../application/inventory-service');
 function setup() {
   const db = new DatabaseSync(':memory:');
   const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  db.exec("UPDATE parking_slots SET pool='immediate'");
   const repo = new SQLiteInventoryRepository(new SQLiteClient(db));
   return { db, repo, service: new InventoryService(repo) };
 }
@@ -34,7 +35,7 @@ test('only the reservation owning a vehicle or slot can release it', async () =>
   await assert.rejects(repo.releaseVehicleHold('EB-024','reservation-b'));
   assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Reserved');
   await repo.releaseVehicleHold('EB-024','reservation-a');
-  await repo.holdSlotForReservation('bku-A01','reservation-a');
+  await repo.holdSlotForReservation('bku-A01','reservation-a',{pool:'immediate',expiresAt:new Date(Date.now()+3600000).toISOString()});
   await assert.rejects(repo.releaseSlotHold('bku-A01','reservation-b'));
   assert.equal(db.prepare("SELECT status FROM parking_slots WHERE id='bku-A01'").get().status,'Held');
   await repo.releaseSlotHold('bku-A01','reservation-a');
@@ -47,7 +48,7 @@ test('pickup, return and parking occupancy require the owning identities', async
   await assert.rejects(repo.pickupVehicle('EB-024','trip-a','reservation-b','metro'));
   await repo.pickupVehicle('EB-024','trip-a','reservation-a','metro');
   await assert.rejects(repo.returnVehicle('EB-024','bku','bku-A01',80,'trip-b'));
-  await repo.holdSlotForReservation('bku-A01','slot-a');
+  await repo.holdSlotForReservation('bku-A01','slot-a',{pool:'immediate',expiresAt:new Date(Date.now()+3600000).toISOString()});
   await assert.rejects(repo.returnVehicle('EB-024','bku','bku-A01',80,'trip-a','slot-b'));
   assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'InUse');
   await repo.returnVehicle('EB-024','bku','bku-A01',80,'trip-a','slot-a');
@@ -70,7 +71,7 @@ test('a parking action cannot consume or release a transfer hold', async () => {
 
 test('administration cannot overwrite an active slot or charging point', async () => {
   const {db,repo,service}=setup();
-  await repo.holdSlotForReservation('bku-A01','held-reservation');
+  await repo.holdSlotForReservation('bku-A01','held-reservation',{pool:'immediate',expiresAt:new Date(Date.now()+3600000).toISOString()});
   await assert.rejects(service.updateResource('bku-A01',{status:'Available'}));
   db.exec("UPDATE charging_points SET status='Charging' WHERE id=(SELECT id FROM charging_points LIMIT 1)");
   const point=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
@@ -80,7 +81,7 @@ test('administration cannot overwrite an active slot or charging point', async (
 });
 
 test('charging interface rejects unknown and invalid transitions', async () => {
-  const {db,repo}=setup(); const id=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
+  const {db,repo}=setup(); repo.chargingGuard={assertTransition:async()=>{}}; const id=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
   await assert.rejects(repo.updateChargingPointStatus(id,'invented'));
   await repo.updateChargingPointStatus(id,'Reserved');
   await assert.rejects(repo.updateChargingPointStatus(id,'Complete'));
@@ -100,7 +101,7 @@ test('new inventory cannot start in an active lifecycle state', async () => {
 
 test('charging point cannot be reactivated while an incident remains unresolved', async () => {
  const {SQLiteIncidentRepository}=require('../infrastructure/sqlite-incident-repo'); const {IncidentService}=require('../application/incident-service');
- const {db,repo}=setup(); const id=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
+ const {db,repo}=setup(); repo.chargingGuard={assertTransition:async()=>{}}; const id=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
  const service=new IncidentService(new SQLiteIncidentRepository(repo.client),repo);
  await service.reportEquipmentIncident({resourceKind:'charging_point',resourceId:id,description:'fault'});
  await repo.updateChargingPointStatus(id,'Repair');
@@ -161,5 +162,38 @@ test('administration rejects deleting or relocating a physically parked vehicle'
 });
 
 test('parking query does not pretend unsupported pool compatibility was checked', async () => {
- const {db,repo}=setup(); await assert.rejects(repo.getAvailableSlots('bku','charging'),{code:'POOL_FILTER_UNAVAILABLE'}); db.close();
+ const {db,repo}=setup(); await assert.rejects(repo.getAvailableSlots('bku','charging'),{code:'INVALID_INPUT'}); db.close();
+});
+
+test('charging state cannot change without the owning module safety guard', async () => {
+ const {db,repo}=setup(); const id=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
+ await assert.rejects(repo.updateChargingPointStatus(id,'Reserved'),{code:'CHARGING_GUARD_UNAVAILABLE'});
+ assert.equal(db.prepare('SELECT status FROM charging_points WHERE id=?').get(id).status,'Available'); db.close();
+});
+
+test('charging guard rejection rolls back its related writes and state change', async () => {
+ const {db,repo}=setup(); const id=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
+ db.exec('CREATE TABLE charging_guard_effects(id TEXT)');
+ repo.chargingGuard={async assertTransition({client}){await client.run("INSERT INTO charging_guard_effects VALUES ('pending')"); throw new Error('unverified device');}};
+ await assert.rejects(repo.updateChargingPointStatus(id,'Reserved'),/unverified device/);
+ assert.equal(db.prepare('SELECT count(*) AS n FROM charging_guard_effects').get().n,0);
+ assert.equal(db.prepare('SELECT status FROM charging_points WHERE id=?').get(id).status,'Available'); db.close();
+});
+test('charging admin status updates cannot bypass the guard', async () => {
+ const {db,service}=setup(); const id=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
+ await assert.rejects(service.updateResource(id,{status:'Fault'}),{code:'CHARGING_GUARD_UNAVAILABLE'});
+ assert.equal(db.prepare('SELECT status FROM charging_points WHERE id=?').get(id).status,'Available'); db.close();
+});
+
+test('vehicles below the rental battery threshold are not offered or reserved', async () => {
+ const {db,repo}=setup(); db.exec("UPDATE electric_vehicles SET battery_percent=19 WHERE id='EB-024'");
+ assert.ok(!(await repo.getAvailableVehicles('metro')).some(v=>v.id==='EB-024'));
+ await assert.rejects(repo.reserveVehicle('EB-024','low','metro'),{code:'VEHICLE_NOT_AVAILABLE'}); db.close();
+});
+
+test('reservation pickup rechecks current battery eligibility', async () => {
+ const {db,repo}=setup(); await repo.reserveVehicle('EB-024','r-low','metro');
+ db.exec("UPDATE electric_vehicles SET battery_percent=19 WHERE id='EB-024'");
+ await assert.rejects(repo.pickupVehicle('EB-024','t-low','r-low','metro'),{code:'VEHICLE_CANNOT_PICKUP'});
+ assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Reserved'); db.close();
 });

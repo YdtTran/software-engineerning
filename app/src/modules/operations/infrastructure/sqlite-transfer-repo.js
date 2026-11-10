@@ -38,7 +38,8 @@ class SQLiteTransferRepository {
         const claimed = await this.client.run(
           `UPDATE electric_vehicles SET status = 'TransferHeld', transfer_hold_id = ?
            WHERE id = ? AND hub_id = ? AND status IN ('Available', 'available') AND battery_percent >= 80
-             AND owner_id IS NULL AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL;`,
+             AND owner_id IS NULL AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL
+             AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved','closed'));`,
           [transfer.id, vehicleId, transfer.sourceHubId]
         );
         if (claimed.changes !== 1) {
@@ -54,8 +55,10 @@ class SQLiteTransferRepository {
 
         const res = await this.client.run(
           `UPDATE parking_slots SET status = 'Held', transfer_hold_id = ? WHERE id = ? AND hub_id = ? AND status IN ('Available', 'available')
-           AND transfer_hold_id IS NULL AND reservation_id IS NULL AND occupancy_id IS NULL AND parked_vehicle_id IS NULL;`,
-          [transfer.id, slotId, transfer.destinationHubId]
+           AND transfer_hold_id IS NULL AND reservation_id IS NULL AND occupancy_id IS NULL AND parked_vehicle_id IS NULL
+           AND NOT EXISTS (SELECT 1 FROM parking_commitments WHERE slot_id = parking_slots.id AND ends_at > ?
+             AND ((status = 'Reserved' AND expires_at > ?) OR (status = 'Fulfilled' AND released_at IS NULL)));`,
+          [transfer.id, slotId, transfer.destinationHubId, new Date().toISOString(), new Date().toISOString()]
         );
         if (res.changes === 0) {
           throw new DomainError('SLOT_HOLD_FAILED', `Failed to hold slot ${slotId} for transfer (already occupied or held).`);
@@ -120,13 +123,14 @@ class SQLiteTransferRepository {
           [vehicleId, transfer.sourceHubId, transfer.id]
         );
         if (updated.changes !== 1) throw new DomainError('VEHICLE_NOT_ELIGIBLE_FOR_TRANSFER', `Vehicle ${vehicleId} is no longer ready for departure.`);
-        const slot = await this.client.get('SELECT id FROM parking_slots WHERE parked_vehicle_id = ?;', [vehicleId]);
+        const slot = await this.client.get('SELECT id, occupancy_id FROM parking_slots WHERE parked_vehicle_id = ?;', [vehicleId]);
         if (slot) {
           const vacated = await this.client.run(
             `UPDATE parking_slots SET status = CASE WHEN status IN ('Occupied','occupied') THEN 'Available' ELSE status END,
              occupancy_id = NULL, parked_vehicle_id = NULL WHERE id = ? AND hub_id = ? AND parked_vehicle_id = ?
              AND status IN ('Occupied','occupied','Suspended','blocked');`, [slot.id, transfer.sourceHubId, vehicleId]);
           if (vacated.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', `Vehicle ${vehicleId} has an inconsistent parking location.`);
+          await this.client.run(`UPDATE parking_commitments SET released_at = ? WHERE slot_id = ? AND occupancy_id = ? AND status = 'Fulfilled' AND released_at IS NULL;`, [new Date().toISOString(), slot.id, slot.occupancy_id]);
         }
       }
 
@@ -149,8 +153,10 @@ class SQLiteTransferRepository {
         for (const slotId of transfer.destinationSlotIds.filter(id => !oldIds.includes(id))) {
           const held = await this.client.run(
             `UPDATE parking_slots SET status = 'Held', transfer_hold_id = ? WHERE id = ? AND hub_id = ? AND LOWER(status) = 'available'
-             AND transfer_hold_id IS NULL AND reservation_id IS NULL AND occupancy_id IS NULL AND parked_vehicle_id IS NULL;`,
-            [transfer.id, slotId, transfer.destinationHubId]
+             AND transfer_hold_id IS NULL AND reservation_id IS NULL AND occupancy_id IS NULL AND parked_vehicle_id IS NULL
+             AND NOT EXISTS (SELECT 1 FROM parking_commitments WHERE slot_id = parking_slots.id AND ends_at > ?
+               AND ((status = 'Reserved' AND expires_at > ?) OR (status = 'Fulfilled' AND released_at IS NULL)));`,
+            [transfer.id, slotId, transfer.destinationHubId, new Date().toISOString(), new Date().toISOString()]
           );
           if (held.changes !== 1) throw new DomainError('SLOT_HOLD_FAILED', `Replacement slot ${slotId} is unavailable.`);
         }

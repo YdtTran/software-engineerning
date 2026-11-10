@@ -31,7 +31,7 @@ test('separate SQLite connections reject conflicting vehicle and slot claims', a
   const dir = fs.mkdtempSync(path.join(os.tmpdir(),'ops-race-')); t.after(() => fs.rmSync(dir,{recursive:true,force:true}));
   const file = path.join(dir,'race.sqlite'); const db = new DatabaseSync(file);
   const base = path.resolve(__dirname,'../../../../db');
-  for (const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+  for (const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   async function race(first, second) {
     const barrier = new SharedArrayBuffer(4);
     return Promise.all([first,second].map(data => new Promise((resolve,reject) => {

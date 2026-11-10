@@ -226,9 +226,10 @@ class InventoryInterface {
   async returnVehicle(vehicleId, hubId, slotId, finalBatteryPercent, tripId, slotReservationId) {}
   
   // === Dành cho Module Parking & Charging (Triết) ===
-  async getAvailableSlots(hubId, pool) {}
-  async holdSlotForReservation(slotId, reservationId) {}
+  async getAvailableSlots(hubId, pool, interval) {}
+  async holdSlotForReservation(slotId, reservationId, request) {}
   async releaseSlotHold(slotId, reservationId) {}
+  async expireSlotHold(slotId, reservationId) {}
   async occupySlot(slotId, occupancyId, reservationId) {}
   async vacateSlot(slotId, occupancyId) {}
   async updateChargingPointStatus(pointId, status) {}   // 'available' | 'charging' | 'faulted'

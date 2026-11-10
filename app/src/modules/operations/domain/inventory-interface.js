@@ -81,10 +81,11 @@ class InventoryInterface {
   /**
    * Query available parking slots at a given hub.
    * @param {string} hubId
-   * @param {string} [pool]
+   * @param {'immediate'|'advance'|null} pool
+   * @param {{plannedArrival: string, plannedCheckout: string}|null} interval Required for advance pool.
    * @returns {Promise<Array<{ id: string, code: string, status: string }>>}
    */
-  async getAvailableSlots(hubId, pool = null) {
+  async getAvailableSlots(hubId, pool = null, interval = null) {
     throw new Error('Not implemented: getAvailableSlots');
   }
 
@@ -92,9 +93,10 @@ class InventoryInterface {
    * Hold a slot for private vehicle reservation (UC06-S1).
    * @param {string} slotId
    * @param {string} reservationId
+   * @param {{pool: 'immediate'|'advance', expiresAt: string, plannedArrival?: string, plannedCheckout?: string}} request Times are ISO timestamps with an offset; the owning module computes expiry.
    * @returns {Promise<void>}
    */
-  async holdSlotForReservation(slotId, reservationId) {
+  async holdSlotForReservation(slotId, reservationId, request) {
     throw new Error('Not implemented: holdSlotForReservation');
   }
 
@@ -106,6 +108,11 @@ class InventoryInterface {
    */
   async releaseSlotHold(slotId, reservationId) {
     throw new Error('Not implemented: releaseSlotHold');
+  }
+
+  /** Expire an overdue Reserved commitment without ending physical occupancy. */
+  async expireSlotHold(slotId, reservationId) {
+    throw new Error('Not implemented: expireSlotHold');
   }
 
   /**

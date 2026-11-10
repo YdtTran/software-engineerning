@@ -89,6 +89,7 @@ class InventoryService {
     }
 
     if (normalizedKind === 'slot') {
+      if (!['immediate', 'advance'].includes(attributes.pool)) throw new DomainError('INVALID_INPUT', 'Parking slot pool must be immediate or advance.');
       const code = attributes.code || `SLOT-${id.slice(-4)}`;
       const slot = new ParkingSlot({
         id,
@@ -98,8 +99,8 @@ class InventoryService {
       });
 
       await this.inventoryRepo.client.run(
-        `INSERT INTO parking_slots (id, hub_id, code, status) VALUES (?, ?, ?, ?);`,
-        [slot.id, slot.hubId, slot.code, slot.status]
+        `INSERT INTO parking_slots (id, hub_id, code, status, pool) VALUES (?, ?, ?, ?, ?);`,
+        [slot.id, slot.hubId, slot.code, slot.status, attributes.pool]
       );
 
       return {
@@ -107,7 +108,7 @@ class InventoryService {
         kind: 'slot',
         hubId: slot.hubId,
         status: slot.status,
-        attributes: { code: slot.code }
+        attributes: { code: slot.code, pool: attributes.pool }
       };
     }
 
@@ -198,6 +199,7 @@ class InventoryService {
 
     const slotRow = await this.inventoryRepo.client.get('SELECT * FROM parking_slots WHERE id = ?;', [id]);
     if (slotRow) {
+      if (patch.pool !== undefined && patch.pool !== slotRow.pool) throw new DomainError('INVALID_STATE_TRANSITION', 'A slot cannot be moved between pools.');
       const current = String(slotRow.status).toLowerCase();
       if (!['available', 'suspended', 'blocked'].includes(current) || slotRow.reservation_id || slotRow.transfer_hold_id || slotRow.occupancy_id || slotRow.parked_vehicle_id) {
         throw new DomainError('INVALID_STATE_TRANSITION', 'A committed or occupied slot cannot be modified.');
@@ -218,7 +220,7 @@ class InventoryService {
         kind: 'slot',
         hubId: slotRow.hub_id,
         status: newStatus,
-        attributes: { code: newCode }
+        attributes: { code: newCode, pool: slotRow.pool }
       };
     }
 
@@ -235,9 +237,12 @@ class InventoryService {
       }
       const newStatus = ['available', 'idle'].includes(requested) ? 'Available' : ['fault', 'faulted'].includes(requested) ? 'Fault' : 'Repair';
       const newCode = patch.code || pointRow.code;
+      if (patch.status && newStatus.toLowerCase() !== current) {
+        await this.inventoryRepo.updateChargingPointStatus(id, newStatus);
+      }
       await this.inventoryRepo.client.run(
-        'UPDATE charging_points SET status = ?, code = ? WHERE id = ?;',
-        [newStatus, newCode, id]
+        'UPDATE charging_points SET code = ? WHERE id = ?;',
+        [newCode, id]
       );
       return {
         id,

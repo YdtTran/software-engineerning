@@ -10,7 +10,7 @@ const { Transfer } = require('../domain/transfer');
 test('a vehicle cannot be claimed by two transfers', async () => {
   const db = new DatabaseSync(':memory:');
   const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   const repo = new SQLiteTransferRepository(new SQLiteClient(db));
   const order = (id, slot) => new Transfer({ id, sourceHubId: 'metro', destinationHubId: 'bku', vehicleIds: ['EB-024'], destinationSlotIds: [slot], createdBy: 'op' });
   const results = await Promise.allSettled([repo.createTransfer(order('t1', 'bku-A01')), repo.createTransfer(order('t2', 'bku-A02'))]);
@@ -22,7 +22,7 @@ test('a vehicle cannot be claimed by two transfers', async () => {
 test('rerouting arrival releases old holds and persists replacement slots', async () => {
   const db = new DatabaseSync(':memory:');
   const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   const repo = new SQLiteTransferRepository(new SQLiteClient(db));
   const transfer = new Transfer({ id: 'route', sourceHubId: 'metro', destinationHubId: 'bku', vehicleIds: ['EB-024'], destinationSlotIds: ['bku-A01'], createdBy: 'op' });
   await repo.createTransfer(transfer);
@@ -41,7 +41,7 @@ test('reservation and transfer cannot both claim the same vehicle', async () => 
   const { SQLiteInventoryRepository } = require('../infrastructure/sqlite-inventory-repo');
   const db = new DatabaseSync(':memory:');
   const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   const client = new SQLiteClient(db);
   const inventory = new SQLiteInventoryRepository(client);
   const transferRepo = new SQLiteTransferRepository(client);
@@ -54,7 +54,7 @@ test('reservation and transfer cannot both claim the same vehicle', async () => 
 test('failed rerouting keeps original holds and vehicle in transit', async () => {
   const db = new DatabaseSync(':memory:');
   const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   const repo = new SQLiteTransferRepository(new SQLiteClient(db));
   const transfer = new Transfer({ id: 'failed-route', sourceHubId: 'metro', destinationHubId: 'bku', vehicleIds: ['EB-024'], destinationSlotIds: ['bku-A01'], createdBy: 'op' });
   await repo.createTransfer(transfer);
@@ -71,7 +71,7 @@ test('failed rerouting keeps original holds and vehicle in transit', async () =>
 
 test('departure rolls back when a held vehicle becomes faulty', async () => {
   const db = new DatabaseSync(':memory:'); const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   const repo = new SQLiteTransferRepository(new SQLiteClient(db));
   const transfer = new Transfer({id:'faulted',sourceHubId:'metro',destinationHubId:'bku',vehicleIds:['EB-024'],destinationSlotIds:['bku-A01'],createdBy:'op'});
   await repo.createTransfer(transfer);
@@ -85,7 +85,7 @@ test('departure rolls back when a held vehicle becomes faulty', async () => {
 
 test('rerouting within a hub may retain a slot already held by the same transfer', async () => {
   const db = new DatabaseSync(':memory:'); const base = path.resolve(__dirname, '../../../../db');
-  for (const file of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base,file),'utf8'));
+  for (const file of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,file),'utf8'));
   const repo = new SQLiteTransferRepository(new SQLiteClient(db));
   const transfer = new Transfer({id:'partial-route',sourceHubId:'metro',destinationHubId:'bku',vehicleIds:['EB-024','EB-031'],destinationSlotIds:['bku-A01','bku-A02'],createdBy:'op'});
   await repo.createTransfer(transfer); transfer.depart({}); await repo.departTransfer(transfer);
@@ -103,7 +103,7 @@ test('invalid observed vehicle input yields a domain error', () => {
 
 test('faulty vehicle in transit arrives at destination without becoming rentable', async () => {
   const db=new DatabaseSync(':memory:'); const base=path.resolve(__dirname,'../../../../db');
-  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   const repo=new SQLiteTransferRepository(new SQLiteClient(db));
   const transfer=new Transfer({id:'fault-arrival',sourceHubId:'metro',destinationHubId:'bku',vehicleIds:['EB-024'],destinationSlotIds:['bku-A01'],createdBy:'op'});
   await repo.createTransfer(transfer); transfer.depart({}); await repo.departTransfer(transfer);
@@ -120,7 +120,7 @@ test('duplicate transfer IDs are rejected before persistence', () => {
 
 test('ineligible vehicle or late slot failure rolls back the whole transfer', async () => {
  const db=new DatabaseSync(':memory:'); const base=path.resolve(__dirname,'../../../../db');
- for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
  const repo=new SQLiteTransferRepository(new SQLiteClient(db));
  const order=(id,vehicles,slots)=>new Transfer({id,sourceHubId:'metro',destinationHubId:'bku',vehicleIds:vehicles,destinationSlotIds:slots,createdBy:'op'});
  await assert.rejects(repo.createTransfer(order('low',['EB-024','EM-012'],['bku-A01','bku-A02'])));

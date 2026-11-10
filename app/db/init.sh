@@ -30,7 +30,7 @@ COMMIT;
 SQL
         version=1
         ;;
-    1|2|3|4|5) ;;
+    1|2|3|4|5|6) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -49,7 +49,7 @@ COMMIT;
 SQL
         version=2
         ;;
-    2|3|4|5) ;;
+    2|3|4|5|6) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -68,7 +68,7 @@ COMMIT;
 SQL
         version=3
         ;;
-    3|4|5) ;;
+    3|4|5|6) ;;
 esac
 
 case "$version" in
@@ -83,7 +83,7 @@ COMMIT;
 SQL
         version=4
         ;;
-    4|5) ;;
+    4|5|6) ;;
 esac
 
 case "$version" in
@@ -96,8 +96,23 @@ $parking_sql
 PRAGMA user_version = 5;
 COMMIT;
 SQL
+        version=5
         ;;
-    5) ;;
+    5|6) ;;
+esac
+
+case "$version" in
+    5)
+        commitment_sql=$(cat "$script_dir/migrations/0006_parking_commitments.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$commitment_sql
+PRAGMA user_version = 6;
+COMMIT;
+SQL
+        ;;
+    6) ;;
 esac
 
 printf '%s\n' "$database"

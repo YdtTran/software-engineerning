@@ -5,7 +5,7 @@ test('Express routes enforce trusted identity and replay durable writes', async 
   let express; try { express=require('express'); } catch { t.skip('Express is not installed'); return; }
   const {createOperationsModule}=require('../index'); const db=new DatabaseSync(':memory:');
   const base=path.resolve(__dirname,'../../../../db');
-  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+  for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0003_idempotency.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   const app=express(); app.use(express.json()); app.use((req,res,next)=>{if(req.headers.authorization==='test-operator') req.user={id:'op',role:'operator'}; if(req.headers.authorization==='test-user') req.user={id:'user',role:'user'}; next();});
   app.use('/api/v1',createOperationsModule({db}).router);
   const server=await new Promise(resolve=>{const server=app.listen(0,'127.0.0.1',()=>resolve(server));});

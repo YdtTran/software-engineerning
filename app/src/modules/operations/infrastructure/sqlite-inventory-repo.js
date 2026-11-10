@@ -19,16 +19,24 @@ const {
   DomainError
 } = require('../domain/resource');
 
+function parkingInstant(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT.*(?:Z|[+-]\d\d:\d\d)$/.test(value)) throw new DomainError('INVALID_INPUT', 'Parking times must be ISO timestamps with an offset.');
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) throw new DomainError('INVALID_INPUT', 'Invalid parking time.');
+  return date;
+}
+
 class SQLiteInventoryRepository extends InventoryInterface {
   /**
    * @param {import('./sqlite-client').SQLiteClient} client
    */
-  constructor(client) {
+  constructor(client, chargingGuard = null) {
     super();
     if (!client) {
       throw new Error('SQLiteInventoryRepository requires a SQLiteClient instance.');
     }
     this.client = client;
+    this.chargingGuard = chargingGuard;
   }
 
   // =========================================================================
@@ -38,8 +46,9 @@ class SQLiteInventoryRepository extends InventoryInterface {
   async getAvailableVehicles(hubId, vehicleType = null) {
     let sql = `SELECT id, hub_id, vehicle_type, battery_percent, status, owner_id 
                FROM electric_vehicles 
-               WHERE hub_id = ? AND LOWER(status) = 'available' AND owner_id IS NULL
-                 AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL`;
+               WHERE hub_id = ? AND LOWER(status) = 'available' AND owner_id IS NULL AND battery_percent >= 20
+                 AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL
+                 AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved','closed'))`;
     const params = [hubId];
 
     if (vehicleType) {
@@ -77,7 +86,8 @@ class SQLiteInventoryRepository extends InventoryInterface {
     vehicle.reserve();
 
     const result = await this.client.run(
-      `UPDATE electric_vehicles SET status = ?, reservation_id = ? WHERE id = ? AND hub_id = ? AND LOWER(status) = 'available' AND owner_id IS NULL AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL;`,
+      `UPDATE electric_vehicles SET status = ?, reservation_id = ? WHERE id = ? AND hub_id = ? AND LOWER(status) = 'available' AND owner_id IS NULL AND battery_percent >= 20 AND reservation_id IS NULL AND trip_id IS NULL AND transfer_hold_id IS NULL
+       AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved','closed'));`,
       [vehicle.status, reservationId, vehicle.id, hubId]
     );
     if (result.changes !== 1) throw new DomainError('VEHICLE_NOT_AVAILABLE', `Vehicle ${vehicleId} is not available for reservation.`);
@@ -116,17 +126,19 @@ class SQLiteInventoryRepository extends InventoryInterface {
     vehicle.pickup();
 
     const result = await this.client.run(
-      `UPDATE electric_vehicles SET status = ?, reservation_id = NULL, trip_id = ? WHERE id = ? AND hub_id = ? AND LOWER(status) = 'reserved' AND reservation_id = ?;`,
+      `UPDATE electric_vehicles SET status = ?, reservation_id = NULL, trip_id = ? WHERE id = ? AND hub_id = ? AND LOWER(status) = 'reserved' AND reservation_id = ? AND battery_percent >= 20
+       AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind = 'vehicle' AND resource_id = electric_vehicles.id AND LOWER(status) NOT IN ('resolved','closed'));`,
       [vehicle.status, tripId, vehicle.id, hubId, reservationId]
     );
     if (result.changes !== 1) throw new DomainError('VEHICLE_CANNOT_PICKUP', `Vehicle ${vehicleId} is no longer available for pickup.`);
-    const slot = await this.client.get('SELECT id, hub_id, status FROM parking_slots WHERE parked_vehicle_id = ?;', [vehicleId]);
+    const slot = await this.client.get('SELECT id, hub_id, status, occupancy_id FROM parking_slots WHERE parked_vehicle_id = ?;', [vehicleId]);
     if (slot) {
       const vacated = await this.client.run(
         `UPDATE parking_slots SET status = CASE WHEN status IN ('Occupied','occupied') THEN 'Available' ELSE status END,
          occupancy_id = NULL, parked_vehicle_id = NULL WHERE id = ? AND hub_id = ? AND parked_vehicle_id = ?
          AND status IN ('Occupied','occupied','Suspended','blocked');`, [slot.id, hubId, vehicleId]);
       if (vacated.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', 'Vehicle parking location is inconsistent.');
+      await this.client.run(`UPDATE parking_commitments SET released_at = ? WHERE slot_id = ? AND occupancy_id = ? AND status = 'Fulfilled' AND released_at IS NULL;`, [new Date().toISOString(), slot.id, slot.occupancy_id]);
     }
   }
 
@@ -162,12 +174,20 @@ class SQLiteInventoryRepository extends InventoryInterface {
       if (updated.changes !== 1) throw new DomainError('VEHICLE_NOT_IN_USE', `Vehicle ${vehicleId} is no longer in use.`);
 
       if (slotId) {
-        const occupied = await this.client.run(
-          `UPDATE parking_slots SET status = 'Occupied', reservation_id = NULL, occupancy_id = ?, parked_vehicle_id = ? WHERE id = ? AND hub_id = ?
-           AND parked_vehicle_id IS NULL AND transfer_hold_id IS NULL AND occupancy_id IS NULL
-           AND ((status IN ('Available', 'available') AND reservation_id IS NULL) OR (status IN ('Held', 'reserved') AND reservation_id = ? AND reservation_id IS NOT NULL));`,
-          [tripId, vehicleId, slotId, destinationHubId, slotReservationId]
-        );
+        let occupied;
+        if (slotReservationId) {
+          await this.occupySlot(slotId, tripId, slotReservationId);
+          occupied = await this.client.run(`UPDATE parking_slots SET parked_vehicle_id = ? WHERE id = ? AND hub_id = ? AND occupancy_id = ? AND parked_vehicle_id IS NULL;`, [vehicleId, slotId, destinationHubId, tripId]);
+        } else {
+          const now = new Date().toISOString();
+          occupied = await this.client.run(
+            `UPDATE parking_slots SET status = 'Occupied', occupancy_id = ?, parked_vehicle_id = ? WHERE id = ? AND hub_id = ?
+             AND status IN ('Available', 'available') AND reservation_id IS NULL AND parked_vehicle_id IS NULL AND transfer_hold_id IS NULL AND occupancy_id IS NULL
+             AND NOT EXISTS (SELECT 1 FROM parking_commitments WHERE slot_id = parking_slots.id AND ends_at > ?
+               AND ((status = 'Reserved' AND expires_at > ?) OR (status = 'Fulfilled' AND released_at IS NULL)));`,
+            [tripId, vehicleId, slotId, destinationHubId, now, now]
+          );
+        }
         if (occupied.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', `Slot ${slotId} is not available at the destination hub.`);
       }
     });
@@ -177,56 +197,129 @@ class SQLiteInventoryRepository extends InventoryInterface {
   // PARKING & CHARGING CONTRACT (Triết)
   // =========================================================================
 
-  async getAvailableSlots(hubId, pool = null) {
-    if (pool !== null) throw new DomainError('POOL_FILTER_UNAVAILABLE', 'Parking pool compatibility is not yet available.');
-    const sql = `SELECT id, hub_id, code, status FROM parking_slots WHERE hub_id = ? AND LOWER(status) = 'available'
-      AND reservation_id IS NULL AND transfer_hold_id IS NULL AND occupancy_id IS NULL AND parked_vehicle_id IS NULL ORDER BY code ASC;`;
-    const rows = await this.client.all(sql, [hubId]);
+  async getAvailableSlots(hubId, pool = null, interval = null) {
+    if (pool !== null && !['immediate', 'advance'].includes(pool)) throw new DomainError('INVALID_INPUT', 'Unknown parking pool.');
+    const now = new Date();
+    let starts = now.toISOString(), ends = '9999-12-31T23:59:59.999Z';
+    if (pool === 'advance') {
+      if (!interval) throw new DomainError('INVALID_INPUT', 'Advance parking requires an interval.');
+      const start = parkingInstant(interval.plannedArrival), end = parkingInstant(interval.plannedCheckout);
+      if (start < now || end <= start) throw new DomainError('INVALID_INPUT', 'Invalid parking interval.');
+      starts = start.toISOString(); ends = end.toISOString();
+    }
+    const physical = pool === 'advance' ? `status IN ('Available','available','Occupied','occupied')` :
+      `status IN ('Available','available') AND occupancy_id IS NULL AND parked_vehicle_id IS NULL`;
+    const sql = `SELECT id, hub_id, code, status FROM parking_slots WHERE hub_id = ? AND ${physical}
+      AND (? IS NULL OR pool = ?) AND reservation_id IS NULL AND transfer_hold_id IS NULL
+      AND NOT EXISTS (SELECT 1 FROM parking_commitments WHERE slot_id = parking_slots.id AND starts_at < ? AND ? < ends_at
+        AND ((status = 'Reserved' AND expires_at > ?) OR (status = 'Fulfilled' AND released_at IS NULL))) ORDER BY code ASC;`;
+    const rows = await this.client.all(sql, [hubId, pool, pool, ends, starts, now.toISOString()]);
     return rows.map(r => ({ id: r.id, hubId: r.hub_id, code: r.code, status: r.status }));
   }
 
-  async holdSlotForReservation(slotId, reservationId) {
+  async holdSlotForReservation(slotId, reservationId, request) {
     if (!reservationId || typeof reservationId !== 'string') throw new DomainError('INVALID_INPUT', 'Reservation ID is required.');
-    const res = await this.client.run(
-      `UPDATE parking_slots SET status = 'Held', reservation_id = ? WHERE id = ? AND LOWER(status) = 'available' AND reservation_id IS NULL AND transfer_hold_id IS NULL AND occupancy_id IS NULL AND parked_vehicle_id IS NULL;`,
-      [reservationId, slotId]
-    );
-    if (res.changes === 0) {
-      throw new DomainError('SLOT_UNAVAILABLE', `Slot ${slotId} is not available.`);
-    }
+    if (!request || !['immediate', 'advance'].includes(request.pool)) throw new DomainError('INVALID_INPUT', 'Parking pool is required.');
+    const expiry = parkingInstant(request.expiresAt);
+    return this.client.transaction(async () => {
+      const now = new Date();
+      const start = request.pool === 'immediate' ? now : parkingInstant(request.plannedArrival);
+      const end = request.pool === 'immediate' ? expiry : parkingInstant(request.plannedCheckout);
+      if (expiry <= now || (request.pool === 'advance' && (start < now || expiry < start)) || end <= start) {
+        throw new DomainError('INVALID_INPUT', 'Parking reservation interval or expiry is invalid.');
+      }
+      const [current, starts, ends, expires] = [now, start, end, expiry].map(d => d.toISOString());
+      if (await this.client.get('SELECT reservation_id FROM parking_commitments WHERE reservation_id = ?;', [reservationId])) {
+        throw new DomainError('RESERVATION_CONFLICT', 'Reservation ID is already in use.');
+      }
+      const slot = await this.client.get('SELECT * FROM parking_slots WHERE id = ?;', [slotId]);
+      const physicalAvailable = slot && ['Available', 'available'].includes(slot.status) && !slot.occupancy_id && !slot.parked_vehicle_id;
+      if (!slot || slot.pool !== request.pool || slot.transfer_hold_id || slot.reservation_id ||
+          !['Available', 'available', 'Occupied', 'occupied'].includes(slot.status) || (request.pool === 'immediate' && !physicalAvailable)) {
+        throw new DomainError('SLOT_UNAVAILABLE', `Slot ${slotId} is not available for this reservation.`);
+      }
+      const conflict = await this.client.get(
+        `SELECT reservation_id FROM parking_commitments WHERE slot_id = ? AND starts_at < ? AND ? < ends_at
+         AND ((status = 'Reserved' AND expires_at > ?) OR (status = 'Fulfilled' AND released_at IS NULL)) LIMIT 1;`,
+        [slotId, ends, starts, current]
+      );
+      if (conflict) throw new DomainError('SLOT_UNAVAILABLE', `Slot ${slotId} has a conflicting commitment.`);
+      await this.client.run(
+        `INSERT INTO parking_commitments (reservation_id, slot_id, pool, starts_at, ends_at, expires_at, status) VALUES (?, ?, ?, ?, ?, ?, 'Reserved');`,
+        [reservationId, slotId, request.pool, starts, ends, expires]
+      );
+      if (request.pool === 'immediate') {
+        const held = await this.client.run(`UPDATE parking_slots SET status = 'Held', reservation_id = ? WHERE id = ? AND status IN ('Available', 'available') AND reservation_id IS NULL AND transfer_hold_id IS NULL AND occupancy_id IS NULL AND parked_vehicle_id IS NULL;`, [reservationId, slotId]);
+        if (held.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', `Slot ${slotId} is no longer available.`);
+      }
+    });
   }
 
   async releaseSlotHold(slotId, reservationId) {
     if (!reservationId) throw new DomainError('INVALID_INPUT', 'Reservation ID is required.');
-    const result = await this.client.run(
-      `UPDATE parking_slots SET status = CASE WHEN status IN ('Held', 'reserved') THEN 'Available' ELSE status END, reservation_id = NULL
-       WHERE id = ? AND status IN ('Held', 'reserved', 'Suspended', 'blocked') AND reservation_id = ?;`,
-      [slotId, reservationId]
-    );
-    if (result.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', 'Slot hold does not belong to this reservation.');
+    return this.finishSlotHold(slotId, reservationId, 'Cancelled');
+  }
+
+  async expireSlotHold(slotId, reservationId) {
+    if (!reservationId) throw new DomainError('INVALID_INPUT', 'Reservation ID is required.');
+    return this.finishSlotHold(slotId, reservationId, 'Expired');
+  }
+
+  async finishSlotHold(slotId, reservationId, status) {
+    return this.client.transaction(async () => {
+      const result = await this.client.run(
+        `UPDATE parking_commitments SET status = ? WHERE slot_id = ? AND reservation_id = ? AND status = 'Reserved'
+         AND (? <> 'Expired' OR expires_at <= ?);`, [status, slotId, reservationId, status, new Date().toISOString()]
+      );
+      if (result.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', 'No matching eligible parking commitment.');
+      await this.client.run(
+        `UPDATE parking_slots SET status = CASE WHEN status IN ('Held', 'reserved') THEN 'Available' ELSE status END, reservation_id = NULL
+         WHERE id = ? AND status IN ('Held', 'reserved', 'Suspended', 'blocked') AND reservation_id = ?;`, [slotId, reservationId]
+      );
+    });
   }
 
   async occupySlot(slotId, occupancyId, reservationId = null) {
-    if (!occupancyId) throw new DomainError('INVALID_INPUT', 'Occupancy ID is required.');
-    const result = await this.client.run(
-      `UPDATE parking_slots SET status = 'Occupied', reservation_id = NULL, occupancy_id = ? WHERE id = ?
-       AND parked_vehicle_id IS NULL AND transfer_hold_id IS NULL AND occupancy_id IS NULL
-       AND ((status IN ('Available', 'available') AND reservation_id IS NULL) OR (status IN ('Held', 'reserved') AND reservation_id = ? AND reservation_id IS NOT NULL));`,
-      [occupancyId, slotId, reservationId]
-    );
-    if (result.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', `Slot ${slotId} is unavailable for this occupancy.`);
+    if (!occupancyId || !reservationId) throw new DomainError('INVALID_INPUT', 'Occupancy and reservation IDs are required.');
+    return this.client.transaction(async () => {
+      const now = new Date().toISOString();
+      const commitment = await this.client.get(
+        `SELECT * FROM parking_commitments WHERE slot_id = ? AND reservation_id = ? AND status = 'Reserved'
+         AND starts_at <= ? AND ? < ends_at AND ? < expires_at;`, [slotId, reservationId, now, now, now]
+      );
+      if (!commitment) throw new DomainError('SLOT_UNAVAILABLE', 'Reservation is not valid for check-in.');
+      const result = await this.client.run(
+        `UPDATE parking_slots SET status = 'Occupied', reservation_id = NULL, occupancy_id = ? WHERE id = ? AND pool = ?
+         AND parked_vehicle_id IS NULL AND transfer_hold_id IS NULL AND occupancy_id IS NULL
+         AND ((status IN ('Available', 'available') AND reservation_id IS NULL) OR (status IN ('Held', 'reserved') AND reservation_id = ?));`,
+        [occupancyId, slotId, commitment.pool, reservationId]
+      );
+      if (result.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', `Slot ${slotId} is unavailable for this occupancy.`);
+      await this.client.run(`UPDATE parking_commitments SET status = 'Fulfilled', occupancy_id = ? WHERE reservation_id = ? AND status = 'Reserved';`, [occupancyId, reservationId]);
+    });
   }
 
   async vacateSlot(slotId, occupancyId) {
     if (!occupancyId) throw new DomainError('INVALID_INPUT', 'Occupancy ID is required.');
-    const result = await this.client.run(
-      `UPDATE parking_slots SET status = 'Available', occupancy_id = NULL, parked_vehicle_id = NULL WHERE id = ? AND status IN ('Occupied', 'occupied') AND occupancy_id = ?;`,
-      [slotId, occupancyId]
-    );
-    if (result.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', 'Slot does not belong to this occupancy.');
+    return this.client.transaction(async () => {
+      const result = await this.client.run(
+        `UPDATE parking_slots SET status = CASE WHEN status IN ('Occupied','occupied') THEN 'Available' ELSE status END,
+         occupancy_id = NULL, parked_vehicle_id = NULL WHERE id = ? AND status IN ('Occupied','occupied','Suspended','blocked') AND occupancy_id = ?;`,
+        [slotId, occupancyId]
+      );
+      if (result.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', 'Slot does not belong to this occupancy.');
+      await this.client.run(`UPDATE parking_commitments SET released_at = ? WHERE slot_id = ? AND occupancy_id = ? AND status = 'Fulfilled' AND released_at IS NULL;`, [new Date().toISOString(), slotId, occupancyId]);
+    });
   }
 
   async updateChargingPointStatus(pointId, status) {
+    if (!this.chargingGuard || typeof this.chargingGuard.assertTransition !== 'function') {
+      throw new DomainError('CHARGING_GUARD_UNAVAILABLE', 'Charging safety verification is unavailable.');
+    }
+    return this.client.transaction(() => this.updateChargingPointStatusInTransaction(pointId, status));
+  }
+
+  async updateChargingPointStatusInTransaction(pointId, status) {
     const aliases = { available: 'Available', idle: 'Available', reserved: 'Reserved', occupied: 'Reserved', starting: 'Starting', charging: 'Charging', stopping: 'Stopping', complete: 'Complete', fault: 'Fault', faulted: 'Fault', repair: 'Repair', maintenance: 'Repair', retired: 'Retired' };
     const transitions = {
       Available: ['Reserved', 'Fault'],
@@ -247,6 +340,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
     if (!current || (current !== desired && !transitions[current].includes(desired))) {
       throw new DomainError('INVALID_STATE_TRANSITION', `Cannot change charging point from ${row.status} to ${status}.`);
     }
+    await this.chargingGuard.assertTransition({ pointId, current, desired, client: this.client });
     const res = await this.client.run(
       `UPDATE charging_points SET status = ? WHERE id = ? AND status = ? AND (? <> 'Available' OR NOT EXISTS
        (SELECT 1 FROM incidents WHERE resource_kind = 'charging_point' AND resource_id = charging_points.id AND LOWER(status) NOT IN ('resolved','closed')));`,
@@ -305,7 +399,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
     }
 
     if (!kind || kind.toLowerCase() === 'slot') {
-      let sql = 'SELECT id, hub_id, code, status FROM parking_slots';
+      let sql = 'SELECT id, hub_id, code, status, pool FROM parking_slots';
       const params = [];
       if (hubId) {
         sql += ' WHERE hub_id = ?';
@@ -313,7 +407,7 @@ class SQLiteInventoryRepository extends InventoryInterface {
       }
       const rows = await this.client.all(sql, params);
       for (const r of rows) {
-        results.push({ id: r.id, kind: 'slot', hubId: r.hub_id, status: r.status, attributes: { code: r.code } });
+        results.push({ id: r.id, kind: 'slot', hubId: r.hub_id, status: r.status, attributes: { code: r.code, pool: r.pool } });
       }
     }
 
