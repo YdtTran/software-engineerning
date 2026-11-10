@@ -47,7 +47,11 @@ class IncidentService {
     if (!this.tripReader || typeof this.tripReader.getTrip !== 'function') {
       throw new DomainError('TRIP_READER_UNAVAILABLE', 'Trip verification is unavailable.');
     }
-    const trip = await this.tripReader.getTrip(tripId);
+    return this.inventoryRepo.client.transaction(() => this.reportVerifiedTripIncident({ tripId, description, userId, reportedLocation }));
+  }
+
+  async reportVerifiedTripIncident({ tripId, description, userId, reportedLocation }) {
+    const trip = await this.tripReader.getTrip(tripId, this.inventoryRepo.client);
     if (!trip || trip.id !== tripId) throw new DomainError('TRIP_NOT_FOUND', 'Trip not found.');
     if (trip.userId !== userId) throw new DomainError('FORBIDDEN_OPERATION', 'Trip does not belong to this user.');
     if (String(trip.status).toLowerCase() !== 'active') throw new DomainError('TRIP_NOT_ACTIVE', 'Trip is not active.');
@@ -85,10 +89,13 @@ class IncidentService {
     resourceId,
     description,
     severity = IncidentSeverity.STANDARD,
-    reporterId = 'operator',
-    reporterRole = ReporterRole.OPERATOR,
+    reporterId,
+    reporterRole,
     reportedLocation = null
   }) {
+    if (typeof reporterId !== 'string' || !reporterId.trim() || ![ReporterRole.OPERATOR, ReporterRole.SYSTEM].includes(reporterRole)) {
+      throw new DomainError('INVALID_REPORTER', 'A trusted operator or system reporter is required.');
+    }
     if (!resourceKind || !resourceId || !description) {
       throw new DomainError('INVALID_INPUT', 'resourceKind, resourceId, and description are required.');
     }

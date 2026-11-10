@@ -104,7 +104,7 @@ test('charging point cannot be reactivated while an incident remains unresolved'
  const {SQLiteIncidentRepository}=require('../infrastructure/sqlite-incident-repo'); const {IncidentService}=require('../application/incident-service');
  const {db,repo}=setup(); repo.chargingGuard={assertTransition:async()=>{}}; const id=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
  const service=new IncidentService(new SQLiteIncidentRepository(repo.client),repo);
- await service.reportEquipmentIncident({resourceKind:'charging_point',resourceId:id,description:'fault'});
+ await service.reportEquipmentIncident({reporterId:'op',reporterRole:'Operator',resourceKind:'charging_point',resourceId:id,description:'fault'});
  await repo.updateChargingPointStatus(id,'Repair');
  await assert.rejects(repo.updateChargingPointStatus(id,'Available'));
  assert.equal(db.prepare('SELECT status FROM charging_points WHERE id=?').get(id).status,'Repair'); db.close();

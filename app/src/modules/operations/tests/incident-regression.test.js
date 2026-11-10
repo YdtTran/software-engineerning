@@ -4,7 +4,7 @@ const { IncidentService } = require('../application/incident-service');
 
 const setup = trip => {
   const saved = [];
-  const service = new IncidentService({createIncident: async i => saved.push(i)}, {client:{get: async () => ({id:'v'})}}, {getTrip: async () => trip});
+  const service = new IncidentService({createIncident: async i => saved.push(i)}, {client:{get: async () => ({id:'v'}), transaction: async fn => fn()}}, {getTrip: async () => trip});
   return {service, saved};
 };
 test('trip incidents use the authenticated owner and trusted trip vehicle', async () => {
@@ -51,10 +51,10 @@ test('equipment incident validates resource and isolates reserved vehicle', asyn
   for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   const client = new SQLiteClient(db);
   const service = new IncidentService(new SQLiteIncidentRepository(client), new SQLiteInventoryRepository(client));
-  await assert.rejects(service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'missing',description:'broken'}));
+  await assert.rejects(service.reportEquipmentIncident({reporterId:'op',reporterRole:'Operator',resourceKind:'vehicle',resourceId:'missing',description:'broken'}));
   assert.equal(db.prepare('SELECT count(*) AS n FROM incidents').get().n,0);
   db.exec("UPDATE electric_vehicles SET status='Reserved' WHERE id='EB-024'");
-  await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'broken'});
+  await service.reportEquipmentIncident({reporterId:'op',reporterRole:'Operator',resourceKind:'vehicle',resourceId:'EB-024',description:'broken'});
   assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Faulty');
   db.close();
 });
@@ -73,8 +73,8 @@ test('resolving one incident does not reactivate a resource with another open in
   const db = new DatabaseSync(':memory:'); const base = path.resolve(__dirname, '../../../../db');
   for (const file of ['migrations/0001_hub_inventory.sql', 'seed.sql', 'migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base, file), 'utf8'));
   const client = new SQLiteClient(db); const service = new IncidentService(new SQLiteIncidentRepository(client), new SQLiteInventoryRepository(client));
-  const first = await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'one'});
-  await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'two'});
+  const first = await service.reportEquipmentIncident({reporterId:'op',reporterRole:'Operator',resourceKind:'vehicle',resourceId:'EB-024',description:'one'});
+  await service.reportEquipmentIncident({reporterId:'op',reporterRole:'Operator',resourceKind:'vehicle',resourceId:'EB-024',description:'two'});
   await service.handleIncident(first.id, {technicianId:'tech'});
   await service.resolveIncident(first.id);
   assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Faulty');
@@ -88,7 +88,7 @@ test('resolving a vehicle fault preserves its existing reservation', async () =>
   for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   const client=new SQLiteClient(db); const inventory=new SQLiteInventoryRepository(client); const service=new IncidentService(new SQLiteIncidentRepository(client),inventory);
   await inventory.reserveVehicle('EB-024','r1','metro');
-  const incident=await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'fault'});
+  const incident=await service.reportEquipmentIncident({reporterId:'op',reporterRole:'Operator',resourceKind:'vehicle',resourceId:'EB-024',description:'fault'});
   await service.handleIncident(incident.id, {technicianId:'tech'});
   await service.resolveIncident(incident.id);
   assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-024'").get().status,'Reserved');
@@ -101,7 +101,7 @@ test('concurrent maintenance assignments do not replace each other', async () =>
   const db=new DatabaseSync(':memory:'); const base=path.resolve(__dirname,'../../../../db');
   for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   const client=new SQLiteClient(db); const service=new IncidentService(new SQLiteIncidentRepository(client),new SQLiteInventoryRepository(client));
-  const incident=await service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'EB-024',description:'fault'});
+  const incident=await service.reportEquipmentIncident({reporterId:'op',reporterRole:'Operator',resourceKind:'vehicle',resourceId:'EB-024',description:'fault'});
   const results=await Promise.allSettled([service.handleIncident(incident.id,{technicianId:'one'}),service.handleIncident(incident.id,{technicianId:'two'})]);
   assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
   assert.equal(db.prepare('SELECT count(*) AS n FROM maintenance_assignments WHERE incident_id=?').get(incident.id).n,1);
@@ -115,7 +115,7 @@ test('resolving an incident does not bypass charging point repair', async () => 
   for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
   const client=new SQLiteClient(db); const service=new IncidentService(new SQLiteIncidentRepository(client),new SQLiteInventoryRepository(client));
   const point=db.prepare('SELECT id FROM charging_points LIMIT 1').get().id;
-  const incident=await service.reportEquipmentIncident({resourceKind:'charging_point',resourceId:point,description:'fault'});
+  const incident=await service.reportEquipmentIncident({reporterId:'op',reporterRole:'Operator',resourceKind:'charging_point',resourceId:point,description:'fault'});
   await service.handleIncident(incident.id, {technicianId:'tech'});
   await service.resolveIncident(incident.id);
   assert.equal(db.prepare('SELECT status FROM charging_points WHERE id=?').get(point).status,'Fault'); db.close();
@@ -135,4 +135,19 @@ test('trip incident rejects a trusted trip whose vehicle is not assigned to that
  const client=new SQLiteClient(db); const inventory=new SQLiteInventoryRepository(client); const service=new IncidentService(new SQLiteIncidentRepository(client),inventory,{getTrip:async()=>({id:'t',userId:'u',vehicleId:'EB-024',status:'Active'})});
  await assert.rejects(service.reportTripIncident({tripId:'t',userId:'u',description:'fault'}));
  assert.equal(db.prepare('SELECT count(*) AS n FROM incidents').get().n,0); db.close();
+});
+
+test('trip status and incident creation share the owning database transaction', async () => {
+ const {DatabaseSync}=require('node:sqlite');const fs=require('node:fs');const path=require('node:path');
+ const {SQLiteClient}=require('../infrastructure/sqlite-client');const {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo');const {SQLiteIncidentRepository}=require('../infrastructure/sqlite-incident-repo');
+ const db=new DatabaseSync(':memory:'),base=path.resolve(__dirname,'../../../../db');
+ for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql'])db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ db.exec("CREATE TABLE trips(id TEXT PRIMARY KEY, userId TEXT, vehicleId TEXT, status TEXT); INSERT INTO trips VALUES('t','u','EB-024','Active'); UPDATE electric_vehicles SET status='InUse',trip_id='t' WHERE id='EB-024'");
+ const client=new SQLiteClient(db),inventory=new SQLiteInventoryRepository(client);let started,release;
+ const entered=new Promise(resolve=>started=resolve),gate=new Promise(resolve=>release=resolve);
+ const service=new IncidentService(new SQLiteIncidentRepository(client),inventory,{async getTrip(id){const row=await client.get('SELECT * FROM trips WHERE id=?',[id]);started();await gate;return row;}});
+ const reporting=service.reportTripIncident({tripId:'t',userId:'u',description:'fault'});await entered;
+ let closeFinished=false;const closing=client.run("UPDATE trips SET status='Completed' WHERE id='t'").then(()=>{closeFinished=true});
+ await new Promise(resolve=>setImmediate(resolve));const closedBeforeReport=closeFinished;release();await reporting;await closing;
+ assert.equal(closedBeforeReport,false,'trip completion must wait for incident commit');db.close();
 });

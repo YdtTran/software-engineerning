@@ -67,6 +67,7 @@ function runAllTests() {
     const s = new ParkingSlot(fixtures.slots[3]);
     assert.throws(() => {
       Transfer.plan({
+        createdBy: 'operator-test',
         id: 'TRF-TEST-SAME',
         sourceHubId: 'hub-source',
         destinationHubId: 'hub-source',
@@ -81,6 +82,7 @@ function runAllTests() {
     const s = new ParkingSlot(fixtures.slots[3]);
     assert.throws(() => {
       Transfer.plan({
+        createdBy: 'operator-test',
         id: 'TRF-TEST-BAT',
         sourceHubId: 'hub-source',
         destinationHubId: 'hub-dest',
@@ -105,6 +107,7 @@ function runAllTests() {
     const v = new ElectricVehicle(fixtures.vehicles[0]);
     const s = new ParkingSlot(fixtures.slots[3]);
     const transfer = Transfer.plan({
+        createdBy: 'operator-test',
       id: 'TRF-RACE-1',
       sourceHubId: 'hub-source',
       destinationHubId: 'hub-dest',
@@ -133,6 +136,7 @@ function runAllTests() {
     const v = new ElectricVehicle(fixtures.vehicles[0]);
     const s = new ParkingSlot(fixtures.slots[3]);
     const transfer = Transfer.plan({
+        createdBy: 'operator-test',
       id: 'TRF-RACE-2',
       sourceHubId: 'hub-source',
       destinationHubId: 'hub-dest',

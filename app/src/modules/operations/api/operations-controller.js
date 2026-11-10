@@ -135,15 +135,17 @@ class OperationsController {
    */
   requireRole(req, res, requiredRole) {
     const actor = extractActor(req);
-    if (!actor.actorId || !actor.role) {
+    const roles = Array.isArray(req.user && req.user.roles) ? req.user.roles.filter(role => typeof role === 'string').map(role => role.toLowerCase()) : [];
+    if (actor.role) roles.push(actor.role);
+    if (!actor.actorId || roles.length === 0) {
       sendError(res, 401, 'UNAUTHENTICATED', 'Authentication is required.');
       return false;
     }
-    if (requiredRole === 'operator' && actor.role !== 'operator') {
+    if (requiredRole === 'operator' && !roles.includes('operator')) {
       sendError(res, 403, 'FORBIDDEN_OPERATION', 'This endpoint requires an Operator account.');
       return false;
     }
-    if (requiredRole === 'user' && actor.role !== 'user') {
+    if (requiredRole === 'user' && !roles.includes('user')) {
       sendError(res, 403, 'FORBIDDEN_OPERATION', 'This endpoint requires a User account.');
       return false;
     }

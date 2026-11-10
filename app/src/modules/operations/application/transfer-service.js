@@ -28,7 +28,8 @@ class TransferService {
   /**
    * Create a new vehicle transfer order (UC10)
    */
-  async createTransfer({ sourceHubId, destinationHubId, vehicleIds, destinationSlotIds, createdBy = 'operator' }) {
+  async createTransfer({ sourceHubId, destinationHubId, vehicleIds, destinationSlotIds, createdBy }) {
+    if (typeof createdBy !== 'string' || !createdBy.trim()) throw new DomainError('INVALID_REPORTER', 'Authenticated operator identity is required.');
     if (!sourceHubId || !destinationHubId) {
       throw new DomainError('INVALID_INPUT', 'sourceHubId and destinationHubId are required.');
     }

@@ -21,6 +21,7 @@ const { Transfer } = require(workerData.transferPath);
  try {
   if (workerData.action === 'depart') { existing.depart({}); await repo.departTransfer(existing); }
   else if (workerData.action === 'cancel') { existing.cancel({}); await repo.cancelTransfer(existing); }
+  else if (workerData.action === 'arrive') { existing.arrive({observedVehicleIds:existing.vehicleIds}); await repo.arriveTransfer(existing); }
   else await repo.createTransfer(new Transfer({id:workerData.id,sourceHubId:'metro',destinationHubId:'bku',vehicleIds:[workerData.vehicle],destinationSlotIds:[workerData.slot],createdBy:'op'}));
   parentPort.postMessage('success');
  } catch (err) { parentPort.postMessage(err.code || err.message); }
@@ -53,6 +54,12 @@ test('separate SQLite connections reject conflicting vehicle and slot claims', a
   assert.ok(['InTransit','Cancelled'].includes(state));
   assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='EB-102'").get().status,state === 'InTransit' ? 'InTransit' : 'Available');
   assert.equal(db.prepare("SELECT status FROM parking_slots WHERE id='bku-A04'").get().status,state === 'InTransit' ? 'Held' : 'Available');
+  const arriving = new Transfer({id:'arrive-race',sourceHubId:'metro',destinationHubId:'bku',vehicleIds:['EB-104'],destinationSlotIds:['bku-A05'],createdBy:'op'});
+  await repo.createTransfer(arriving); arriving.depart({}); await repo.departTransfer(arriving);
+  results = await race({id:'arrive-race',action:'arrive'},{id:'arrive-race',action:'arrive'});
+  assert.equal(results.filter(x=>x==='success').length,1,JSON.stringify(results));
+  assert.equal(db.prepare("SELECT status FROM transfers WHERE id='arrive-race'").get().status,'Completed');
+  assert.equal(db.prepare("SELECT parked_vehicle_id FROM parking_slots WHERE id='bku-A05'").get().parked_vehicle_id,'EB-104');
   db.close();
 });
 

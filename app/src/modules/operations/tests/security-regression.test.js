@@ -34,3 +34,22 @@ test('actor identity comes only from authentication middleware', () => {
   const {extractActor}=require('../api/operations-controller');
   assert.deepEqual(extractActor({headers:{'x-user-id':'forged','x-actor-id':'forged','x-user-role':'operator'},query:{role:'operator'},user:{id:'actual',role:'user'}}),{actorId:'actual',role:'user'});
 });
+test('one authenticated account may hold both User and Operator roles', () => {
+ const req={headers:{},user:{id:'dual',roles:['User','Operator']}};
+ assert.equal(controller.requireRole(req,response(),'user'),true);
+ assert.equal(controller.requireRole(req,response(),'operator'),true);
+});
+test('internal transfer creation requires an explicit actor', async () => {
+ const {TransferService}=require('../application/transfer-service');
+ const service=new TransferService({},{});
+ await assert.rejects(service.createTransfer({sourceHubId:'a',destinationHubId:'b',vehicleIds:['v'],destinationSlotIds:['s']}),{code:'INVALID_REPORTER'});
+});
+test('internal equipment reports require an explicit trusted reporter', async () => {
+ const {IncidentService}=require('../application/incident-service');
+ const service=new IncidentService({},{client:{}});
+ await assert.rejects(service.reportEquipmentIncident({resourceKind:'vehicle',resourceId:'v',description:'fault'}),{code:'INVALID_REPORTER'});
+});
+test('transfer domain does not invent an operator identity', () => {
+ const {Transfer}=require('../domain/transfer');
+ assert.throws(()=>new Transfer({id:'t',sourceHubId:'a',destinationHubId:'b',vehicleIds:['v'],destinationSlotIds:['s']}),{code:'INVALID_REPORTER'});
+});

@@ -70,6 +70,9 @@ class Transfer {
     if (new Set(vehicleIds).size !== vehicleIds.length || new Set(destinationSlotIds).size !== destinationSlotIds.length) {
       throw new DomainError('INVALID_INPUT', 'Vehicle and slot IDs must be unique.');
     }
+    if (typeof createdBy !== 'string' || !createdBy.trim()) {
+      throw new DomainError('INVALID_REPORTER', 'Transfer requires an operator identity.');
+    }
 
     this.id = id;
     this.sourceHubId = sourceHubId;
@@ -82,7 +85,7 @@ class Transfer {
     this.arrivedAt = arrivedAt;
     this.cancelledAt = cancelledAt;
     this.cancelReason = cancelReason;
-    this.createdBy = createdBy || 'operator';
+    this.createdBy = createdBy;
   }
 
   static plan({ id, sourceHubId, destinationHubId, vehicles, destinationSlots, createdBy, now = new Date() }) {

@@ -74,8 +74,8 @@ class MonitoringService {
       // 1. Capacity metrics
       const totalSlots = hubSlots.length;
       const occupiedSlots = hubSlots.filter(s => statusKey(s.status) === 'occupied').length;
-      const heldSlots = hubSlots.filter(s => ['held', 'heldfortransfer', 'reserved'].includes(statusKey(s.status))).length;
-      const availableSlots = hubSlots.filter(s => statusKey(s.status) === 'available').length;
+      const heldSlots = hubSlots.filter(s => ['held', 'heldfortransfer', 'reserved'].includes(statusKey(s.status)) || (statusKey(s.status) === 'available' && s.hasCurrentCommitment)).length;
+      const availableSlots = hubSlots.filter(s => statusKey(s.status) === 'available' && !s.hasCurrentCommitment).length;
       const occupancyRate = totalSlots > 0 ? (occupiedSlots / totalSlots) * 100 : 0;
 
       // 2. Vehicle metrics

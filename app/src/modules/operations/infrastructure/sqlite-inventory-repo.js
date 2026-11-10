@@ -392,13 +392,22 @@ class SQLiteInventoryRepository extends InventoryInterface {
   // =========================================================================
 
   async captureNetworkSnapshot() {
+    return this.client.transaction(() => this.captureNetworkSnapshotInTransaction());
+  }
+
+  async captureNetworkSnapshotInTransaction() {
+    const capturedAt = new Date().toISOString();
     const hubs = await this.client.all('SELECT id, name FROM mobility_hubs ORDER BY name ASC;');
     const vehicles = await this.client.all('SELECT id, hub_id AS hubId, vehicle_type AS vehicleType, battery_percent AS batteryPercent, status FROM electric_vehicles;');
-    const slots = await this.client.all('SELECT id, hub_id AS hubId, code, status FROM parking_slots;');
+    const slots = await this.client.all(`SELECT id, hub_id AS hubId, code, status,
+      EXISTS (
+        SELECT 1 FROM parking_commitments WHERE slot_id = parking_slots.id AND status = 'Reserved'
+        AND starts_at <= ? AND ? < ends_at AND ? < expires_at
+      ) AS hasCurrentCommitment FROM parking_slots;`, [capturedAt, capturedAt, capturedAt]);
     const chargingPoints = await this.client.all('SELECT id, hub_id AS hubId, code, status FROM charging_points;');
 
     return {
-      capturedAt: new Date().toISOString(),
+      capturedAt,
       hubs,
       vehicles,
       slots,
