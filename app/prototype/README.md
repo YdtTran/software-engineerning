@@ -1,6 +1,6 @@
 # Smart E-Mobility Hub — UI/UX mẫu
 
-## Giao diện đã nối API cho phần Minh
+## Giao diện đã nối API cho phần Mobility and Simulation
 
 Khởi động backend theo [hướng dẫn demo](../../docs/architecture/MINH_DEMO_GUIDE.md), rồi mở `/user-app.html`, `/operator-app.html` hoặc `/operator-web.html` trên server đó. Server chuyển tới `live.html`, dùng `live.js` cho UC01–05, UC13–14 và xem xét khuyến nghị điều chuyển qua Operations. Phiếu, chuyến và kết quả được tải/lưu qua API, có kiểm tra quyền và retry sau mất kết nối. `live.css` tái sử dụng thiết kế hiện có cho mobile/desktop.
 

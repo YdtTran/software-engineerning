@@ -20,7 +20,7 @@ $env:DEMO_SIMULATED_DEVICES = '1'
 npm start --prefix app
 ```
 
-The provisioning script prompts privately for two passwords, creating `minh` (User) and `operator` (Operator). It stores salted hashes only and refuses to overwrite an existing account file. Accounts and SQLite data are ignored by Git. Alternatively, provision accounts with `node app/src/hash-demo-account.js USERNAME ID user[,operator]`, supplying the password on standard input and combining emitted account objects into a JSON array outside Git.
+The provisioning script prompts privately for two passwords, creating `user` (User) and `operator` (Operator). It stores salted hashes only and refuses to overwrite an existing account file. Accounts and SQLite data are ignored by Git. Alternatively, provision accounts with `node app/src/hash-demo-account.js USERNAME ID user[,operator]`, supplying the password on standard input and combining emitted account objects into a JSON array outside Git.
 
 Open these entry points at `http://127.0.0.1:3000`:
 
@@ -39,11 +39,11 @@ GET `/api/v1/session` restores identity, POST creates a session from username/pa
 
 `DEMO_INSECURE_HTTP=1` allows local HTTP cookies and is rejected under `NODE_ENV=production`. Without it, Secure cookies require a suitable HTTPS deployment. This server does not configure TLS or production authentication.
 
-The current database version is 10: upstream 0008 records incident-isolation verification, 0009 adds Mobility lifecycle/command/outcome tables, and 0010 persists simulations. The initializer upgrades databases from earlier Minh draft versions 8/9 without deleting their records. SQL contents are preserved; see [database notes](db/README.md).
+The current database version is 10: upstream 0008 records incident-isolation verification, 0009 adds Mobility lifecycle/command/outcome tables, and 0010 persists simulations. The initializer upgrades databases from earlier draft versions 8/9 without deleting their records. SQL contents are preserved; see [database notes](db/README.md).
 
 Device simulation is opt-in. Without a trusted device adapter, pickup/return fails closed. The demo confirms arrival/lock without actual IoT hardware and leaves distance null without a measured odometer. Uncertain commands preserve claims for trusted reconciliation. The expiry job scans unclaimed vehicle reservations every 30 seconds and persists expiry/uncertainty events in a local outbox; automatic external notification delivery is not implemented.
 
-Mobility supplies the trusted trip reader for UC11A. Simulation uses a consistent, immutable network snapshot and never applies recommendations automatically. Reviewed transfer recommendations call the normal Operations API, which rechecks current resources and creates a Planned transfer. Parking/Charging APIs and real isolation/device verification still require their owning module integrations. The live UI exposes the implemented Minh workflows and transfer review.
+Mobility supplies the trusted trip reader for UC11A. Simulation uses a consistent, immutable network snapshot and never applies recommendations automatically. Reviewed transfer recommendations call the normal Operations API, which rechecks current resources and creates a Planned transfer. Parking/Charging APIs and real isolation/device verification still require their owning module integrations. The live UI exposes the implemented workflows and transfer review.
 
 ## Verify
 

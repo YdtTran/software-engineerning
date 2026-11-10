@@ -7,7 +7,7 @@ if (Test-Path -LiteralPath $accountFile) {
     throw 'Demo accounts already exist. Use that account file or choose a separate configuration; existing credentials were preserved.'
 }
 $specs = @(
-    @{ Username = 'minh'; Id = 'demo-minh'; Role = 'user' },
+    @{ Username = 'user'; Id = 'demo-user'; Role = 'user' },
     @{ Username = 'operator'; Id = 'demo-operator'; Role = 'operator' }
 )
 $accounts = foreach ($spec in $specs) {
@@ -33,4 +33,4 @@ $accounts = foreach ($spec in $specs) {
 [System.IO.Directory]::CreateDirectory((Split-Path -Parent $accountFile)) | Out-Null
 $accountJson = ConvertTo-Json -InputObject @($accounts) -Depth 5
 [System.IO.File]::WriteAllText($accountFile, $accountJson, [System.Text.UTF8Encoding]::new($false))
-Write-Output 'Provisioned minh (User) and operator (Operator). Passwords are not stored; local salted hashes are ignored by Git.'
+Write-Output 'Provisioned user (User) and operator (Operator). Passwords are not stored; local salted hashes are ignored by Git.'

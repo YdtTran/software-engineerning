@@ -2,8 +2,6 @@
 
 Build one Express application with SQLite repository adapters. Treat the four modules as independently implementable and testable workstreams in the same deployment. Use the [HTTP contracts](API_CONTRACTS.md) for UI integration and the [Development View](DECISION.md) for layer responsibilities.
 
-Runnable UC01–05/UC13–14 implementation and desktop/mobile verification are documented in the [demo walkthrough](MINH_DEMO_GUIDE.md) and [stage plan](MINH_IMPLEMENTATION_PLAN.md).
-
 | Module | Owner | Owns | Collaborates through |
 |---|---|---|---|
 | UX/UI | Ý | Mobile User, mobile Operator and desktop Operator experiences | HTTP contracts and mock responses |

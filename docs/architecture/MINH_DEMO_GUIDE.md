@@ -1,4 +1,4 @@
-# Chạy và kiểm tra phần việc của Minh
+# Chạy và kiểm tra phần Mobility and Simulation
 
 Phạm vi đã triển khai: UC01–UC05 và UC13–UC14. Backend dùng chung inventory và phiên đăng nhập với Operations. Các luồng người dùng và mô phỏng chạy qua HTTP API, có dữ liệu lưu trong SQLite. Đây là demo MVP; thiết bị được giả lập khi bật cấu hình tương ứng.
 
@@ -12,7 +12,7 @@ npm run db:init --prefix app
 .\app\provision-demo.ps1
 ```
 
-Script cuối hỏi mật khẩu riêng cho `minh` (User) và `operator` (Operator). Bạn tự đặt mật khẩu; repo không có mật khẩu mặc định. File `app/db/.local/demo-accounts.json` chỉ chứa hash có salt và được Git bỏ qua. Nếu đã có file tài khoản, script giữ nguyên file đó. Script có tham số `-NodeCommand` nếu cần chỉ định đường dẫn Node.
+Script cuối hỏi mật khẩu riêng cho `user` (User) và `operator` (Operator). Bạn tự đặt mật khẩu; repo không có mật khẩu mặc định. File `app/db/.local/demo-accounts.json` chỉ chứa hash có salt và được Git bỏ qua. Nếu đã có file tài khoản, script giữ nguyên file đó. Script có tham số `-NodeCommand` nếu cần chỉ định đường dẫn Node.
 
 Database được tạo ở `app/db/.local/hub.sqlite`. Chạy lại lệnh khởi tạo không reset dữ liệu. Bộ khởi tạo cũng nâng cấp database từ các đợt trước của nhánh Minh, giữ chuyến, mã phiếu và kết quả mô phỏng đã lưu. Không cần SQLite CLI hoặc shell Unix.
 
