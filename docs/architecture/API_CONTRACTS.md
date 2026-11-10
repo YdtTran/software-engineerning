@@ -40,6 +40,8 @@ Rental implementation notes (UC03–05): only the owning User can read or change
 
 Use the five scenarios from UC13. Validate scenario-specific parameters before running. Compute against a captured network snapshot and persist the result for later viewing. Applying recommendations requires normal operator actions through the owning module.
 
+The local demo uses the versioned `demo-des-v1` schema documented in [Simulation parameters](../../app/src/modules/mobility-simulation/README.md#simulation--stage-3). Scenario IDs are `metro`, `parking`, `charging-demand`, `charging` (port failure), and `clustering`. Common parameters are `durationMinutes`, `demandPerHour`, optional `seed`, `tripMinutes`, `chargeMinutes`, and `batteryDrainPerTrip`. Scenario-specific parameters are validated before snapshot capture. POST returns the completed result (201), including `id`, `status`, `inputSnapshotTime`, `inputs`, `baselineMetrics`, `projectedMetrics`, `recommendations`, `modelVersion` and explicit assumptions. GET reopens the persisted result for an Operator. Invalid parameters return 422; an unavailable snapshot provider returns 503. These bounded demo modeling choices are not lecturer-mandated production forecasts.
+
 ## 2. Parking and Charging
 
 | UC | Role | Method and path | Request → response |

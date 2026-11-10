@@ -1,6 +1,6 @@
 # Mobility and Simulation — Minh
 
-Stages 1–2 implement UC01–05. This branch builds on Operations commit `b78c4b6` from [PR #9](https://github.com/YdtTran/software-engineerning/pull/9), which was still open during the branch audit. Operations provides the demo server, authentication, SQLite adapter and physical inventory. Keep this dependency visible when reviewing or merging Minh's commits.
+Stages 1–3 implement UC01–05 and UC13–14. This branch builds on Operations commit `b78c4b6` from [PR #9](https://github.com/YdtTran/software-engineerning/pull/9), which was still open during the branch audit. Operations provides the demo server, authentication, SQLite adapter and physical inventory. Keep this dependency visible when reviewing or merging Minh's commits.
 
 ## Discovery API
 
@@ -59,4 +59,39 @@ The server scans unclaimed reservations every 30 seconds. Expiry and uncertain-d
 
 Operations now receives a trusted trip reader at composition, so UC11A verifies real trip ownership without circular module imports. Purpose-specific `claimVehicleReturn` and `confirmVehicleReturn` protect the shared destination capacity without consuming private parking commitments.
 
-The lifecycle tests cover contention, rollback, ownership, cancellation versus pickup, expiry, device retries/reconciliation, duplicate returns, future parking commitments, low-battery classification and the complete authenticated HTTP workflow including incident reporting. UC13–14 and frontend integration are subsequent stages.
+The lifecycle tests cover contention, rollback, ownership, cancellation versus pickup, expiry, device retries/reconciliation, duplicate returns, future parking commitments, low-battery classification and the complete authenticated HTTP workflow including incident reporting.
+
+## Simulation — Stage 3
+
+Operators can POST `/api/v1/simulations` and reopen a result using GET `/api/v1/simulations/:id`. Each POST requires an Idempotency-Key. Results include inputs, snapshot time, baseline/projected metrics, recommendations, model version and assumptions. Migration 0009 persists both the immutable input snapshot and the result. The engine is a bounded discrete-event demo with seeded request arrivals; it does not mutate live inventory or automatically apply recommendations.
+
+The composition root supplies `snapshotProvider.capture()`, reading inventory, rental eligibility and usable capacity in one shared SQLite transaction. Independent tests inject a fixed snapshot through the same port. The snapshot explicitly includes `availableVehicleIds` and `availableSlotIds` so the engine cannot mistake a private, committed or faulted resource for usable capacity.
+
+### Parameter schema: demo-des-v1
+
+These are explicit demo modeling choices. They do not change business eligibility or physical resource policies.
+
+| Parameter | Range / default |
+|---|---|
+| `durationMinutes` | Required integer 1–240 |
+| `demandPerHour` | Required 0–1000 rental requests per selected Hub per hour |
+| `seed` | Integer 0–4294967295; default 1 |
+| `tripMinutes` | 1–240; default 15 |
+| `chargeMinutes` | 1–240; default 45 |
+| `batteryDrainPerTrip` | 0–100 percentage points; default 10 |
+
+Select one to ten distinct `hubIds`. Additional required fields depend on `scenario`:
+
+| Scenario | Required parameters | Change relative to baseline |
+|---|---|---|
+| `metro` | `demandMultiplier`: 1–10 | Multiply rental demand at selected Hubs |
+| `parking` | `occupiedPercent`: 0–100 | Reduce initial free capacity to the requested occupancy floor |
+| `charging-demand` | `chargingMultiplier`: 1–10; `chargingRequestsPerHour`: 0–1000; `powerBudgetKw`: 0–1000; `portPowerKw`: 0.1–100 | Increase external charging demand |
+| `charging` | `failedPorts`: integer 0–100, not exceeding available ports at each Hub; same charging rate/power fields as above | Remove those ports from simulated capacity |
+| `clustering` | `targetHubId`: selected Hub; `returnBias`: 0–1 | Bias trip destinations toward that Hub |
+
+Power budget is a scenario input because the current inventory schema has no electrical rating. The simultaneous charging limit is the smaller of usable ports and floor(power budget / port power). Other scenarios report `peakPowerKw: null` rather than inventing an electrical value. Unknown parameters are rejected. Expected arrival count is capped at 40,000; the event loop also has a hard processing ceiling.
+
+Rental waiting time is averaged over served rentals; unserved requests at the end of the horizon are reported as rejected trips. Full destinations reject modeled returns. Existing active trips and charging completion times are not forecast because their authoritative time data is unavailable. Geographic travel times, private-parking charging interactions and calibrated arrival distributions remain outside this model. All stored results retain these assumptions.
+
+Recommendations are data only: redistribute vehicles, reroute to another Hub, inspect failed ports or reschedule charging. Their application requires normal live checks by Operations/Parking and Charging. Frontend integration is the next stage.

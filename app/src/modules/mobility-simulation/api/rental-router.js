@@ -6,8 +6,8 @@ function statusFor(error) {
   if (code === 'FORBIDDEN_OPERATION') return 403;
   if (code.endsWith('_NOT_FOUND')) return 404;
   if (code === 'INVALID_INPUT' || code === 'INVALID_BATTERY') return 400;
-  if (code === 'DEVICE_UNCONFIRMED') return 503;
-  if (['RETURN_NOT_CONFIRMED', 'VEHICLE_CODE_MISMATCH', 'RESERVATION_EXPIRED'].includes(code)) return 422;
+  if (['DEVICE_UNCONFIRMED', 'SNAPSHOT_UNAVAILABLE'].includes(code)) return 503;
+  if (['RETURN_NOT_CONFIRMED', 'VEHICLE_CODE_MISMATCH', 'RESERVATION_EXPIRED', 'INVALID_SCENARIO'].includes(code)) return 422;
   if (['IDEMPOTENCY_KEY_REUSED', 'RESERVATION_CONFLICT', 'VEHICLE_NOT_AVAILABLE', 'VEHICLE_CANNOT_PICKUP',
     'VEHICLE_NOT_IN_USE', 'SLOT_UNAVAILABLE', 'COMMAND_IN_PROGRESS', 'TRIP_NOT_ACTIVE', 'RETURN_PENDING'].includes(code)) return 409;
   return 500;
@@ -44,4 +44,4 @@ function createRentalRouter(service) {
   return router;
 }
 
-module.exports = { createRentalRouter };
+module.exports = { createRentalRouter, statusFor };

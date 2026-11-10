@@ -30,7 +30,7 @@ COMMIT;
 SQL
         version=1
         ;;
-    1|2|3|4|5|6|7|8) ;;
+    1|2|3|4|5|6|7|8|9) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -49,7 +49,7 @@ COMMIT;
 SQL
         version=2
         ;;
-    2|3|4|5|6|7|8) ;;
+    2|3|4|5|6|7|8|9) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -68,7 +68,7 @@ COMMIT;
 SQL
         version=3
         ;;
-    3|4|5|6|7|8) ;;
+    3|4|5|6|7|8|9) ;;
 esac
 
 case "$version" in
@@ -83,7 +83,7 @@ COMMIT;
 SQL
         version=4
         ;;
-    4|5|6|7|8) ;;
+    4|5|6|7|8|9) ;;
 esac
 
 case "$version" in
@@ -98,7 +98,7 @@ COMMIT;
 SQL
         version=5
         ;;
-    5|6|7|8) ;;
+    5|6|7|8|9) ;;
 esac
 
 case "$version" in
@@ -113,7 +113,7 @@ COMMIT;
 SQL
         version=6
         ;;
-    6|7|8) ;;
+    6|7|8|9) ;;
 esac
 
 case "$version" in
@@ -128,7 +128,7 @@ COMMIT;
 SQL
         version=7
         ;;
-    7|8) ;;
+    7|8|9) ;;
 esac
 
 case "$version" in
@@ -141,8 +141,23 @@ $mobility_sql
 PRAGMA user_version = 8;
 COMMIT;
 SQL
+        version=8
         ;;
-    8) ;;
+    8|9) ;;
+esac
+
+case "$version" in
+    8)
+        simulation_sql=$(cat "$script_dir/migrations/0009_simulation_results.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$simulation_sql
+PRAGMA user_version = 9;
+COMMIT;
+SQL
+        ;;
+    9) ;;
 esac
 
 printf '%s\n' "$database"

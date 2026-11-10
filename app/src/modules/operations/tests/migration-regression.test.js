@@ -17,7 +17,7 @@ test('fresh initialization applies all migrations and repeat is safe', t => {
   let result = run();
   assert.equal(result.status, 0, result.stderr);
   let db = new DatabaseSync(file);
-  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 8);
+  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 9);
   assert.ok(db.prepare("SELECT name FROM sqlite_schema WHERE name = 'transfers'").get());
   const count = db.prepare('SELECT count(*) AS n FROM mobility_hubs').get().n;
   db.close();

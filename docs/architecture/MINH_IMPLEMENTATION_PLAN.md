@@ -21,7 +21,7 @@ Operations PR #9 supplies Express, local demo identity, the SQLite adapter, migr
 
 - [x] Stage 1: UC01–02 discovery module, injected in-memory fixture, real inventory composition, permission checks and tests.
 - [x] Stage 2: UC03–05 reservations, expiry, pickup and return; durable idempotency and shared transactions; device confirmation through an adapter.
-- [ ] Stage 3: UC13–14 simulation against fixed snapshots; five scenario types, agreed parameters/metrics, reproducible computation and saved results.
+- [x] Stage 3: UC13–14 simulation against fixed snapshots; five scenario types, versioned demo parameters/metrics, reproducible computation and saved results.
 - [ ] Stage 4: Integrate remaining Mobility storage and live snapshots with module owners, then wire workflows with Ý. Verify cross-module capacity contention and desktop/emulated mobile behavior.
 
 ## Stage 1 delivery
@@ -50,3 +50,9 @@ Migration 0008 extends the existing demo SQL migration sequence. The server requ
 Operations exposes purpose-specific return claim/confirmation operations using the existing capacity ownership fields. The composition root shares its SQLite client and injects Mobility's trusted trip reader for UC11A.
 
 Verification: 18 Mobility tests and six existing demo server/authentication tests pass on Node.js 22.13.1. This includes complete authenticated HTTP reservation/pickup/incident/return, durable retry, transactional rollback, incorrect/expired codes, ownership, low battery and protected parking commitments. Full combined suite: 117 pass, the same two Windows shell migration failures and two optional-driver skips (121 total). The inherited shell migration limitation remains until the portable initializer work.
+
+## Stage 3 delivery
+
+Implemented all five scenario families with a seeded, bounded discrete-event engine. A versioned demo parameter schema records assumptions rather than claiming calibrated forecasts. A single composition-layer snapshot includes eligible rental vehicles and usable parking capacity. The engine changes private model state, and migration 0009 stores the full input snapshot and result for later viewing. Operator-only HTTP routes return baseline/projected metrics and recommendations; applying a recommendation is deliberately a separate live operation through the owning module.
+
+Verification includes fixed-snapshot reproducibility across all five scenarios, parameter sensitivity, finite charging power, malformed/oversized scenario rejection before capture, impossible port-failure rejection before persistence, durable same-key replay, saved-result retrieval without a snapshot provider, no live inventory mutation and Operator-only HTTP access. Mobility plus demo-server tests: 29 pass on Node.js 22.13.1. Combined suite: 122 pass, the same two native-Windows migration failures and two optional-driver skips (126 total).

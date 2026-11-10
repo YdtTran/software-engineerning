@@ -8,7 +8,7 @@ const { SimulatedDock } = require('./modules/mobility-simulation/infrastructure/
 const deriveKey = promisify(scrypt);
 
 function createApp({ db = null, client = null, demoAccounts, tripReader = null, chargingGuard = null,
-  secureCookies = true, deviceAdapter = null, simulateDevices = false } = {}) {
+  secureCookies = true, deviceAdapter = null, simulateDevices = false, simulationSnapshotProvider = null } = {}) {
   if (!Array.isArray(demoAccounts) || demoAccounts.length === 0) throw new Error('Provision at least one demo account.');
   const accounts = new Map();
   for (const account of demoAccounts) {
@@ -69,7 +69,16 @@ function createApp({ db = null, client = null, demoAccounts, tripReader = null, 
   const verifiedTripReader = tripReader || { getTrip: (id, transactionClient) => mobility.rentalRepository.getTrip(id, transactionClient) };
   const operations = createOperationsModule({ db, client, tripReader: verifiedTripReader, chargingGuard });
   const device = deviceAdapter || (simulateDevices ? new SimulatedDock(operations.inventoryInterface) : null);
-  mobility = createMobilitySimulationModule({ inventory: operations.inventoryInterface, client: operations.inventoryRepo.client, device });
+  const snapshotProvider = simulationSnapshotProvider || { capture: () => operations.inventoryRepo.client.transaction(async () => {
+    const snapshot = await operations.inventoryInterface.captureNetworkSnapshot();
+    const vehicles = [], slots = [];
+    for (const hub of snapshot.hubs) {
+      vehicles.push(...await operations.inventoryInterface.getAvailableVehicles(hub.id));
+      slots.push(...await operations.inventoryInterface.getAvailableSlots(hub.id));
+    }
+    return { ...snapshot, availableVehicleIds: vehicles.map(vehicle => vehicle.id), availableSlotIds: slots.map(slot => slot.id) };
+  }) };
+  mobility = createMobilitySimulationModule({ inventory: operations.inventoryInterface, client: operations.inventoryRepo.client, device, snapshotProvider });
   app.locals.mobility = mobility;
   app.use('/api/v1', operations.router);
   app.use('/api/v1', mobility.router);
