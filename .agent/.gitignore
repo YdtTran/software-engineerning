@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Scratch scripts & temporary runs
+scratch/
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Local agent run logs
+*.log
+
+# Local test & coverage outputs
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Local OS metadata
+.DS_Store
+Thumbs.db
