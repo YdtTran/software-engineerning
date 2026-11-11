@@ -294,3 +294,126 @@ test('rollback during arrival with failed replacement slot keeps transfer InTran
 
   db.close();
 });
+
+test('migration 0009 preserves explicitly known assignments and leaves ambiguous legacy records as NULL', async () => {
+  const db = new DatabaseSync(':memory:');
+  const base = path.resolve(__dirname, '../../../../db');
+  // Apply migrations 0001 through 0008
+  for (const f of [
+    'migrations/0001_hub_inventory.sql',
+    'seed.sql',
+    'migrations/0002_operations_schema.sql',
+    'migrations/0003_idempotency.sql',
+    'migrations/0004_inventory_ownership.sql',
+    'migrations/0005_parked_vehicle.sql',
+    'migrations/0006_parking_commitments.sql',
+    'migrations/0007_vehicle_pickup_claim.sql',
+    'migrations/0008_incident_isolation.sql'
+  ]) {
+    db.exec(fs.readFileSync(path.join(base, f), 'utf8'));
+  }
+
+  // 1. Create a Completed legacy transfer where physical assignment was opposite of insertion order
+  db.exec(`
+    INSERT INTO transfers (id, source_hub_id, destination_hub_id, status, created_at, departed_at, arrived_at, created_by)
+    VALUES ('trf-legacy-completed', 'metro', 'bku', 'Completed', '2026-01-01T00:00:00Z', '2026-01-01T00:10:00Z', '2026-01-01T00:30:00Z', 'op');
+    INSERT INTO transfer_vehicles (transfer_id, vehicle_id) VALUES ('trf-legacy-completed', 'EB-024');
+    INSERT INTO transfer_vehicles (transfer_id, vehicle_id) VALUES ('trf-legacy-completed', 'EB-031');
+    INSERT INTO transfer_destination_slots (transfer_id, slot_id) VALUES ('trf-legacy-completed', 'bku-A01');
+    INSERT INTO transfer_destination_slots (transfer_id, slot_id) VALUES ('trf-legacy-completed', 'bku-A02');
+    UPDATE parking_slots SET status = 'Occupied', occupancy_id = 'transfer:trf-legacy-completed:bku-A01', parked_vehicle_id = 'EB-031' WHERE id = 'bku-A01';
+    UPDATE parking_slots SET status = 'Occupied', occupancy_id = 'transfer:trf-legacy-completed:bku-A02', parked_vehicle_id = 'EB-024' WHERE id = 'bku-A02';
+  `);
+
+  // 2. Create an InTransit legacy transfer with unassigned slots (ambiguous historical record)
+  db.exec(`
+    INSERT INTO transfers (id, source_hub_id, destination_hub_id, status, created_at, departed_at, created_by)
+    VALUES ('trf-legacy-intransit', 'metro', 'bku', 'InTransit', '2026-01-01T01:00:00Z', '2026-01-01T01:10:00Z', 'op');
+    INSERT INTO transfer_vehicles (transfer_id, vehicle_id) VALUES ('trf-legacy-intransit', 'EB-100');
+    INSERT INTO transfer_vehicles (transfer_id, vehicle_id) VALUES ('trf-legacy-intransit', 'EB-101');
+    INSERT INTO transfer_destination_slots (transfer_id, slot_id) VALUES ('trf-legacy-intransit', 'bku-A03');
+    INSERT INTO transfer_destination_slots (transfer_id, slot_id) VALUES ('trf-legacy-intransit', 'bku-A04');
+    UPDATE electric_vehicles SET status = 'InTransit', transfer_hold_id = 'trf-legacy-intransit' WHERE id IN ('EB-100', 'EB-101');
+    UPDATE parking_slots SET status = 'Held', transfer_hold_id = 'trf-legacy-intransit' WHERE id IN ('bku-A03', 'bku-A04');
+  `);
+
+  // Apply migration 0009
+  db.exec(fs.readFileSync(path.join(base, 'migrations/0009_transfer_slot_assignment.sql'), 'utf8'));
+
+  // Verified: Completed transfer preserved physical assignment from parking_slots, not rowid
+  const assigned1 = db.prepare("SELECT assigned_vehicle_id FROM transfer_destination_slots WHERE transfer_id = 'trf-legacy-completed' AND slot_id = 'bku-A01'").get();
+  const assigned2 = db.prepare("SELECT assigned_vehicle_id FROM transfer_destination_slots WHERE transfer_id = 'trf-legacy-completed' AND slot_id = 'bku-A02'").get();
+  assert.equal(assigned1.assigned_vehicle_id, 'EB-031');
+  assert.equal(assigned2.assigned_vehicle_id, 'EB-024');
+
+  // Verified: InTransit legacy transfer left assigned_vehicle_id NULL (never falsely inferred)
+  const pending1 = db.prepare("SELECT assigned_vehicle_id FROM transfer_destination_slots WHERE transfer_id = 'trf-legacy-intransit' AND slot_id = 'bku-A03'").get();
+  const pending2 = db.prepare("SELECT assigned_vehicle_id FROM transfer_destination_slots WHERE transfer_id = 'trf-legacy-intransit' AND slot_id = 'bku-A04'").get();
+  assert.equal(pending1.assigned_vehicle_id, null);
+  assert.equal(pending2.assigned_vehicle_id, null);
+
+  // Repository safely handles ambiguous legacy record with null vehicleSlotAssignments
+  const repo = new SQLiteTransferRepository(new SQLiteClient(db));
+  const legacyTransfer = await repo.getTransferById('trf-legacy-intransit');
+  assert.equal(legacyTransfer.vehicleSlotAssignments, null);
+
+  // Arriving ambiguous legacy transfer pairs safely and records verified assignments
+  legacyTransfer.arrive({ observedVehicleIds: ['EB-100', 'EB-101'] });
+  await repo.arriveTransfer(legacyTransfer);
+
+  const arrivedSlot3 = db.prepare("SELECT status, parked_vehicle_id FROM parking_slots WHERE id = 'bku-A03'").get();
+  const arrivedSlot4 = db.prepare("SELECT status, parked_vehicle_id FROM parking_slots WHERE id = 'bku-A04'").get();
+  assert.equal(arrivedSlot3.status, 'Occupied');
+  assert.equal(arrivedSlot3.parked_vehicle_id, 'EB-100');
+  assert.equal(arrivedSlot4.status, 'Occupied');
+  assert.equal(arrivedSlot4.parked_vehicle_id, 'EB-101');
+
+  const arrivedTds3 = db.prepare("SELECT assigned_vehicle_id FROM transfer_destination_slots WHERE transfer_id = 'trf-legacy-intransit' AND slot_id = 'bku-A03'").get();
+  assert.equal(arrivedTds3.assigned_vehicle_id, 'EB-100');
+
+  db.close();
+});
+
+test('ambiguous legacy Planned transfer can be cancelled safely releasing holds', async () => {
+  const db = new DatabaseSync(':memory:');
+  const base = path.resolve(__dirname, '../../../../db');
+  for (const f of [
+    'migrations/0001_hub_inventory.sql',
+    'seed.sql',
+    'migrations/0002_operations_schema.sql',
+    'migrations/0003_idempotency.sql',
+    'migrations/0004_inventory_ownership.sql',
+    'migrations/0005_parked_vehicle.sql',
+    'migrations/0006_parking_commitments.sql',
+    'migrations/0007_vehicle_pickup_claim.sql',
+    'migrations/0008_incident_isolation.sql'
+  ]) {
+    db.exec(fs.readFileSync(path.join(base, f), 'utf8'));
+  }
+
+  db.exec(`
+    INSERT INTO transfers (id, source_hub_id, destination_hub_id, status, created_at, created_by)
+    VALUES ('trf-legacy-plan', 'metro', 'bku', 'Planned', '2026-01-01T01:00:00Z', 'op');
+    INSERT INTO transfer_vehicles (transfer_id, vehicle_id) VALUES ('trf-legacy-plan', 'EB-024');
+    INSERT INTO transfer_destination_slots (transfer_id, slot_id) VALUES ('trf-legacy-plan', 'bku-A01');
+    UPDATE electric_vehicles SET status = 'TransferHeld', transfer_hold_id = 'trf-legacy-plan' WHERE id = 'EB-024';
+    UPDATE parking_slots SET status = 'Held', transfer_hold_id = 'trf-legacy-plan' WHERE id = 'bku-A01';
+  `);
+
+  db.exec(fs.readFileSync(path.join(base, 'migrations/0009_transfer_slot_assignment.sql'), 'utf8'));
+
+  const repo = new SQLiteTransferRepository(new SQLiteClient(db));
+  const transfer = await repo.getTransferById('trf-legacy-plan');
+  assert.equal(transfer.vehicleSlotAssignments, null);
+
+  transfer.cancel({ reason: 'Legacy cancelled' });
+  await repo.cancelTransfer(transfer);
+
+  assert.equal(db.prepare("SELECT status FROM transfers WHERE id = 'trf-legacy-plan'").get().status, 'Cancelled');
+  assert.equal(db.prepare("SELECT status, transfer_hold_id FROM electric_vehicles WHERE id = 'EB-024'").get().status, 'Available');
+  assert.equal(db.prepare("SELECT status, transfer_hold_id FROM electric_vehicles WHERE id = 'EB-024'").get().transfer_hold_id, null);
+  assert.equal(db.prepare("SELECT status, transfer_hold_id FROM parking_slots WHERE id = 'bku-A01'").get().status, 'Available');
+  assert.equal(db.prepare("SELECT status, transfer_hold_id FROM parking_slots WHERE id = 'bku-A01'").get().transfer_hold_id, null);
+
+  db.close();
+});

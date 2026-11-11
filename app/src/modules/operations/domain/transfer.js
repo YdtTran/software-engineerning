@@ -36,7 +36,7 @@ class Transfer {
     status = TransferStatus.PLANNED,
     vehicleIds = [],
     destinationSlotIds = [],
-    vehicleSlotAssignments = null,
+    vehicleSlotAssignments = undefined,
     createdAt = new Date().toISOString(),
     departedAt = null,
     arrivedAt = null,
@@ -82,7 +82,10 @@ class Transfer {
     this.vehicleIds = [...vehicleIds];
     this.destinationSlotIds = [...destinationSlotIds];
 
-    if (Array.isArray(vehicleSlotAssignments) && vehicleSlotAssignments.length > 0) {
+    if (vehicleSlotAssignments === null) {
+      // Ambiguous legacy records with unverified assignments remain null
+      this.vehicleSlotAssignments = null;
+    } else if (Array.isArray(vehicleSlotAssignments) && vehicleSlotAssignments.length > 0) {
       if (vehicleSlotAssignments.length !== vehicleIds.length) {
         throw new DomainError('INVALID_INPUT', 'Vehicle-to-slot assignments count must match vehicle count.');
       }
@@ -300,6 +303,11 @@ class Transfer {
         throw new DomainError('INVALID_INPUT', 'Arrival vehicle-to-slot assignments must be a 1-to-1 bijection.');
       }
       this.vehicleSlotAssignments = vehicleSlotAssignments.map(a => ({ vehicleId: a.vehicleId, slotId: a.slotId }));
+    } else if (!this.vehicleSlotAssignments) {
+      this.vehicleSlotAssignments = this.vehicleIds.map((vId, idx) => ({
+        vehicleId: vId,
+        slotId: this.destinationSlotIds[idx]
+      }));
     }
 
     this.status = TransferStatus.COMPLETED;

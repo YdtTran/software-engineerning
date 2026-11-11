@@ -90,10 +90,13 @@ class SQLiteTransferRepository {
 
     const vehicleIds = vehicleRows.map(r => r.vehicle_id);
     const destinationSlotIds = slotRows.map(r => r.slot_id);
-    const vehicleSlotAssignments = slotRows.map((r, idx) => ({
-      slotId: r.slot_id,
-      vehicleId: r.assigned_vehicle_id || vehicleIds[idx]
-    }));
+    const hasUnassigned = slotRows.some(r => !r.assigned_vehicle_id);
+    const vehicleSlotAssignments = hasUnassigned
+      ? null
+      : slotRows.map(r => ({
+          slotId: r.slot_id,
+          vehicleId: r.assigned_vehicle_id
+        }));
 
     return new Transfer({
       id: row.id,
@@ -220,6 +223,10 @@ class SQLiteTransferRepository {
       for (const assignment of transfer.vehicleSlotAssignments) {
         const slotId = assignment.slotId;
         const vehicleId = assignment.vehicleId;
+        await this.client.run(
+          `UPDATE transfer_destination_slots SET assigned_vehicle_id = ? WHERE transfer_id = ? AND slot_id = ?;`,
+          [vehicleId, transfer.id, slotId]
+        );
         const updated = await this.client.run(
           `UPDATE parking_slots SET status = 'Occupied', transfer_hold_id = NULL, occupancy_id = ?, parked_vehicle_id = ?
            WHERE id = ? AND hub_id = ? AND status IN ('Held', 'held_for_transfer') AND transfer_hold_id = ?;`,

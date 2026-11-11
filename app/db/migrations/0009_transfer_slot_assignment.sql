@@ -6,7 +6,7 @@ ALTER TABLE transfer_vehicles ADD COLUMN vehicle_order INTEGER;
 ALTER TABLE transfer_destination_slots ADD COLUMN slot_order INTEGER;
 ALTER TABLE transfer_destination_slots ADD COLUMN assigned_vehicle_id TEXT REFERENCES electric_vehicles(id);
 
--- Backfill deterministic ordering and vehicle assignments for existing transfers based on insertion rowid
+-- Backfill deterministic ordering for existing transfers based on insertion rowid
 UPDATE transfer_vehicles
 SET vehicle_order = (
     SELECT COUNT(*) FROM transfer_vehicles tv2
@@ -21,11 +21,15 @@ SET slot_order = (
 ) - 1
 WHERE slot_order IS NULL;
 
+-- Backfill explicitly known vehicle-to-slot assignments from actual physical parking records.
+-- Never silently infer uncertain historical associations as verified facts for ambiguous legacy records.
 UPDATE transfer_destination_slots
 SET assigned_vehicle_id = (
-    SELECT tv.vehicle_id
-    FROM transfer_vehicles tv
-    WHERE tv.transfer_id = transfer_destination_slots.transfer_id
-      AND tv.vehicle_order = transfer_destination_slots.slot_order
+    SELECT ps.parked_vehicle_id
+    FROM parking_slots ps
+    WHERE ps.occupancy_id = 'transfer:' || transfer_destination_slots.transfer_id || ':' || transfer_destination_slots.slot_id
+      AND ps.parked_vehicle_id IN (
+          SELECT tv.vehicle_id FROM transfer_vehicles tv WHERE tv.transfer_id = transfer_destination_slots.transfer_id
+      )
 )
 WHERE assigned_vehicle_id IS NULL;
