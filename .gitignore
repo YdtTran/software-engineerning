@@ -25,6 +25,8 @@ node_modules/
 __pycache__/
 *.pyc
 
-# Local SQLite data and temporary UML exports
+# Local SQLite data, temporary UML exports, and Archify runs
 /app/db/.local/
 /.diagram-exports/
+/.archify/
+/.agents/skills/archify/
