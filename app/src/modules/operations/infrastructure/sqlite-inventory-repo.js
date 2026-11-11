@@ -229,6 +229,34 @@ class SQLiteInventoryRepository extends InventoryInterface {
     });
   }
 
+  async claimVehicleReturn(vehicleId, tripId, slotId, hubId, commandId) {
+    return this.client.transaction(async () => {
+      const vehicle = await this.client.get("SELECT id FROM electric_vehicles WHERE id=? AND trip_id=? AND status IN ('InUse','in_use')", [vehicleId, tripId]);
+      if (!vehicle) throw new DomainError('VEHICLE_NOT_IN_USE', 'Vehicle does not belong to this active trip.');
+      const now = new Date().toISOString();
+      const result = await this.client.run(`UPDATE parking_slots SET status='Held', reservation_id=?
+        WHERE id=? AND hub_id=? AND status IN ('Available','available') AND reservation_id IS NULL
+        AND occupancy_id IS NULL AND parked_vehicle_id IS NULL AND transfer_hold_id IS NULL
+        AND NOT EXISTS (SELECT 1 FROM parking_commitments WHERE slot_id=parking_slots.id AND ends_at > ?
+          AND ((status='Reserved' AND expires_at > ?) OR (status='Fulfilled' AND released_at IS NULL)))
+        AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind='slot' AND resource_id=parking_slots.id
+          AND LOWER(status) NOT IN ('resolved','closed'))`, [commandId, slotId, hubId, now, now]);
+      if (result.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', 'Destination capacity is unavailable.');
+    });
+  }
+
+  async confirmVehicleReturn(vehicleId, tripId, slotId, hubId, commandId, batteryPercent) {
+    return this.client.transaction(async () => {
+      const claim = await this.client.run(`UPDATE parking_slots SET status='Available', reservation_id=NULL
+        WHERE id=? AND hub_id=? AND status='Held' AND reservation_id=?
+        AND occupancy_id IS NULL AND parked_vehicle_id IS NULL AND transfer_hold_id IS NULL
+        AND NOT EXISTS (SELECT 1 FROM incidents WHERE resource_kind='slot' AND resource_id=parking_slots.id
+          AND LOWER(status) NOT IN ('resolved','closed'))`, [slotId, hubId, commandId]);
+      if (claim.changes !== 1) throw new DomainError('SLOT_UNAVAILABLE', 'Return claim no longer belongs to this command.');
+      await this.returnVehicle(vehicleId, hubId, slotId, batteryPercent, tripId);
+    });
+  }
+
   // =========================================================================
   // PARKING & CHARGING CONTRACT (Triết)
   // =========================================================================

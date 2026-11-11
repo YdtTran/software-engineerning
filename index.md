@@ -10,5 +10,6 @@
 | UML conventions | [Course standards](docs/standards/) |
 | Reports and architecture | [Reports](docs/reports/), [architecture decisions](docs/architecture/DECISION.md) |
 | MVP implementation | [API contracts](docs/architecture/API_CONTRACTS.md), [four-module development guide](docs/architecture/DEVELOPMENT_GUIDE.md) |
+| Run Minh's implemented workflows | [Windows demo walkthrough](docs/architecture/MINH_DEMO_GUIDE.md), [stage plan](docs/architecture/MINH_IMPLEMENTATION_PLAN.md) |
 | Prototype and SQLite setup | [Prototype](app/prototype/README.md), [SQLite scaffold](app/db/README.md) |
 | Change proposals | [OpenSpec](openspec/) |

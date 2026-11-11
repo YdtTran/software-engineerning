@@ -15,6 +15,16 @@ class InventoryInterface {
   // MOBILITY MODULE CONTRACT (Minh: UC01 - UC05)
   // =========================================================================
 
+  /** List hubs for UC01. Location is optional until Operations provides it. */
+  async listHubs() {
+    throw new Error('Not implemented: listHubs');
+  }
+
+  /** Return a hub by its opaque ID, or null/undefined when it does not exist. */
+  async getHubById(hubId) {
+    throw new Error('Not implemented: getHubById');
+  }
+
   /**
    * Get all currently available shared vehicles at a given Hub.
    * @param {string} hubId
@@ -87,6 +97,16 @@ class InventoryInterface {
    */
   async returnVehicle(vehicleId, destinationHubId, slotId, finalBatteryPercent, tripId, slotReservationId = null) {
     throw new Error('Not implemented: returnVehicle');
+  }
+
+  /** Claim an uncommitted destination before return-device I/O. */
+  async claimVehicleReturn(vehicleId, tripId, slotId, hubId, commandId) {
+    throw new Error('Not implemented: claimVehicleReturn');
+  }
+
+  /** Consume only that return command's claim after verified arrival and lock. */
+  async confirmVehicleReturn(vehicleId, tripId, slotId, hubId, commandId, batteryPercent) {
+    throw new Error('Not implemented: confirmVehicleReturn');
   }
 
   // =========================================================================

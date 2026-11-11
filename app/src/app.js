@@ -1,11 +1,15 @@
 const express = require('express');
+const path = require('node:path');
 const { randomBytes, scrypt, timingSafeEqual } = require('node:crypto');
 const { promisify } = require('node:util');
 const { createOperationsModule } = require('./modules/operations');
+const { createMobilitySimulationModule } = require('./modules/mobility-simulation');
+const { SimulatedDock } = require('./modules/mobility-simulation/infrastructure/simulated-dock');
 
 const deriveKey = promisify(scrypt);
 
-function createApp({ db = null, client = null, demoAccounts, tripReader = null, chargingGuard = null, isolationVerifier = null, secureCookies = true } = {}) {
+function createApp({ db = null, client = null, demoAccounts, tripReader = null, chargingGuard = null, isolationVerifier = null,
+  secureCookies = true, deviceAdapter = null, simulateDevices = false, simulationSnapshotProvider = null } = {}) {
   if (!Array.isArray(demoAccounts) || demoAccounts.length === 0) throw new Error('Provision at least one demo account.');
   const accounts = new Map();
   for (const account of demoAccounts) {
@@ -62,7 +66,33 @@ function createApp({ db = null, client = null, demoAccounts, tripReader = null, 
     res.clearCookie('demo_session', { httpOnly: true, sameSite: 'strict', secure: secureCookies, path: '/' });
     return res.status(200).json({ data: { signedOut: true } });
   });
-  app.use('/api/v1', createOperationsModule({ db, client, tripReader, chargingGuard, isolationVerifier }).router);
+  app.get('/api/v1/session', (req, res) => {
+    if (!req.user) return res.status(401).json({ error: { code: 'UNAUTHENTICATED', message: 'Authentication is required.', details: {} } });
+    return res.status(200).json({ data: req.user });
+  });
+  let mobility;
+  const verifiedTripReader = tripReader || { getTrip: (id, transactionClient) => mobility.rentalRepository.getTrip(id, transactionClient) };
+  const operations = createOperationsModule({ db, client, tripReader: verifiedTripReader, chargingGuard, isolationVerifier });
+  const device = deviceAdapter || (simulateDevices ? new SimulatedDock(operations.inventoryInterface) : null);
+  const snapshotProvider = simulationSnapshotProvider || { capture: () => operations.inventoryRepo.client.transaction(async () => {
+    const snapshot = await operations.inventoryInterface.captureNetworkSnapshot();
+    const vehicles = [], slots = [];
+    for (const hub of snapshot.hubs) {
+      vehicles.push(...await operations.inventoryInterface.getAvailableVehicles(hub.id));
+      slots.push(...await operations.inventoryInterface.getAvailableSlots(hub.id));
+    }
+    return { ...snapshot, availableVehicleIds: vehicles.map(vehicle => vehicle.id), availableSlotIds: slots.map(slot => slot.id) };
+  }) };
+  mobility = createMobilitySimulationModule({ inventory: operations.inventoryInterface, client: operations.inventoryRepo.client, device, snapshotProvider });
+  app.locals.mobility = mobility;
+  app.use('/api/v1', operations.router);
+  app.use('/api/v1', mobility.router);
+  app.get('/', (req, res) => res.redirect('/user-app.html'));
+  app.get(['/user-app.html', '/operator-app.html', '/operator-web.html'], (req, res) => {
+    const experience = path.basename(req.path, '.html');
+    return res.redirect('/live.html?experience=' + experience);
+  });
+  app.use(express.static(path.resolve(__dirname, '../prototype'), { index: false, dotfiles: 'deny' }));
   app.use((req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found.', details: {} } }));
   app.use((err, req, res, next) => {
     const status = err.type === 'entity.parse.failed' ? 400 : err.type === 'entity.too.large' ? 413 : 500;

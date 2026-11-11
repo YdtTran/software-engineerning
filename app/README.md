@@ -1,31 +1,59 @@
-# Operations demo backend
+# Smart E-Mobility Hub demo
 
-The demo server uses Express and Node's built-in `node:sqlite` adapter. This is a local demo adapter, not a decision on the project's production SQLite driver. Node.js 22 or newer and the `sqlite3` CLI are required.
+One Express application serves Operations and Mobility/Simulation (UC01–05, UC13–14), the User mobile interface and Operator desktop/mobile interfaces. See the [Vietnamese demo walkthrough](../docs/architecture/MINH_DEMO_GUIDE.md) for setup and workflows.
 
-```sh
+## Run on Windows
+
+Use Node.js 22 or 24 with `node` and `npm` on PATH. The demo uses Node's built-in SQLite adapter; a production driver is still a separate decision. No SQLite CLI is needed for initialization.
+
+From the repository root:
+
+```powershell
 npm ci --prefix app
-./app/db/init.sh
+npm run db:init --prefix app
+.\app\provision-demo.ps1
+
+$env:DEMO_ACCOUNTS_FILE = (Resolve-Path app/db/.local/demo-accounts.json).Path
+$env:DEMO_DB_PATH = (Resolve-Path app/db/.local/hub.sqlite).Path
+$env:DEMO_INSECURE_HTTP = '1'
+$env:DEMO_SIMULATED_DEVICES = '1'
+npm start --prefix app
 ```
 
-Provision at least one account outside Git. The helper accepts a password on standard input, writes only a salted scrypt hash, and emits a one-account JSON array. For example, supply the password from a secure input source and restrict the output file permissions:
+The provisioning script prompts privately for two passwords, creating `user` (User) and `operator` (Operator). It stores salted hashes only and refuses to overwrite an existing account file. Accounts and SQLite data are ignored by Git. Alternatively, provision accounts with `node app/src/hash-demo-account.js USERNAME ID user[,operator]`, supplying the password on standard input and combining emitted account objects into a JSON array outside Git.
 
-```sh
-mkdir -p app/db/.local
-(umask 077; node app/src/hash-demo-account.js demo-operator op-1 operator < /path/to/password-source > app/db/.local/demo-accounts.json)
+Open these entry points at `http://127.0.0.1:3000`:
+
+| Path | Experience |
+|---|---|
+| `/user-app.html` | User mobile layout: find/reserve/pickup/return, own history and trip incidents |
+| `/operator-app.html` | Operator mobile layout: run/reopen simulations and review transfer recommendations |
+| `/operator-web.html` | Operator desktop layout with the same permissions |
+| `/index.html` | Original offline design viewer; mock behavior remains separate |
+
+The demo binds to `127.0.0.1`; use browser mobile emulation for a PC-only demonstration. `DEMO_PORT` changes the port. Phone-over-Wi-Fi deployment and HTTPS configuration are not included in this local launcher.
+
+## Identity, storage and devices
+
+GET `/api/v1/session` restores identity, POST creates a session from username/password, and DELETE signs out. Sessions are held in server memory and expire after eight hours or restart. Cookies are HttpOnly and SameSite=Strict; cookie-authenticated writes require matching Origin. Business writes additionally require an Idempotency-Key. Actor headers and the selected UI experience never grant permission. User-owned reads are filtered by authenticated identity.
+
+`DEMO_INSECURE_HTTP=1` allows local HTTP cookies and is rejected under `NODE_ENV=production`. Without it, Secure cookies require a suitable HTTPS deployment. This server does not configure TLS or production authentication.
+
+The current database version is 10: upstream 0008 records incident-isolation verification, 0009 adds Mobility lifecycle/command/outcome tables, and 0010 persists simulations. The initializer upgrades databases from earlier draft versions 8/9 without deleting their records. SQL contents are preserved; see [database notes](db/README.md).
+
+Device simulation is opt-in. Without a trusted device adapter, pickup/return fails closed. The demo confirms arrival/lock without actual IoT hardware and leaves distance null without a measured odometer. Uncertain commands preserve claims for trusted reconciliation. The expiry job scans unclaimed vehicle reservations every 30 seconds and persists expiry/uncertainty events in a local outbox; automatic external notification delivery is not implemented.
+
+Mobility supplies the trusted trip reader for UC11A. Simulation uses a consistent, immutable network snapshot and never applies recommendations automatically. Reviewed transfer recommendations call the normal Operations API, which rechecks current resources and creates a Planned transfer. Parking/Charging APIs and real isolation/device verification still require their owning module integrations. The live UI exposes the implemented workflows and transfer review.
+
+## Verify
+
+```powershell
+npm run test:mobility --prefix app
+npm test --prefix app
 ```
 
-For multiple accounts, combine the generated account objects in one JSON array. Roles are `user` and `operator`; an account may have both. Never commit credentials or password sources. No demo account or password is created by default.
+For the browser test, set `LIVE_PLAYWRIGHT` to an installed Playwright module path; Edge is required. Without Playwright the browser test reports a skip. `LIVE_SCREENSHOT_DIR` optionally saves screenshots. The optional `better-sqlite3`/`sqlite3` driver tests skip when those packages are absent.
 
-For HTTP on the local machine only:
+The full history and stage evidence are in [Minh's plan](../docs/architecture/MINH_IMPLEMENTATION_PLAN.md). Migration tests now run portably through Node, and the SQLite adapter distinguishes newer synchronous serialization APIs from callback drivers.
 
-```sh
-DEMO_ACCOUNTS_FILE=app/db/.local/demo-accounts.json \
-DEMO_DB_PATH=app/db/.local/hub.sqlite \
-DEMO_INSECURE_HTTP=1 node app/src/demo-server.js
-```
-
-The server binds to `127.0.0.1` and defaults to port 3000; `DEMO_PORT` changes the port. `DEMO_INSECURE_HTTP=1` disables the Secure cookie attribute for local HTTP and is rejected when `NODE_ENV=production`. Without it, cookies have the Secure attribute and require a suitable HTTPS deployment. The demo server does not configure TLS. Demo sessions are held in server memory and expire after eight hours or restart. POST `/api/v1/session` with JSON `{ "username": "...", "password": "..." }`; DELETE the same path to sign out. Protected operations use the resulting HttpOnly, SameSite=Strict cookie and do not trust actor headers. Cookie-authenticated writes require a matching `Origin`; business writes also require `Idempotency-Key`.
-
-The server mounts Operations but does not implement Mobility, Parking/Charging or production identity. Trip reports and charging transitions fail closed until their trusted integrations are supplied to `createApp`. The existing frontend remains a prototype and is not wired to this server.
-
-Run `npm test --prefix app`; tests for optional SQLite drivers are skipped unless the drivers are available. The detailed integration limits are documented in [Operations](src/modules/operations/README.md).
+Final verification with Playwright enabled: 133 pass, zero failures and two optional-driver skips on both Node.js 22.13.1 and 24.19.0. The account provisioning helper was also checked with isolated fixture accounts, including password-hash verification.

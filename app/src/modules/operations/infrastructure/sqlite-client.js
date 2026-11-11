@@ -21,7 +21,10 @@ class SQLiteClient {
       throw new Error('SQLiteClient requires a database connection instance.');
     }
     this.db = db;
-    this.callbackDriver = typeof db.serialize === 'function' && typeof db.transaction !== 'function';
+    // node:sqlite also exposes serialize() in newer runtimes; sqlite3's
+    // callback driver is distinguished by its run/all methods as well.
+    this.callbackDriver = typeof db.serialize === 'function' && typeof db.run === 'function' &&
+      typeof db.all === 'function' && typeof db.transaction !== 'function';
     this.context = new AsyncLocalStorage();
     this.pending = Promise.resolve();
     this.savepointId = 0;
