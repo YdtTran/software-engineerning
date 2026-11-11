@@ -74,7 +74,9 @@ const MIGRATION_FILES = [
   'migrations/0006_parking_commitments.sql',
   'migrations/0007_vehicle_pickup_claim.sql',
   'migrations/0008_incident_isolation.sql',
-  'migrations/0009_transfer_slot_assignment.sql'
+  'migrations/0009_transfer_slot_assignment.sql',
+  'migrations/0010_mobility_lifecycle.sql',
+  'migrations/0011_simulation_results.sql'
 ];
 
 function applyMigrations(db, baseDir = path.resolve(__dirname, '../../../../../db')) {

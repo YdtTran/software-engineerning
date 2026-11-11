@@ -14,14 +14,28 @@ if (process.env.DEMO_INSECURE_HTTP === '1' && process.env.NODE_ENV === 'producti
 if (!fs.statSync(databaseFile).isFile()) throw new Error('The initialized database file is required.');
 const demoAccounts = JSON.parse(fs.readFileSync(accountFile, 'utf8'));
 const db = new DatabaseSync(databaseFile);
-if (db.prepare('PRAGMA user_version').get().user_version !== 9) {
+if (db.prepare('PRAGMA user_version').get().user_version !== 11) {
   db.close();
   throw new Error('Initialize or migrate the database before starting the demo server.');
 }
-const app = createApp({ db, demoAccounts, secureCookies: process.env.DEMO_INSECURE_HTTP !== '1' });
+const app = createApp({
+  db,
+  demoAccounts,
+  secureCookies: process.env.DEMO_INSECURE_HTTP !== '1',
+  simulateDevices: process.env.DEMO_SIMULATED_DEVICES === '1'
+});
+const expiryTimer = setInterval(() => {
+  if (app.locals.mobility?.rentalService?.expireReservations) {
+    app.locals.mobility.rentalService.expireReservations().catch(() => process.stderr.write('Reservation expiry scan failed.\n'));
+  }
+}, 30000);
+expiryTimer.unref();
 const server = app.listen(Number(portText), '127.0.0.1', () => {
   process.stdout.write(`Demo server listening on 127.0.0.1:${server.address().port}\n`);
 });
 for (const signal of ['SIGINT', 'SIGTERM']) {
-  process.on(signal, () => server.close(() => { db.close(); process.exit(0); }));
+  process.on(signal, () => {
+    clearInterval(expiryTimer);
+    server.close(() => { db.close(); process.exit(0); });
+  });
 }

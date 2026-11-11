@@ -9,6 +9,11 @@ case "$database" in
 esac
 
 mkdir -p -- "$(dirname -- "$database_file")"
+
+if ! command -v sqlite3 >/dev/null 2>&1; then
+    exec node "$script_dir/initialize.js" "$@"
+fi
+
 version=$(sqlite3 -batch -bail "$database_file" 'PRAGMA user_version;')
 
 case "$version" in
@@ -30,7 +35,7 @@ COMMIT;
 SQL
         version=1
         ;;
-    1|2|3|4|5|6|7|8|9) ;;
+    1|2|3|4|5|6|7|8|9|10|11) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -49,7 +54,7 @@ COMMIT;
 SQL
         version=2
         ;;
-    2|3|4|5|6|7|8|9) ;;
+    2|3|4|5|6|7|8|9|10|11) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -68,7 +73,7 @@ COMMIT;
 SQL
         version=3
         ;;
-    3|4|5|6|7|8|9) ;;
+    3|4|5|6|7|8|9|10|11) ;;
 esac
 
 case "$version" in
@@ -83,7 +88,7 @@ COMMIT;
 SQL
         version=4
         ;;
-    4|5|6|7|8|9) ;;
+    4|5|6|7|8|9|10|11) ;;
 esac
 
 case "$version" in
@@ -98,7 +103,7 @@ COMMIT;
 SQL
         version=5
         ;;
-    5|6|7|8|9) ;;
+    5|6|7|8|9|10|11) ;;
 esac
 
 case "$version" in
@@ -113,7 +118,7 @@ COMMIT;
 SQL
         version=6
         ;;
-    6|7|8|9) ;;
+    6|7|8|9|10|11) ;;
 esac
 
 case "$version" in
@@ -128,7 +133,7 @@ COMMIT;
 SQL
         version=7
         ;;
-    7|8|9) ;;
+    7|8|9|10|11) ;;
 esac
 
 case "$version" in
@@ -143,7 +148,7 @@ COMMIT;
 SQL
         version=8
         ;;
-    8|9) ;;
+    8|9|10|11) ;;
 esac
 
 case "$version" in
@@ -156,8 +161,39 @@ $slot_assignment_sql
 PRAGMA user_version = 9;
 COMMIT;
 SQL
+        version=9
         ;;
-    9) ;;
+    9|10|11) ;;
+esac
+
+case "$version" in
+    9)
+        mobility_sql=$(cat "$script_dir/migrations/0010_mobility_lifecycle.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$mobility_sql
+PRAGMA user_version = 10;
+COMMIT;
+SQL
+        version=10
+        ;;
+    10|11) ;;
+esac
+
+case "$version" in
+    10)
+        sim_sql=$(cat "$script_dir/migrations/0011_simulation_results.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$sim_sql
+PRAGMA user_version = 11;
+COMMIT;
+SQL
+        version=11
+        ;;
+    11) ;;
 esac
 
 printf '%s\n' "$database"

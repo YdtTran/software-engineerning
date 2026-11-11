@@ -17,8 +17,10 @@ test('fresh initialization applies all migrations and repeat is safe', t => {
   let result = run();
   assert.equal(result.status, 0, result.stderr);
   let db = new DatabaseSync(file);
-  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 9);
+  assert.equal(db.prepare('PRAGMA user_version').get().user_version, 11);
   assert.ok(db.prepare("SELECT name FROM sqlite_schema WHERE name = 'transfers'").get());
+  assert.ok(db.prepare("SELECT name FROM sqlite_schema WHERE name = 'vehicle_reservations'").get());
+  assert.ok(db.prepare("SELECT name FROM sqlite_schema WHERE name = 'simulation_results'").get());
   const count = db.prepare('SELECT count(*) AS n FROM mobility_hubs').get().n;
   db.close();
   result = run();
@@ -46,7 +48,7 @@ test('version 1 upgrades without data loss and failed migration rolls back', t =
   assert.equal(db.prepare("SELECT count(*) AS n FROM pragma_table_info('electric_vehicles') WHERE name='status'").get().n,0); db.close();
   fs.writeFileSync(migration,sql);
   const result=run(); assert.equal(result.status,0,result.stderr);
-  db=new DatabaseSync(file); assert.equal(db.prepare('PRAGMA user_version').get().user_version,9);
+  db=new DatabaseSync(file); assert.equal(db.prepare('PRAGMA user_version').get().user_version, 11);
   assert.equal(db.prepare("SELECT name FROM mobility_hubs WHERE id='custom'").get().name,'Preserved'); db.close();
 });
 
