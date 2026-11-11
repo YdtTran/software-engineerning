@@ -61,10 +61,12 @@ The local demo uses the versioned `demo-des-v1` schema documented in [Simulation
 | UC06-S3 | U, O | GET /parking-occupancies/{id} | → occupancy record |
 | UC07 | U | POST /charging-requests | `occupancyId, targetBatteryPercent, [requestedStart]` → request ID and status |
 | UC07 | U, O | GET /charging-requests/{id} | → request status and allocation/session IDs when present |
+| UC07 | U | POST /charging-requests/{id}/cancel | → request ID and `Cancelled` status (releases unenergized port hold; rejects `Active`/`Stopping` with 409) |
 | UC07A | U | POST /charging-sessions/{id}/stop | → session ID, status, stop time, request status |
 | UC07A | U, O | GET /charging-sessions/{id} | → session status and connector status |
 | UC12 | O | GET /hubs/{hubId}/charging-schedule | → queue, time windows, port and power allocations |
 | UC12 | O | POST /charging-requests/{id}/allocate | `portId, startAt, endAt, powerKw` → allocation ID and request status |
+| UC12 | O | POST /hubs/{hubId}/charging-schedule/override | `overrides` (`[{ requestId, priorityRank }]`) → updated prioritized hub schedule |
 
 - BR08 and BR08a govern interval conflicts, pool compatibility, arrival and cancellation windows. Check-in moves the reservation to `Fulfilled` and creates exactly one occupancy after verified arrival. Record the operator identity on assisted actions.
 - Use `409 SLOT_OCCUPIED` for LIM-01. Preserve occupancy and commitments. Report the conflict to Operations and return compatible alternatives when available. Checkout requires verified departure and safe charging disconnection. End only the current occupancy, preserve future commitments and record BR08b fees when calculable.

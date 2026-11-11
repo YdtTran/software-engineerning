@@ -4,7 +4,7 @@ set -eu
 script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 database=${1:-"$script_dir/.local/hub.sqlite"}
 case "$database" in
-    /*) database_file=$database ;;
+    /*|[A-Za-z]:*) database_file=$database ;;
     *) database_file=./$database ;;
 esac
 
@@ -35,7 +35,7 @@ COMMIT;
 SQL
         version=1
         ;;
-    1|2|3|4|5|6|7|8|9|10|11) ;;
+    1|2|3|4|5|6|7|8|9|10|11|12) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -54,7 +54,7 @@ COMMIT;
 SQL
         version=2
         ;;
-    2|3|4|5|6|7|8|9|10|11) ;;
+    2|3|4|5|6|7|8|9|10|11|12) ;;
     *)
         printf 'Unsupported database version %s in %s\n' "$version" "$database" >&2
         exit 1
@@ -73,7 +73,7 @@ COMMIT;
 SQL
         version=3
         ;;
-    3|4|5|6|7|8|9|10|11) ;;
+    3|4|5|6|7|8|9|10|11|12) ;;
 esac
 
 case "$version" in
@@ -88,7 +88,7 @@ COMMIT;
 SQL
         version=4
         ;;
-    4|5|6|7|8|9|10|11) ;;
+    4|5|6|7|8|9|10|11|12) ;;
 esac
 
 case "$version" in
@@ -103,7 +103,7 @@ COMMIT;
 SQL
         version=5
         ;;
-    5|6|7|8|9|10|11) ;;
+    5|6|7|8|9|10|11|12) ;;
 esac
 
 case "$version" in
@@ -118,7 +118,7 @@ COMMIT;
 SQL
         version=6
         ;;
-    6|7|8|9|10|11) ;;
+    6|7|8|9|10|11|12) ;;
 esac
 
 case "$version" in
@@ -133,7 +133,7 @@ COMMIT;
 SQL
         version=7
         ;;
-    7|8|9|10|11) ;;
+    7|8|9|10|11|12) ;;
 esac
 
 case "$version" in
@@ -148,7 +148,7 @@ COMMIT;
 SQL
         version=8
         ;;
-    8|9|10|11) ;;
+    8|9|10|11|12) ;;
 esac
 
 case "$version" in
@@ -163,7 +163,7 @@ COMMIT;
 SQL
         version=9
         ;;
-    9|10|11) ;;
+    9|10|11|12) ;;
 esac
 
 case "$version" in
@@ -178,7 +178,7 @@ COMMIT;
 SQL
         version=10
         ;;
-    10|11) ;;
+    10|11|12) ;;
 esac
 
 case "$version" in
@@ -193,7 +193,22 @@ COMMIT;
 SQL
         version=11
         ;;
-    11) ;;
+    11|12) ;;
+esac
+
+case "$version" in
+    11)
+        parking_charging_sql=$(cat "$script_dir/migrations/0012_parking_charging_schema.sql")
+        sqlite3 -batch -bail -cmd '.timeout 5000' "$database_file" <<SQL
+PRAGMA foreign_keys = ON;
+BEGIN IMMEDIATE;
+$parking_charging_sql
+PRAGMA user_version = 12;
+COMMIT;
+SQL
+        version=12
+        ;;
+    12) ;;
 esac
 
 printf '%s\n' "$database"

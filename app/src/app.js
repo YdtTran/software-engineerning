@@ -2,14 +2,28 @@ const express = require('express');
 const path = require('node:path');
 const { randomBytes, scrypt, timingSafeEqual } = require('node:crypto');
 const { promisify } = require('node:util');
+const { SQLiteClient } = require('./modules/operations/infrastructure/sqlite-client');
 const { createOperationsModule } = require('./modules/operations');
 const { createMobilitySimulationModule } = require('./modules/mobility-simulation');
 const { SimulatedDock } = require('./modules/mobility-simulation/infrastructure/simulated-dock');
+const { createParkingChargingModule, createChargingGuard } = require('./modules/parking-charging');
 
 const deriveKey = promisify(scrypt);
 
-function createApp({ db = null, client = null, demoAccounts, tripReader = null, chargingGuard = null, isolationVerifier = null,
-  secureCookies = true, deviceAdapter = null, simulateDevices = false, simulationSnapshotProvider = null } = {}) {
+function createApp({
+  db = null,
+  client = null,
+  demoAccounts,
+  tripReader = null,
+  chargingGuard = null,
+  isolationVerifier = null,
+  secureCookies = true,
+  deviceAdapter = null,
+  parkingDeviceAdapter = null,
+  simulateDevices = false,
+  simulationSnapshotProvider = null,
+  clock = () => new Date()
+} = {}) {
   if (!Array.isArray(demoAccounts) || demoAccounts.length === 0) throw new Error('Provision at least one demo account.');
   const accounts = new Map();
   for (const account of demoAccounts) {
@@ -71,8 +85,16 @@ function createApp({ db = null, client = null, demoAccounts, tripReader = null, 
     return res.status(200).json({ data: req.user });
   });
   let mobility;
+  const sharedClient = client || (db ? new SQLiteClient(db) : null);
+  const resolvedGuard = chargingGuard || (sharedClient ? createChargingGuard(sharedClient, clock) : null);
   const verifiedTripReader = tripReader || { getTrip: (id, transactionClient) => mobility.rentalRepository.getTrip(id, transactionClient) };
-  const operations = createOperationsModule({ db, client, tripReader: verifiedTripReader, chargingGuard, isolationVerifier });
+  const operations = createOperationsModule({
+    client: sharedClient,
+    db,
+    tripReader: verifiedTripReader,
+    chargingGuard: resolvedGuard,
+    isolationVerifier
+  });
   const device = deviceAdapter || (simulateDevices ? new SimulatedDock(operations.inventoryInterface) : null);
   const snapshotProvider = simulationSnapshotProvider || { capture: () => operations.inventoryRepo.client.transaction(async () => {
     const snapshot = await operations.inventoryInterface.captureNetworkSnapshot();
@@ -84,9 +106,20 @@ function createApp({ db = null, client = null, demoAccounts, tripReader = null, 
     return { ...snapshot, availableVehicleIds: vehicles.map(vehicle => vehicle.id), availableSlotIds: slots.map(slot => slot.id) };
   }) };
   mobility = createMobilitySimulationModule({ inventory: operations.inventoryInterface, client: operations.inventoryRepo.client, device, snapshotProvider });
+  const parkingCharging = createParkingChargingModule({
+    client: sharedClient,
+    inventoryInterface: operations.inventoryInterface,
+    incidentReporter: operations.incidentService,
+    chargingGuard: resolvedGuard,
+    deviceAdapter: parkingDeviceAdapter,
+    clock
+  });
+  app.locals.operations = operations;
   app.locals.mobility = mobility;
+  app.locals.parkingCharging = parkingCharging;
   app.use('/api/v1', operations.router);
   app.use('/api/v1', mobility.router);
+  app.use('/api/v1', parkingCharging.router);
   app.get('/', (req, res) => res.redirect('/user-app.html'));
   app.get(['/user-app.html', '/operator-app.html', '/operator-web.html'], (req, res) => {
     const experience = path.basename(req.path, '.html');
