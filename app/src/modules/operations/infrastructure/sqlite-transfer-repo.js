@@ -29,10 +29,10 @@ class SQLiteTransferRepository {
         [transfer.id, transfer.sourceHubId, transfer.destinationHubId, transfer.status, transfer.createdAt, transfer.createdBy]
       );
 
-      for (const vehicleId of transfer.vehicleIds) {
+      for (const [index, vehicleId] of transfer.vehicleIds.entries()) {
         await this.client.run(
-          `INSERT INTO transfer_vehicles (transfer_id, vehicle_id) VALUES (?, ?);`,
-          [transfer.id, vehicleId]
+          `INSERT INTO transfer_vehicles (transfer_id, vehicle_id, vehicle_order) VALUES (?, ?, ?);`,
+          [transfer.id, vehicleId, index]
         );
         // Mark vehicle as transfer held
         const claimed = await this.client.run(
@@ -47,10 +47,14 @@ class SQLiteTransferRepository {
         }
       }
 
-      for (const slotId of transfer.destinationSlotIds) {
+      for (const [index, slotId] of transfer.destinationSlotIds.entries()) {
+        const assignment = Array.isArray(transfer.vehicleSlotAssignments)
+          ? transfer.vehicleSlotAssignments.find(a => a.slotId === slotId)
+          : null;
+        const assignedVehicleId = assignment ? assignment.vehicleId : transfer.vehicleIds[index];
         await this.client.run(
-          `INSERT INTO transfer_destination_slots (transfer_id, slot_id) VALUES (?, ?);`,
-          [transfer.id, slotId]
+          `INSERT INTO transfer_destination_slots (transfer_id, slot_id, assigned_vehicle_id, slot_order) VALUES (?, ?, ?, ?);`,
+          [transfer.id, slotId, assignedVehicleId, index]
         );
 
         const res = await this.client.run(
@@ -76,21 +80,32 @@ class SQLiteTransferRepository {
     }
 
     const vehicleRows = await this.client.all(
-      'SELECT vehicle_id FROM transfer_vehicles WHERE transfer_id = ? ORDER BY vehicle_id;',
+      `SELECT vehicle_id, vehicle_order FROM transfer_vehicles WHERE transfer_id = ? ORDER BY COALESCE(vehicle_order, rowid, vehicle_id);`,
       [id]
     );
     const slotRows = await this.client.all(
-      'SELECT slot_id FROM transfer_destination_slots WHERE transfer_id = ? ORDER BY slot_id;',
+      `SELECT slot_id, assigned_vehicle_id, slot_order FROM transfer_destination_slots WHERE transfer_id = ? ORDER BY COALESCE(slot_order, rowid, slot_id);`,
       [id]
     );
+
+    const vehicleIds = vehicleRows.map(r => r.vehicle_id);
+    const destinationSlotIds = slotRows.map(r => r.slot_id);
+    const hasUnassigned = slotRows.some(r => !r.assigned_vehicle_id);
+    const vehicleSlotAssignments = hasUnassigned
+      ? null
+      : slotRows.map(r => ({
+          slotId: r.slot_id,
+          vehicleId: r.assigned_vehicle_id
+        }));
 
     return new Transfer({
       id: row.id,
       sourceHubId: row.source_hub_id,
       destinationHubId: row.destination_hub_id,
       status: row.status,
-      vehicleIds: vehicleRows.map(r => r.vehicle_id),
-      destinationSlotIds: slotRows.map(r => r.slot_id),
+      vehicleIds,
+      destinationSlotIds,
+      vehicleSlotAssignments,
       createdAt: row.created_at,
       departedAt: row.departed_at,
       arrivedAt: row.arrived_at,
@@ -168,8 +183,15 @@ class SQLiteTransferRepository {
           if (released.changes !== 1) throw new DomainError('SLOT_HOLD_FAILED', `Original slot ${slotId} is no longer held.`);
         }
         await this.client.run('DELETE FROM transfer_destination_slots WHERE transfer_id = ?;', [transfer.id]);
-        for (const slotId of transfer.destinationSlotIds) {
-          await this.client.run('INSERT INTO transfer_destination_slots (transfer_id, slot_id) VALUES (?, ?);', [transfer.id, slotId]);
+        for (const [index, slotId] of transfer.destinationSlotIds.entries()) {
+          const assignment = Array.isArray(transfer.vehicleSlotAssignments)
+            ? transfer.vehicleSlotAssignments.find(a => a.slotId === slotId)
+            : null;
+          const assignedVehicleId = assignment ? assignment.vehicleId : transfer.vehicleIds[index];
+          await this.client.run(
+            'INSERT INTO transfer_destination_slots (transfer_id, slot_id, assigned_vehicle_id, slot_order) VALUES (?, ?, ?, ?);',
+            [transfer.id, slotId, assignedVehicleId, index]
+          );
         }
       }
       const res = await this.client.run(
@@ -198,10 +220,17 @@ class SQLiteTransferRepository {
         if (updated.changes !== 1) throw new DomainError('VEHICLE_NOT_IN_TRANSFER', `Vehicle ${vehicleId} is no longer in transit.`);
       }
 
-      for (const [index, slotId] of transfer.destinationSlotIds.entries()) {
+      for (const assignment of transfer.vehicleSlotAssignments) {
+        const slotId = assignment.slotId;
+        const vehicleId = assignment.vehicleId;
+        await this.client.run(
+          `UPDATE transfer_destination_slots SET assigned_vehicle_id = ? WHERE transfer_id = ? AND slot_id = ?;`,
+          [vehicleId, transfer.id, slotId]
+        );
         const updated = await this.client.run(
-          `UPDATE parking_slots SET status = 'Occupied', transfer_hold_id = NULL, occupancy_id = ?, parked_vehicle_id = ? WHERE id = ? AND hub_id = ? AND status IN ('Held', 'held_for_transfer') AND transfer_hold_id = ?;`,
-          [`transfer:${transfer.id}:${slotId}`, transfer.vehicleIds[index], slotId, transfer.destinationHubId, transfer.id]
+          `UPDATE parking_slots SET status = 'Occupied', transfer_hold_id = NULL, occupancy_id = ?, parked_vehicle_id = ?
+           WHERE id = ? AND hub_id = ? AND status IN ('Held', 'held_for_transfer') AND transfer_hold_id = ?;`,
+          [`transfer:${transfer.id}:${slotId}`, vehicleId, slotId, transfer.destinationHubId, transfer.id]
         );
         if (updated.changes !== 1) throw new DomainError('SLOT_HOLD_FAILED', `Slot ${slotId} is no longer held.`);
       }

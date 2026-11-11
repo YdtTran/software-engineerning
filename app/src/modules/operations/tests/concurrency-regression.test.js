@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs'); const os = require('node:os'); const path = require('node:path');
 const { Worker } = require('node:worker_threads');
 const { DatabaseSync } = require('node:sqlite');
+const { applyMigrations } = require('./fixtures/operations-fixtures');
 const clientPath = require.resolve('../infrastructure/sqlite-client');
 const repoPath = require.resolve('../infrastructure/sqlite-transfer-repo');
 const transferPath = require.resolve('../domain/transfer');
@@ -31,8 +32,7 @@ const { Transfer } = require(workerData.transferPath);
 test('separate SQLite connections reject conflicting vehicle and slot claims', async t => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(),'ops-race-')); t.after(() => fs.rmSync(dir,{recursive:true,force:true}));
   const file = path.join(dir,'race.sqlite'); const db = new DatabaseSync(file);
-  const base = path.resolve(__dirname,'../../../../db');
-  for (const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql', 'migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+  applyMigrations(db);
   async function race(first, second) {
     const barrier = new SharedArrayBuffer(4);
     return Promise.all([first,second].map(data => new Promise((resolve,reject) => {
@@ -65,8 +65,8 @@ test('separate SQLite connections reject conflicting vehicle and slot claims', a
 
 test('pickup claim and cancellation have one winner across SQLite connections', async t => {
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pickup-race-')); t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
- const file=path.join(dir,'race.sqlite'), db=new DatabaseSync(file), base=path.resolve(__dirname,'../../../../db');
- for(const f of ['migrations/0001_hub_inventory.sql','seed.sql','migrations/0002_operations_schema.sql','migrations/0004_inventory_ownership.sql','migrations/0005_parked_vehicle.sql','migrations/0006_parking_commitments.sql','migrations/0007_vehicle_pickup_claim.sql']) db.exec(fs.readFileSync(path.join(base,f),'utf8'));
+ const file=path.join(dir,'race.sqlite'), db=new DatabaseSync(file);
+ applyMigrations(db);
  const {SQLiteClient}=require(clientPath), {SQLiteInventoryRepository}=require('../infrastructure/sqlite-inventory-repo');
  await new SQLiteInventoryRepository(new SQLiteClient(db)).reserveVehicle('EB-024','r','metro');
  const barrier=new SharedArrayBuffer(4), inventory=require.resolve('../infrastructure/sqlite-inventory-repo');

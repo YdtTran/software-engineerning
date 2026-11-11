@@ -61,6 +61,30 @@ const fixtures = {
   ]
 };
 
+const path = require('node:path');
+const fs = require('node:fs');
+
+const MIGRATION_FILES = [
+  'migrations/0001_hub_inventory.sql',
+  'seed.sql',
+  'migrations/0002_operations_schema.sql',
+  'migrations/0003_idempotency.sql',
+  'migrations/0004_inventory_ownership.sql',
+  'migrations/0005_parked_vehicle.sql',
+  'migrations/0006_parking_commitments.sql',
+  'migrations/0007_vehicle_pickup_claim.sql',
+  'migrations/0008_incident_isolation.sql',
+  'migrations/0009_transfer_slot_assignment.sql'
+];
+
+function applyMigrations(db, baseDir = path.resolve(__dirname, '../../../../../db')) {
+  for (const file of MIGRATION_FILES) {
+    db.exec(fs.readFileSync(path.join(baseDir, file), 'utf8'));
+  }
+}
+
 module.exports = {
-  fixtures
+  fixtures,
+  MIGRATION_FILES,
+  applyMigrations
 };

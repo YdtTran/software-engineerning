@@ -104,6 +104,7 @@ class TransferService {
       vehicleIds: transfer.vehicleIds,
       destinationSlotIds: transfer.destinationSlotIds,
       destinationHolds: transfer.destinationSlotIds,
+      vehicleSlotAssignments: transfer.vehicleSlotAssignments,
       createdAt: transfer.createdAt
     };
   }
@@ -124,6 +125,7 @@ class TransferService {
       vehicleIds: transfer.vehicleIds,
       destinationSlotIds: transfer.destinationSlotIds,
       destinationHolds: transfer.destinationSlotIds,
+      vehicleSlotAssignments: transfer.vehicleSlotAssignments,
       createdAt: transfer.createdAt,
       departedAt: transfer.departedAt,
       arrivedAt: transfer.arrivedAt,
@@ -171,7 +173,7 @@ class TransferService {
   /**
    * Confirm transfer arrival (UC10A)
    */
-  async arriveTransfer(id, { observedVehicleIds, replacementDestinationHubId = null, replacementSlotIds = null }) {
+  async arriveTransfer(id, { observedVehicleIds, replacementDestinationHubId = null, replacementSlotIds = null, vehicleSlotAssignments = null }) {
     const transfer = await this.transferRepo.getTransferById(id);
     if (!transfer) {
       throw new DomainError('TRANSFER_NOT_FOUND', `Transfer order ${id} does not exist.`);
@@ -181,6 +183,7 @@ class TransferService {
       observedVehicleIds,
       replacementDestinationHubId,
       replacementSlotIds,
+      vehicleSlotAssignments,
       now: new Date()
     });
 
@@ -190,7 +193,8 @@ class TransferService {
       id: transfer.id,
       status: transfer.status,
       arrivedAt: transfer.arrivedAt,
-      destinationHubId: transfer.destinationHubId
+      destinationHubId: transfer.destinationHubId,
+      vehicleSlotAssignments: transfer.vehicleSlotAssignments
     };
   }
 
