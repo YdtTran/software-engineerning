@@ -38,7 +38,8 @@ test('published Minh draft versions 8 and 9 upgrade to the merged sequence witho
     db.exec(`PRAGMA user_version=${version}`); db.close();
     initializeDatabase(file);
     db = new DatabaseSync(file);
-    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 11);
+    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 12);
+    assert.ok(db.prepare("SELECT name FROM sqlite_schema WHERE name = 'parking_reservations'").get());
     assert.ok(db.prepare('PRAGMA table_info(incidents)').all().some(column => column.name === 'isolation_verified_at'));
     assert.ok(db.prepare('PRAGMA table_info(transfer_destination_slots)').all().some(column => column.name === 'assigned_vehicle_id'));
     assert.equal(db.prepare("SELECT status FROM mobility_trips WHERE id='t'").get().status, 'Active');
