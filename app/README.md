@@ -1,6 +1,6 @@
 # Smart E-Mobility Hub demo
 
-One Express application serves Operations and Mobility/Simulation (UC01–05, UC13–14), the User mobile interface and Operator desktop/mobile interfaces. See the [Vietnamese demo walkthrough](../docs/architecture/MINH_DEMO_GUIDE.md) for setup and workflows.
+One Express application serves Operations, Mobility/Simulation (UC01–05, UC08–11A, UC13–14), Parking & Charging (UC06, UC07, UC07A, UC12), the User mobile interface, and Operator desktop/mobile interfaces. See the [Vietnamese demo walkthrough](../docs/architecture/MINH_DEMO_GUIDE.md) for setup and workflows.
 
 ## Run on Windows
 
@@ -39,11 +39,11 @@ GET `/api/v1/session` restores identity, POST creates a session from username/pa
 
 `DEMO_INSECURE_HTTP=1` allows local HTTP cookies and is rejected under `NODE_ENV=production`. Without it, Secure cookies require a suitable HTTPS deployment. This server does not configure TLS or production authentication.
 
-The current database version is 10: upstream 0008 records incident-isolation verification, 0009 adds Mobility lifecycle/command/outcome tables, and 0010 persists simulations. The initializer upgrades databases from earlier draft versions 8/9 without deleting their records. SQL contents are preserved; see [database notes](db/README.md).
+The current database version is 12: upstream `0008` records incident-isolation verification and `0009` adds transfer slot assignments; `0010` adds Mobility lifecycle/command/outcome tables; `0011` persists simulations; and `0012` adds Parking & Charging tables plus deterministic slot pool backfill. The initializer upgrades databases from earlier draft versions 8/9 without deleting their records. SQL contents are preserved; see [database notes](db/migrations/README.md).
 
-Device simulation is opt-in. Without a trusted device adapter, pickup/return fails closed. The demo confirms arrival/lock without actual IoT hardware and leaves distance null without a measured odometer. Uncertain commands preserve claims for trusted reconciliation. The expiry job scans unclaimed vehicle reservations every 30 seconds and persists expiry/uncertainty events in a local outbox; automatic external notification delivery is not implemented.
+Device simulation is opt-in (`DEMO_SIMULATED_DEVICES=1` for Mobility dock actions; Parking & Charging uses `SimulatedDeviceAdapter` by default unless injected). Without a trusted Mobility device adapter, pickup/return fails closed. The demo confirms arrival/lock without actual IoT hardware and leaves distance null without a measured odometer. Uncertain commands preserve claims for trusted reconciliation. Background jobs scan overdue vehicle and parking reservations every 30 seconds; automatic external notification delivery is not implemented.
 
-Mobility supplies the trusted trip reader for UC11A. Simulation uses a consistent, immutable network snapshot and never applies recommendations automatically. Reviewed transfer recommendations call the normal Operations API, which rechecks current resources and creates a Planned transfer. Parking/Charging APIs and real isolation/device verification still require their owning module integrations. The live UI exposes the implemented workflows and transfer review.
+Mobility supplies the trusted trip reader for UC11A. Simulation uses a consistent, immutable network snapshot and never applies recommendations automatically. Reviewed transfer recommendations call the normal Operations API, which rechecks current resources and creates a Planned transfer. Parking & Charging APIs (`UC06`, `UC07`, `UC07A`, `UC12`) and `chargingGuard` (`SC02`) are wired into `app/src/app.js` alongside Operations and Mobility; real hardware/isolation verification (`isolationVerifier`) still requires a production provider, and the live UI (`live.html`) currently focuses on Mobility/Simulation/Transfers.
 
 ## Verify
 

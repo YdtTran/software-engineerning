@@ -277,3 +277,34 @@ test('FR-NI04 blocks preemption below 80%, yields at >=80%, and reassigns faulte
 
   db.close();
 });
+
+test('UC12 accepts charging_points created in Operations Idle status', async () => {
+  const { db, ops, pc } = setupFixture({ hubPowerLimitKw: 22.0, pointRatedKw: 7.4 });
+  const operator = { id: 'op-1', role: 'operator' };
+
+  const createdPoint = await ops.inventoryService.createResource({
+    kind: 'charging_point',
+    hubId: 'metro',
+    attributes: { id: 'metro-CP-IDLE', code: 'CPIDLE', status: 'Idle' }
+  });
+  assert.equal(createdPoint.status, 'Idle');
+
+  db.prepare("INSERT INTO electric_vehicles (id, hub_id, vehicle_type, battery_percent, status, owner_id, connector_type) VALUES ('PV-IDLE-1', 'metro', 'electric_motorbike', 35, 'Available', 'user-1', 'type2')").run();
+  const occ = await parkVehicle(pc, 'user-1', 'PV-IDLE-1', 'metro');
+  const req = await pc.chargingService.submitChargingRequest({
+    actor: { id: 'user-1', role: 'customer' },
+    occupancyId: occ.occupancyId,
+    targetBatteryPercent: 85
+  });
+
+  const alloc = await pc.schedulerService.allocateChargingRequest({
+    actor: operator,
+    requestId: req.id,
+    portId: 'metro-CP-IDLE',
+    powerKw: 7.4
+  });
+  assert.equal(alloc.pointId, 'metro-CP-IDLE');
+  assert.equal(alloc.pointStatus, 'Reserved');
+
+  db.close();
+});

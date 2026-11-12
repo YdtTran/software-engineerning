@@ -410,6 +410,39 @@ class SQLiteChargingRepository {
       [batteryPercent, vehicleId]
     );
   }
+
+  /**
+   * Synchronize shared fleet vehicle SC01 status when entering/exiting active charging.
+   * Private vehicles keep their ownership status unchanged.
+   */
+  async syncSharedVehicleChargingStatus(vehicleId, phase) {
+    const vehicle = await this.client.get(
+      `SELECT id, owner_id AS ownerId, status, battery_percent AS batteryPercent
+       FROM electric_vehicles WHERE id = ?;`,
+      [vehicleId]
+    );
+    if (!vehicle || vehicle.ownerId !== null) return null;
+
+    const current = String(vehicle.status || '').toLowerCase();
+    if (phase === 'start') {
+      if (current === 'available' || current === 'needscharging') {
+        await this.client.run(`UPDATE electric_vehicles SET status = 'Charging' WHERE id = ?;`, [vehicleId]);
+        return 'Charging';
+      }
+      return vehicle.status;
+    }
+
+    if (phase === 'stop' && current === 'charging') {
+      const openIncident = await this.hasUnresolvedIncident('vehicle', vehicleId);
+      const nextStatus = openIncident
+        ? 'Faulty'
+        : (vehicle.batteryPercent < 20 ? 'NeedsCharging' : 'Available');
+      await this.client.run(`UPDATE electric_vehicles SET status = ? WHERE id = ?;`, [nextStatus, vehicleId]);
+      return nextStatus;
+    }
+
+    return vehicle.status;
+  }
 }
 
 module.exports = {

@@ -101,8 +101,13 @@ class ChargingService {
         if (!isOperatorActor(actor)) {
           throw forbidden('Only operators can submit charging requests for shared fleet vehicles.');
         }
-        if (['InUse', 'in_use', 'InTransit', 'in_transit'].includes(vehicle.status)) {
-          throw unprocessable('VEHICLE_NOT_ELIGIBLE', `Shared vehicle ${vehicle.id} in status '${vehicle.status}' is not docked at a hub.`);
+        const blockedSharedStatuses = new Set([
+          'inuse', 'in_use', 'intransit', 'in_transit', 'intransfer', 'in_transfer',
+          'transferheld', 'faulty', 'faulted', 'maintenance', 'suspended', 'retired', 'charging'
+        ]);
+        const statusNormalized = String(vehicle.status || '').toLowerCase();
+        if (blockedSharedStatuses.has(statusNormalized)) {
+          throw unprocessable('VEHICLE_NOT_ELIGIBLE', `Shared vehicle ${vehicle.id} in status '${vehicle.status}' is not eligible for charging.`);
         }
         hubId = vehicle.hubId;
       }
@@ -252,6 +257,7 @@ class ChargingService {
         await this.chargingRepo.updateAllocationState(alloc.allocationId, 'Charging');
         await this.chargingRepo.updateRequestStatus(alloc.requestId, 'Charging', nowIso);
         await this.inventoryInterface.updateChargingPointStatus(alloc.pointId, 'Charging');
+        await this.chargingRepo.syncSharedVehicleChargingStatus(req.vehicleId, 'start');
         return this.chargingRepo.insertSession({
           id: sessionId,
           requestId: alloc.requestId,
@@ -342,6 +348,7 @@ class ChargingService {
           const clamped = Math.max(0, Math.min(100, Math.round(verifiedBattery)));
           await this.chargingRepo.updateVehicleBattery(freshSession.vehicleId, clamped);
         }
+        await this.chargingRepo.syncSharedVehicleChargingStatus(freshSession.vehicleId, 'stop');
 
         const outcomes = resolveStopOutcomes({
           stopReason,
@@ -493,6 +500,10 @@ class ChargingService {
           stopReason: 'TechnicalFault',
           stoppedAt: nowIso
         });
+        const interruptedReq = await this.chargingRepo.getRequestById(activeSession.requestId);
+        if (interruptedReq) {
+          await this.chargingRepo.syncSharedVehicleChargingStatus(interruptedReq.vehicleId, 'stop');
+        }
       }
 
       if (activeAlloc) {

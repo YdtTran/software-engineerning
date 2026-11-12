@@ -336,3 +336,29 @@ test('chargingGuard enforces SC02 transitions and gates Fault -> Repair -> Avail
 
   db.close();
 });
+
+test('SC01 shared fleet vehicle transitions NeedsCharging -> Charging -> Available on TargetReached and rejects Faulty submission', async () => {
+  const { db, ops, pc } = setupFixture();
+  const operator = { id: 'op-1', role: 'operator' };
+  const pointId = db.prepare("SELECT id FROM charging_points WHERE hub_id = 'bku' ORDER BY code ASC LIMIT 1").get().id;
+
+  const shared = db.prepare("SELECT id FROM electric_vehicles WHERE hub_id = 'bku' AND owner_id IS NULL LIMIT 1").get();
+  db.prepare("UPDATE electric_vehicles SET status = 'Faulty', battery_percent = 12 WHERE id = ?").run(shared.id);
+  await assert.rejects(
+    pc.chargingService.submitChargingRequest({ actor: operator, vehicleId: shared.id, targetBatteryPercent: 90 }),
+    { code: 'VEHICLE_NOT_ELIGIBLE', status: 422 }
+  );
+
+  db.prepare("UPDATE electric_vehicles SET status = 'NeedsCharging', battery_percent = 12 WHERE id = ?").run(shared.id);
+  const req = await pc.chargingService.submitChargingRequest({ actor: operator, vehicleId: shared.id, targetBatteryPercent: 90 });
+  const alloc = await seedReservedAllocation(pc, ops, { requestId: req.id, pointId });
+  const session = await pc.chargingService.activateAllocation({ actor: operator, allocationId: alloc.allocationId });
+  assert.equal(db.prepare('SELECT status FROM electric_vehicles WHERE id = ?').get(shared.id).status, 'Charging');
+
+  await pc.chargingService.reportChargingProgress({ actor: operator, sessionId: session.id, batteryPercent: 92 });
+  const refreshed = db.prepare('SELECT status, battery_percent FROM electric_vehicles WHERE id = ?').get(shared.id);
+  assert.equal(refreshed.battery_percent, 92);
+  assert.equal(refreshed.status, 'Available');
+
+  db.close();
+});

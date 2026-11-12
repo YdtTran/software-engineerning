@@ -265,3 +265,62 @@ test('HTTP routes enforce authentication, RBAC, JSON envelopes, and Idempotency-
   assert.equal(checkOut.json.data.finalFee, null);
   assert.ok(checkOut.json.data.actualCheckoutAt);
 });
+
+test('Operations PATCH /operations/resources/:id returns 409 ALLOCATION_CONFLICT instead of 500 when FaultUncertain allocation remains', async t => {
+  const { db, app, login, callApi } = await setupServer(t);
+  const opCookie = await login('operator1');
+  const u2Cookie = await login('user2');
+
+  const avail = await callApi('GET', '/hubs/bku/parking-availability?privateVehicleId=PV-HTTP-2&pool=immediate', { cookie: u2Cookie });
+  const slotId = avail.json.data.availableSlots[0].id;
+  const res = await callApi('POST', '/parking-reservations', {
+    cookie: u2Cookie,
+    idempotencyKey: 'k-guard-res',
+    body: { hubId: 'bku', slotId, privateVehicleId: 'PV-HTTP-2', pool: 'immediate' }
+  });
+  const ci = await callApi('POST', `/parking-reservations/${res.json.data.id}/check-in`, {
+    cookie: u2Cookie,
+    idempotencyKey: 'k-guard-ci',
+    body: { hubId: 'bku', ticketCode: res.json.data.ticketCode }
+  });
+  const reqRes = await callApi('POST', '/charging-requests', {
+    cookie: u2Cookie,
+    idempotencyKey: 'k-guard-cr',
+    body: { occupancyId: ci.json.data.occupancyId, targetBatteryPercent: 90 }
+  });
+
+  const pointId = db.prepare("SELECT id FROM charging_points WHERE hub_id = 'bku' ORDER BY code ASC LIMIT 1").get().id;
+  const allocRes = await callApi('POST', `/charging-requests/${reqRes.json.data.id}/allocate`, {
+    cookie: opCookie,
+    idempotencyKey: 'k-guard-alloc',
+    body: { portId: pointId, powerKw: 7.4 }
+  });
+
+  // Fail power_on 3x -> Fault + FaultUncertain + Open incident
+  app.locals.parkingCharging.deviceAdapter.scriptOutcomes(pointId, 'power_on', ['timeout', 'timeout', 'timeout']);
+  await assert.rejects(
+    app.locals.parkingCharging.chargingService.activateAllocation({
+      actor: { id: 'op1', role: 'operator' },
+      allocationId: allocRes.json.data.allocationId
+    }),
+    { code: 'DEVICE_UNCONFIRMED', status: 503 }
+  );
+
+  // Move Fault -> Repair and resolve incident, run safety check, but leave FaultUncertain allocation unreleased
+  const toRepair = await callApi('PATCH', `/operations/resources/${pointId}`, {
+    cookie: opCookie,
+    idempotencyKey: 'k-guard-repair',
+    body: { status: 'Repair' }
+  });
+  assert.equal(toRepair.status, 200);
+  db.prepare("UPDATE incidents SET status = 'Resolved' WHERE resource_kind = 'charging_point' AND resource_id = ?").run(pointId);
+  await app.locals.parkingCharging.chargingService.runPointSafetyCheck({ actor: { id: 'op1', role: 'operator' }, pointId });
+
+  const reactivateBlocked = await callApi('PATCH', `/operations/resources/${pointId}`, {
+    cookie: opCookie,
+    idempotencyKey: 'k-guard-avail-fail',
+    body: { status: 'Available' }
+  });
+  assert.equal(reactivateBlocked.status, 409);
+  assert.equal(reactivateBlocked.json.error.code, 'ALLOCATION_CONFLICT');
+});

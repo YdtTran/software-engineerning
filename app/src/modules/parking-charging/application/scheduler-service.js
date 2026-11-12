@@ -31,6 +31,11 @@ function isSystemOrOperator(actor) {
   return Boolean(actor && SYSTEM_ROLES.has(String(actor.role || '').toLowerCase()));
 }
 
+function isPointAvailable(status) {
+  const s = String(status || '').toLowerCase();
+  return s === 'available' || s === 'idle';
+}
+
 class SchedulerService {
   constructor({
     client,
@@ -128,7 +133,7 @@ class SchedulerService {
       if (point.hubId !== req.hubId) {
         throw unprocessable('POINT_NOT_ELIGIBLE', `Point ${targetPointId} is at hub '${point.hubId}', not '${req.hubId}'.`);
       }
-      if (point.status !== 'Available') {
+      if (!isPointAvailable(point.status)) {
         throw conflict('POINT_UNAVAILABLE', `Charging point ${targetPointId} is '${point.status}', not 'Available'.`);
       }
       if (await this.chargingRepo.hasUnresolvedIncident('charging_point', targetPointId)) {
@@ -313,7 +318,7 @@ class SchedulerService {
   async _findCompatibleSafePoint(hubId, connectorType) {
     const points = await this.chargingRepo.listPointsByHub(hubId);
     for (const point of points) {
-      if (point.status !== 'Available') continue;
+      if (!isPointAvailable(point.status)) continue;
       if (String(point.connectorType).toLowerCase() !== String(connectorType).toLowerCase()) continue;
       if (await this.chargingRepo.hasUnresolvedIncident('charging_point', point.id)) continue;
       if (await this.chargingRepo.getActiveAllocationByPoint(point.id)) continue;
