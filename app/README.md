@@ -33,6 +33,8 @@ Open these entry points at `http://127.0.0.1:3000`:
 | `/operator-web.html` | Operator desktop dashboard with the same permissions and live UC08 overview |
 | `/index.html` | Original offline design viewer; mock behavior remains separate |
 
+The live User, Operator mobile, and Operator web shells reuse the visual language of the offline mockup (navy/cyan palette, mobile header and bottom navigation, desktop sidebar, cards and status colors). Their state is not copied from `app.js`: `live.js` reads authenticated API data, while `index.html` remains a presentation-only design viewer with in-memory examples.
+
 The demo binds to `127.0.0.1`; use browser mobile emulation for a PC-only demonstration. `DEMO_PORT` changes the port. Phone-over-Wi-Fi deployment and HTTPS configuration are not included in this local launcher.
 
 ## Identity, storage and devices

@@ -34,9 +34,22 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
     await page.locator('#live-nav button').first().waitFor();
     return page;
   }
+  async function revealVehicle(page, vehicleId) {
+    const vehicle = page.locator(`[data-vehicle="${vehicleId}"]`);
+    while (await vehicle.count() === 0) {
+      const more = page.locator('[data-action="show-more-vehicles"]');
+      assert.equal(await more.count(), 1, `Expected ${vehicleId} in the live vehicle list.`);
+      await more.click();
+    }
+    await vehicle.click();
+  }
   const user = await pageFor('user-app', { width: 390, height: 844 });
+  if (process.env.LIVE_SCREENSHOT_DIR) {
+    fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
+    await user.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'user-mobile-home.png'), fullPage: true });
+  }
   await user.locator('[data-hub="metro"]').click();
-  await user.locator('[data-vehicle="EB-024"]').click();
+  await revealVehicle(user, 'EB-024');
   await user.getByRole('button', { name: 'Xác nhận giữ xe', exact: true }).click();
   await user.locator('.pickup-form').waitFor();
   await user.reload(); await user.locator('.pickup-form').waitFor();
@@ -57,7 +70,7 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   assert.equal(await user.evaluate(() => fetch('/api/v1/simulations').then(response => response.status)), 403);
   await user.locator('[data-view="home"]').click();
   await user.locator('[data-hub="metro"]').click();
-  await user.locator('[data-vehicle="EB-031"]').click();
+  await revealVehicle(user, 'EB-031');
   let lost = false;
   await user.route('**/api/v1/vehicle-reservations', async route => {
     if (route.request().method() === 'POST' && !lost) { lost = true; await route.fetch(); await route.abort('failed'); }
@@ -106,7 +119,8 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
     fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
     await mobile.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-mobile-overview.png'), fullPage: true });
   }
-  await mobile.locator('[data-view="results"]').click();
+  await mobile.locator('[data-view="op-menu"]').click();
+  await mobile.locator('.operator-menu-card [data-view="results"]').click();
   await mobile.locator('[data-result]').first().click();
   await mobile.getByRole('button', { name: 'Xuất kết quả JSON' }).waitFor();
   assert.equal(await mobile.locator('thead').isVisible(), true);
