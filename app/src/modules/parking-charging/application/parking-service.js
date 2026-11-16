@@ -265,6 +265,23 @@ class ParkingService {
     return formatReservationDto(reservation);
   }
 
+  async listPrivateVehicles({ actor }) {
+    if (!actor || !actor.id) throw forbidden('Authenticated user is required.');
+    return this.parkingRepo.listPrivateVehiclesByOwner(actor.id);
+  }
+
+  async listReservations({ actor }) {
+    if (!actor || !actor.id) throw forbidden('Authenticated user is required.');
+    await this.runExpiryScan();
+    const rows = await this.parkingRepo.listReservationsByUser(actor.id);
+    return rows.map(formatReservationDto);
+  }
+
+  async listOccupancies({ actor }) {
+    if (!actor || !actor.id) throw forbidden('Authenticated user is required.');
+    return this.parkingRepo.listOccupanciesByUser(actor.id);
+  }
+
   async cancelReservation({ actor, reservationId }) {
     return this.client.transaction(async () => {
       const reservation = await this.parkingRepo.getReservationById(reservationId);

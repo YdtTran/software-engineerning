@@ -121,6 +121,24 @@ class ParkingChargingController {
   }
 
   // UC06 Parking Endpoints
+  listPrivateVehicles(req, res) {
+    return this._runRead(req, res, 'U', actor =>
+      this.parkingService.listPrivateVehicles({ actor })
+    );
+  }
+
+  listReservations(req, res) {
+    return this._runRead(req, res, 'U', actor =>
+      this.parkingService.listReservations({ actor })
+    );
+  }
+
+  listOccupancies(req, res) {
+    return this._runRead(req, res, 'U', actor =>
+      this.parkingService.listOccupancies({ actor })
+    );
+  }
+
   getParkingAvailability(req, res) {
     return this._runRead(req, res, 'U', actor =>
       this.parkingService.getParkingAvailability({
@@ -200,6 +218,12 @@ class ParkingChargingController {
   }
 
   // UC07 / UC07A Charging Endpoints
+  listChargingRequests(req, res) {
+    return this._runRead(req, res, 'U', actor =>
+      this.chargingService.listRequests({ actor })
+    );
+  }
+
   submitChargingRequest(req, res) {
     const body = req.body || {};
     return this._runIdempotentWrite(req, res, 'U', 201, actor =>

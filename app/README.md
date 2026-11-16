@@ -31,7 +31,7 @@ Open these entry points at `http://127.0.0.1:3000`:
 | `/operator-web.html` | Operator desktop layout with the same permissions |
 | `/index.html` | Original offline design viewer; mock behavior remains separate |
 
-The demo binds to `127.0.0.1`; use browser mobile emulation for a PC-only demonstration. `DEMO_PORT` changes the port. Phone-over-Wi-Fi deployment and HTTPS configuration are not included in this local launcher.
+The demo binds to `127.0.0.1` by default (`DEMO_HOST` overrides the bind host, e.g. `0.0.0.0` for emulator or LAN Android testing; `DEMO_PORT` changes the port). HTTPS configuration is not included in this local launcher. See [android/README.md](../android/README.md) for the native Android User app setup.
 
 ## Identity, storage and devices
 

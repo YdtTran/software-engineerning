@@ -596,6 +596,11 @@ class ChargingService {
     return session;
   }
 
+  async listRequests({ actor }) {
+    if (!actor || !actor.id) throw forbidden('Authenticated user is required.');
+    return this.chargingRepo.listRequestsByUser(actor.id);
+  }
+
   async _reportPointIncident(pointId, actor, description) {
     if (!this.incidentReporter || typeof this.incidentReporter.reportEquipmentIncident !== 'function') {
       return null;
