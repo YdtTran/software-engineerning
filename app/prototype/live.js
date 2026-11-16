@@ -10,6 +10,7 @@
     vehicleLimit: 3, resourceLimit: 20, resourceFilters: { q: '', hubId: '', kind: '', status: '' }, newResourceKind: 'vehicle',
     transfers: [], transferPlan: null, transferFilter: '', arrivalChoices: {},
     incidents: [], filteredIncidents: null, incidentFilters: { status: '', hubId: '' },
+    scheduleHub: '', chargingSchedule: null, chargingHistory: [],
     view: location.hash.slice(1) || (operator ? 'overview' : 'home'), error: '', busy: false, success: '' };
   const labels = { metro: 'Khách Metro tăng đột biến', parking: 'Hub hết chỗ đỗ', 'charging-demand': 'Nhu cầu sạc tăng', charging: 'Cổng sạc ngừng hoạt động', clustering: 'Xe phân bố mất cân bằng' };
   const statuses = { Reserved: 'Đang giữ xe', PickupClaimed: 'Đang xác nhận nhận xe', PickupUncertain: 'Cần đối soát nhận xe', Fulfilled: 'Đã nhận xe', Cancelled: 'Đã hủy', Expired: 'Đã hết hạn', Active: 'Đang đi', Completed: 'Đã hoàn tất' };
@@ -78,7 +79,16 @@
     ALREADY_RESOLVED: 'Sự cố đã được hoàn tất xử lý trước đó.',
     MAINTENANCE_NOT_ASSIGNED: 'Cần phân công kỹ thuật viên và chuyển sang trạng thái đang xử lý trước khi hoàn tất.',
     TRIP_NOT_ACTIVE: 'Chuyến đi không còn hoạt động nên không thể ghi nhận sự cố hành trình.',
-    TRIP_NOT_FOUND: 'Không tìm thấy chuyến đi liên quan.'
+    TRIP_NOT_FOUND: 'Không tìm thấy chuyến đi liên quan.',
+    REQUEST_NOT_FOUND: 'Không tìm thấy yêu cầu sạc.',
+    POINT_NOT_FOUND: 'Không tìm thấy cổng sạc.',
+    POINT_NOT_ELIGIBLE: 'Cổng sạc hoặc yêu cầu không thuộc Hub đang chọn.',
+    POINT_UNAVAILABLE: 'Cổng sạc đang bận, đang sửa chữa hoặc có sự cố chưa xử lý. Dữ liệu đã được tải lại.',
+    INCOMPATIBLE_CONNECTOR: 'Chuẩn kết nối của xe không tương thích với cổng sạc đã chọn.',
+    INVALID_POWER_REQUEST: 'Công suất phân bổ phải lớn hơn 0 và không vượt định mức của cổng sạc.',
+    POWER_BUDGET_EXCEEDED: 'Công suất yêu cầu vượt giới hạn công suất an toàn (BR15) của Hub. Dữ liệu đã được tải lại.',
+    INVALID_INTERVAL: 'Khoảng thời gian phân bổ không hợp lệ (kết thúc phải sau bắt đầu và ở tương lai).',
+    CONFLICT_STATE: 'Trạng thái yêu cầu sạc vừa thay đổi. Dữ liệu đã được tải lại.'
   };
   async function api(path, options = {}) {
     let response;
@@ -120,7 +130,8 @@
     state.hubs = await api('/hubs');
     state.hubMatches = null;
     state.selectedHub ||= state.hubs[0]?.id || '';
-    if (operator) [state.results, state.networkOverview, state.resources, state.transfers, state.incidents] = await Promise.all([api('/simulations'), api('/operations/hubs'), api('/operations/resources'), experience === 'operator-web' ? loadTransfers() : [], experience === 'operator-web' ? loadIncidents() : []]);
+    state.scheduleHub ||= state.hubs[0]?.id || '';
+    if (operator) [state.results, state.networkOverview, state.resources, state.transfers, state.incidents, state.chargingSchedule] = await Promise.all([api('/simulations'), api('/operations/hubs'), api('/operations/resources'), experience === 'operator-web' ? loadTransfers() : [], experience === 'operator-web' ? loadIncidents() : [], experience === 'operator-web' ? loadChargingSchedule() : null]);
     else {
       await refreshUser();
       if (state.selectedHub) state.vehicles = await api(`/hubs/${encodeURIComponent(state.selectedHub)}/vehicles`);
@@ -177,6 +188,29 @@
     const params = new URLSearchParams(Object.entries(state.incidentFilters).filter(([, value]) => value));
     state.filteredIncidents = params.size ? decorateIncidents(await api('/incidents?' + params)) : null;
     return all;
+  }
+  function chargingHistoryStore(hubId) {
+    const storageKey = `mobility-charging-history:${state.user.id}:${hubId}`;
+    let ids;
+    try { ids = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { ids = []; }
+    return { ids: Array.isArray(ids) ? ids.filter(id => typeof id === 'string' && id) : [], save: values => localStorage.setItem(storageKey, JSON.stringify(values.slice(0, 20))) };
+  }
+  function rememberChargingRequests(hubId, ids) {
+    if (!hubId || !ids.length) return;
+    const store = chargingHistoryStore(hubId);
+    store.save([...new Set([...ids, ...store.ids])]);
+  }
+  async function loadChargingSchedule() {
+    const hubId = state.scheduleHub ||= state.hubs[0]?.id || '';
+    if (!hubId) return null;
+    const schedule = await api(`/hubs/${encodeURIComponent(hubId)}/charging-schedule`);
+    const knownIds = [...schedule.queue.map(item => item.id), ...schedule.allocations.map(item => item.requestId)];
+    rememberChargingRequests(hubId, knownIds);
+    const queuedIds = new Set(schedule.queue.map(item => item.id));
+    const extraIds = [...new Set([...schedule.allocations.map(item => item.requestId), ...chargingHistoryStore(hubId).ids])].filter(id => !queuedIds.has(id));
+    const settled = await Promise.allSettled(extraIds.map(id => api('/charging-requests/' + encodeURIComponent(id))));
+    state.chargingHistory = settled.filter(item => item.status === 'fulfilled' && item.value?.hubId === hubId).map(item => item.value);
+    return schedule;
   }
   async function run(action) {
     if (state.busy) return;
@@ -418,6 +452,84 @@
       <section class="card incident-filter-card"><form id="incident-filter-form" class="incident-filters"><label>Trạng thái<select class="field" name="status"><option value="">Tất cả trạng thái</option>${Object.entries(incidentStatusMeta).map(([value, [text]]) => option(value, text, filters.status)).join('')}</select></label><label>Mobility Hub<select class="field" name="hubId"><option value="">Tất cả Hub</option>${state.hubs.map(hub => option(hub.id, hub.name, filters.hubId)).join('')}</select></label><div class="resource-filter-actions"><button class="primary">Lọc sự cố</button><button class="secondary" type="button" data-action="clear-incident-filters">Xóa lọc</button></div></form></section>
       <div class="incident-list">${rows.map(incidentCard).join('') || empty(all.length ? 'Không có sự cố phù hợp bộ lọc đã chọn.' : 'Hiện không có sự cố vận hành nào.')}</div>`;
   }
+  const chargingPhaseMeta = {
+    queued: { key: 'queued', label: 'Chờ phân bổ', tone: 'yellow' },
+    allocated: { key: 'allocated', label: 'Đã phân bổ cổng', tone: 'blue' },
+    active: { key: 'active', label: 'Đang sạc', tone: 'green' },
+    stopping: { key: 'stopping', label: 'Đang ngắt sạc', tone: 'yellow' },
+    completed: { key: 'completed', label: 'Đã hoàn tất', tone: 'grey' }
+  };
+  function chargingPhase(req, alloc) {
+    if (alloc) {
+      if (alloc.state === 'Charging' || req?.status === 'Charging') return chargingPhaseMeta.active;
+      if (alloc.state === 'Stopping' || alloc.state === 'FaultUncertain') return chargingPhaseMeta.stopping;
+      if (alloc.state === 'Complete') return chargingPhaseMeta.completed;
+      return chargingPhaseMeta.allocated;
+    }
+    if (req?.status === 'Completed') return chargingPhaseMeta.completed;
+    if (req?.status === 'Charging') return chargingPhaseMeta.active;
+    return chargingPhaseMeta.queued;
+  }
+  function chargingPriorityLabel(req) {
+    const soc = typeof req.currentBatteryPercent === 'number' ? req.currentBatteryPercent : req.batteryAtRequest;
+    const base = soc < 10 ? 'Khẩn cấp (<10% pin · ưu tiên tuyệt đối)' : soc < 20 ? 'Cấp thiết (<20% pin)' : req.sharedReservationId ? 'Xe dùng chung có lịch đặt' : 'Tiêu chuẩn (theo hạn cần xe)';
+    return Number.isInteger(req.manualPriorityRank) ? `${base} · Ưu tiên #${req.manualPriorityRank}` : base;
+  }
+  function defaultEndInput(hours = 1) {
+    const future = new Date(Date.now() + hours * 3600000 - new Date().getTimezoneOffset() * 60000);
+    return future.toISOString().slice(0, 16);
+  }
+  function chargingRequestCard(item, alloc, schedule) {
+    const phase = chargingPhase(item, alloc);
+    const connector = String(item.connectorType || item.vehicleConnectorType || 'type2').toUpperCase();
+    const soc = typeof item.currentBatteryPercent === 'number' ? item.currentBatteryPercent : item.batteryAtRequest;
+    const point = alloc && schedule.points.find(entry => entry.id === alloc.pointId);
+    const compatiblePoints = schedule.points.filter(entry => String(entry.connectorType).toLowerCase() === connector.toLowerCase());
+    const preferredPoint = compatiblePoints.find(entry => ['available', 'idle'].includes(resourceStatusKey(entry.status)) && !schedule.allocations.some(active => active.pointId === entry.id)) || compatiblePoints[0] || schedule.points[0];
+    const defaultPower = preferredPoint ? Number(Math.min(preferredPoint.ratedPowerKw, schedule.remainingPowerKw > 0 ? schedule.remainingPowerKw : preferredPoint.ratedPowerKw).toFixed(1)) : 7.4;
+    const facts = [
+      ['Phương tiện', `${item.vehicleId} · ${connector}`],
+      ['Mức pin', `${soc}% → mục tiêu ${item.targetBatteryPercent}%`],
+      ['Mức ưu tiên', chargingPriorityLabel(item)],
+      ['Hạn cần xe', date(item.neededBy)],
+      ['Cổng phân bổ', alloc ? `${point ? `Cổng ${point.code}` : alloc.pointId} (${alloc.pointId})` : phase.key === 'completed' ? 'Đã giải phóng cổng' : 'Chưa phân bổ'],
+      ['Công suất cấp', alloc ? `${alloc.allocatedPowerKw} kW` : '—'],
+      ['Khoảng thời gian', alloc ? `${date(alloc.startAt)} → ${date(alloc.endAt)}` : phase.key === 'completed' ? 'Đã hoàn tất phiên sạc' : 'Chờ xếp lịch']
+    ];
+    const allocateForm = phase.key === 'queued' ? `<form class="charging-allocate-form" data-charging-allocate="${esc(item.id)}"><div class="charging-allocate-grid"><label>Cổng sạc<select class="field" name="pointId" required>${schedule.points.map(entry => {
+      const busy = schedule.allocations.some(active => active.pointId === entry.id);
+      const match = String(entry.connectorType).toLowerCase() === connector.toLowerCase();
+      const note = !match ? 'Khác chuẩn kết nối' : busy ? 'Đã phân bổ' : resourceStatusLabel(entry.status);
+      return option(entry.id, `Cổng ${entry.code} · ${String(entry.connectorType).toUpperCase()} · ${entry.ratedPowerKw} kW · ${note}`, preferredPoint?.id);
+    }).join('')}</select></label><label>Công suất phân bổ (kW)<input class="field" type="number" name="powerKw" min="0.1" max="100" step="0.1" value="${esc(defaultPower)}" required></label><label>Bắt đầu<input class="field" type="datetime-local" name="startAt" value="${esc(defaultScheduleInput())}" required></label><label>Kết thúc<input class="field" type="datetime-local" name="endAt" value="${esc(defaultEndInput(1))}" required></label></div><button class="primary">Phân bổ cổng & công suất</button></form>` : '';
+    return `<article class="card charging-card" data-charging-request="${esc(item.id)}" data-charging-phase="${esc(phase.key)}"><div class="transfer-card-head"><div><h3>${esc(item.id)} · ${esc(item.vehicleId)}</h3><p class="muted">Người yêu cầu: ${esc(item.userId)}</p></div><span class="status-pill level-${phase.tone}">${esc(phase.label)}</span></div><dl class="transfer-meta charging-meta">${facts.map(([key, value]) => `<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${allocateForm}</article>`;
+  }
+  function schedule() {
+    if (experience !== 'operator-web') return plannedScreen('Lịch sạc');
+    const data = state.chargingSchedule;
+    if (!data) return empty('Chưa tải được dữ liệu lịch sạc của Hub.');
+    const allocByRequest = new Map(data.allocations.map(item => [item.requestId, item]));
+    const unallocatedQueue = data.queue.filter(item => !allocByRequest.has(item.id));
+    const combined = [...data.queue, ...state.chargingHistory.filter(item => !data.queue.some(queued => queued.id === item.id) && item.status !== 'Cancelled')];
+    for (const alloc of data.allocations) {
+      if (!combined.some(item => item.id === alloc.requestId)) {
+        combined.push({ id: alloc.requestId, userId: 'operator', vehicleId: alloc.pointId, connectorType: 'type2', batteryAtRequest: 20, targetBatteryPercent: 90, neededBy: alloc.endAt, status: alloc.state === 'Charging' ? 'Charging' : 'Queued' });
+      }
+    }
+    const availablePoints = data.points.filter(point => ['available', 'idle'].includes(resourceStatusKey(point.status)) && !data.allocations.some(alloc => alloc.pointId === point.id));
+    const budgetPercent = data.powerLimitKW > 0 ? Math.min(100, Math.round((data.allocatedPowerKw / data.powerLimitKW) * 100)) : 0;
+    return `<div class="dashboard-heading"><div><h1>Lịch sạc thông minh</h1><p class="muted">Quản lý hàng đợi ưu tiên, phân bổ cổng tương thích và kiểm soát giới hạn công suất an toàn theo từng Hub.</p></div><div class="schedule-head-actions"><label class="schedule-hub-picker">Mobility Hub<select class="field" id="schedule-hub">${state.hubs.map(hub => option(hub.id, hub.name, state.scheduleHub)).join('')}</select></label><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div></div>
+      <div class="resource-metrics schedule-metrics"><section><span>Giới hạn công suất (BR15)</span><strong>${esc(data.powerLimitKW)} kW</strong></section><section><span>Đang phân bổ</span><strong>${esc(data.allocatedPowerKw)} kW</strong></section><section><span>Công suất còn lại</span><strong>${esc(data.remainingPowerKw)} kW</strong></section><section><span>Hàng đợi / Cổng sẵn sàng</span><strong>${unallocatedQueue.length} chờ · ${availablePoints.length}/${data.points.length} cổng</strong></section></div>
+      <div class="schedule-layout"><section class="card schedule-points-card"><h2>Cổng sạc & ngân sách công suất tại ${esc(data.hubName)}</h2><div class="schedule-budget-bar"><div class="occupancy"><span><i style="width:${budgetPercent}%"></i></span>${budgetPercent}% ngân sách công suất (${esc(data.allocatedPowerKw)} / ${esc(data.powerLimitKW)} kW)</div><p class="muted">Quy tắc BR15: tổng công suất cấp đồng thời không vượt giới hạn an toàn của Hub; xe và cổng phải cùng chuẩn kết nối.</p></div>
+        <div class="table-wrap"><table class="schedule-points-table"><thead><tr><th>Cổng sạc</th><th>Chuẩn</th><th>Định mức</th><th>Trạng thái</th><th>Phân bổ hiện tại</th></tr></thead><tbody>${data.points.map(point => {
+          const alloc = data.allocations.find(item => item.pointId === point.id);
+          const statusText = alloc ? `${alloc.requestId} · ${alloc.allocatedPowerKw} kW (${chargingPhase(null, alloc).label})` : ['available', 'idle'].includes(resourceStatusKey(point.status)) ? 'Sẵn sàng phân bổ' : ['fault', 'faulted', 'faulty', 'maintenance', 'repair'].includes(resourceStatusKey(point.status)) ? 'Đang cách ly / bảo trì' : resourceStatusLabel(point.status);
+          return `<tr><td><strong>${esc(point.code)}</strong><small class="muted"> · ${esc(point.id)}</small></td><td>${esc(String(point.connectorType).toUpperCase())}</td><td>${esc(point.ratedPowerKw)} kW</td><td><span class="status-pill level-${resourceTone(point.status)}">${esc(resourceStatusLabel(point.status))}</span></td><td>${esc(statusText)}</td></tr>`;
+        }).join('')}</tbody></table></div></section>
+        <div class="schedule-queue-board">${data.queue.length ? `<section class="card schedule-override-card"><h2>Điều chỉnh thứ tự ưu tiên hàng đợi</h2><p class="muted">Nhập thứ tự ưu tiên (1–1000) cho các yêu cầu đang xếp hàng; yêu cầu khẩn cấp dưới 10% pin luôn giữ quyền ưu tiên an toàn.</p><form id="schedule-override-form"><div class="schedule-override-list">${data.queue.map((req, index) => `<label class="schedule-override-item"><span><strong>#${index + 1} · ${esc(req.vehicleId)}</strong> (${esc(req.id)} · pin ${esc(req.currentBatteryPercent ?? req.batteryAtRequest)}%)</span><input class="field" type="number" min="1" max="1000" name="rank:${esc(req.id)}" value="${esc(req.manualPriorityRank ?? index + 1)}" required></label>`).join('')}</div><div class="resource-filter-actions"><button class="primary">Lưu thứ tự ưu tiên</button><button class="secondary" type="button" data-action="clear-schedule-overrides">Đặt lại mặc định</button></div></form></section>` : ''}
+          <div class="schedule-phase-legend"><span class="status-pill level-yellow">Chờ phân bổ</span><span class="status-pill level-blue">Đã phân bổ cổng</span><span class="status-pill level-green">Đang sạc</span><span class="status-pill level-yellow">Đang ngắt sạc</span><span class="status-pill level-grey">Đã hoàn tất</span></div>
+          ${combined.map(item => chargingRequestCard(item, allocByRequest.get(item.id), data)).join('') || empty('Hiện chưa có yêu cầu sạc hoặc phiên sạc nào tại Hub này.')}</div></div>`;
+  }
   function plannedScreen(title) {
     return `<section class="card planned-screen"><h1>${esc(title)}</h1><p class="muted">Màn hình đã có trong khung điều hướng và sẽ được nối API ở đợt triển khai tiếp theo.</p><button class="secondary" data-view="overview">Quay lại Tổng quan</button></section>`;
   }
@@ -468,7 +580,7 @@
       resources,
       redistribute: experience === 'operator-web' ? redistribute : () => plannedScreen('Điều phối xe'),
       incidents: experience === 'operator-web' ? incidents : () => plannedScreen('Sự cố vận hành'),
-      schedule: () => plannedScreen('Lịch sạc'),
+      schedule: experience === 'operator-web' ? schedule : () => plannedScreen('Lịch sạc'),
       simulation,
       results,
       transfer,
@@ -503,6 +615,7 @@
       if (operator && result.inputs) { state.result = result; state.view = 'results'; }
       else if (operator && operation.startsWith('transfer-')) state.view = 'redistribute';
       else if (operator && operation.startsWith('incident-')) state.view = 'incidents';
+      else if (operator && operation.startsWith('schedule-')) state.view = 'schedule';
       else if (!operator) state.view = 'journeys';
       state.success = 'Đã lấy lại kết quả yêu cầu trước.';
     });
@@ -568,7 +681,13 @@
     else if (button.dataset.action === 'show-more-resources') { state.resourceLimit += 20; render(); }
     else if (button.dataset.action === 'clear-resource-filters') { state.resourceFilters = { q: '', hubId: '', kind: '', status: '' }; state.resourceLimit = 20; render(); }
     else if (button.dataset.action === 'clear-incident-filters') run(async () => { state.incidentFilters = { status: '', hubId: '' }; await reload(); });
-    else if (button.dataset.action === 'logout') run(async () => { await api('/session', { method: 'DELETE' }); state.user = null; state.result = null; state.reservations = []; state.trips = []; state.transfers = []; state.transferPlan = null; state.arrivalChoices = {}; state.incidents = []; state.filteredIncidents = null; });
+    else if (button.dataset.action === 'clear-schedule-overrides') run(async () => {
+      const overrides = (state.chargingSchedule?.queue || []).map(item => ({ requestId: item.id, priorityRank: null }));
+      if (!overrides.length) return;
+      state.chargingSchedule = await write(`/hubs/${encodeURIComponent(state.scheduleHub)}/charging-schedule/override`, { overrides }, `schedule-override-clear:${state.scheduleHub}`);
+      await reload(); state.success = 'Đã đặt lại thứ tự ưu tiên mặc định.';
+    });
+    else if (button.dataset.action === 'logout') run(async () => { await api('/session', { method: 'DELETE' }); state.user = null; state.result = null; state.reservations = []; state.trips = []; state.transfers = []; state.transferPlan = null; state.arrivalChoices = {}; state.incidents = []; state.filteredIncidents = null; state.chargingSchedule = null; state.chargingHistory = []; });
     else if (button.dataset.action === 'export' && state.result) {
       const link = document.createElement('a'); const url = URL.createObjectURL(new Blob([JSON.stringify(state.result, null, 2)], { type: 'application/json' }));
       link.href = url; link.download = `simulation-${state.result.id}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -581,6 +700,7 @@
     if (state.transferPlan && event.target.id === 'transfer-source') { state.transferPlan.sourceHubId = event.target.value; state.transferPlan.vehicleIds = []; render(); return; }
     if (state.transferPlan && event.target.id === 'transfer-destination') { state.transferPlan.destinationHubId = event.target.value; state.transferPlan.slotIds = []; render(); return; }
     if (event.target.id === 'transfer-status-filter') { state.transferFilter = event.target.value; render(); return; }
+    if (event.target.id === 'schedule-hub') { state.scheduleHub = event.target.value; run(async () => { state.chargingSchedule = await loadChargingSchedule(); }); return; }
     const form = event.target.form;
     if (state.transferPlan && form?.id === 'redistribute-form') {
       const data = new FormData(form);
@@ -684,6 +804,33 @@
       if (!resolutionNotes) throw new Error('Nhập ghi chú kết quả xử lý trước khi hoàn tất.');
       await write(`/incidents/${encodeURIComponent(id)}/resolve`, { resolutionNotes }, `incident-resolve:${id}`);
       await reload(); state.success = `Đã hoàn tất xử lý sự cố ${id}.`;
+    });
+    else if (formId === 'schedule-override-form') run(async () => {
+      const overrides = (state.chargingSchedule?.queue || []).map(item => ({
+        requestId: item.id,
+        priorityRank: Number(data.get('rank:' + item.id))
+      }));
+      if (!overrides.length) throw new Error('Không có yêu cầu sạc trong hàng đợi để sắp xếp.');
+      state.chargingSchedule = await write(`/hubs/${encodeURIComponent(state.scheduleHub)}/charging-schedule/override`, { overrides }, `schedule-override:${state.scheduleHub}`);
+      await reload(); state.success = 'Đã cập nhật thứ tự ưu tiên hàng đợi sạc.';
+    });
+    else if (form.classList.contains('charging-allocate-form')) run(async () => {
+      const id = form.dataset.chargingAllocate;
+      const pointId = String(data.get('pointId') || '').trim();
+      const powerKw = Number(data.get('powerKw'));
+      const startMs = Date.parse(String(data.get('startAt') || ''));
+      const endMs = Date.parse(String(data.get('endAt') || ''));
+      if (!pointId || !Number.isFinite(powerKw) || powerKw <= 0 || Number.isNaN(startMs) || Number.isNaN(endMs)) {
+        throw new Error('Chọn cổng sạc, công suất và khoảng thời gian hợp lệ.');
+      }
+      const result = await write(`/charging-requests/${encodeURIComponent(id)}/allocate`, {
+        pointId,
+        powerKw,
+        startAt: new Date(startMs).toISOString(),
+        endAt: new Date(endMs).toISOString()
+      }, `schedule-allocate:${id}`);
+      rememberChargingRequests(state.scheduleHub, [id]);
+      await reload(); state.success = `Đã phân bổ ${result.allocatedPowerKw} kW tại cổng ${result.pointId} cho yêu cầu ${id}.`;
     });
   });
   window.addEventListener('online', () => { if (state.user) run(reload); });

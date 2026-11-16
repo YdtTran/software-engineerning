@@ -33,4 +33,5 @@ test('dashboard demo data produces green, yellow and red UC08 states', async t =
   assert.equal(incidents[0].id, 'INC-DEMO-METRO-C03');
   assert.equal(incidents[0].resourceId, 'metro-C03');
   assert.equal(incidents[0].status, 'Open');
+  assert.equal(db.prepare("SELECT count(*) AS n FROM charging_requests WHERE status = 'Queued'").get().n, 4);
 });

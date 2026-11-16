@@ -250,6 +250,74 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   if (process.env.LIVE_SCREENSHOT_DIR) {
     await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-incidents.png'), fullPage: true });
   }
+  db.prepare('UPDATE mobility_hubs SET power_limit_kw = ? WHERE id = ?').run(12.6, 'library');
+  db.prepare("UPDATE charging_points SET status = 'Fault' WHERE id = 'library-C03'").run();
+  db.prepare("UPDATE electric_vehicles SET battery_percent = 40 WHERE id = 'EM-117'").run();
+  db.prepare("UPDATE electric_vehicles SET battery_percent = 45 WHERE id = 'EB-135'").run();
+  const insertChargingReq = db.prepare(`INSERT INTO charging_requests (
+    id, user_id, vehicle_id, occupancy_id, hub_id,
+    battery_at_request, target_battery_percent, needed_by, requested_start,
+    manual_priority_rank, status, created_at, updated_at
+  ) VALUES (?, 'operator', ?, NULL, 'library', ?, 90, '2030-01-01T12:00:00.000Z', NULL, NULL, 'Queued', ?, ?)`);
+  insertChargingReq.run('CREQ-UI-1', 'EM-117', 40, '2026-11-16T01:00:00.000Z', '2026-11-16T01:00:00.000Z');
+  insertChargingReq.run('CREQ-UI-2', 'EB-135', 45, '2026-11-16T01:01:00.000Z', '2026-11-16T01:01:00.000Z');
+  await desktop.locator('[data-view="schedule"]').click();
+  await desktop.getByRole('heading', { name: 'Lịch sạc thông minh', exact: true }).waitFor();
+  await desktop.locator('#schedule-hub').selectOption('library');
+  await desktop.locator('[data-charging-request="CREQ-UI-1"]').waitFor();
+  assert.deepEqual(await desktop.locator('.schedule-metrics strong').allTextContents(), ['12.6 kW', '0 kW', '12.6 kW', '2 chờ · 2/3 cổng']);
+  assert.deepEqual(
+    await desktop.locator('[data-charging-request]').evaluateAll(nodes => nodes.map(node => node.dataset.chargingRequest)),
+    ['CREQ-UI-1', 'CREQ-UI-2']
+  );
+  await desktop.locator('#schedule-override-form input[name="rank:CREQ-UI-2"]').fill('1');
+  await desktop.locator('#schedule-override-form input[name="rank:CREQ-UI-1"]').fill('2');
+  await desktop.locator('#schedule-override-form button.primary').click();
+  await desktop.waitForFunction(() => document.querySelector('.success')?.textContent.includes('thứ tự ưu tiên'));
+  assert.deepEqual(
+    await desktop.locator('[data-charging-request]').evaluateAll(nodes => nodes.map(node => node.dataset.chargingRequest)),
+    ['CREQ-UI-2', 'CREQ-UI-1']
+  );
+  await desktop.reload();
+  await desktop.locator('#schedule-hub').selectOption('library');
+  await desktop.locator('[data-charging-request="CREQ-UI-2"]').waitFor();
+  assert.deepEqual(
+    await desktop.locator('[data-charging-request]').evaluateAll(nodes => nodes.map(node => node.dataset.chargingRequest)),
+    ['CREQ-UI-2', 'CREQ-UI-1']
+  );
+  const req2Card = desktop.locator('[data-charging-request="CREQ-UI-2"]');
+  await req2Card.locator('select[name="pointId"]').selectOption('library-C03');
+  await req2Card.locator('.charging-allocate-form button').click();
+  await desktop.waitForFunction(() => document.getElementById('live-status').textContent.includes('đang bận, đang sửa chữa'));
+  await req2Card.locator('select[name="pointId"]').selectOption('library-C01');
+  await req2Card.locator('input[name="powerKw"]').fill('7.4');
+  await req2Card.locator('.charging-allocate-form button').click();
+  await desktop.waitForFunction(() => document.querySelector('[data-charging-request="CREQ-UI-2"]')?.dataset.chargingPhase === 'allocated');
+  assert.deepEqual(await desktop.locator('.schedule-metrics strong').allTextContents(), ['12.6 kW', '7.4 kW', '5.2 kW', '1 chờ · 1/3 cổng']);
+  const req1Card = desktop.locator('[data-charging-request="CREQ-UI-1"]');
+  await req1Card.locator('select[name="pointId"]').selectOption('library-C02');
+  await req1Card.locator('input[name="powerKw"]').fill('7.4');
+  await req1Card.locator('.charging-allocate-form button').click();
+  await desktop.waitForFunction(() => document.getElementById('live-status').textContent.includes('vượt giới hạn công suất an toàn'));
+  await req1Card.locator('select[name="pointId"]').selectOption('library-C02');
+  await req1Card.locator('input[name="powerKw"]').fill('5.2');
+  await req1Card.locator('.charging-allocate-form button').click();
+  await desktop.waitForFunction(() => document.querySelector('[data-charging-request="CREQ-UI-1"]')?.dataset.chargingPhase === 'allocated');
+  assert.deepEqual(await desktop.locator('.schedule-metrics strong').allTextContents(), ['12.6 kW', '12.6 kW', '0 kW', '0 chờ · 0/3 cổng']);
+  db.prepare("UPDATE charging_allocations SET state = 'Charging' WHERE request_id = 'CREQ-UI-2'").run();
+  db.prepare("UPDATE charging_requests SET status = 'Charging' WHERE id = 'CREQ-UI-2'").run();
+  db.prepare("UPDATE charging_allocations SET state = 'Stopping' WHERE request_id = 'CREQ-UI-1'").run();
+  await desktop.locator('[data-action="refresh"]').click();
+  await desktop.waitForFunction(() => document.querySelector('[data-charging-request="CREQ-UI-2"]')?.dataset.chargingPhase === 'active');
+  assert.equal(await req1Card.getAttribute('data-charging-phase'), 'stopping');
+  db.prepare("UPDATE charging_allocations SET state = 'Complete', allocated_power_kw = 0, released_at = '2026-11-16T02:00:00.000Z' WHERE request_id = 'CREQ-UI-1'").run();
+  db.prepare("UPDATE charging_requests SET status = 'Completed' WHERE id = 'CREQ-UI-1'").run();
+  await desktop.locator('[data-action="refresh"]').click();
+  await desktop.waitForFunction(() => document.querySelector('[data-charging-request="CREQ-UI-1"]')?.dataset.chargingPhase === 'completed');
+  assert.doesNotMatch(await desktop.locator('#live-app').textContent(), /UC(?:08|09|10|11|12)/);
+  if (process.env.LIVE_SCREENSHOT_DIR) {
+    await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-schedule.png'), fullPage: true });
+  }
   const mobile = await pageFor('operator-app', { width: 390, height: 844 });
   await mobile.getByRole('heading', { name: 'Tổng quan mạng lưới', exact: true }).waitFor();
   assert.equal(await mobile.locator('.operator-web-visual').isVisible(), false);

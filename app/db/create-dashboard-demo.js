@@ -37,7 +37,17 @@ function createDashboardDemo(filename = path.join(__dirname, '.local', 'dashboar
       demoIncident.resourceKind, demoIncident.resourceId, demoIncident.description, demoIncident.severity,
       demoIncident.status, demoIncident.reportedAt, demoIncident.reportedLocation
     );
-    db.prepare("UPDATE electric_vehicles SET status='NeedsCharging' WHERE hub_id='library' AND id IN ('EM-117', 'EB-135')").run();
+    db.prepare("UPDATE electric_vehicles SET status='NeedsCharging', battery_percent=15 WHERE id='EM-117'").run();
+    db.prepare("UPDATE electric_vehicles SET status='NeedsCharging', battery_percent=35 WHERE id='EB-135'").run();
+    const insertRequest = db.prepare(`INSERT INTO charging_requests (
+      id, user_id, vehicle_id, occupancy_id, hub_id,
+      battery_at_request, target_battery_percent, needed_by, requested_start,
+      manual_priority_rank, status, created_at, updated_at
+    ) VALUES (?, 'operator', ?, NULL, ?, ?, ?, ?, NULL, NULL, 'Queued', '2026-11-16T01:05:00.000Z', '2026-11-16T01:05:00.000Z')`);
+    insertRequest.run('CREQ-DEMO-METRO-1', 'EM-100', 'metro', 61, 95, '2030-01-01T12:00:00.000Z');
+    insertRequest.run('CREQ-DEMO-METRO-2', 'EB-105', 'metro', 60, 90, '2030-01-01T13:00:00.000Z');
+    insertRequest.run('CREQ-DEMO-LIB-1', 'EM-117', 'library', 15, 95, '2030-01-01T12:00:00.000Z');
+    insertRequest.run('CREQ-DEMO-LIB-2', 'EB-135', 'library', 35, 90, '2030-01-01T13:00:00.000Z');
     db.exec('COMMIT;');
   } catch (error) {
     try { db.exec('ROLLBACK;'); } catch { /* The transaction may already be closed. */ }
