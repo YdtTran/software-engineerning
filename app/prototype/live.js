@@ -9,6 +9,7 @@
     selectedHub: '', selectedVehicle: null, hubMatches: null, returnChoices: {}, scenario: 'metro', draft: null,
     vehicleLimit: 3, resourceLimit: 20, resourceFilters: { q: '', hubId: '', kind: '', status: '' }, newResourceKind: 'vehicle',
     transfers: [], transferPlan: null, transferFilter: '', arrivalChoices: {},
+    incidents: [], filteredIncidents: null, incidentFilters: { status: '', hubId: '' },
     view: location.hash.slice(1) || (operator ? 'overview' : 'home'), error: '', busy: false, success: '' };
   const labels = { metro: 'Khách Metro tăng đột biến', parking: 'Hub hết chỗ đỗ', 'charging-demand': 'Nhu cầu sạc tăng', charging: 'Cổng sạc ngừng hoạt động', clustering: 'Xe phân bố mất cân bằng' };
   const statuses = { Reserved: 'Đang giữ xe', PickupClaimed: 'Đang xác nhận nhận xe', PickupUncertain: 'Cần đối soát nhận xe', Fulfilled: 'Đã nhận xe', Cancelled: 'Đã hủy', Expired: 'Đã hết hạn', Active: 'Đang đi', Completed: 'Đã hoàn tất' };
@@ -63,7 +64,21 @@
     INCOMPLETE_ARRIVAL_SET: 'Danh sách xe đến nơi chưa đủ. Hãy kiểm tra từng xe của lệnh.',
     VEHICLE_MISMATCH_ON_ARRIVAL: 'Danh sách xe đến nơi không khớp lệnh. Hãy kiểm tra từng xe.',
     INSUFFICIENT_REPLACEMENT_SLOTS: 'Chưa đủ chỗ thay thế cho toàn bộ xe của lệnh.',
-    VEHICLE_NOT_IN_TRANSFER: 'Có xe không còn ở trạng thái điều chuyển. Dữ liệu đã được tải lại.'
+    VEHICLE_NOT_IN_TRANSFER: 'Có xe không còn ở trạng thái điều chuyển. Dữ liệu đã được tải lại.',
+    INCIDENT_NOT_FOUND: 'Không tìm thấy hồ sơ sự cố.',
+    MISSING_TRIP_ID: 'Thiếu mã chuyến đi khi báo cáo sự cố.',
+    INVALID_DESCRIPTION: 'Vui lòng nhập mô tả sự cố.',
+    MISSING_TECHNICIAN: 'Vui lòng nhập mã kỹ thuật viên phụ trách.',
+    INVALID_ASSIGNMENT_DATA: 'Thông tin phân công bảo trì chưa hợp lệ.',
+    INVALID_RESOURCE_KIND: 'Loại tài nguyên không hợp lệ.',
+    INVALID_RESOURCE_ID: 'Mã tài nguyên không hợp lệ.',
+    RESOURCE_ID_MISMATCH: 'Mã tài nguyên xác nhận không khớp với tài nguyên của sự cố.',
+    INCIDENT_ASSIGNMENT_CONFLICT: 'Sự cố vừa được phân công hoặc đã thay đổi trạng thái. Dữ liệu đã được tải lại.',
+    INCIDENT_ALREADY_CLOSED: 'Sự cố đã được đóng trước đó. Dữ liệu đã được tải lại.',
+    ALREADY_RESOLVED: 'Sự cố đã được hoàn tất xử lý trước đó.',
+    MAINTENANCE_NOT_ASSIGNED: 'Cần phân công kỹ thuật viên và chuyển sang trạng thái đang xử lý trước khi hoàn tất.',
+    TRIP_NOT_ACTIVE: 'Chuyến đi không còn hoạt động nên không thể ghi nhận sự cố hành trình.',
+    TRIP_NOT_FOUND: 'Không tìm thấy chuyến đi liên quan.'
   };
   async function api(path, options = {}) {
     let response;
@@ -105,7 +120,7 @@
     state.hubs = await api('/hubs');
     state.hubMatches = null;
     state.selectedHub ||= state.hubs[0]?.id || '';
-    if (operator) [state.results, state.networkOverview, state.resources, state.transfers] = await Promise.all([api('/simulations'), api('/operations/hubs'), api('/operations/resources'), experience === 'operator-web' ? loadTransfers() : []]);
+    if (operator) [state.results, state.networkOverview, state.resources, state.transfers, state.incidents] = await Promise.all([api('/simulations'), api('/operations/hubs'), api('/operations/resources'), experience === 'operator-web' ? loadTransfers() : [], experience === 'operator-web' ? loadIncidents() : []]);
     else {
       await refreshUser();
       if (state.selectedHub) state.vehicles = await api(`/hubs/${encodeURIComponent(state.selectedHub)}/vehicles`);
@@ -138,6 +153,30 @@
     }
     store.save(kept);
     return records;
+  }
+  function incidentAssignmentStore() {
+    const storageKey = `mobility-incident-assignments:${state.user.id}`;
+    let values;
+    try { values = JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch { values = {}; }
+    return { values: values && typeof values === 'object' ? values : {}, save: () => localStorage.setItem(storageKey, JSON.stringify(values)) };
+  }
+  function rememberIncidentAssignment(id, assignment) {
+    if (!id || !assignment) return;
+    const store = incidentAssignmentStore(); store.values[id] = assignment; store.save();
+  }
+  function decorateIncidents(records) {
+    const store = incidentAssignmentStore().values;
+    return records.map(item => {
+      const saved = item.assignment || store[item.id] || null;
+      const assignment = saved ? { ...saved, status: item.status === 'Resolved' ? 'Completed' : saved.status || 'Assigned' } : null;
+      return { ...item, assignment };
+    });
+  }
+  async function loadIncidents() {
+    const all = decorateIncidents(await api('/incidents'));
+    const params = new URLSearchParams(Object.entries(state.incidentFilters).filter(([, value]) => value));
+    state.filteredIncidents = params.size ? decorateIncidents(await api('/incidents?' + params)) : null;
+    return all;
   }
   async function run(action) {
     if (state.busy) return;
@@ -324,6 +363,61 @@
         <div class="transfer-board"><section class="card transfer-toolbar"><form id="transfer-lookup-form" class="transfer-lookup"><label>Tra cứu theo mã lệnh<input class="field" name="transferId" placeholder="Ví dụ: TRF-…" autocomplete="off" required></label><button class="secondary">Tra cứu</button></form><label class="transfer-filter">Trạng thái<select class="field" id="transfer-status-filter"><option value="">Tất cả</option>${Object.entries(transferStatusMeta).map(([value, [text]]) => option(value, text, state.transferFilter)).join('')}</select></label></section>
           ${shown.map(transferCard).join('') || empty(transfers.length ? 'Không có lệnh ở trạng thái đã chọn.' : 'Chưa theo dõi lệnh nào. Tạo lệnh mới hoặc tra cứu theo mã lệnh.')}<p class="muted transfer-note">Danh sách gồm các lệnh được tạo hoặc tra cứu trên trình duyệt này; trạng thái luôn được tải lại từ máy chủ.</p></div></div>`;
   }
+  const incidentStatusMeta = { Open: ['Mới tiếp nhận', 'red'], Investigating: ['Đang xử lý', 'yellow'], Resolved: ['Đã xử lý', 'green'] };
+  const incidentSeverityLabel = value => ({ Emergency: 'Khẩn cấp (SLA 60 giây)', Critical: 'Nghiêm trọng (SLA 30 phút)', Standard: 'Tiêu chuẩn (SLA 120 phút)' }[value] || value);
+  const reporterRoleLabel = value => ({ User: 'Người dùng', Operator: 'Vận hành', System: 'Hệ thống' }[value] || value);
+  function defaultIncidentSla(item) {
+    if (item.assignment?.slaDeadline) return item.assignment.slaDeadline;
+    if (item.slaDeadline) return item.slaDeadline;
+    const minutes = String(item.severity).toLowerCase() === 'emergency' ? 1 : String(item.severity).toLowerCase() === 'critical' ? 30 : 120;
+    const base = Date.parse(item.reportedAt);
+    return Number.isNaN(base) ? null : new Date(base + minutes * 60 * 1000).toISOString();
+  }
+  function defaultScheduleInput() {
+    const now = new Date(Date.now() - new Date().getTimezoneOffset() * 60000);
+    return now.toISOString().slice(0, 16);
+  }
+  function incidentResourceInfo(item) {
+    const resource = state.resources.find(entry => entry.id === item.resourceId);
+    if (!resource) return { hubLabel: item.reportedLocation || 'Chưa xác định', stateLabel: 'Đang kiểm tra trạng thái', tone: 'yellow' };
+    const key = resourceStatusKey(resource.status), label = resourceStatusLabel(resource.status);
+    const note = ['fault', 'faulted', 'faulty', 'maintenance', 'repair', 'suspended', 'blocked'].includes(key)
+      ? `${label} · Đã cách ly`
+      : key === 'inuse' ? `${label} · Giữ chuyến đang đi, cách ly khi trả xe` : label;
+    return { hubLabel: name(resource.hubId), stateLabel: note, tone: resourceTone(resource.status) };
+  }
+  function incidentCard(item) {
+    const [statusLabel, statusTone] = incidentStatusMeta[item.status] || [item.status, 'blue'];
+    const info = incidentResourceInfo(item);
+    const sla = defaultIncidentSla(item);
+    const facts = [
+      ['Nguồn báo cáo', `${reporterRoleLabel(item.reporterRole)} · ${item.reporterId}`],
+      ['Tài nguyên', `${resourceKindLabel(item.resourceKind)} · ${item.resourceId}`],
+      ['Mobility Hub', info.hubLabel],
+      ['Trạng thái cách ly', info.stateLabel],
+      ['Chuyến liên quan', item.reportedTripId || 'Thiết bị tại trạm'],
+      ['Mức độ', incidentSeverityLabel(item.severity)],
+      ['Thời gian báo cáo', date(item.reportedAt)],
+      ['Hạn SLA', date(sla)]
+    ];
+    const assignment = item.assignment ? `<div class="incident-assignment"><div class="incident-assignment-head"><strong>Phân công bảo trì · ${esc(item.assignment.id)}</strong><span class="status-pill level-${item.assignment.status === 'Completed' ? 'green' : 'blue'}">${item.assignment.status === 'Completed' ? 'Đã hoàn thành' : 'Đã phân công'}</span></div><p class="muted">Kỹ thuật viên: <strong>${esc(item.assignment.technicianId)}</strong> · Lịch bảo trì: ${esc(date(item.assignment.scheduledAt))} · Hạn SLA: ${esc(date(item.assignment.slaDeadline))}</p></div>` : '';
+    const actions = item.status === 'Open'
+      ? `<form class="incident-handle-form" data-incident-handle="${esc(item.id)}"><div class="incident-form-grid"><label>Mã tài nguyên xác nhận<input class="field" name="resourceId" value="${esc(item.resourceId)}" required></label><label>Kỹ thuật viên phụ trách<input class="field" name="technicianId" placeholder="Ví dụ: TECH-01" required></label><label>Lịch bảo trì<input class="field" type="datetime-local" name="scheduledAt" value="${esc(defaultScheduleInput())}" required></label></div><button class="primary">Nhận xử lý & phân công</button></form>`
+      : item.status === 'Investigating'
+      ? `<form class="incident-resolve-form" data-incident-resolve="${esc(item.id)}"><label>Ghi chú kết quả xử lý<input class="field" name="resolutionNotes" placeholder="Mô tả kết quả kiểm tra, khắc phục và xác nhận an toàn" required></label><button class="primary">Hoàn tất xử lý</button></form>`
+      : `<p class="notice incident-resolved">Đã xử lý lúc ${esc(date(item.resolvedAt))} · Ghi chú: ${esc(item.resolutionNotes || 'Đã hoàn tất bảo trì')}</p>`;
+    return `<article class="card incident-card" data-incident="${esc(item.id)}"><div class="transfer-card-head"><div><h3>${esc(item.id)} · ${esc(item.resourceId)}</h3><p class="incident-desc">${esc(item.description)}</p></div><span class="status-pill level-${statusTone}">${esc(statusLabel)}</span></div><dl class="transfer-meta incident-meta">${facts.map(([key, value]) => `<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${assignment}${actions}</article>`;
+  }
+  function incidents() {
+    if (experience !== 'operator-web') return plannedScreen('Sự cố vận hành');
+    const all = state.incidents, rows = state.filteredIncidents ?? all;
+    const count = status => all.filter(item => item.status === status).length;
+    const filters = state.incidentFilters;
+    return `<div class="dashboard-heading"><div><h1>Sự cố vận hành</h1><p class="muted">Tiếp nhận cảnh báo thiết bị và sự cố hành trình, phân công kỹ thuật viên và xác nhận hoàn tất bảo trì.</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+      <div class="resource-metrics incident-metrics"><section><span>Tổng sự cố</span><strong>${all.length}</strong></section><section><span>Mới tiếp nhận</span><strong>${count('Open')}</strong></section><section><span>Đang xử lý</span><strong>${count('Investigating')}</strong></section><section><span>Đã xử lý</span><strong>${count('Resolved')}</strong></section></div>
+      <section class="card incident-filter-card"><form id="incident-filter-form" class="incident-filters"><label>Trạng thái<select class="field" name="status"><option value="">Tất cả trạng thái</option>${Object.entries(incidentStatusMeta).map(([value, [text]]) => option(value, text, filters.status)).join('')}</select></label><label>Mobility Hub<select class="field" name="hubId"><option value="">Tất cả Hub</option>${state.hubs.map(hub => option(hub.id, hub.name, filters.hubId)).join('')}</select></label><div class="resource-filter-actions"><button class="primary">Lọc sự cố</button><button class="secondary" type="button" data-action="clear-incident-filters">Xóa lọc</button></div></form></section>
+      <div class="incident-list">${rows.map(incidentCard).join('') || empty(all.length ? 'Không có sự cố phù hợp bộ lọc đã chọn.' : 'Hiện không có sự cố vận hành nào.')}</div>`;
+  }
   function plannedScreen(title) {
     return `<section class="card planned-screen"><h1>${esc(title)}</h1><p class="muted">Màn hình đã có trong khung điều hướng và sẽ được nối API ở đợt triển khai tiếp theo.</p><button class="secondary" data-view="overview">Quay lại Tổng quan</button></section>`;
   }
@@ -373,7 +467,7 @@
       overview,
       resources,
       redistribute: experience === 'operator-web' ? redistribute : () => plannedScreen('Điều phối xe'),
-      incidents: () => plannedScreen('Sự cố vận hành'),
+      incidents: experience === 'operator-web' ? incidents : () => plannedScreen('Sự cố vận hành'),
       schedule: () => plannedScreen('Lịch sạc'),
       simulation,
       results,
@@ -404,9 +498,11 @@
       const operation = button.dataset.retryOperation, entry = pendingStore().values[operation];
       const result = await write(entry.path, JSON.parse(entry.body), operation, entry.method || 'POST');
       if (operator && operation === 'transfer-create' && result?.id) rememberTransfer(result.id);
+      if (operator && operation.startsWith('incident-handle:') && result?.assignment) rememberIncidentAssignment(result.id, result.assignment);
       await reload();
       if (operator && result.inputs) { state.result = result; state.view = 'results'; }
       else if (operator && operation.startsWith('transfer-')) state.view = 'redistribute';
+      else if (operator && operation.startsWith('incident-')) state.view = 'incidents';
       else if (!operator) state.view = 'journeys';
       state.success = 'Đã lấy lại kết quả yêu cầu trước.';
     });
@@ -471,7 +567,8 @@
     else if (button.dataset.action === 'show-more-vehicles') { state.vehicleLimit += 3; render(); }
     else if (button.dataset.action === 'show-more-resources') { state.resourceLimit += 20; render(); }
     else if (button.dataset.action === 'clear-resource-filters') { state.resourceFilters = { q: '', hubId: '', kind: '', status: '' }; state.resourceLimit = 20; render(); }
-    else if (button.dataset.action === 'logout') run(async () => { await api('/session', { method: 'DELETE' }); state.user = null; state.result = null; state.reservations = []; state.trips = []; state.transfers = []; state.transferPlan = null; state.arrivalChoices = {}; });
+    else if (button.dataset.action === 'clear-incident-filters') run(async () => { state.incidentFilters = { status: '', hubId: '' }; await reload(); });
+    else if (button.dataset.action === 'logout') run(async () => { await api('/session', { method: 'DELETE' }); state.user = null; state.result = null; state.reservations = []; state.trips = []; state.transfers = []; state.transferPlan = null; state.arrivalChoices = {}; state.incidents = []; state.filteredIncidents = null; });
     else if (button.dataset.action === 'export' && state.result) {
       const link = document.createElement('a'); const url = URL.createObjectURL(new Blob([JSON.stringify(state.result, null, 2)], { type: 'application/json' }));
       link.href = url; link.download = `simulation-${state.result.id}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -565,6 +662,28 @@
       const result = await write(`/transfers/${encodeURIComponent(id)}/arrive`, body, `transfer-arrive:${id}`);
       delete state.arrivalChoices[id];
       await reload(); state.success = `Lệnh ${id} đã hoàn tất. Xe đã vào chỗ tại ${name(result.destinationHubId)}.`;
+    });
+    else if (formId === 'incident-filter-form') run(async () => {
+      state.incidentFilters = { status: String(data.get('status') || ''), hubId: String(data.get('hubId') || '') };
+      await reload();
+    });
+    else if (form.classList.contains('incident-handle-form')) run(async () => {
+      const id = form.dataset.incidentHandle;
+      const resourceId = String(data.get('resourceId') || '').trim();
+      const technicianId = String(data.get('technicianId') || '').trim();
+      const rawSchedule = String(data.get('scheduledAt') || '').trim();
+      const parsedSchedule = Date.parse(rawSchedule);
+      if (!resourceId || !technicianId || Number.isNaN(parsedSchedule)) throw new Error('Nhập đủ mã tài nguyên, kỹ thuật viên và lịch bảo trì hợp lệ.');
+      const result = await write(`/incidents/${encodeURIComponent(id)}/handle`, { resourceId, technicianId, scheduledAt: new Date(parsedSchedule).toISOString() }, `incident-handle:${id}`);
+      rememberIncidentAssignment(result.id, result.assignment);
+      await reload(); state.success = `Đã phân công ${result.assignment.technicianId} xử lý sự cố ${id}.`;
+    });
+    else if (form.classList.contains('incident-resolve-form')) run(async () => {
+      const id = form.dataset.incidentResolve;
+      const resolutionNotes = String(data.get('resolutionNotes') || '').trim();
+      if (!resolutionNotes) throw new Error('Nhập ghi chú kết quả xử lý trước khi hoàn tất.');
+      await write(`/incidents/${encodeURIComponent(id)}/resolve`, { resolutionNotes }, `incident-resolve:${id}`);
+      await reload(); state.success = `Đã hoàn tất xử lý sự cố ${id}.`;
     });
   });
   window.addEventListener('online', () => { if (state.user) run(reload); });

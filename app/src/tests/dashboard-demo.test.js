@@ -27,4 +27,10 @@ test('dashboard demo data produces green, yellow and red UC08 states', async t =
   assert.equal(hubs['dorm-a'].alert.level, 'RED');
   assert.equal(hubs['dorm-a'].capacity.occupancyRate, 100);
   assert.equal(hubs.library.alert.level, 'GREEN');
+
+  const incidents = await operations.incidentService.listIncidents({ hubId: 'metro' });
+  assert.equal(incidents.length, 1);
+  assert.equal(incidents[0].id, 'INC-DEMO-METRO-C03');
+  assert.equal(incidents[0].resourceId, 'metro-C03');
+  assert.equal(incidents[0].status, 'Open');
 });
