@@ -98,6 +98,37 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
     fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
     await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-overview.png'), fullPage: true });
   }
+  await desktop.locator('[data-view="resources"]').click();
+  await desktop.getByRole('heading', { name: 'Quản lý tài nguyên', exact: true }).waitFor();
+  assert.deepEqual(await desktop.locator('.resource-metrics strong').allTextContents(), ['62', '39', '9', '110']);
+  if (process.env.LIVE_SCREENSHOT_DIR) {
+    await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-resources.png'), fullPage: true });
+  }
+  await desktop.locator('#resource-create-form select[name="hubId"]').selectOption('metro');
+  await desktop.locator('#resource-create-form input[name="id"]').fill('UI-RESOURCE-1');
+  await desktop.locator('#resource-create-form select[name="vehicleType"]').selectOption('electric_bicycle');
+  await desktop.locator('#resource-create-form input[name="batteryPercent"]').fill('88');
+  assert.equal(await desktop.locator('#resource-create-form').evaluate(form => form.checkValidity()), true);
+  const createResponsePromise = desktop.waitForResponse(response => response.url().endsWith('/api/v1/operations/resources') && response.request().method() === 'POST');
+  await desktop.locator('#resource-create-form button').click();
+  const createResponse = await createResponsePromise;
+  assert.equal(createResponse.status(), 201, await createResponse.text());
+  await desktop.waitForFunction(() => document.querySelector('.success')?.textContent.includes('UI-RESOURCE-1'));
+  assert.match(await desktop.locator('.success').textContent(), /Đã thêm UI-RESOURCE-1/);
+  assert.equal(db.prepare("SELECT battery_percent FROM electric_vehicles WHERE id='UI-RESOURCE-1'").get().battery_percent, 88);
+  await desktop.locator('[data-resource-status="UI-RESOURCE-1"]').click();
+  await desktop.locator('tr', { has: desktop.locator('[data-resource-status="UI-RESOURCE-1"]') }).getByText('Bảo trì', { exact: true }).waitFor();
+  assert.equal(db.prepare("SELECT status FROM electric_vehicles WHERE id='UI-RESOURCE-1'").get().status, 'Maintenance');
+  await desktop.locator('[data-resource-status="UI-RESOURCE-1"]').click();
+  await desktop.locator('tr', { has: desktop.locator('[data-resource-status="UI-RESOURCE-1"]') }).getByText('Khả dụng', { exact: true }).waitFor();
+  desktop.once('dialog', dialog => dialog.accept());
+  const deleteResponsePromise = desktop.waitForResponse(response => response.url().endsWith('/api/v1/operations/resources/UI-RESOURCE-1') && response.request().method() === 'DELETE');
+  await desktop.locator('[data-resource-delete="UI-RESOURCE-1"]').click();
+  const deleteResponse = await deleteResponsePromise;
+  assert.equal(deleteResponse.status(), 200, await deleteResponse.text());
+  await desktop.waitForFunction(() => document.querySelector('.success')?.textContent.includes('Đã xóa'));
+  assert.equal(db.prepare("SELECT count(*) AS n FROM electric_vehicles WHERE id='UI-RESOURCE-1'").get().n, 0);
+  assert.doesNotMatch(await desktop.locator('#live-app').textContent(), /UC(?:08|09|10|11|12)/);
   for (const scenario of ['metro', 'parking', 'charging-demand', 'charging', 'clustering']) {
     await desktop.locator('[data-view="simulation"]').click();
     await desktop.locator('#scenario').selectOption(scenario);

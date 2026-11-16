@@ -5,9 +5,10 @@
   document.body.classList.add(operator ? experience : 'user-app');
   document.getElementById('experience-label').textContent = experience === 'operator-web' ? 'TRUNG TÂM ĐIỀU HÀNH' : experience === 'operator-app' ? 'ỨNG DỤNG VẬN HÀNH' : 'ỨNG DỤNG NGƯỜI DÙNG';
   const root = document.getElementById('live-app'), nav = document.getElementById('live-nav'), status = document.getElementById('live-status');
-  const state = { user: null, hubs: [], networkOverview: [], vehicles: [], reservations: [], trips: [], results: [], result: null,
+  const state = { user: null, hubs: [], networkOverview: [], resources: [], vehicles: [], reservations: [], trips: [], results: [], result: null,
     selectedHub: '', selectedVehicle: null, hubMatches: null, returnChoices: {}, scenario: 'metro', draft: null,
-    vehicleLimit: 3, view: location.hash.slice(1) || (operator ? 'overview' : 'home'), error: '', busy: false, success: '' };
+    vehicleLimit: 3, resourceLimit: 20, resourceFilters: { q: '', hubId: '', kind: '', status: '' }, newResourceKind: 'vehicle',
+    view: location.hash.slice(1) || (operator ? 'overview' : 'home'), error: '', busy: false, success: '' };
   const labels = { metro: 'Khách Metro tăng đột biến', parking: 'Hub hết chỗ đỗ', 'charging-demand': 'Nhu cầu sạc tăng', charging: 'Cổng sạc ngừng hoạt động', clustering: 'Xe phân bố mất cân bằng' };
   const statuses = { Reserved: 'Đang giữ xe', PickupClaimed: 'Đang xác nhận nhận xe', PickupUncertain: 'Cần đối soát nhận xe', Fulfilled: 'Đã nhận xe', Cancelled: 'Đã hủy', Expired: 'Đã hết hạn', Active: 'Đang đi', Completed: 'Đã hoàn tất' };
   const iconPaths = {
@@ -35,6 +36,11 @@
     INVALID_SCENARIO: 'Tham số mô phỏng chưa hợp lệ. Hãy kiểm tra giới hạn và số cổng sạc của Hub.',
     IDEMPOTENCY_KEY_REUSED: 'Yêu cầu đã thay đổi. Hãy tải lại trạng thái trước khi tiếp tục.',
     RESERVATION_CONFLICT: 'Trạng thái phiếu đã thay đổi. Hãy kiểm tra lại phiếu.',
+    INVALID_STATE_TRANSITION: 'Tài nguyên đang được sử dụng hoặc trạng thái mới không an toàn.',
+    CANNOT_DELETE_ACTIVE_VEHICLE: 'Không thể xóa xe đang được sử dụng, giữ chỗ hoặc đỗ tại Hub.',
+    RESOURCE_NOT_FOUND: 'Không tìm thấy tài nguyên.', VEHICLE_NOT_FOUND: 'Không tìm thấy xe.',
+    ALLOCATION_CONFLICT: 'Tài nguyên vừa được một nghiệp vụ khác sử dụng. Dữ liệu đã được tải lại.',
+    CHARGING_GUARD_UNAVAILABLE: 'Chưa thể đổi trạng thái cổng sạc khi chưa có xác nhận an toàn.',
     INTERNAL_ERROR: 'Chưa thể hoàn tất yêu cầu. Bạn có thể thử lại.', SNAPSHOT_UNAVAILABLE: 'Chưa lấy được dữ liệu mạng lưới. Hãy thử lại.'
   };
   async function api(path, options = {}) {
@@ -55,14 +61,14 @@
     try { values = JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch { values = {}; }
     return { values, save: () => localStorage.setItem(storageKey, JSON.stringify(values)) };
   }
-  async function write(path, body, operation) {
+  async function write(path, body, operation, method = 'POST') {
     const store = pendingStore(), serialized = JSON.stringify(body), previous = store.values[operation];
-    if (previous && previous.body !== serialized) throw new Error('Yêu cầu trước chưa rõ kết quả. Hãy thử lại đúng yêu cầu cũ trước khi thay đổi.');
+    if (previous && (previous.body !== serialized || (previous.method || 'POST') !== method)) throw new Error('Yêu cầu trước chưa rõ kết quả. Hãy thử lại đúng yêu cầu cũ trước khi thay đổi.');
     const bytes = crypto.getRandomValues(new Uint8Array(16));
     const key = previous?.key || Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
-    store.values[operation] = { key, body: serialized, path }; store.save();
+    store.values[operation] = { key, body: serialized, path, method }; store.save();
     try {
-      const data = await api(path, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': key }, body: serialized });
+      const data = await api(path, { method, headers: { 'content-type': 'application/json', 'idempotency-key': key }, body: serialized });
       delete store.values[operation]; store.save(); return data;
     } catch (error) {
       if (error.status && error.status < 500 && error.code !== 'COMMAND_IN_PROGRESS') { delete store.values[operation]; store.save(); }
@@ -77,7 +83,7 @@
     state.hubs = await api('/hubs');
     state.hubMatches = null;
     state.selectedHub ||= state.hubs[0]?.id || '';
-    if (operator) [state.results, state.networkOverview] = await Promise.all([api('/simulations'), api('/operations/hubs')]);
+    if (operator) [state.results, state.networkOverview, state.resources] = await Promise.all([api('/simulations'), api('/operations/hubs'), api('/operations/resources')]);
     else {
       await refreshUser();
       if (state.selectedHub) state.vehicles = await api(`/hubs/${encodeURIComponent(state.selectedHub)}/vehicles`);
@@ -143,15 +149,68 @@
     const observedAt = hubs.map(hub => hub.observationTime).filter(Boolean).sort().at(-1);
     const metric = (label, value, note, tone = '') => `<section class="dashboard-metric ${tone}"><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></section>`;
     const levelLabel = { RED: 'Khẩn cấp', YELLOW: 'Cảnh báo', GREEN: 'Bình thường' };
-    return `<div class="dashboard-heading"><div><p class="eyebrow">UC08 · GIÁM SÁT MẠNG LƯỚI</p><h1>Tổng quan mạng lưới</h1><p class="muted">${hubs.length} Hub · Cập nhật ${esc(date(observedAt))}</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+    return `<div class="dashboard-heading"><div><p class="eyebrow">GIÁM SÁT MẠNG LƯỚI</p><h1>Tổng quan mạng lưới</h1><p class="muted">${hubs.length} Hub · Cập nhật ${esc(date(observedAt))}</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
       <section class="operator-web-visual" aria-label="Mạng lưới giao thông điện thông minh"><div class="operator-web-visual-copy"><p class="eyebrow">SMART E-MOBILITY HUB · VNU-HCM</p><h2>Thành phố chuyển động.<br>Mạng lưới luôn sẵn sàng.</h2><p>Kết nối Mobility Hub, metro và khu đô thị bằng dữ liệu vận hành trực tiếp.</p></div><div class="operator-web-visual-summary"><span>Ảnh chụp hiện tại</span><strong>${esc(hubs.length)} Hub đang theo dõi</strong><small>${esc(totals.vehicles)} xe khả dụng · ${esc(totals.alerts)} Hub cần chú ý</small></div></section>
       <div class="dashboard-metrics">${metric('Xe khả dụng', totals.vehicles, 'Có thể phân bổ ngay')}${metric('Chỗ đỗ trống', totals.slots, 'Không gồm chỗ đang giữ')}${metric('Cổng sạc trống', totals.charging, 'Cổng sẵn sàng')}${metric('Hub cần chú ý', totals.alerts, totals.alerts ? 'Theo ngưỡng BR10' : 'Mạng lưới ổn định', totals.alerts ? 'warning' : '')}</div>
       <div class="dashboard-columns"><section class="card"><div class="section-heading"><div><p class="eyebrow">CẢNH BÁO TỰ ĐỘNG</p><h2>Cần chú ý</h2></div><span class="status-pill level-${alertHubs.some(hub => displayLevel(hub) === 'RED') ? 'red' : alertHubs.length ? 'yellow' : 'green'}">${alertHubs.length} cảnh báo</span></div>${alertHubs.map(hub => { const level = displayLevel(hub); return `<article class="hub-alert level-${level.toLowerCase()}"><div><strong>${esc(hub.hubName)}</strong><p>${esc(alertText(hub))}</p></div><span>${esc(levelLabel[level])}</span></article>`; }).join('') || empty('Không có Hub vượt ngưỡng BR10 hoặc tài nguyên lỗi.')}</section>
       <section class="card"><p class="eyebrow">PHÂN BỐ TRẠNG THÁI</p><h2>Sức khỏe mạng lưới</h2><div class="health-legend"><span><i class="level-green"></i>Bình thường</span><span><i class="level-yellow"></i>Cảnh báo</span><span><i class="level-red"></i>Khẩn cấp</span></div><p class="muted">Ngưỡng BR10 và số tài nguyên lỗi đều lấy từ ảnh chụp mạng lưới do máy chủ cung cấp.</p></section></div>
       <section class="card"><div class="section-heading"><div><p class="eyebrow">DỮ LIỆU TRỰC TIẾP</p><h2>Trạng thái các Hub</h2></div></div>${hubs.length ? `<div class="table-wrap"><table class="hub-table"><thead><tr><th>Mobility Hub</th><th>Xe khả dụng</th><th>Chỗ trống</th><th>Sạc trống</th><th>Lấp đầy</th><th>Trạng thái</th></tr></thead><tbody>${hubs.map(hub => { const level = displayLevel(hub); return `<tr><td><strong>${esc(hub.hubName)}</strong><small>${esc(hub.hubId)}</small></td><td>${esc(hub.vehicles.available)} / ${esc(hub.vehicles.total)}</td><td>${esc(hub.capacity.availableSlots)} / ${esc(hub.capacity.totalSlots)}</td><td>${esc(hub.charging.availablePoints)} / ${esc(hub.charging.totalPoints)}</td><td><div class="occupancy"><span><i style="width:${Math.min(100, hub.capacity.occupancyRate)}%"></i></span>${esc(hub.capacity.occupancyRate)}%</div></td><td><span class="status-pill level-${level.toLowerCase()}">${esc(levelLabel[level])}</span></td></tr>`; }).join('')}</tbody></table></div>` : empty('Chưa có dữ liệu Hub để hiển thị.')}</section>`;
   }
-  function plannedScreen(title, useCase) {
-    return `<section class="card planned-screen"><p class="eyebrow">${esc(useCase)}</p><h1>${esc(title)}</h1><p class="muted">Màn hình đã có trong khung điều hướng và sẽ được nối API ở đợt triển khai tiếp theo.</p><button class="secondary" data-view="overview">Quay lại Tổng quan</button></section>`;
+  const resourceKindLabel = kind => ({ vehicle: 'Phương tiện', slot: 'Chỗ đỗ', charging_point: 'Cổng sạc' }[kind] || kind);
+  const resourceStatusKey = status => String(status || '').toLowerCase().replace(/[_\s-]/g, '');
+  function resourceStatusLabel(status) {
+    return ({ available: 'Khả dụng', idle: 'Khả dụng', maintenance: 'Bảo trì', repair: 'Đang sửa chữa', suspended: 'Tạm ngưng', blocked: 'Tạm ngưng', faulty: 'Lỗi', faulted: 'Lỗi', fault: 'Lỗi', occupied: 'Đang sử dụng', reserved: 'Đã giữ', inuse: 'Đang sử dụng', transferheld: 'Chờ điều chuyển', intransit: 'Đang điều chuyển', needscharging: 'Cần sạc', charging: 'Đang sạc' }[resourceStatusKey(status)] || status);
+  }
+  function resourceTone(status) {
+    const key = resourceStatusKey(status);
+    if (['available', 'idle'].includes(key)) return 'green';
+    if (['fault', 'faulted', 'faulty'].includes(key)) return 'red';
+    if (['maintenance', 'repair', 'suspended', 'blocked', 'needscharging'].includes(key)) return 'yellow';
+    return 'blue';
+  }
+  function resourceDetail(resource) {
+    if (resource.kind === 'vehicle') return `${resource.attributes.vehicleType === 'electric_motorbike' ? 'Xe máy điện' : 'Xe đạp điện'} · Pin ${resource.attributes.batteryPercent}%`;
+    if (resource.kind === 'slot') return `Mã ${resource.attributes.code} · ${resource.attributes.pool === 'advance' ? 'Đặt trước' : 'Trả ngay'}`;
+    return `Mã ${resource.attributes.code}`;
+  }
+  function resourceTransition(resource) {
+    const key = resourceStatusKey(resource.status);
+    if (resource.kind === 'vehicle') {
+      if (key === 'available') return { status: 'Maintenance', label: 'Chuyển bảo trì' };
+      if (['maintenance', 'suspended'].includes(key)) return { status: 'Available', label: 'Kích hoạt lại' };
+    }
+    if (resource.kind === 'slot') {
+      if (key === 'available') return { status: 'Suspended', label: 'Tạm ngưng' };
+      if (['suspended', 'blocked'].includes(key)) return { status: 'Available', label: 'Mở lại' };
+    }
+    if (resource.kind === 'charging_point') {
+      if (['available', 'idle', 'fault', 'faulted'].includes(key)) return { status: 'Maintenance', label: 'Chuyển sửa chữa' };
+      if (['maintenance', 'repair'].includes(key)) return { status: 'Available', label: 'Xác nhận an toàn' };
+    }
+    return null;
+  }
+  function resourceCreateFields() {
+    if (state.newResourceKind === 'vehicle') return `<label>Loại xe<select class="field" name="vehicleType"><option value="electric_bicycle">Xe đạp điện</option><option value="electric_motorbike">Xe máy điện</option></select></label><label>Mức pin (%)<input class="field" name="batteryPercent" type="number" min="0" max="100" value="100" required></label>`;
+    if (state.newResourceKind === 'slot') return `<label>Mã chỗ đỗ<input class="field" name="code" placeholder="Ví dụ: B01" required></label><label>Nhóm sử dụng<select class="field" name="pool"><option value="immediate">Trả xe ngay</option><option value="advance">Đặt trước</option></select></label>`;
+    return `<label>Mã cổng sạc<input class="field" name="code" placeholder="Ví dụ: C05" required></label>`;
+  }
+  function resources() {
+    if (experience !== 'operator-web') return plannedScreen('Quản lý tài nguyên');
+    const all = [...state.resources].sort((a, b) => `${a.kind}:${a.hubId}:${a.id}`.localeCompare(`${b.kind}:${b.hubId}:${b.id}`, 'vi'));
+    const statuses = [...new Set(all.map(resource => resource.status))].sort((a, b) => a.localeCompare(b, 'vi'));
+    const filters = state.resourceFilters;
+    const query = filters.q.trim().toLocaleLowerCase('vi');
+    const filtered = all.filter(resource => (!filters.hubId || resource.hubId === filters.hubId) && (!filters.kind || resource.kind === filters.kind) && (!filters.status || resource.status === filters.status) && (!query || `${resource.id} ${resourceDetail(resource)} ${name(resource.hubId)}`.toLocaleLowerCase('vi').includes(query)));
+    const counts = kind => all.filter(resource => resource.kind === kind).length;
+    const rows = filtered.slice(0, state.resourceLimit);
+    return `<div class="dashboard-heading resource-heading"><div><p class="eyebrow">DANH MỤC VẬN HÀNH</p><h1>Quản lý tài nguyên</h1><p class="muted">Theo dõi, bổ sung và chuyển trạng thái tài nguyên vật lý tại các Hub.</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+      <div class="resource-metrics"><section><span>Phương tiện</span><strong>${counts('vehicle')}</strong></section><section><span>Chỗ đỗ</span><strong>${counts('slot')}</strong></section><section><span>Cổng sạc</span><strong>${counts('charging_point')}</strong></section><section><span>Đang hiển thị</span><strong>${filtered.length}</strong></section></div>
+      <div class="resource-layout"><section class="card resource-create"><p class="eyebrow">THÊM TÀI NGUYÊN</p><h2>Đăng ký thiết bị mới</h2><form id="resource-create-form"><label>Loại tài nguyên<select class="field" id="resource-kind" name="kind"><option value="vehicle" ${state.newResourceKind === 'vehicle' ? 'selected' : ''}>Phương tiện</option><option value="slot" ${state.newResourceKind === 'slot' ? 'selected' : ''}>Chỗ đỗ</option><option value="charging_point" ${state.newResourceKind === 'charging_point' ? 'selected' : ''}>Cổng sạc</option></select></label><label>Mobility Hub<select class="field" name="hubId">${state.hubs.map(hub => option(hub.id, hub.name)).join('')}</select></label><label>Mã định danh<input class="field" name="id" placeholder="Mã duy nhất" required></label>${resourceCreateFields()}<button class="primary full">Thêm tài nguyên</button></form></section>
+      <div class="resource-catalog"><section class="card resource-filter-card"><form id="resource-filter-form" class="resource-filters"><label>Tìm kiếm<input class="field" name="q" value="${esc(filters.q)}" placeholder="Mã hoặc tên Hub"></label><label>Hub<select class="field" name="hubId"><option value="">Tất cả Hub</option>${state.hubs.map(hub => option(hub.id, hub.name, filters.hubId)).join('')}</select></label><label>Loại<select class="field" name="kind"><option value="">Tất cả</option>${[['vehicle', 'Phương tiện'], ['slot', 'Chỗ đỗ'], ['charging_point', 'Cổng sạc']].map(([value, text]) => option(value, text, filters.kind)).join('')}</select></label><label>Trạng thái<select class="field" name="status"><option value="">Tất cả</option>${statuses.map(value => option(value, resourceStatusLabel(value), filters.status)).join('')}</select></label><div class="resource-filter-actions"><button class="primary">Lọc dữ liệu</button><button class="secondary" type="button" data-action="clear-resource-filters">Xóa lọc</button></div></form></section>
+      <section class="card resource-table-card">${rows.length ? `<div class="table-wrap"><table class="resource-table"><thead><tr><th>Tài nguyên</th><th>Loại</th><th>Mobility Hub</th><th>Thông số</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>${rows.map(resource => { const transition = resourceTransition(resource); const deletable = resource.kind === 'vehicle' && !['inuse', 'reserved', 'transferheld', 'intransit'].includes(resourceStatusKey(resource.status)); return `<tr><td><strong>${esc(resource.id)}</strong></td><td>${esc(resourceKindLabel(resource.kind))}</td><td>${esc(name(resource.hubId))}</td><td>${esc(resourceDetail(resource))}</td><td><span class="status-pill level-${resourceTone(resource.status)}">${esc(resourceStatusLabel(resource.status))}</span></td><td><div class="resource-actions">${transition ? `<button class="secondary" data-resource-status="${esc(resource.id)}" data-target-status="${esc(transition.status)}">${esc(transition.label)}</button>` : '<span class="muted">Được quản lý bởi vòng đời hiện tại</span>'}${deletable ? `<button class="danger" data-resource-delete="${esc(resource.id)}">Xóa</button>` : ''}</div></td></tr>`; }).join('')}</tbody></table></div>${state.resourceLimit < filtered.length ? `<button class="secondary full resource-more" data-action="show-more-resources">Xem thêm (${filtered.length - state.resourceLimit})</button>` : ''}` : empty('Không có tài nguyên phù hợp bộ lọc.')}</section></div></div>`;
+  }
+  function plannedScreen(title) {
+    return `<section class="card planned-screen"><p class="eyebrow">ĐANG HOÀN THIỆN</p><h1>${esc(title)}</h1><p class="muted">Màn hình đã có trong khung điều hướng và sẽ được nối API ở đợt triển khai tiếp theo.</p><button class="secondary" data-view="overview">Quay lại Tổng quan</button></section>`;
   }
   function operatorMenu() {
     const items = [['redistribute', 'arrow', 'Điều phối phương tiện'], ['schedule', 'bolt', 'Lịch sạc thông minh'], ['simulation', 'chart', 'Mô phỏng What-if'], ['results', 'chart', 'Kết quả mô phỏng'], ['account', 'user', 'Tài khoản']];
@@ -197,10 +256,10 @@
     const account = () => `<section class="card"><h1>Tài khoản</h1><p>${esc(state.user.id)}</p><button class="secondary" data-action="logout">Đăng xuất</button></section>`;
     const screens = operator ? {
       overview,
-      resources: () => plannedScreen('Quản lý tài nguyên', 'UC09'),
-      redistribute: () => plannedScreen('Điều phối xe', 'UC10'),
-      incidents: () => plannedScreen('Sự cố vận hành', 'UC11'),
-      schedule: () => plannedScreen('Lịch sạc', 'UC12'),
+      resources,
+      redistribute: () => plannedScreen('Điều phối xe'),
+      incidents: () => plannedScreen('Sự cố vận hành'),
+      schedule: () => plannedScreen('Lịch sạc'),
       simulation,
       results,
       transfer,
@@ -228,7 +287,7 @@
     if (button.dataset.view) { state.view = button.dataset.view; state.error = ''; state.success = ''; history.replaceState(null, '', '#' + state.view); render(); }
     else if (button.dataset.retryOperation) run(async () => {
       const operation = button.dataset.retryOperation, entry = pendingStore().values[operation];
-      const result = await write(entry.path, JSON.parse(entry.body), operation);
+      const result = await write(entry.path, JSON.parse(entry.body), operation, entry.method || 'POST');
       await reload();
       if (operator && result.inputs) { state.result = result; state.view = 'results'; }
       else if (!operator) state.view = 'journeys';
@@ -252,6 +311,18 @@
       if (description?.trim()) run(async () => { await write(`/trips/${encodeURIComponent(button.dataset.report)}/incidents`, { description: description.trim() }, 'incident:' + button.dataset.report); state.success = 'Đã ghi nhận sự cố. Chuyến vẫn được giữ để xử lý an toàn.'; });
     }
     else if (button.dataset.result) run(async () => { state.result = await api('/simulations/' + encodeURIComponent(button.dataset.result)); state.view = 'results'; });
+    else if (button.dataset.resourceStatus) run(async () => {
+      const id = button.dataset.resourceStatus, target = button.dataset.targetStatus;
+      await write(`/operations/resources/${encodeURIComponent(id)}`, { status: target, reason: 'Cập nhật từ Operator Dashboard' }, `resource-status:${id}:${target}`, 'PATCH');
+      await reload(); state.success = `Đã cập nhật trạng thái ${id}.`;
+    });
+    else if (button.dataset.resourceDelete) {
+      const id = button.dataset.resourceDelete;
+      if (confirm(`Xóa phương tiện ${id}? Thao tác chỉ thành công khi xe không thuộc nghiệp vụ đang hoạt động.`)) run(async () => {
+        await write(`/operations/resources/${encodeURIComponent(id)}`, {}, `resource-delete:${id}`, 'DELETE');
+        await reload(); state.success = `Đã xóa ${id}.`;
+      });
+    }
     else if (button.dataset.recommendation !== undefined) run(async () => {
       const item = state.result.recommendations[Number(button.dataset.recommendation)];
       await loadTransferDraft(item); state.view = 'transfer';
@@ -260,6 +331,8 @@
     else if (button.dataset.action === 'refresh') run(reload);
     else if (button.dataset.action === 'scroll-hubs') document.getElementById('hub-list')?.scrollIntoView({ behavior: 'smooth' });
     else if (button.dataset.action === 'show-more-vehicles') { state.vehicleLimit += 3; render(); }
+    else if (button.dataset.action === 'show-more-resources') { state.resourceLimit += 20; render(); }
+    else if (button.dataset.action === 'clear-resource-filters') { state.resourceFilters = { q: '', hubId: '', kind: '', status: '' }; state.resourceLimit = 20; render(); }
     else if (button.dataset.action === 'logout') run(async () => { await api('/session', { method: 'DELETE' }); state.user = null; state.result = null; state.reservations = []; state.trips = []; });
     else if (button.dataset.action === 'export' && state.result) {
       const link = document.createElement('a'); const url = URL.createObjectURL(new Blob([JSON.stringify(state.result, null, 2)], { type: 'application/json' }));
@@ -268,21 +341,35 @@
   });
   document.addEventListener('change', event => {
     if (event.target.id === 'scenario') { state.scenario = event.target.value; render(); }
+    if (event.target.id === 'resource-kind') { state.newResourceKind = event.target.value; render(); }
     if (event.target.classList.contains('return-hub')) state.returnChoices[event.target.dataset.trip] = { hubId: event.target.value, slots: [] };
   });
   document.addEventListener('submit', event => {
-    event.preventDefault(); const form = event.target, data = new FormData(form);
-    if (form.id === 'login-form') run(async () => { state.user = await api('/session', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: data.get('username'), password: data.get('password') }) }); await reload(); });
-    else if (form.id === 'hub-search') run(async () => { state.hubMatches = await api('/hubs?q=' + encodeURIComponent(data.get('q'))); });
+    event.preventDefault(); const form = event.target, formId = form.getAttribute('id'), data = new FormData(form);
+    if (formId === 'login-form') run(async () => { state.user = await api('/session', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: data.get('username'), password: data.get('password') }) }); await reload(); });
+    else if (formId === 'hub-search') run(async () => { state.hubMatches = await api('/hubs?q=' + encodeURIComponent(data.get('q'))); });
+    else if (formId === 'resource-filter-form') {
+      state.resourceFilters = { q: String(data.get('q') || ''), hubId: String(data.get('hubId') || ''), kind: String(data.get('kind') || ''), status: String(data.get('status') || '') };
+      state.resourceLimit = 20; render();
+    }
+    else if (formId === 'resource-create-form') run(async () => {
+      const kind = String(data.get('kind')), id = String(data.get('id')).trim();
+      const attributes = { id };
+      if (kind === 'vehicle') { attributes.vehicleType = String(data.get('vehicleType')); attributes.batteryPercent = Number(data.get('batteryPercent')); }
+      if (kind === 'slot') { attributes.code = String(data.get('code')).trim(); attributes.pool = String(data.get('pool')); }
+      if (kind === 'charging_point') attributes.code = String(data.get('code')).trim();
+      const resource = await write('/operations/resources', { kind, hubId: String(data.get('hubId')), attributes }, `resource-create:${id}`);
+      await reload(); state.resourceFilters = { q: resource.id, hubId: '', kind: '', status: '' }; state.resourceLimit = 20; state.success = `Đã thêm ${resource.id}.`;
+    });
     else if (form.classList.contains('pickup-form')) run(async () => { await write(`/vehicle-reservations/${encodeURIComponent(form.dataset.id)}/pickup`, { vehicleCode: data.get('vehicleCode') }, 'pickup:' + form.dataset.id); await refreshUser(); state.success = 'Đã nhận xe. Chuyến đi đang hoạt động.'; });
     else if (form.classList.contains('return-form')) run(async () => { await write(`/trips/${encodeURIComponent(form.dataset.id)}/return`, { hubId: data.get('hubId'), slotId: data.get('slotId'), confirmed: data.get('confirmed') === 'on' }, 'return:' + form.dataset.id); await refreshUser(); state.success = 'Đã trả xe và kết thúc chuyến đi.'; });
-    else if (form.id === 'simulation-form') run(async () => {
+    else if (formId === 'simulation-form') run(async () => {
       const parameters = {};
       for (const [key, value] of data.entries()) if (!['scenario', 'hubIds'].includes(key)) parameters[key] = key === 'targetHubId' ? value : Number(value);
       state.result = await write('/simulations', { scenario: data.get('scenario'), hubIds: data.getAll('hubIds'), parameters }, 'simulation');
       state.results = await api('/simulations'); state.view = 'results';
     });
-    else if (form.id === 'transfer-form') run(async () => {
+    else if (formId === 'transfer-form') run(async () => {
       const vehicleIds = data.getAll('vehicleIds'), destinationSlotIds = data.getAll('slotIds');
       if (!vehicleIds.length || vehicleIds.length !== destinationSlotIds.length) throw new Error('Chọn số xe bằng số chỗ đỗ đích.');
       const transfer = await write('/transfers', { sourceHubId: state.draft.sourceHubId, destinationHubId: state.draft.destinationHubId, vehicleIds, destinationSlotIds }, 'transfer');
