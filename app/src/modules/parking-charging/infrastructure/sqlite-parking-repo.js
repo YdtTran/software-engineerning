@@ -243,6 +243,51 @@ class SQLiteParkingRepository {
     return this.getConflictById(record.id);
   }
 
+  async listPrivateVehiclesByOwner(ownerId) {
+    return this.client.all(
+      `SELECT id, hub_id AS hubId, vehicle_type AS vehicleType, battery_percent AS batteryPercent,
+              status, owner_id AS ownerId, connector_type AS connectorType
+       FROM electric_vehicles
+       WHERE owner_id = ?
+       ORDER BY id ASC;`,
+      [ownerId]
+    );
+  }
+
+  async listReservationsByUser(userId) {
+    return this.client.all(
+      `SELECT r.id, r.user_id AS userId, r.vehicle_id AS vehicleId, r.hub_id AS hubId,
+              r.slot_id AS slotId, r.pool, r.ticket_code AS ticketCode,
+              r.planned_arrival AS plannedArrival, r.planned_checkout AS plannedCheckout,
+              r.expires_at AS expiresAt, r.status, r.assisted_by AS assistedBy,
+              r.replaces_reservation_id AS replacesReservationId,
+              r.created_at AS createdAt, r.cancelled_at AS cancelledAt,
+              o.id AS occupancyId
+       FROM parking_reservations r
+       LEFT JOIN parking_occupancies o ON o.reservation_id = r.id
+       WHERE r.user_id = ?
+       ORDER BY r.created_at DESC, r.rowid DESC
+       LIMIT 100;`,
+      [userId]
+    );
+  }
+
+  async listOccupanciesByUser(userId) {
+    return this.client.all(
+      `SELECT id, reservation_id AS reservationId, user_id AS userId,
+              vehicle_id AS vehicleId, hub_id AS hubId, slot_id AS slotId,
+              actual_checkin_at AS actualCheckInAt,
+              scheduled_checkout_at AS scheduledCheckoutAt,
+              actual_checkout_at AS actualCheckoutAt,
+              final_fee AS finalFee, assisted_by AS assistedBy, created_at AS createdAt
+       FROM parking_occupancies
+       WHERE user_id = ?
+       ORDER BY actual_checkin_at DESC, rowid DESC
+       LIMIT 100;`,
+      [userId]
+    );
+  }
+
   async resolveConflictWithReplacement(conflictId, replacementReservationId, resolvedAt) {
     return this.client.run(
       `UPDATE parking_conflicts
