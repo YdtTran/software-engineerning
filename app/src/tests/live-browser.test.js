@@ -92,6 +92,8 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   assert.deepEqual(await desktop.locator('.dashboard-metric strong').allTextContents(), ['62', '38', '9', '0']);
   assert.equal(await desktop.locator('#live-nav button').count(), 8);
   assert.ok((await desktop.locator('.hub-table tbody tr').count()) === 4);
+  assert.equal(await desktop.locator('.operator-web-visual').isVisible(), true);
+  assert.match(await desktop.locator('.operator-web-visual').evaluate(element => getComputedStyle(element).backgroundImage), /operator-dashboard-background\.jpg/);
   if (process.env.LIVE_SCREENSHOT_DIR) {
     fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
     await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-overview.png'), fullPage: true });
@@ -115,6 +117,7 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   assert.equal(db.prepare('SELECT status FROM transfers').get().status, 'Planned');
   const mobile = await pageFor('operator-app', { width: 390, height: 844 });
   await mobile.getByRole('heading', { name: 'Tổng quan mạng lưới', exact: true }).waitFor();
+  assert.equal(await mobile.locator('.operator-web-visual').isVisible(), false);
   if (process.env.LIVE_SCREENSHOT_DIR) {
     fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
     await mobile.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-mobile-overview.png'), fullPage: true });
