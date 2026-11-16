@@ -71,8 +71,18 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   assert.equal(db.prepare("SELECT count(*) AS n FROM vehicle_reservations WHERE vehicle_id='EB-031'").get().n, 1);
   await user.locator('[data-cancel]').click();
   await user.waitForFunction(() => !document.querySelector('.pickup-form'));
+  assert.equal(await user.evaluate(() => fetch('/api/v1/operations/hubs').then(response => response.status)), 403);
   assert.ok(await user.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   const desktop = await pageFor('operator-web', { width: 1440, height: 1000 });
+  await desktop.getByRole('heading', { name: 'Tổng quan mạng lưới', exact: true }).waitFor();
+  // The completed rental above occupies bku-A01, so the live count drops from 39 to 38.
+  assert.deepEqual(await desktop.locator('.dashboard-metric strong').allTextContents(), ['62', '38', '9', '0']);
+  assert.equal(await desktop.locator('#live-nav button').count(), 8);
+  assert.ok((await desktop.locator('.hub-table tbody tr').count()) === 4);
+  if (process.env.LIVE_SCREENSHOT_DIR) {
+    fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
+    await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-overview.png'), fullPage: true });
+  }
   for (const scenario of ['metro', 'parking', 'charging-demand', 'charging', 'clustering']) {
     await desktop.locator('[data-view="simulation"]').click();
     await desktop.locator('#scenario').selectOption(scenario);
@@ -91,6 +101,11 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   await desktop.waitForFunction(() => document.querySelector('.success')?.textContent.includes('Đã tạo lệnh'));
   assert.equal(db.prepare('SELECT status FROM transfers').get().status, 'Planned');
   const mobile = await pageFor('operator-app', { width: 390, height: 844 });
+  await mobile.getByRole('heading', { name: 'Tổng quan mạng lưới', exact: true }).waitFor();
+  if (process.env.LIVE_SCREENSHOT_DIR) {
+    fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
+    await mobile.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-mobile-overview.png'), fullPage: true });
+  }
   await mobile.locator('[data-view="results"]').click();
   await mobile.locator('[data-result]').first().click();
   await mobile.getByRole('button', { name: 'Xuất kết quả JSON' }).waitFor();

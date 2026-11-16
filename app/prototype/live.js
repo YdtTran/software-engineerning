@@ -5,9 +5,9 @@
   document.body.classList.add(operator ? experience : 'user-app');
   document.getElementById('experience-label').textContent = operator ? 'Không gian vận hành' : 'Ứng dụng người dùng';
   const root = document.getElementById('live-app'), nav = document.getElementById('live-nav'), status = document.getElementById('live-status');
-  const state = { user: null, hubs: [], vehicles: [], reservations: [], trips: [], results: [], result: null,
+  const state = { user: null, hubs: [], networkOverview: [], vehicles: [], reservations: [], trips: [], results: [], result: null,
     selectedHub: '', selectedVehicle: null, hubMatches: null, returnChoices: {}, scenario: 'metro', draft: null,
-    view: location.hash.slice(1) || (operator ? 'simulation' : 'home'), error: '', busy: false, success: '' };
+    view: location.hash.slice(1) || (operator ? 'overview' : 'home'), error: '', busy: false, success: '' };
   const labels = { metro: 'Khách Metro tăng đột biến', parking: 'Hub hết chỗ đỗ', 'charging-demand': 'Nhu cầu sạc tăng', charging: 'Cổng sạc ngừng hoạt động', clustering: 'Xe phân bố mất cân bằng' };
   const statuses = { Reserved: 'Đang giữ xe', PickupClaimed: 'Đang xác nhận nhận xe', PickupUncertain: 'Cần đối soát nhận xe', Fulfilled: 'Đã nhận xe', Cancelled: 'Đã hủy', Expired: 'Đã hết hạn', Active: 'Đang đi', Completed: 'Đã hoàn tất' };
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -68,7 +68,7 @@
     state.hubs = await api('/hubs');
     state.hubMatches = null;
     state.selectedHub ||= state.hubs[0]?.id || '';
-    if (operator) state.results = await api('/simulations');
+    if (operator) [state.results, state.networkOverview] = await Promise.all([api('/simulations'), api('/operations/hubs')]);
     else {
       await refreshUser();
       if (state.selectedHub) state.vehicles = await api(`/hubs/${encodeURIComponent(state.selectedHub)}/vehicles`);
@@ -106,6 +106,38 @@
       return `<section class="card"><h3>${esc(trip.vehicleId)} · ${esc(statuses[trip.status])}</h3><p>Bắt đầu: ${esc(date(trip.startTime))}</p>${trip.status === 'Active' && trip.pendingReturn ? `<p class="notice">Đang đối soát tại ${esc(name(trip.pendingReturn.hubId))}, chỗ ${esc(trip.pendingReturn.slotId)}. Thử lại yêu cầu cũ trên thiết bị đã gửi.</p><button class="primary" data-retry-return="${esc(trip.id)}">Thử lại xác nhận trả xe</button>` : trip.status === 'Active' ? `<form class="return-form" data-id="${esc(trip.id)}"><label>Hub trả xe<select class="field return-hub" name="hubId" data-trip="${esc(trip.id)}">${state.hubs.map(hub => option(hub.id, hub.name, choice.hubId)).join('')}</select></label><button type="button" class="secondary" data-slots="${esc(trip.id)}">Kiểm tra chỗ trả</button><label>Chỗ trả<select class="field" name="slotId" aria-label="Chỗ trả" required><option value="">Chọn chỗ đã kiểm tra</option>${choice.slots.map(slot => option(slot.id, slot.code)).join('')}</select></label><label class="check"><input name="confirmed" type="checkbox" required> Tôi đã đưa xe vào đúng chỗ và khóa an toàn.</label><button class="primary">Xác nhận trả xe</button></form><button class="secondary" data-report="${esc(trip.id)}" style="margin-top:12px">Báo sự cố</button>` : `<p>Kết thúc: ${esc(date(trip.endTime))}</p><p>Hub trả: ${esc(name(trip.hubId))}</p><p>Quãng đường: ${trip.distance == null ? 'Chưa có số đo' : esc(trip.distance) + ' km'}</p>`}</section>`;
     }).join('') || empty('Bạn chưa có chuyến đi.')}<details><summary>Lịch sử phiếu</summary>${state.reservations.filter(record => !reservations.includes(record)).map(record => `<p>${esc(record.vehicleId)} · ${esc(statuses[record.status])}</p>`).join('') || 'Chưa có lịch sử.'}</details>`;
   }
+  function alertText(hub) {
+    if (hub.capacity.occupancyRate >= 95) return `Bãi đỗ đã lấp đầy ${hub.capacity.occupancyRate}%.`;
+    if (hub.vehicles.available === 0) return 'Không còn xe khả dụng.';
+    if (hub.capacity.occupancyRate >= 85) return `Bãi đỗ đã lấp đầy ${hub.capacity.occupancyRate}%.`;
+    const availableRatio = hub.vehicles.total ? (hub.vehicles.available / hub.vehicles.total) * 100 : 0;
+    if (availableRatio <= 10) return `Chỉ còn ${hub.vehicles.available}/${hub.vehicles.total} xe khả dụng.`;
+    if (hub.charging.faultedPoints) return `${hub.charging.faultedPoints} cổng sạc cần kiểm tra.`;
+    return 'Các tài nguyên đang vận hành trong ngưỡng bình thường.';
+  }
+  function overview() {
+    const hubs = state.networkOverview;
+    const displayLevel = hub => hub.alert.level === 'GREEN' && (hub.charging.faultedPoints || hub.vehicles.faulted) ? 'YELLOW' : hub.alert.level;
+    const needsAttention = hub => displayLevel(hub) !== 'GREEN';
+    const totals = hubs.reduce((sum, hub) => ({
+      vehicles: sum.vehicles + hub.vehicles.available,
+      slots: sum.slots + hub.capacity.availableSlots,
+      charging: sum.charging + hub.charging.availablePoints,
+      alerts: sum.alerts + (needsAttention(hub) ? 1 : 0)
+    }), { vehicles: 0, slots: 0, charging: 0, alerts: 0 });
+    const alertHubs = hubs.filter(needsAttention);
+    const observedAt = hubs.map(hub => hub.observationTime).filter(Boolean).sort().at(-1);
+    const metric = (label, value, note, tone = '') => `<section class="dashboard-metric ${tone}"><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></section>`;
+    const levelLabel = { RED: 'Khẩn cấp', YELLOW: 'Cảnh báo', GREEN: 'Bình thường' };
+    return `<div class="dashboard-heading"><div><p class="eyebrow">UC08 · GIÁM SÁT MẠNG LƯỚI</p><h1>Tổng quan mạng lưới</h1><p class="muted">${hubs.length} Hub · Cập nhật ${esc(date(observedAt))}</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+      <div class="dashboard-metrics">${metric('Xe khả dụng', totals.vehicles, 'Có thể phân bổ ngay')}${metric('Chỗ đỗ trống', totals.slots, 'Không gồm chỗ đang giữ')}${metric('Cổng sạc trống', totals.charging, 'Cổng sẵn sàng')}${metric('Hub cần chú ý', totals.alerts, totals.alerts ? 'Theo ngưỡng BR10' : 'Mạng lưới ổn định', totals.alerts ? 'warning' : '')}</div>
+      <div class="dashboard-columns"><section class="card"><div class="section-heading"><div><p class="eyebrow">CẢNH BÁO TỰ ĐỘNG</p><h2>Cần chú ý</h2></div><span class="status-pill level-${alertHubs.some(hub => displayLevel(hub) === 'RED') ? 'red' : alertHubs.length ? 'yellow' : 'green'}">${alertHubs.length} cảnh báo</span></div>${alertHubs.map(hub => { const level = displayLevel(hub); return `<article class="hub-alert level-${level.toLowerCase()}"><div><strong>${esc(hub.hubName)}</strong><p>${esc(alertText(hub))}</p></div><span>${esc(levelLabel[level])}</span></article>`; }).join('') || empty('Không có Hub vượt ngưỡng BR10 hoặc tài nguyên lỗi.')}</section>
+      <section class="card"><p class="eyebrow">PHÂN BỐ TRẠNG THÁI</p><h2>Sức khỏe mạng lưới</h2><div class="health-legend"><span><i class="level-green"></i>Bình thường</span><span><i class="level-yellow"></i>Cảnh báo</span><span><i class="level-red"></i>Khẩn cấp</span></div><p class="muted">Ngưỡng BR10 và số tài nguyên lỗi đều lấy từ ảnh chụp mạng lưới do máy chủ cung cấp.</p></section></div>
+      <section class="card"><div class="section-heading"><div><p class="eyebrow">DỮ LIỆU TRỰC TIẾP</p><h2>Trạng thái các Hub</h2></div></div>${hubs.length ? `<div class="table-wrap"><table class="hub-table"><thead><tr><th>Mobility Hub</th><th>Xe khả dụng</th><th>Chỗ trống</th><th>Sạc trống</th><th>Lấp đầy</th><th>Trạng thái</th></tr></thead><tbody>${hubs.map(hub => { const level = displayLevel(hub); return `<tr><td><strong>${esc(hub.hubName)}</strong><small>${esc(hub.hubId)}</small></td><td>${esc(hub.vehicles.available)} / ${esc(hub.vehicles.total)}</td><td>${esc(hub.capacity.availableSlots)} / ${esc(hub.capacity.totalSlots)}</td><td>${esc(hub.charging.availablePoints)} / ${esc(hub.charging.totalPoints)}</td><td><div class="occupancy"><span><i style="width:${Math.min(100, hub.capacity.occupancyRate)}%"></i></span>${esc(hub.capacity.occupancyRate)}%</div></td><td><span class="status-pill level-${level.toLowerCase()}">${esc(levelLabel[level])}</span></td></tr>`; }).join('')}</tbody></table></div>` : empty('Chưa có dữ liệu Hub để hiển thị.')}</section>`;
+  }
+  function plannedScreen(title, useCase) {
+    return `<section class="card planned-screen"><p class="eyebrow">${esc(useCase)}</p><h1>${esc(title)}</h1><p class="muted">Màn hình đã có trong khung điều hướng và sẽ được nối API ở đợt triển khai tiếp theo.</p><button class="secondary" data-view="overview">Quay lại Tổng quan</button></section>`;
+  }
   function simulation() {
     const s = state.scenario;
     const numeric = (field, text, value, min, max, step = 1) => `<label>${text}<input class="field" type="number" name="${field}" value="${value}" min="${min}" max="${max}" step="${step}" required></label>`;
@@ -129,7 +161,7 @@
   }
   function render() {
     root.setAttribute('aria-busy', String(state.busy)); status.textContent = state.error;
-    const views = operator ? [['simulation', 'Mô phỏng'], ['results', 'Kết quả'], ['account', 'Tài khoản']] : [['home', 'Tìm xe'], ['journeys', 'Chuyến của tôi'], ['account', 'Tài khoản']];
+    const views = operator ? [['overview', 'Tổng quan'], ['resources', 'Tài nguyên'], ['redistribute', 'Điều phối'], ['incidents', 'Sự cố'], ['schedule', 'Lịch sạc'], ['simulation', 'Mô phỏng'], ['results', 'Kết quả'], ['account', 'Tài khoản']] : [['home', 'Tìm xe'], ['journeys', 'Chuyến của tôi'], ['account', 'Tài khoản']];
     nav.innerHTML = state.user ? views.map(([id, title]) => `<button data-view="${id}" class="${state.view === id ? 'active' : ''}">${title}</button>`).join('') : '';
     if (!state.user) { root.innerHTML = login(); return; }
     const roles = state.user.roles || [];
@@ -137,8 +169,18 @@
       root.innerHTML = '<section class="card"><p>Tài khoản không có quyền sử dụng giao diện này. Hãy mở đúng ứng dụng hoặc đăng nhập bằng tài khoản phù hợp.</p><button class="secondary" data-action="logout">Đăng xuất</button></section>'; return;
     }
     const account = () => `<section class="card"><h1>Tài khoản</h1><p>${esc(state.user.id)}</p><button class="secondary" data-action="logout">Đăng xuất</button></section>`;
-    const screens = operator ? { simulation, results, transfer, account } : { home, journeys, account };
-    if (!screens[state.view]) state.view = operator ? 'simulation' : 'home';
+    const screens = operator ? {
+      overview,
+      resources: () => plannedScreen('Quản lý tài nguyên', 'UC09'),
+      redistribute: () => plannedScreen('Điều phối xe', 'UC10'),
+      incidents: () => plannedScreen('Sự cố vận hành', 'UC11'),
+      schedule: () => plannedScreen('Lịch sạc', 'UC12'),
+      simulation,
+      results,
+      transfer,
+      account
+    } : { home, journeys, account };
+    if (!screens[state.view]) state.view = operator ? 'overview' : 'home';
     history.replaceState(null, '', '#' + state.view);
     const unresolved = Object.entries(pendingStore().values).filter(([, entry]) => entry.path);
     const pending = unresolved.length ? `<section class="card"><h2>Yêu cầu chưa rõ kết quả</h2><p>Bạn có thể lấy lại kết quả của yêu cầu trước bằng cách thử lại an toàn.</p>${unresolved.map(([operation]) => `<button class="secondary" data-retry-operation="${esc(operation)}">Thử lại yêu cầu trước</button>`).join('')}</section>` : '';

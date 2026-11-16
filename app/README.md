@@ -10,15 +10,17 @@ From the repository root:
 
 ```powershell
 npm ci --prefix app
-npm run db:init --prefix app
+npm run db:dashboard-demo --prefix app
 .\app\provision-demo.ps1
 
 $env:DEMO_ACCOUNTS_FILE = (Resolve-Path app/db/.local/demo-accounts.json).Path
-$env:DEMO_DB_PATH = (Resolve-Path app/db/.local/hub.sqlite).Path
+$env:DEMO_DB_PATH = (Resolve-Path app/db/.local/dashboard-demo.sqlite).Path
 $env:DEMO_INSECURE_HTTP = '1'
 $env:DEMO_SIMULATED_DEVICES = '1'
 npm start --prefix app
 ```
+
+`db:dashboard-demo` creates a separate, ignored database for UI verification. It includes one green Hub, Bách khoa at 87.5% occupancy (yellow), Ký túc xá khu A at 100% occupancy (red), and one faulted Metro charging point. It refuses to overwrite an existing file. Use `db:init` instead when you want the neutral seed where all physical resources begin available.
 
 The provisioning script prompts privately for two passwords, creating `user` (User) and `operator` (Operator). It stores salted hashes only and refuses to overwrite an existing account file. Accounts and SQLite data are ignored by Git. Alternatively, provision accounts with `node app/src/hash-demo-account.js USERNAME ID user[,operator]`, supplying the password on standard input and combining emitted account objects into a JSON array outside Git.
 
@@ -27,8 +29,8 @@ Open these entry points at `http://127.0.0.1:3000`:
 | Path | Experience |
 |---|---|
 | `/user-app.html` | User mobile layout: find/reserve/pickup/return, own history and trip incidents |
-| `/operator-app.html` | Operator mobile layout: run/reopen simulations and review transfer recommendations |
-| `/operator-web.html` | Operator desktop layout with the same permissions |
+| `/operator-app.html` | Operator mobile layout: live UC08 overview, simulations and transfer recommendations |
+| `/operator-web.html` | Operator desktop dashboard with the same permissions and live UC08 overview |
 | `/index.html` | Original offline design viewer; mock behavior remains separate |
 
 The demo binds to `127.0.0.1`; use browser mobile emulation for a PC-only demonstration. `DEMO_PORT` changes the port. Phone-over-Wi-Fi deployment and HTTPS configuration are not included in this local launcher.
