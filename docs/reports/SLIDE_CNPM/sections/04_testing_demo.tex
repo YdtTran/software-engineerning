@@ -1,0 +1,23 @@
+% =========================================================
+% PHẦN 4: KIỂM THỬ VÀ TRÌNH DIỄN MVP (CHƯƠNG 4)
+% =========================================================
+\section{Kiểm thử và Trình diễn MVP}
+
+\begin{frame}
+\frametitle{Kiểm thử Phần mềm và Bảo đảm Chất lượng (Test Cases -- Bonus)}
+% TODO: Chạy `npm test --prefix app` trước khi thuyết trình để điền số pass mới nhất
+\begin{itemize}
+    \item \textbf{Kiểm thử đa tầng (Ch9):} Kiểm thử đơn vị (Unit), tích hợp/thành phần (Component/Integration), tranh chấp đồng thời (Concurrency) và migration (\texttt{0001--0012}) trên 31 bộ kiểm thử (183 test cases).
+    \item \textbf{Xác minh thực nghiệm:} Cơ chế \textit{single-winner}, tái thực thi lũy đẳng (\textit{idempotent replay}) và hoàn tác giao dịch (\textit{rollback}) khi phát sinh lỗi.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Trình diễn Sản phẩm Mẫu (Working Demonstration)}
+% TODO: Theo PDF trang 4 ("prepared, correct, brief, good quality") & MINH_DEMO_GUIDE.md
+\begin{enumerate}
+    \item \textbf{Luồng User (Live Web \texttt{live.html}):} Tìm Hub $\rightarrow$ Đặt xe $\rightarrow$ Nhận xe $\rightarrow$ Báo sự cố (\texttt{UC11A}) $\rightarrow$ Trả xe.
+    \item \textbf{Luồng Operator (Live Web):} Thực thi What-if Simulation (5 kịch bản) $\rightarrow$ Khởi tạo lệnh điều chuyển (\texttt{UC10}).
+    \item \textbf{Chuỗi màn hình Prototype (\texttt{index.html}):} Minh họa đầy đủ 26 màn hình (bao gồm các phân hệ quản trị mở rộng).
+\end{enumerate}
+\end{frame}

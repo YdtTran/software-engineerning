@@ -1,0 +1,31 @@
+% =========================================================
+% PHẦN 3: KIẾN TRÚC HỆ THỐNG VÀ THIẾT KẾ CHI TIẾT (CHƯƠNG 3)
+% =========================================================
+\section{Kiến trúc Hệ thống và Thiết kế Chi tiết}
+
+\begin{frame}
+\frametitle{Kiến trúc 4+1 Views: Deployment và Development View}
+% TODO: Chèn hình export từ DP01-deployment.drawio và DV01-Component_Diagram_New.drawio / DV02-Package_Diagram_New.drawio
+\begin{itemize}
+    \item \textbf{Kiến trúc mục tiêu:} \textbf{Modular Monolith} theo \textit{Layered Architecture Pattern} (5 tầng: \textit{Presentation $\rightarrow$ API/Interface $\rightarrow$ Application $\rightarrow$ Domain $\rightarrow$ Infrastructure}).
+    \item \textbf{Công nghệ và Lưu trữ:} Node.js + Express, SQLite (WAL mode) tách biệt qua \textit{Repository Pattern}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Mô hình Cấu trúc: Class Diagram và Cơ sở dữ liệu}
+% TODO: Chèn hình smart_emobility_class_diagram.drawio và tóm tắt migrations
+\begin{itemize}
+    \item \textbf{Mô hình Cấu trúc (Structural Models):} Class Diagram gồm 19 lớp, 18 operations, 31 associations; đặc tả chi tiết 100\% phương thức (\texttt{CLASS\_CATALOG.md}).
+    \item \textbf{Cơ sở dữ liệu SQLite:} 12 file migrations (\texttt{0001}--\texttt{0012}), tách biệt hoàn toàn quy tắc miền (Domain) khỏi tầng truy xuất dữ liệu (Infrastructure).
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hiện thực 3 Module Backend và Bộ máy Mô phỏng What-if}
+% TODO: Tham khảo docs/architecture/operations-architecture.html và app/src/app.js
+\begin{itemize}
+    \item \textbf{Tổ chức hiện thực:} Ánh xạ 5 nhóm module logic thiết kế thành \textbf{3 module mã nguồn} (\texttt{mobility-simulation}, \texttt{parking-charging}, \texttt{operations}), liên kết lỏng qua interface (\texttt{InventoryInterface}, \texttt{tripReader}).
+    \item \textbf{What-if Simulation Engine (UC13--UC14):} Mô phỏng 5 kịch bản giả định trên bản sao bất biến (\textit{immutable snapshot}), không làm thay đổi trạng thái dữ liệu vận hành.
+\end{itemize}
+\end{frame}

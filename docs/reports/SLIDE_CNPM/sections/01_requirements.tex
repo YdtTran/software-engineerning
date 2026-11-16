@@ -1,0 +1,44 @@
+% =========================================================
+% PHẦN 1: BỐI CẢNH, PHẠM VI VÀ YÊU CẦU HỆ THỐNG (CHƯƠNG 1)
+% =========================================================
+\section{Bối cảnh và Đặc tả Yêu cầu}
+
+\begin{frame}
+\frametitle{Bối cảnh và Bài toán Thực tế}
+% TODO: Tóm tắt ngắn gọn (3-4 bullet) từ docs/reports/SUBMISSION_1_REPORT.md (§1.1)
+\begin{itemize}
+    \item Nhu cầu trung chuyển chặng cuối (last-mile transit) từ Ga Metro số 1 ĐHQG đến các trường thành viên và KTX.
+    \item Bài toán điều phối đa tài nguyên phân tán: phương tiện điện (dùng chung và cá nhân), vị trí đỗ và cổng sạc.
+    \item Thách thức kỹ nghệ: mất cân đối cung--cầu theo khung giờ, xung đột đặt giữ đồng thời (double-booking) và quá tải hạ tầng sạc.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Mục tiêu, Tác nhân và Phạm vi Hệ thống}
+% TODO: Tóm tắt từ docs/reports/SUBMISSION_1_REPORT.md (§1.2 - §1.4)
+\begin{itemize}
+    \item \textbf{Tác nhân chính (Primary Actors):} User và Operator; \textbf{Tác nhân phụ (Secondary Actors):} IoT Sensor Stream và Notification Service.
+    \item \textbf{Trong phạm vi (In-Scope):} Quản lý trạng thái, khóa giữ tài nguyên đồng thời, lập lịch sạc, điều chuyển xe, What-if Simulation.
+    \item \textbf{Ngoài phạm vi (Out-of-Scope):} Phần cứng IoT vật lý (sử dụng dữ liệu giả lập) và giao diện bản đồ 3D.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Tổng quan 14 Use Cases và Yêu cầu Phi tương tác}
+% TODO: Chèn hình export từ docs/diagrams/01_Usecase_Diagram/general_usecase_diagram.drawio
+\begin{itemize}
+    \item \textbf{Nhóm User (UC01--UC07):} Tìm Hub, xem xe, đặt/nhận/trả xe, đặt chỗ đỗ, yêu cầu sạc (kèm vòng đời phụ UC06-S1/S2/S3, UC07A, UC11A).
+    \item \textbf{Nhóm Operator (UC08--UC14):} Giám sát mạng lưới, quản trị tài nguyên, điều chuyển xe (UC10/10A/10B), xử lý sự cố, lập lịch sạc, What-if Simulation.
+    \item \textbf{Other Non-Interactive FRs (Bonus):} Hủy giữ chỗ quá hạn 15 phút (\texttt{FR-NI01}), suy giảm pin và telemetry (\texttt{FR-NI02}), cảnh báo sức chứa Hub (\texttt{FR-NI03}), tái lập lịch sạc (\texttt{FR-NI04}).
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Yêu cầu Phi chức năng và Bất biến Nghiệp vụ}
+% TODO: Trích từ docs/requirements/PROJECT_SPECIFICATION.md (§4)
+\begin{itemize}
+    \item \textbf{Kiểm soát Đồng thời:} Cơ chế giao dịch cô lập (\texttt{BEGIN IMMEDIATE}) bảo đảm duy nhất một giao dịch thành công (\textit{single-winner semantics}).
+    \item \textbf{Tính lũy đẳng (Idempotency):} Kiểm soát thao tác ghi lặp và xung đột payload qua \texttt{Idempotency-Key}.
+    \item \textbf{An toàn vận hành:} Ngưỡng cảnh báo mạng lưới (\texttt{BR10}), điều kiện pin điều chuyển $\ge 80\%$ (\texttt{BR13}), SLA xử lý sự cố khẩn cấp 60 giây (\texttt{BR14}).
+\end{itemize}
+\end{frame}

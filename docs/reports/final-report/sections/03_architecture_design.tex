@@ -1,0 +1,34 @@
+% ===================================================
+% CHƯƠNG 3: KIẾN TRÚC HỆ THỐNG VÀ THIẾT KẾ CHI TIẾT (SUBMISSION #3)
+% Nguồn: docs/architecture/DECISION.md, docs/reports/DEVELOPMENT_IMPLEMENTATION_VIEW_REPORT.md
+% Slide tham chiếu: 07_Ch7 Architectural Design_2025.pdf (4+1 View Model), 06_Ch6 System Modeling_2025.pdf (Structural Models)
+% ===================================================
+\section{Kiến trúc Hệ thống và Thiết kế Chi tiết}
+
+\subsection{Quyết định Kiến trúc và Mẫu Kiến trúc (Architectural Patterns)}
+% TODO: Trích từ docs/architecture/DECISION.md
+% - Áp dụng mô hình 4+1 View (Ch7); kiến trúc Modular Monolith kết hợp Layered Architecture Pattern
+%   (5 tầng: Presentation -> API/Interface -> Application -> Domain -> Infrastructure) và Repository Pattern.
+% - Công nghệ mục tiêu: Node.js + Express + SQLite.
+
+\subsection{Góc nhìn Triển khai (Deployment View -- DP01)}
+% TODO: Chèn và mô tả docs/diagrams/deployment/DP01-deployment.drawio
+%       và docs/diagrams/deployment/README-deployment.md.
+
+\subsection{Góc nhìn Phát triển và Hiện thực (Development View -- DV01, DV02)}
+% TODO: Trích từ docs/reports/DEVELOPMENT_IMPLEMENTATION_VIEW_REPORT.md
+% - Chèn DV01-Component_Diagram_New.drawio và DV02-Package_Diagram_New.drawio
+% - Giải thích ranh giới tầng, Ports/Adapters (InventoryInterface, tripReader).
+% - Lưu ý truy vết: DV01/DV02 phân rã 5 module logic (Accounts & Resources, Reservations & Trips,
+%   Charging, Operations, Simulation); khi hiện thực MVP (Chương 4) gộp thành 3 module code theo DEVELOPMENT_GUIDE.md.
+
+\subsection{Mô hình Cấu trúc: Sơ đồ Lớp (Class Diagram)}
+% TODO: Chèn docs/diagrams/05_Class_Diagram/smart_emobility_class_diagram.drawio
+%       (19 lớp thực thể/dịch vụ, 18 operations, 31 associations và bội số quan hệ).
+
+\subsection{Đặc tả Lớp và Phương thức (Method Descriptions)}
+% TODO: Tổng hợp hợp đồng tiền điều kiện, hậu điều kiện, tham số, giá trị trả về và ngoại lệ
+%       cho 100% phương thức từ .agent/class-diagram/CLASS_CATALOG.md.
+
+\subsection{Thiết kế Cơ sở dữ liệu (SQLite Schema và Migrations)}
+% TODO: Trình bày 12 migrations (app/db/migrations/0001..0012), chế độ WAL và transaction BEGIN IMMEDIATE.

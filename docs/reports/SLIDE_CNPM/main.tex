@@ -1,0 +1,92 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usefonttheme{structurebold}
+\usefonttheme[onlymath]{serif}
+
+\definecolor{BKTemplate}{rgb}{0.11765, 0.30588, 0.47451}
+\usecolortheme[named=BKTemplate]{structure}
+\setbeamercolor{title}{fg=BKTemplate,bg=}
+\setbeamertemplate{caption}[numbered]
+
+% Hỗ trợ tiếng Việt chuẩn cho pdflatex (đổi lại T1/english nếu làm slide tiếng Anh)
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{subcaption}
+\usepackage{amsmath}
+
+\renewcommand{\footnotesize}{\tiny}
+
+%------------------------------------------------------------
+% THÔNG TIN TRANG BÌA (TITLE PAGE)
+%------------------------------------------------------------
+\title[Smart E-Mobility Hub]
+{\vspace*{0.8cm}\\\textbf{CÔNG NGHỆ PHẦN MỀM (CO3001)}\\\textbf{Smart E-Mobility Hub -- Hệ thống Điều phối Phương tiện Điện ĐHQG-HCM}}
+
+\subtitle{Báo cáo Tổng kết và Trình diễn MVP}
+
+\author[Nhóm BTL -- CO3001]
+{GVHD: Nguyễn Thành Công\\
+Thành viên:  Trần Đình Ý \textbullet{} Nguyễn Đình Minh \textbullet{} Trần Văn Minh Triết \textbullet{} Nguyễn Thanh Duy}
+
+% Trần Đình Ý --  2414100 \\
+%   & Nguyễn Đình Minh --  2412079 \\
+%   & Trần Văn Minh Triết -- 2413603 \\
+%   & Nguyễn Thanh Duy --  2410536 \\
+
+
+\date[HK261 -- 2026]
+{TP. Hồ Chí Minh, Học kỳ 261}
+
+%------------------------------------------------------------
+% TỰ ĐỘNG HIỂN THỊ MỤC LỤC ĐẦU MỖI PHẦN
+%------------------------------------------------------------
+\AtBeginSection[]
+{
+  \begin{frame}
+    \frametitle{Nội dung Trình bày}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+% Trang bìa
+\setbeamertemplate{background canvas}{
+  \includegraphics[width=\paperwidth,height=\paperheight]{images/FrontBackground.pdf}
+}
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+% Nền cho các slide nội dung
+\setbeamertemplate{background canvas}{
+  \includegraphics[width=\paperwidth,height=\paperheight]{images/Background.pdf}
+}
+
+% Slide Mục lục tổng quan
+\begin{frame}
+\frametitle{Nội dung Trình bày}
+\tableofcontents
+\end{frame}
+
+% Nội dung các phần (chia theo từng file trong sections/)
+\input{sections/01_requirements}
+\input{sections/02_dynamic_ui}
+\input{sections/03_architecture}
+\input{sections/04_testing_demo}
+\input{sections/05_lessons_genai}
+
+\end{document}

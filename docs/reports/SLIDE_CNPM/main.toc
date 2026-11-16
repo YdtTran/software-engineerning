@@ -1,0 +1,6 @@
+\babel@toc {vietnamese}{}\relax 
+\beamer@sectionintoc {1}{Bối cảnh và Đặc tả Yêu cầu}{3}{0}{1}
+\beamer@sectionintoc {2}{Mô hình Động và Thiết kế UI/UX}{8}{0}{2}
+\beamer@sectionintoc {3}{Kiến trúc Hệ thống và Thiết kế Chi tiết}{11}{0}{3}
+\beamer@sectionintoc {4}{Kiểm thử và Trình diễn MVP}{15}{0}{4}
+\beamer@sectionintoc {5}{Bài học Kinh nghiệm và Khai báo AI}{18}{0}{5}

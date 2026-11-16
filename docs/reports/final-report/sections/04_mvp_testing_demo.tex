@@ -1,0 +1,26 @@
+% ===================================================
+% CHƯƠNG 4: HIỆN THỰC MVP, KIỂM THỬ VÀ TRÌNH DIỄN HỆ THỐNG
+% Nguồn: app/src/, docs/audits/post-merge/, docs/architecture/MINH_DEMO_GUIDE.md
+% Slide tham chiếu: 08_Ch8 Implementation_2025.pdf, 09_Ch9 Software Testing_2025.pdf
+% ===================================================
+\section{Hiện thực MVP, Kiểm thử và Trình diễn Hệ thống}
+
+\subsection{Cấu trúc 3 Module Backend và Tích hợp}
+% TODO: Mô tả 3 module thực tế trong app/src/modules/ (ánh xạ từ 5 module thiết kế ở Chương 3):
+% 1. mobility-simulation (UC01-05, UC13-14)
+% 2. parking-charging (UC06, UC07, UC12 -- bổ sung ở PR #16 với Migration 0012)
+% 3. operations (UC08-11, InventoryInterface) -- tham khảo docs/architecture/operations-architecture.html.
+
+\subsection{Kiểm thử Phần mềm và Kịch bản Kiểm thử (Test Cases -- Bonus)}
+% TODO: Phân tầng theo Ch9 (Unit / Component / System & Integration testing)
+%       Tổng hợp cả 31 file kiểm thử (183 test cases) trong app/src/:
+%       - Core (5 file, 10 tests), Mobility-Simulation (8 file, 27 tests),
+%       - Operations (12 file, 121 tests), Parking-Charging (6 file, 25 tests).
+%       (Lưu ý: Báo cáo audit docs/audits/post-merge/EXECUTIVE_SUMMARY.md ghi 144/144 pass tại commit ac21515 trước PR #16;
+%        khi chạy báo cáo cuối kỳ cần chạy lại `npm test --prefix app` sau khi cài dependencies để lấy số pass mới nhất).
+
+\subsection{Trình diễn Sản phẩm Mẫu (Working Demonstration)}
+% TODO: Bắt buộc theo PDF trang 5 ("A working demonstration by sequence of screens"):
+% - Chuỗi màn hình Live Web App (app/prototype/live.html, app/src/demo-server.js, MINH_DEMO_GUIDE.md)
+% - Chuỗi màn hình Prototype Mockup (app/prototype/index.html, gallery.html)
+% - Nêu minh bạch ranh giới giữa luồng đã nối Live UI và luồng kiểm chứng qua Backend API + Test Suite.
