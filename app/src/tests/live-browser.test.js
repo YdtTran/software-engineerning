@@ -141,11 +141,59 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   await desktop.getByRole('button', { name: 'Xuất kết quả JSON' }).waitFor();
   assert.ok(await desktop.locator('table').textContent().then(text => text.includes('Tỷ lệ phục vụ')));
   await desktop.locator('[data-recommendation]').first().click();
-  await desktop.locator('#transfer-form input[name="vehicleIds"]').first().check();
-  await desktop.locator('#transfer-form input[name="slotIds"]').first().check();
-  await desktop.locator('#transfer-form button').click();
+  await desktop.getByRole('heading', { name: 'Điều phối phương tiện', exact: true }).waitFor();
+  assert.match(await desktop.locator('.transfer-suggestion').textContent(), /Đề xuất từ mô phỏng/);
+  const transferForm = desktop.locator('#redistribute-form');
+  assert.equal(await transferForm.locator('[data-transfer-submit]').isDisabled(), true);
+  if (await transferForm.locator('input[name="vehicleIds"]').count() > 1) {
+    await transferForm.locator('input[name="vehicleIds"]').nth(0).check();
+    await transferForm.locator('input[name="vehicleIds"]').nth(1).check();
+    await transferForm.locator('input[name="slotIds"]').first().check();
+    assert.equal(await transferForm.locator('[data-transfer-submit]').isDisabled(), true, 'Mismatched vehicle and slot counts must not be submittable.');
+    await transferForm.locator('input[name="vehicleIds"]').nth(1).uncheck();
+  } else {
+    await transferForm.locator('input[name="vehicleIds"]').first().check();
+    await transferForm.locator('input[name="slotIds"]').first().check();
+  }
+  const [plannedVehicle] = await transferForm.locator('input[name="vehicleIds"]:checked').evaluateAll(inputs => inputs.map(input => input.value));
+  await transferForm.locator('[data-transfer-submit]').click();
   await desktop.waitForFunction(() => document.querySelector('.success')?.textContent.includes('Đã tạo lệnh'));
-  assert.equal(db.prepare('SELECT status FROM transfers').get().status, 'Planned');
+  const firstTransfer = db.prepare('SELECT id, status FROM transfers').get();
+  assert.equal(firstTransfer.status, 'Planned');
+  assert.equal(db.prepare('SELECT status FROM electric_vehicles WHERE id = ?').get(plannedVehicle).status, 'TransferHeld');
+  const firstCard = desktop.locator(`[data-transfer="${firstTransfer.id}"]`);
+  await firstCard.getByText('Chờ xuất phát', { exact: true }).waitFor();
+  await desktop.reload();
+  await firstCard.getByText('Chờ xuất phát', { exact: true }).waitFor();
+  desktop.on('dialog', dialog => dialog.accept(dialog.type() === 'prompt' ? 'Kiểm thử hủy lệnh' : undefined));
+  await firstCard.locator(`[data-transfer-depart="${firstTransfer.id}"]`).click();
+  await firstCard.getByText('Đang di chuyển', { exact: true }).waitFor();
+  assert.equal(db.prepare('SELECT status FROM transfers WHERE id = ?').get(firstTransfer.id).status, 'InTransit');
+  assert.equal(await firstCard.locator('[data-transfer-cancel]').count(), 0, 'In-transit transfers must not offer cancellation.');
+  await firstCard.locator('.arrival-form button').click();
+  await desktop.waitForFunction(() => document.getElementById('live-status').textContent.includes('Cần xác nhận đủ'));
+  await firstCard.locator('input[name="observedVehicleIds"]').first().check();
+  await firstCard.locator('.arrival-form button').click();
+  await firstCard.getByText('Hoàn tất', { exact: true }).waitFor();
+  assert.equal(db.prepare('SELECT status FROM transfers WHERE id = ?').get(firstTransfer.id).status, 'Completed');
+  assert.equal(await firstCard.locator('[data-transfer-depart], .arrival-form').count(), 0, 'Completed transfers must not accept further lifecycle actions.');
+  await transferForm.locator('input[name="vehicleIds"]').first().check();
+  await transferForm.locator('input[name="slotIds"]').first().check();
+  await transferForm.locator('[data-transfer-submit]').click();
+  await desktop.waitForFunction(id => [...document.querySelectorAll('[data-transfer]')].some(card => card.dataset.transfer !== id), firstTransfer.id);
+  const secondTransfer = db.prepare("SELECT id FROM transfers WHERE status = 'Planned'").get();
+  const heldSlot = db.prepare('SELECT slot_id FROM transfer_destination_slots WHERE transfer_id = ?').get(secondTransfer.id).slot_id;
+  await desktop.locator(`[data-transfer-cancel="${secondTransfer.id}"]`).click();
+  await desktop.locator(`[data-transfer="${secondTransfer.id}"]`).getByText('Đã hủy', { exact: true }).waitFor();
+  assert.equal(db.prepare('SELECT cancel_reason FROM transfers WHERE id = ?').get(secondTransfer.id).cancel_reason, 'Kiểm thử hủy lệnh');
+  assert.equal(db.prepare('SELECT status FROM parking_slots WHERE id = ?').get(heldSlot).status, 'Available');
+  await desktop.locator('#transfer-lookup-form input[name="transferId"]').fill('TRF-KHONG-TON-TAI');
+  await desktop.locator('#transfer-lookup-form button').click();
+  await desktop.waitForFunction(() => document.getElementById('live-status').textContent.includes('Không tìm thấy lệnh'));
+  assert.doesNotMatch(await desktop.locator('#live-app').textContent(), /UC(?:08|09|10|11|12)/);
+  if (process.env.LIVE_SCREENSHOT_DIR) {
+    await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-redistribute.png'), fullPage: true });
+  }
   const mobile = await pageFor('operator-app', { width: 390, height: 844 });
   await mobile.getByRole('heading', { name: 'Tổng quan mạng lưới', exact: true }).waitFor();
   assert.equal(await mobile.locator('.operator-web-visual').isVisible(), false);

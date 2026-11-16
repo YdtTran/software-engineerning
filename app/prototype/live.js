@@ -8,6 +8,7 @@
   const state = { user: null, hubs: [], networkOverview: [], resources: [], vehicles: [], reservations: [], trips: [], results: [], result: null,
     selectedHub: '', selectedVehicle: null, hubMatches: null, returnChoices: {}, scenario: 'metro', draft: null,
     vehicleLimit: 3, resourceLimit: 20, resourceFilters: { q: '', hubId: '', kind: '', status: '' }, newResourceKind: 'vehicle',
+    transfers: [], transferPlan: null, transferFilter: '', arrivalChoices: {},
     view: location.hash.slice(1) || (operator ? 'overview' : 'home'), error: '', busy: false, success: '' };
   const labels = { metro: 'Khách Metro tăng đột biến', parking: 'Hub hết chỗ đỗ', 'charging-demand': 'Nhu cầu sạc tăng', charging: 'Cổng sạc ngừng hoạt động', clustering: 'Xe phân bố mất cân bằng' };
   const statuses = { Reserved: 'Đang giữ xe', PickupClaimed: 'Đang xác nhận nhận xe', PickupUncertain: 'Cần đối soát nhận xe', Fulfilled: 'Đã nhận xe', Cancelled: 'Đã hủy', Expired: 'Đã hết hạn', Active: 'Đang đi', Completed: 'Đã hoàn tất' };
@@ -41,7 +42,28 @@
     RESOURCE_NOT_FOUND: 'Không tìm thấy tài nguyên.', VEHICLE_NOT_FOUND: 'Không tìm thấy xe.',
     ALLOCATION_CONFLICT: 'Tài nguyên vừa được một nghiệp vụ khác sử dụng. Dữ liệu đã được tải lại.',
     CHARGING_GUARD_UNAVAILABLE: 'Chưa thể đổi trạng thái cổng sạc khi chưa có xác nhận an toàn.',
-    INTERNAL_ERROR: 'Chưa thể hoàn tất yêu cầu. Bạn có thể thử lại.', SNAPSHOT_UNAVAILABLE: 'Chưa lấy được dữ liệu mạng lưới. Hãy thử lại.'
+    INTERNAL_ERROR: 'Chưa thể hoàn tất yêu cầu. Bạn có thể thử lại.', SNAPSHOT_UNAVAILABLE: 'Chưa lấy được dữ liệu mạng lưới. Hãy thử lại.',
+    TRANSFER_NOT_FOUND: 'Không tìm thấy lệnh điều chuyển với mã này.', HUB_NOT_FOUND: 'Không tìm thấy Hub.',
+    SOURCE_DESTINATION_SAME: 'Hub nguồn và Hub đích phải khác nhau.',
+    INSUFFICIENT_DESTINATION_SLOTS: 'Số chỗ đỗ đích phải bằng số xe điều chuyển.',
+    VEHICLE_NOT_ELIGIBLE_FOR_TRANSFER: 'Có xe không còn đủ điều kiện điều chuyển (khả dụng, pin từ 80%). Dữ liệu đã được tải lại.',
+    VEHICLE_NOT_AT_SOURCE_HUB: 'Có xe không còn ở Hub nguồn. Dữ liệu đã được tải lại.',
+    VEHICLE_BATTERY_DROPPED: 'Mức pin của xe đã giảm dưới 80%. Hãy hủy lệnh hoặc sạc xe trước khi xuất phát.',
+    SLOT_HOLD_FAILED: 'Chỗ đỗ đích vừa được giữ hoặc sử dụng bởi nghiệp vụ khác. Dữ liệu đã được tải lại, hãy chọn lại chỗ.',
+    SLOT_NOT_AVAILABLE: 'Chỗ đỗ đích không còn trống. Dữ liệu đã được tải lại, hãy chọn lại chỗ.',
+    SLOT_WRONG_HUB: 'Chỗ đỗ không thuộc Hub đích đã chọn.',
+    TRANSFER_DEPART_CONFLICT: 'Trạng thái lệnh vừa thay đổi. Dữ liệu đã được tải lại.',
+    TRANSFER_CANCEL_CONFLICT: 'Trạng thái lệnh vừa thay đổi. Dữ liệu đã được tải lại.',
+    TRANSFER_ARRIVE_CONFLICT: 'Trạng thái lệnh vừa thay đổi. Dữ liệu đã được tải lại.',
+    ALREADY_IN_TRANSIT: 'Lệnh đã xuất phát trước đó. Dữ liệu đã được tải lại.',
+    ALREADY_CANCELLED: 'Lệnh đã được hủy trước đó.', TRANSFER_ALREADY_CANCELLED: 'Lệnh đã được hủy trước đó.',
+    TRANSFER_ALREADY_COMPLETED: 'Lệnh đã hoàn tất trước đó.', CANNOT_CANCEL_COMPLETED: 'Không thể hủy lệnh đã hoàn tất.',
+    CANNOT_CANCEL_IN_TRANSIT: 'Không thể hủy lệnh khi xe đã xuất phát.',
+    NOT_IN_TRANSIT: 'Lệnh chưa ở trạng thái đang di chuyển nên chưa thể xác nhận đến nơi.',
+    INCOMPLETE_ARRIVAL_SET: 'Danh sách xe đến nơi chưa đủ. Hãy kiểm tra từng xe của lệnh.',
+    VEHICLE_MISMATCH_ON_ARRIVAL: 'Danh sách xe đến nơi không khớp lệnh. Hãy kiểm tra từng xe.',
+    INSUFFICIENT_REPLACEMENT_SLOTS: 'Chưa đủ chỗ thay thế cho toàn bộ xe của lệnh.',
+    VEHICLE_NOT_IN_TRANSFER: 'Có xe không còn ở trạng thái điều chuyển. Dữ liệu đã được tải lại.'
   };
   async function api(path, options = {}) {
     let response;
@@ -83,7 +105,7 @@
     state.hubs = await api('/hubs');
     state.hubMatches = null;
     state.selectedHub ||= state.hubs[0]?.id || '';
-    if (operator) [state.results, state.networkOverview, state.resources] = await Promise.all([api('/simulations'), api('/operations/hubs'), api('/operations/resources')]);
+    if (operator) [state.results, state.networkOverview, state.resources, state.transfers] = await Promise.all([api('/simulations'), api('/operations/hubs'), api('/operations/resources'), experience === 'operator-web' ? loadTransfers() : []]);
     else {
       await refreshUser();
       if (state.selectedHub) state.vehicles = await api(`/hubs/${encodeURIComponent(state.selectedHub)}/vehicles`);
@@ -93,6 +115,29 @@
   async function loadTransferDraft(item) {
     const [vehicles, slots] = await Promise.all([api(`/hubs/${encodeURIComponent(item.sourceHubId)}/vehicles`), api(`/operations/resources?kind=slot&hubId=${encodeURIComponent(item.destinationHubId)}`)]);
     state.draft = { ...item, vehicles: vehicles.filter(vehicle => vehicle.batteryPercent >= 80), slots: slots.filter(slot => slot.status.toLowerCase() === 'available') };
+  }
+  // The transfer contract exposes lookup by ID only, so this browser remembers IDs it created or looked up and always reloads their state from the server.
+  function transferStore() {
+    const storageKey = `mobility-transfers:${state.user.id}`;
+    let ids;
+    try { ids = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch { ids = []; }
+    return { ids: Array.isArray(ids) ? ids.filter(id => typeof id === 'string' && id) : [], save: values => localStorage.setItem(storageKey, JSON.stringify(values.slice(0, 12))) };
+  }
+  function rememberTransfer(id) { const store = transferStore(); store.save([id, ...store.ids.filter(value => value !== id)]); }
+  function forgetTransfer(id) { const store = transferStore(); store.save(store.ids.filter(value => value !== id)); state.transfers = state.transfers.filter(record => record.id !== id); delete state.arrivalChoices[id]; }
+  async function loadTransfers() {
+    const store = transferStore();
+    const settled = await Promise.allSettled(store.ids.map(id => api('/transfers/' + encodeURIComponent(id))));
+    const kept = [], records = [];
+    for (const [index, outcome] of settled.entries()) {
+      const id = store.ids[index];
+      if (outcome.status === 'fulfilled') { kept.push(id); records.push(outcome.value); continue; }
+      if (outcome.reason?.status === 401) throw outcome.reason;
+      if (outcome.reason?.status === 404) continue;
+      kept.push(id); records.push({ id, loadError: outcome.reason?.message || 'Chưa tải được trạng thái lệnh.' });
+    }
+    store.save(kept);
+    return records;
   }
   async function run(action) {
     if (state.busy) return;
@@ -149,12 +194,12 @@
     const observedAt = hubs.map(hub => hub.observationTime).filter(Boolean).sort().at(-1);
     const metric = (label, value, note, tone = '') => `<section class="dashboard-metric ${tone}"><span>${esc(label)}</span><strong>${esc(value)}</strong><small>${esc(note)}</small></section>`;
     const levelLabel = { RED: 'Khẩn cấp', YELLOW: 'Cảnh báo', GREEN: 'Bình thường' };
-    return `<div class="dashboard-heading"><div><p class="eyebrow">GIÁM SÁT MẠNG LƯỚI</p><h1>Tổng quan mạng lưới</h1><p class="muted">${hubs.length} Hub · Cập nhật ${esc(date(observedAt))}</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+    return `<div class="dashboard-heading"><div><h1>Tổng quan mạng lưới</h1><p class="muted">${hubs.length} Hub · Cập nhật ${esc(date(observedAt))}</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
       <section class="operator-web-visual" aria-label="Mạng lưới giao thông điện thông minh"><div class="operator-web-visual-copy"><p class="eyebrow">SMART E-MOBILITY HUB · VNU-HCM</p><h2>Thành phố chuyển động.<br>Mạng lưới luôn sẵn sàng.</h2><p>Kết nối Mobility Hub, metro và khu đô thị bằng dữ liệu vận hành trực tiếp.</p></div><div class="operator-web-visual-summary"><span>Ảnh chụp hiện tại</span><strong>${esc(hubs.length)} Hub đang theo dõi</strong><small>${esc(totals.vehicles)} xe khả dụng · ${esc(totals.alerts)} Hub cần chú ý</small></div></section>
       <div class="dashboard-metrics">${metric('Xe khả dụng', totals.vehicles, 'Có thể phân bổ ngay')}${metric('Chỗ đỗ trống', totals.slots, 'Không gồm chỗ đang giữ')}${metric('Cổng sạc trống', totals.charging, 'Cổng sẵn sàng')}${metric('Hub cần chú ý', totals.alerts, totals.alerts ? 'Theo ngưỡng BR10' : 'Mạng lưới ổn định', totals.alerts ? 'warning' : '')}</div>
-      <div class="dashboard-columns"><section class="card"><div class="section-heading"><div><p class="eyebrow">CẢNH BÁO TỰ ĐỘNG</p><h2>Cần chú ý</h2></div><span class="status-pill level-${alertHubs.some(hub => displayLevel(hub) === 'RED') ? 'red' : alertHubs.length ? 'yellow' : 'green'}">${alertHubs.length} cảnh báo</span></div>${alertHubs.map(hub => { const level = displayLevel(hub); return `<article class="hub-alert level-${level.toLowerCase()}"><div><strong>${esc(hub.hubName)}</strong><p>${esc(alertText(hub))}</p></div><span>${esc(levelLabel[level])}</span></article>`; }).join('') || empty('Không có Hub vượt ngưỡng BR10 hoặc tài nguyên lỗi.')}</section>
-      <section class="card"><p class="eyebrow">PHÂN BỐ TRẠNG THÁI</p><h2>Sức khỏe mạng lưới</h2><div class="health-legend"><span><i class="level-green"></i>Bình thường</span><span><i class="level-yellow"></i>Cảnh báo</span><span><i class="level-red"></i>Khẩn cấp</span></div><p class="muted">Ngưỡng BR10 và số tài nguyên lỗi đều lấy từ ảnh chụp mạng lưới do máy chủ cung cấp.</p></section></div>
-      <section class="card"><div class="section-heading"><div><p class="eyebrow">DỮ LIỆU TRỰC TIẾP</p><h2>Trạng thái các Hub</h2></div></div>${hubs.length ? `<div class="table-wrap"><table class="hub-table"><thead><tr><th>Mobility Hub</th><th>Xe khả dụng</th><th>Chỗ trống</th><th>Sạc trống</th><th>Lấp đầy</th><th>Trạng thái</th></tr></thead><tbody>${hubs.map(hub => { const level = displayLevel(hub); return `<tr><td><strong>${esc(hub.hubName)}</strong><small>${esc(hub.hubId)}</small></td><td>${esc(hub.vehicles.available)} / ${esc(hub.vehicles.total)}</td><td>${esc(hub.capacity.availableSlots)} / ${esc(hub.capacity.totalSlots)}</td><td>${esc(hub.charging.availablePoints)} / ${esc(hub.charging.totalPoints)}</td><td><div class="occupancy"><span><i style="width:${Math.min(100, hub.capacity.occupancyRate)}%"></i></span>${esc(hub.capacity.occupancyRate)}%</div></td><td><span class="status-pill level-${level.toLowerCase()}">${esc(levelLabel[level])}</span></td></tr>`; }).join('')}</tbody></table></div>` : empty('Chưa có dữ liệu Hub để hiển thị.')}</section>`;
+      <div class="dashboard-columns"><section class="card"><div class="section-heading"><div><h2>Cần chú ý</h2></div><span class="status-pill level-${alertHubs.some(hub => displayLevel(hub) === 'RED') ? 'red' : alertHubs.length ? 'yellow' : 'green'}">${alertHubs.length} cảnh báo</span></div>${alertHubs.map(hub => { const level = displayLevel(hub); return `<article class="hub-alert level-${level.toLowerCase()}"><div><strong>${esc(hub.hubName)}</strong><p>${esc(alertText(hub))}</p></div><span>${esc(levelLabel[level])}</span></article>`; }).join('') || empty('Không có Hub vượt ngưỡng BR10 hoặc tài nguyên lỗi.')}</section>
+      <section class="card"><h2>Sức khỏe mạng lưới</h2><div class="health-legend"><span><i class="level-green"></i>Bình thường</span><span><i class="level-yellow"></i>Cảnh báo</span><span><i class="level-red"></i>Khẩn cấp</span></div><p class="muted">Ngưỡng BR10 và số tài nguyên lỗi đều lấy từ ảnh chụp mạng lưới do máy chủ cung cấp.</p></section></div>
+      <section class="card"><div class="section-heading"><div><h2>Trạng thái các Hub</h2></div></div>${hubs.length ? `<div class="table-wrap"><table class="hub-table"><thead><tr><th>Mobility Hub</th><th>Xe khả dụng</th><th>Chỗ trống</th><th>Sạc trống</th><th>Lấp đầy</th><th>Trạng thái</th></tr></thead><tbody>${hubs.map(hub => { const level = displayLevel(hub); return `<tr><td><strong>${esc(hub.hubName)}</strong><small>${esc(hub.hubId)}</small></td><td>${esc(hub.vehicles.available)} / ${esc(hub.vehicles.total)}</td><td>${esc(hub.capacity.availableSlots)} / ${esc(hub.capacity.totalSlots)}</td><td>${esc(hub.charging.availablePoints)} / ${esc(hub.charging.totalPoints)}</td><td><div class="occupancy"><span><i style="width:${Math.min(100, hub.capacity.occupancyRate)}%"></i></span>${esc(hub.capacity.occupancyRate)}%</div></td><td><span class="status-pill level-${level.toLowerCase()}">${esc(levelLabel[level])}</span></td></tr>`; }).join('')}</tbody></table></div>` : empty('Chưa có dữ liệu Hub để hiển thị.')}</section>`;
   }
   const resourceKindLabel = kind => ({ vehicle: 'Phương tiện', slot: 'Chỗ đỗ', charging_point: 'Cổng sạc' }[kind] || kind);
   const resourceStatusKey = status => String(status || '').toLowerCase().replace(/[_\s-]/g, '');
@@ -203,14 +248,84 @@
     const filtered = all.filter(resource => (!filters.hubId || resource.hubId === filters.hubId) && (!filters.kind || resource.kind === filters.kind) && (!filters.status || resource.status === filters.status) && (!query || `${resource.id} ${resourceDetail(resource)} ${name(resource.hubId)}`.toLocaleLowerCase('vi').includes(query)));
     const counts = kind => all.filter(resource => resource.kind === kind).length;
     const rows = filtered.slice(0, state.resourceLimit);
-    return `<div class="dashboard-heading resource-heading"><div><p class="eyebrow">DANH MỤC VẬN HÀNH</p><h1>Quản lý tài nguyên</h1><p class="muted">Theo dõi, bổ sung và chuyển trạng thái tài nguyên vật lý tại các Hub.</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+    return `<div class="dashboard-heading resource-heading"><div><h1>Quản lý tài nguyên</h1><p class="muted">Theo dõi, bổ sung và chuyển trạng thái tài nguyên vật lý tại các Hub.</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
       <div class="resource-metrics"><section><span>Phương tiện</span><strong>${counts('vehicle')}</strong></section><section><span>Chỗ đỗ</span><strong>${counts('slot')}</strong></section><section><span>Cổng sạc</span><strong>${counts('charging_point')}</strong></section><section><span>Đang hiển thị</span><strong>${filtered.length}</strong></section></div>
-      <div class="resource-layout"><section class="card resource-create"><p class="eyebrow">THÊM TÀI NGUYÊN</p><h2>Đăng ký thiết bị mới</h2><form id="resource-create-form"><label>Loại tài nguyên<select class="field" id="resource-kind" name="kind"><option value="vehicle" ${state.newResourceKind === 'vehicle' ? 'selected' : ''}>Phương tiện</option><option value="slot" ${state.newResourceKind === 'slot' ? 'selected' : ''}>Chỗ đỗ</option><option value="charging_point" ${state.newResourceKind === 'charging_point' ? 'selected' : ''}>Cổng sạc</option></select></label><label>Mobility Hub<select class="field" name="hubId">${state.hubs.map(hub => option(hub.id, hub.name)).join('')}</select></label><label>Mã định danh<input class="field" name="id" placeholder="Mã duy nhất" required></label>${resourceCreateFields()}<button class="primary full">Thêm tài nguyên</button></form></section>
+      <div class="resource-layout"><section class="card resource-create"><h2>Đăng ký thiết bị mới</h2><form id="resource-create-form"><label>Loại tài nguyên<select class="field" id="resource-kind" name="kind"><option value="vehicle" ${state.newResourceKind === 'vehicle' ? 'selected' : ''}>Phương tiện</option><option value="slot" ${state.newResourceKind === 'slot' ? 'selected' : ''}>Chỗ đỗ</option><option value="charging_point" ${state.newResourceKind === 'charging_point' ? 'selected' : ''}>Cổng sạc</option></select></label><label>Mobility Hub<select class="field" name="hubId">${state.hubs.map(hub => option(hub.id, hub.name)).join('')}</select></label><label>Mã định danh<input class="field" name="id" placeholder="Mã duy nhất" required></label>${resourceCreateFields()}<button class="primary full">Thêm tài nguyên</button></form></section>
       <div class="resource-catalog"><section class="card resource-filter-card"><form id="resource-filter-form" class="resource-filters"><label>Tìm kiếm<input class="field" name="q" value="${esc(filters.q)}" placeholder="Mã hoặc tên Hub"></label><label>Hub<select class="field" name="hubId"><option value="">Tất cả Hub</option>${state.hubs.map(hub => option(hub.id, hub.name, filters.hubId)).join('')}</select></label><label>Loại<select class="field" name="kind"><option value="">Tất cả</option>${[['vehicle', 'Phương tiện'], ['slot', 'Chỗ đỗ'], ['charging_point', 'Cổng sạc']].map(([value, text]) => option(value, text, filters.kind)).join('')}</select></label><label>Trạng thái<select class="field" name="status"><option value="">Tất cả</option>${statuses.map(value => option(value, resourceStatusLabel(value), filters.status)).join('')}</select></label><div class="resource-filter-actions"><button class="primary">Lọc dữ liệu</button><button class="secondary" type="button" data-action="clear-resource-filters">Xóa lọc</button></div></form></section>
       <section class="card resource-table-card">${rows.length ? `<div class="table-wrap"><table class="resource-table"><thead><tr><th>Tài nguyên</th><th>Loại</th><th>Mobility Hub</th><th>Thông số</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>${rows.map(resource => { const transition = resourceTransition(resource); const deletable = resource.kind === 'vehicle' && !['inuse', 'reserved', 'transferheld', 'intransit'].includes(resourceStatusKey(resource.status)); return `<tr><td><strong>${esc(resource.id)}</strong></td><td>${esc(resourceKindLabel(resource.kind))}</td><td>${esc(name(resource.hubId))}</td><td>${esc(resourceDetail(resource))}</td><td><span class="status-pill level-${resourceTone(resource.status)}">${esc(resourceStatusLabel(resource.status))}</span></td><td><div class="resource-actions">${transition ? `<button class="secondary" data-resource-status="${esc(resource.id)}" data-target-status="${esc(transition.status)}">${esc(transition.label)}</button>` : '<span class="muted">Được quản lý bởi vòng đời hiện tại</span>'}${deletable ? `<button class="danger" data-resource-delete="${esc(resource.id)}">Xóa</button>` : ''}</div></td></tr>`; }).join('')}</tbody></table></div>${state.resourceLimit < filtered.length ? `<button class="secondary full resource-more" data-action="show-more-resources">Xem thêm (${filtered.length - state.resourceLimit})</button>` : ''}` : empty('Không có tài nguyên phù hợp bộ lọc.')}</section></div></div>`;
   }
+  const transferStatusMeta = { Planned: ['Chờ xuất phát', 'yellow'], InTransit: ['Đang di chuyển', 'blue'], Completed: ['Hoàn tất', 'green'], Cancelled: ['Đã hủy', 'grey'] };
+  const eligibleTransferVehicles = hubId => state.resources.filter(resource => resource.kind === 'vehicle' && resource.hubId === hubId && resourceStatusKey(resource.status) === 'available' && Number(resource.attributes.batteryPercent) >= 80)
+    .sort((a, b) => b.attributes.batteryPercent - a.attributes.batteryPercent || a.id.localeCompare(b.id, 'vi'));
+  const availableTransferSlots = hubId => state.resources.filter(resource => resource.kind === 'slot' && resource.hubId === hubId && resourceStatusKey(resource.status) === 'available')
+    .sort((a, b) => String(a.attributes.code).localeCompare(String(b.attributes.code), 'vi', { numeric: true }));
+  function slotLabel(slotId) {
+    const slot = state.resources.find(resource => resource.kind === 'slot' && resource.id === slotId);
+    return slot ? `Chỗ ${slot.attributes.code} · ${name(slot.hubId)}` : slotId;
+  }
+  function ensureTransferPlan() {
+    const ids = state.hubs.map(hub => hub.id);
+    const plan = state.transferPlan ||= { sourceHubId: '', destinationHubId: '', quantity: null, vehicleIds: [], slotIds: [] };
+    if (!ids.includes(plan.sourceHubId)) plan.sourceHubId = ids[0] || '';
+    if (!ids.includes(plan.destinationHubId) || plan.destinationHubId === plan.sourceHubId) plan.destinationHubId = ids.find(id => id !== plan.sourceHubId) || '';
+    const vehicles = eligibleTransferVehicles(plan.sourceHubId), slots = availableTransferSlots(plan.destinationHubId);
+    plan.vehicleIds = plan.vehicleIds.filter(id => vehicles.some(vehicle => vehicle.id === id));
+    plan.slotIds = plan.slotIds.filter(id => slots.some(slot => slot.id === id));
+    return plan;
+  }
+  function transferCounter(vehicleCount, slotCount) {
+    if (!vehicleCount && !slotCount) return 'Chọn xe tại Hub nguồn và cùng số chỗ trống tại Hub đích.';
+    if (vehicleCount !== slotCount) return `Đã chọn ${vehicleCount} xe · ${slotCount} chỗ — số xe và số chỗ phải bằng nhau.`;
+    return `Đã chọn ${vehicleCount} xe · ${slotCount} chỗ — sẵn sàng tạo lệnh.`;
+  }
+  function arrivalChoice(transfer) {
+    return state.arrivalChoices[transfer.id] ||= { observed: [], replace: false, hubId: transfer.destinationHubId, slots: [] };
+  }
+  function arrivalForm(transfer) {
+    const choice = arrivalChoice(transfer), required = transfer.vehicleIds.length;
+    const hubs = state.hubs.filter(hub => hub.id !== transfer.sourceHubId);
+    const held = choice.hubId === transfer.destinationHubId ? transfer.destinationSlotIds.map(id => ({ id, held: true })) : [];
+    const candidates = [...held, ...availableTransferSlots(choice.hubId).filter(slot => !held.some(item => item.id === slot.id)).map(slot => ({ id: slot.id, held: false }))];
+    const replacement = choice.replace ? `<label>Hub thay thế<select class="field arrival-hub" name="replacementHubId" data-transfer="${esc(transfer.id)}">${hubs.map(hub => option(hub.id, hub.name, choice.hubId)).join('')}</select></label>
+      <fieldset class="selection"><legend>Chỗ thay thế (chọn đúng ${required})</legend>${candidates.map(slot => `<label class="check"><input type="checkbox" name="replacementSlotIds" value="${esc(slot.id)}" ${choice.slots.includes(slot.id) ? 'checked' : ''}>${esc(slotLabel(slot.id))}${slot.held ? ' · đang giữ cho lệnh này' : ''}</label>`).join('') || '<p class="muted">Hub này không có chỗ trống phù hợp. Hãy chọn Hub khác.</p>'}</fieldset>` : '';
+    return `<form class="arrival-form" data-transfer-arrive="${esc(transfer.id)}">
+      <fieldset class="selection"><legend>Xe đã có mặt tại Hub đích (${required} xe)</legend>${transfer.vehicleIds.map(id => `<label class="check"><input type="checkbox" name="observedVehicleIds" value="${esc(id)}" ${choice.observed.includes(id) ? 'checked' : ''}>${esc(id)}</label>`).join('')}</fieldset>
+      <label class="check"><input type="checkbox" name="replace" class="arrival-replace" data-transfer="${esc(transfer.id)}" ${choice.replace ? 'checked' : ''}>Hub đích không còn đủ chỗ đã giữ — chọn Hub hoặc chỗ thay thế</label>${replacement}
+      <button class="primary">Xác nhận đến nơi</button></form>`;
+  }
+  function transferActions(transfer) {
+    if (transfer.status === 'Planned') return `<div class="transfer-actions"><button class="primary" data-transfer-depart="${esc(transfer.id)}">Xác nhận xuất phát</button><button class="danger" data-transfer-cancel="${esc(transfer.id)}">Hủy lệnh</button></div><p class="muted transfer-hint">Máy chủ kiểm tra lại mức pin của từng xe trước khi cho xuất phát.</p>`;
+    if (transfer.status === 'InTransit') return arrivalForm(transfer);
+    return `<div class="transfer-actions"><button class="secondary" data-transfer-forget="${esc(transfer.id)}">Bỏ theo dõi</button></div>`;
+  }
+  function transferCard(transfer) {
+    if (transfer.loadError) return `<article class="card transfer-card"><div class="transfer-card-head"><div><h3>${esc(transfer.id)}</h3><p class="muted">${esc(transfer.loadError)}</p></div><button class="secondary" data-transfer-forget="${esc(transfer.id)}">Bỏ theo dõi</button></div></article>`;
+    const [label, tone] = transferStatusMeta[transfer.status] || [transfer.status, 'blue'];
+    const assignments = transfer.vehicleSlotAssignments || transfer.vehicleIds.map((vehicleId, index) => ({ vehicleId, slotId: transfer.destinationSlotIds[index] }));
+    const slotHeading = transfer.status === 'Completed' ? 'Chỗ đỗ đã nhận xe' : transfer.status === 'Cancelled' ? 'Chỗ đã giữ (đã nhả)' : 'Chỗ giữ tại Hub đích';
+    const facts = [['Tạo lệnh', date(transfer.createdAt)], ['Xuất phát', transfer.departedAt && date(transfer.departedAt)], ['Đến nơi', transfer.arrivedAt && date(transfer.arrivedAt)], ['Hủy lệnh', transfer.cancelledAt && date(transfer.cancelledAt)], ['Số xe', transfer.vehicleIds.length], ['Người tạo', transfer.createdBy]].filter(([, value]) => value);
+    return `<article class="card transfer-card" data-transfer="${esc(transfer.id)}"><div class="transfer-card-head"><div><h3>${esc(transfer.id)}</h3><p class="transfer-route-text">${esc(name(transfer.sourceHubId))} ${icon('arrow')} ${esc(name(transfer.destinationHubId))}</p></div><span class="status-pill level-${tone}">${esc(label)}</span></div>
+      <dl class="transfer-meta">${facts.map(([key, value]) => `<div><dt>${esc(key)}</dt><dd>${esc(value)}</dd></div>`).join('')}</dl>${transfer.cancelReason ? `<p class="notice transfer-reason">Lý do hủy: ${esc(transfer.cancelReason)}</p>` : ''}
+      <div class="table-wrap"><table class="transfer-assignments"><thead><tr><th>Phương tiện</th><th>${slotHeading}</th></tr></thead><tbody>${assignments.map(item => `<tr><td><strong>${esc(item.vehicleId)}</strong></td><td>${esc(slotLabel(item.slotId))}</td></tr>`).join('')}</tbody></table></div>${transferActions(transfer)}</article>`;
+  }
+  function redistribute() {
+    const plan = ensureTransferPlan();
+    const vehicles = eligibleTransferVehicles(plan.sourceHubId), slots = availableTransferSlots(plan.destinationHubId);
+    const transfers = state.transfers, count = status => transfers.filter(record => record.status === status).length;
+    const shown = transfers.filter(record => !state.transferFilter || record.status === state.transferFilter);
+    const ready = plan.vehicleIds.length > 0 && plan.vehicleIds.length === plan.slotIds.length;
+    return `<div class="dashboard-heading"><div><h1>Điều phối phương tiện</h1><p class="muted">Giữ xe và chỗ đỗ đích, theo dõi lệnh từ lúc lập đến khi xe vào chỗ.</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+      <div class="resource-metrics transfer-metrics"><section><span>Lệnh đang theo dõi</span><strong>${transfers.length}</strong></section><section><span>Chờ xuất phát</span><strong>${count('Planned')}</strong></section><section><span>Đang di chuyển</span><strong>${count('InTransit')}</strong></section><section><span>Hoàn tất</span><strong>${count('Completed')}</strong></section></div>
+      <div class="transfer-layout"><section class="card transfer-create"><h2>Tạo lệnh điều chuyển</h2>${plan.quantity ? `<p class="notice transfer-suggestion">Đề xuất từ mô phỏng: điều chuyển ${esc(plan.quantity)} xe. Hệ thống vẫn kiểm tra lại khi tạo lệnh.</p>` : ''}
+        <form id="redistribute-form"><div class="transfer-route"><label>Hub nguồn<select class="field" id="transfer-source" name="sourceHubId">${state.hubs.map(hub => option(hub.id, hub.name, plan.sourceHubId)).join('')}</select></label><label>Hub đích<select class="field" id="transfer-destination" name="destinationHubId">${state.hubs.filter(hub => hub.id !== plan.sourceHubId).map(hub => option(hub.id, hub.name, plan.destinationHubId)).join('')}</select></label></div>
+        <fieldset class="selection"><legend>Xe đủ điều kiện (${vehicles.length})</legend><p class="muted transfer-hint">Khả dụng tại Hub nguồn, pin từ 80% trở lên.</p>${vehicles.map(vehicle => `<label class="check"><input type="checkbox" name="vehicleIds" value="${esc(vehicle.id)}" ${plan.vehicleIds.includes(vehicle.id) ? 'checked' : ''}>${esc(vehicle.id)} · ${vehicle.attributes.vehicleType === 'electric_motorbike' ? 'Xe máy điện' : 'Xe đạp điện'} · pin ${esc(vehicle.attributes.batteryPercent)}%</label>`).join('') || '<p class="muted">Không có xe đủ điều kiện tại Hub nguồn.</p>'}</fieldset>
+        <fieldset class="selection"><legend>Chỗ trống tại Hub đích (${slots.length})</legend>${slots.map(slot => `<label class="check"><input type="checkbox" name="slotIds" value="${esc(slot.id)}" ${plan.slotIds.includes(slot.id) ? 'checked' : ''}>Chỗ ${esc(slot.attributes.code)} · ${slot.attributes.pool === 'advance' ? 'Đặt trước' : 'Trả ngay'}</label>`).join('') || '<p class="muted">Hub đích không còn chỗ trống. Hãy chọn Hub khác.</p>'}</fieldset>
+        <p class="transfer-counter ${ready ? 'ready' : ''}" data-transfer-counter>${esc(transferCounter(plan.vehicleIds.length, plan.slotIds.length))}</p><button class="primary full" data-transfer-submit ${ready ? '' : 'disabled'}>Tạo lệnh điều chuyển</button></form></section>
+        <div class="transfer-board"><section class="card transfer-toolbar"><form id="transfer-lookup-form" class="transfer-lookup"><label>Tra cứu theo mã lệnh<input class="field" name="transferId" placeholder="Ví dụ: TRF-…" autocomplete="off" required></label><button class="secondary">Tra cứu</button></form><label class="transfer-filter">Trạng thái<select class="field" id="transfer-status-filter"><option value="">Tất cả</option>${Object.entries(transferStatusMeta).map(([value, [text]]) => option(value, text, state.transferFilter)).join('')}</select></label></section>
+          ${shown.map(transferCard).join('') || empty(transfers.length ? 'Không có lệnh ở trạng thái đã chọn.' : 'Chưa theo dõi lệnh nào. Tạo lệnh mới hoặc tra cứu theo mã lệnh.')}<p class="muted transfer-note">Danh sách gồm các lệnh được tạo hoặc tra cứu trên trình duyệt này; trạng thái luôn được tải lại từ máy chủ.</p></div></div>`;
+  }
   function plannedScreen(title) {
-    return `<section class="card planned-screen"><p class="eyebrow">ĐANG HOÀN THIỆN</p><h1>${esc(title)}</h1><p class="muted">Màn hình đã có trong khung điều hướng và sẽ được nối API ở đợt triển khai tiếp theo.</p><button class="secondary" data-view="overview">Quay lại Tổng quan</button></section>`;
+    return `<section class="card planned-screen"><h1>${esc(title)}</h1><p class="muted">Màn hình đã có trong khung điều hướng và sẽ được nối API ở đợt triển khai tiếp theo.</p><button class="secondary" data-view="overview">Quay lại Tổng quan</button></section>`;
   }
   function operatorMenu() {
     const items = [['redistribute', 'arrow', 'Điều phối phương tiện'], ['schedule', 'bolt', 'Lịch sạc thông minh'], ['simulation', 'chart', 'Mô phỏng What-if'], ['results', 'chart', 'Kết quả mô phỏng'], ['account', 'user', 'Tài khoản']];
@@ -257,7 +372,7 @@
     const screens = operator ? {
       overview,
       resources,
-      redistribute: () => plannedScreen('Điều phối xe'),
+      redistribute: experience === 'operator-web' ? redistribute : () => plannedScreen('Điều phối xe'),
       incidents: () => plannedScreen('Sự cố vận hành'),
       schedule: () => plannedScreen('Lịch sạc'),
       simulation,
@@ -288,8 +403,10 @@
     else if (button.dataset.retryOperation) run(async () => {
       const operation = button.dataset.retryOperation, entry = pendingStore().values[operation];
       const result = await write(entry.path, JSON.parse(entry.body), operation, entry.method || 'POST');
+      if (operator && operation === 'transfer-create' && result?.id) rememberTransfer(result.id);
       await reload();
       if (operator && result.inputs) { state.result = result; state.view = 'results'; }
+      else if (operator && operation.startsWith('transfer-')) state.view = 'redistribute';
       else if (!operator) state.view = 'journeys';
       state.success = 'Đã lấy lại kết quả yêu cầu trước.';
     });
@@ -325,15 +442,36 @@
     }
     else if (button.dataset.recommendation !== undefined) run(async () => {
       const item = state.result.recommendations[Number(button.dataset.recommendation)];
+      if (experience === 'operator-web') {
+        state.transferPlan = { sourceHubId: item.sourceHubId, destinationHubId: item.destinationHubId, quantity: item.quantity, vehicleIds: [], slotIds: [] };
+        await reload(); state.view = 'redistribute'; return;
+      }
       await loadTransferDraft(item); state.view = 'transfer';
     });
+    else if (button.dataset.transferDepart) {
+      const id = button.dataset.transferDepart;
+      if (confirm(`Xác nhận các xe của lệnh ${id} đã rời Hub nguồn?`)) run(async () => {
+        await write(`/transfers/${encodeURIComponent(id)}/depart`, {}, `transfer-depart:${id}`);
+        await reload(); state.success = `Lệnh ${id} đang di chuyển. Xác nhận đến nơi khi xe tới Hub đích.`;
+      });
+    }
+    else if (button.dataset.transferCancel) {
+      const id = button.dataset.transferCancel;
+      const reason = prompt(`Lý do hủy lệnh ${id}:`, 'Điều phối lại theo tình hình vận hành');
+      if (reason !== null) run(async () => {
+        if (!reason.trim()) throw new Error('Nhập lý do hủy lệnh.');
+        await write(`/transfers/${encodeURIComponent(id)}/cancel`, { reason: reason.trim() }, `transfer-cancel:${id}`);
+        await reload(); state.success = `Đã hủy lệnh ${id}. Xe và chỗ đỗ đích đã được nhả.`;
+      });
+    }
+    else if (button.dataset.transferForget) { forgetTransfer(button.dataset.transferForget); render(); }
     else if (button.dataset.action === 'reserve') run(async () => { await write('/vehicle-reservations', { vehicleId: state.selectedVehicle.id, hubId: state.selectedHub }, 'reserve'); state.selectedVehicle = null; await refreshUser(); state.view = 'journeys'; state.success = 'Đã giữ xe. Hãy nhận trước thời hạn trên phiếu.'; });
     else if (button.dataset.action === 'refresh') run(reload);
     else if (button.dataset.action === 'scroll-hubs') document.getElementById('hub-list')?.scrollIntoView({ behavior: 'smooth' });
     else if (button.dataset.action === 'show-more-vehicles') { state.vehicleLimit += 3; render(); }
     else if (button.dataset.action === 'show-more-resources') { state.resourceLimit += 20; render(); }
     else if (button.dataset.action === 'clear-resource-filters') { state.resourceFilters = { q: '', hubId: '', kind: '', status: '' }; state.resourceLimit = 20; render(); }
-    else if (button.dataset.action === 'logout') run(async () => { await api('/session', { method: 'DELETE' }); state.user = null; state.result = null; state.reservations = []; state.trips = []; });
+    else if (button.dataset.action === 'logout') run(async () => { await api('/session', { method: 'DELETE' }); state.user = null; state.result = null; state.reservations = []; state.trips = []; state.transfers = []; state.transferPlan = null; state.arrivalChoices = {}; });
     else if (button.dataset.action === 'export' && state.result) {
       const link = document.createElement('a'); const url = URL.createObjectURL(new Blob([JSON.stringify(state.result, null, 2)], { type: 'application/json' }));
       link.href = url; link.download = `simulation-${state.result.id}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -343,6 +481,26 @@
     if (event.target.id === 'scenario') { state.scenario = event.target.value; render(); }
     if (event.target.id === 'resource-kind') { state.newResourceKind = event.target.value; render(); }
     if (event.target.classList.contains('return-hub')) state.returnChoices[event.target.dataset.trip] = { hubId: event.target.value, slots: [] };
+    if (state.transferPlan && event.target.id === 'transfer-source') { state.transferPlan.sourceHubId = event.target.value; state.transferPlan.vehicleIds = []; render(); return; }
+    if (state.transferPlan && event.target.id === 'transfer-destination') { state.transferPlan.destinationHubId = event.target.value; state.transferPlan.slotIds = []; render(); return; }
+    if (event.target.id === 'transfer-status-filter') { state.transferFilter = event.target.value; render(); return; }
+    const form = event.target.form;
+    if (state.transferPlan && form?.id === 'redistribute-form') {
+      const data = new FormData(form);
+      state.transferPlan.vehicleIds = data.getAll('vehicleIds'); state.transferPlan.slotIds = data.getAll('slotIds');
+      const vehicleCount = state.transferPlan.vehicleIds.length, slotCount = state.transferPlan.slotIds.length, ready = vehicleCount > 0 && vehicleCount === slotCount;
+      const counter = form.querySelector('[data-transfer-counter]');
+      counter.textContent = transferCounter(vehicleCount, slotCount); counter.classList.toggle('ready', ready);
+      form.querySelector('[data-transfer-submit]').disabled = !ready;
+    }
+    if (form?.classList.contains('arrival-form')) {
+      const transfer = state.transfers.find(record => record.id === form.dataset.transferArrive);
+      if (!transfer) return;
+      const choice = arrivalChoice(transfer), data = new FormData(form);
+      choice.observed = data.getAll('observedVehicleIds'); choice.slots = data.getAll('replacementSlotIds');
+      if (event.target.classList.contains('arrival-replace')) { choice.replace = event.target.checked; choice.hubId = transfer.destinationHubId; choice.slots = []; render(); }
+      else if (event.target.classList.contains('arrival-hub')) { choice.hubId = event.target.value; choice.slots = []; render(); }
+    }
   });
   document.addEventListener('submit', event => {
     event.preventDefault(); const form = event.target, formId = form.getAttribute('id'), data = new FormData(form);
@@ -374,6 +532,39 @@
       if (!vehicleIds.length || vehicleIds.length !== destinationSlotIds.length) throw new Error('Chọn số xe bằng số chỗ đỗ đích.');
       const transfer = await write('/transfers', { sourceHubId: state.draft.sourceHubId, destinationHubId: state.draft.destinationHubId, vehicleIds, destinationSlotIds }, 'transfer');
       state.view = 'results'; state.success = `Đã tạo lệnh ${transfer.id}. Lệnh đang chờ xác nhận xuất phát.`;
+    });
+    else if (formId === 'redistribute-form') run(async () => {
+      const sourceHubId = String(data.get('sourceHubId') || ''), destinationHubId = String(data.get('destinationHubId') || '');
+      const vehicleIds = data.getAll('vehicleIds'), destinationSlotIds = data.getAll('slotIds');
+      if (!sourceHubId || !destinationHubId || sourceHubId === destinationHubId) throw new Error('Hub nguồn và Hub đích phải khác nhau.');
+      if (!vehicleIds.length || vehicleIds.length !== destinationSlotIds.length) throw new Error('Chọn số xe bằng số chỗ đỗ đích.');
+      const transfer = await write('/transfers', { sourceHubId, destinationHubId, vehicleIds, destinationSlotIds }, 'transfer-create');
+      rememberTransfer(transfer.id);
+      state.transferPlan = { sourceHubId, destinationHubId, quantity: null, vehicleIds: [], slotIds: [] }; state.transferFilter = '';
+      await reload(); state.success = `Đã tạo lệnh ${transfer.id}. Xe và chỗ đỗ đích đang được giữ, chờ xác nhận xuất phát.`;
+    });
+    else if (formId === 'transfer-lookup-form') run(async () => {
+      const id = String(data.get('transferId') || '').trim();
+      if (!id) throw new Error('Nhập mã lệnh cần tra cứu.');
+      const record = await api('/transfers/' + encodeURIComponent(id));
+      rememberTransfer(record.id);
+      state.transfers = [record, ...state.transfers.filter(item => item.id !== record.id)]; state.transferFilter = '';
+      state.success = `Đã tải lệnh ${record.id}.`;
+    });
+    else if (form.classList.contains('arrival-form')) run(async () => {
+      const id = form.dataset.transferArrive, transfer = state.transfers.find(record => record.id === id);
+      if (!transfer) throw new Error('Không tìm thấy lệnh trong danh sách. Hãy tải lại dữ liệu.');
+      const required = transfer.vehicleIds.length, observedVehicleIds = data.getAll('observedVehicleIds');
+      if (observedVehicleIds.length !== required) throw new Error(`Cần xác nhận đủ ${required} xe đã có mặt trước khi hoàn tất lệnh.`);
+      const body = { observedVehicleIds };
+      if (data.get('replace') === 'on') {
+        const replacementSlotIds = data.getAll('replacementSlotIds');
+        if (replacementSlotIds.length !== required) throw new Error(`Chọn đúng ${required} chỗ thay thế.`);
+        body.replacementDestinationHubId = String(data.get('replacementHubId')); body.replacementSlotIds = replacementSlotIds;
+      }
+      const result = await write(`/transfers/${encodeURIComponent(id)}/arrive`, body, `transfer-arrive:${id}`);
+      delete state.arrivalChoices[id];
+      await reload(); state.success = `Lệnh ${id} đã hoàn tất. Xe đã vào chỗ tại ${name(result.destinationHubId)}.`;
     });
   });
   window.addEventListener('online', () => { if (state.user) run(reload); });
