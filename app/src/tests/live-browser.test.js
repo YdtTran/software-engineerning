@@ -318,6 +318,20 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   if (process.env.LIVE_SCREENSHOT_DIR) {
     await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-schedule.png'), fullPage: true });
   }
+  for (const width of [1440, 1150, 820]) {
+    await desktop.setViewportSize({ width, height: 1000 });
+    assert.ok(await desktop.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Operator desktop must not overflow horizontally at ${width}px.`);
+  }
+  await desktop.setViewportSize({ width: 1440, height: 1000 });
+  await desktop.locator('[data-view="account"]').click();
+  await desktop.getByRole('heading', { name: 'Tài khoản vận hành', exact: true }).waitFor();
+  assert.deepEqual(await desktop.locator('.account-metrics strong').allTextContents(), ['operator', 'Operator', '4 Hub', '0']);
+  assert.doesNotMatch(await desktop.locator('#live-app').textContent(), /UC(?:08|09|10|11|12)/);
+  if (process.env.LIVE_SCREENSHOT_DIR) {
+    await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-account.png'), fullPage: true });
+  }
+  await desktop.locator('[data-action="logout"]').click();
+  await desktop.locator('#login-form').waitFor();
   const mobile = await pageFor('operator-app', { width: 390, height: 844 });
   await mobile.getByRole('heading', { name: 'Tổng quan mạng lưới', exact: true }).waitFor();
   assert.equal(await mobile.locator('.operator-web-visual').isVisible(), false);

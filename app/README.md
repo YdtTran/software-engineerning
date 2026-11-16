@@ -20,7 +20,7 @@ $env:DEMO_SIMULATED_DEVICES = '1'
 npm start --prefix app
 ```
 
-`db:dashboard-demo` creates a separate, ignored database for UI verification. It includes one green Hub, Bách khoa at 87.5% occupancy (yellow), Ký túc xá khu A at 100% occupancy (red), and one faulted Metro charging point. It refuses to overwrite an existing file. Use `db:init` instead when you want the neutral seed where all physical resources begin available.
+`db:dashboard-demo` creates a separate, ignored database for UI verification. It includes one green Hub, Bách khoa at 87.5% occupancy (yellow), Ký túc xá khu A at 100% occupancy (red), one faulted Metro charging point with an open incident, and four queued charging requests across Metro and Library. It refuses to overwrite an existing file. Use `db:init` instead when you want the neutral seed where all physical resources begin available.
 
 The provisioning script prompts privately for two passwords, creating `user` (User) and `operator` (Operator). It stores salted hashes only and refuses to overwrite an existing account file. Accounts and SQLite data are ignored by Git. Alternatively, provision accounts with `node app/src/hash-demo-account.js USERNAME ID user[,operator]`, supplying the password on standard input and combining emitted account objects into a JSON array outside Git.
 
@@ -30,7 +30,7 @@ Open these entry points at `http://127.0.0.1:3000`:
 |---|---|
 | `/user-app.html` | User mobile layout: find/reserve/pickup/return, own history and trip incidents |
 | `/operator-app.html` | Operator mobile layout: live UC08 overview, simulations and transfer recommendations |
-| `/operator-web.html` | Operator desktop dashboard with the same permissions and live UC08 overview |
+| `/operator-web.html` | Operator desktop dashboard: live network overview, resource administration, inter-hub transfers, incidents/maintenance, smart charging schedule, and what-if simulations |
 | `/index.html` | Original offline design viewer; mock behavior remains separate |
 
 The live User, Operator mobile, and Operator web shells reuse the visual language of the offline mockup (navy/cyan palette, mobile header and bottom navigation, desktop sidebar, cards and status colors). Their state is not copied from `app.js`: `live.js` reads authenticated API data, while `index.html` remains a presentation-only design viewer with in-memory examples.
@@ -47,7 +47,7 @@ The current database version is 12: upstream `0008` records incident-isolation v
 
 Device simulation is opt-in (`DEMO_SIMULATED_DEVICES=1` for Mobility dock actions; Parking & Charging uses `SimulatedDeviceAdapter` by default unless injected). Without a trusted Mobility device adapter, pickup/return fails closed. The demo confirms arrival/lock without actual IoT hardware and leaves distance null without a measured odometer. Uncertain commands preserve claims for trusted reconciliation. Background jobs scan overdue vehicle and parking reservations every 30 seconds; automatic external notification delivery is not implemented.
 
-Mobility supplies the trusted trip reader for UC11A. Simulation uses a consistent, immutable network snapshot and never applies recommendations automatically. Reviewed transfer recommendations call the normal Operations API, which rechecks current resources and creates a Planned transfer. Parking & Charging APIs (`UC06`, `UC07`, `UC07A`, `UC12`) and `chargingGuard` (`SC02`) are wired into `app/src/app.js` alongside Operations and Mobility; real hardware/isolation verification (`isolationVerifier`) still requires a production provider, and the live UI (`live.html`) currently focuses on Mobility/Simulation/Transfers.
+Mobility supplies the trusted trip reader for UC11A. Simulation uses a consistent, immutable network snapshot and never applies recommendations automatically. Reviewed transfer recommendations call the normal Operations API, which rechecks current resources and creates a Planned transfer. Parking & Charging APIs (`UC06`, `UC07`, `UC07A`, `UC12`) and `chargingGuard` (`SC02`) are wired into `app/src/app.js` alongside Operations and Mobility; real hardware/isolation verification (`isolationVerifier`) still requires a production provider, while `/operator-web.html` provides live desktop workflows for network monitoring, resource administration, inter-hub transfers, incidents/maintenance, smart charging schedules, and what-if simulations.
 
 ## Verify
 
@@ -60,4 +60,4 @@ For the browser test, set `LIVE_PLAYWRIGHT` to an installed Playwright module pa
 
 The full history and stage evidence are in [Minh's plan](../docs/architecture/MINH_IMPLEMENTATION_PLAN.md). Migration tests now run portably through Node, and the SQLite adapter distinguishes newer synchronous serialization APIs from callback drivers.
 
-Final verification with Playwright enabled: 133 pass, zero failures and two optional-driver skips on both Node.js 22.13.1 and 24.19.0. The account provisioning helper was also checked with isolated fixture accounts, including password-hash verification.
+Final verification with Playwright enabled: 169 pass, zero failures and two optional-driver skips. The account provisioning helper was also checked with isolated fixture accounts, including password-hash verification.

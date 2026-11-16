@@ -216,6 +216,7 @@
     if (state.busy) return;
     state.busy = true; state.error = ''; state.success = '';
     root.setAttribute('aria-busy', 'true');
+    status.classList.add('loading');
     status.textContent = 'Đang xử lý…';
     root.querySelectorAll('button').forEach(button => { button.disabled = true; });
     try { await action(); }
@@ -224,7 +225,7 @@
       if ([409, 422, 503].includes(error.status)) {
         try { await reload(); } catch { /* Preserve the original failure. */ }
       }
-    } finally { state.busy = false; render(); }
+    } finally { state.busy = false; status.classList.remove('loading'); render(); }
   }
   function login() {
     return `<section class="card login"><h1>Đăng nhập</h1><p class="muted">${operator ? 'Dành cho tài khoản vận hành.' : 'Dành cho tài khoản người dùng đã được cấp.'}</p><form id="login-form"><label>Tài khoản<input class="field" name="username" autocomplete="username" required></label><label>Mật khẩu<input class="field" name="password" type="password" autocomplete="current-password" required></label><button class="primary" type="submit">Đăng nhập</button></form></section>`;
@@ -537,6 +538,13 @@
     const items = [['redistribute', 'arrow', 'Điều phối phương tiện'], ['schedule', 'bolt', 'Lịch sạc thông minh'], ['simulation', 'chart', 'Mô phỏng What-if'], ['results', 'chart', 'Kết quả mô phỏng'], ['account', 'user', 'Tài khoản']];
     return `<section class="card operator-menu-card"><p class="eyebrow">OPERATOR APP</p><h2>Công cụ vận hành</h2>${items.map(([view, symbol, text]) => `<button data-view="${view}">${icon(symbol)}<span>${esc(text)}</span>${icon('arrow')}</button>`).join('')}</section><p class="notice">Ứng dụng hiện trường dùng cùng quyền Operator và dữ liệu với dashboard trung tâm.</p>`;
   }
+  const scenarioDescriptions = {
+    metro: 'Mô phỏng lưu lượng khách tăng đột biến từ tuyến Metro đổ về các Hub lân cận trong giờ cao điểm.',
+    parking: 'Kiểm tra khả năng tiếp nhận trả xe và chuyển hướng khi tỷ lệ lấp đầy bãi đỗ đạt ngưỡng tới hạn.',
+    'charging-demand': 'Đánh giá áp lực hàng đợi sạc và tỷ lệ phục vụ khi nhu cầu sạc tăng cao đồng loạt.',
+    charging: 'Phân tích tác động khi một số cổng sạc tại Hub ngừng hoạt động và ngân sách công suất bị thu hẹp.',
+    clustering: 'Mô phỏng hiện tượng phương tiện dồn về một Hub tập trung gây mất cân bằng nguồn cung giữa các trạm.'
+  };
   function simulation() {
     const s = state.scenario;
     const numeric = (field, text, value, min, max, step = 1) => `<label>${text}<input class="field" type="number" name="${field}" value="${value}" min="${min}" max="${max}" step="${step}" required></label>`;
@@ -545,13 +553,22 @@
     if (s === 'parking') specific = numeric('occupiedPercent', 'Tỷ lệ lấp đầy giả định (%)', 100, 0, 100);
     if (s === 'charging-demand' || s === 'charging') specific = numeric('chargingRequestsPerHour', 'Yêu cầu sạc / giờ / Hub', 20, 0, 1000) + numeric('powerBudgetKw', 'Ngân sách công suất giả định (kW)', 14, 0, 1000, 0.1) + numeric('portPowerKw', 'Công suất mỗi cổng (kW)', 7, 0.1, 100, 0.1) + (s === 'charging' ? numeric('failedPorts', 'Số cổng ngừng hoạt động tại mỗi Hub', 1, 0, 100) : numeric('chargingMultiplier', 'Hệ số tăng nhu cầu sạc', 4, 1, 10, 0.1));
     if (s === 'clustering') specific = `<label>Hub tập trung xe<select class="field" name="targetHubId">${state.hubs.map(hub => option(hub.id, hub.name)).join('')}</select></label>` + numeric('returnBias', 'Tỷ lệ chuyến hướng về Hub tập trung', 0.9, 0, 1, 0.1);
-    return `<h1>Mô phỏng What-if</h1><section class="card"><form id="simulation-form"><label>Kịch bản<select id="scenario" class="field" name="scenario">${Object.entries(labels).map(([id, text]) => option(id, text, s)).join('')}</select></label><fieldset class="selection"><legend>Hub trong phạm vi</legend>${state.hubs.map((hub, index) => `<label class="check"><input type="checkbox" name="hubIds" value="${esc(hub.id)}" ${index === 0 || (s === 'clustering' && index === 1) ? 'checked' : ''}>${esc(hub.name)}</label>`).join('')}</fieldset><div class="live-grid">${numeric('durationMinutes', 'Thời lượng (phút)', 60, 1, 240)}${numeric('demandPerHour', 'Lượt thuê / giờ / Hub', 40, 0, 1000)}${numeric('seed', 'Mã tái hiện kết quả', 1, 0, 4294967295)}${specific}</div><p class="muted">Mô hình demo sử dụng thời lượng chuyến 15 phút và sạc 45 phút. Kết quả kèm giả định để bạn xem trước khi quyết định.</p><button class="primary">Chạy mô phỏng</button></form></section>`;
+    const formCard = `<section class="card"><form id="simulation-form"><label>Kịch bản<select id="scenario" class="field" name="scenario">${Object.entries(labels).map(([id, text]) => option(id, text, s)).join('')}</select></label><fieldset class="selection"><legend>Hub trong phạm vi</legend>${state.hubs.map((hub, index) => `<label class="check"><input type="checkbox" name="hubIds" value="${esc(hub.id)}" ${index === 0 || (s === 'clustering' && index === 1) ? 'checked' : ''}>${esc(hub.name)}</label>`).join('')}</fieldset><div class="live-grid">${numeric('durationMinutes', 'Thời lượng (phút)', 60, 1, 240)}${numeric('demandPerHour', 'Lượt thuê / giờ / Hub', 40, 0, 1000)}${numeric('seed', 'Mã tái hiện kết quả', 1, 0, 4294967295)}${specific}</div><p class="muted">Mô hình demo sử dụng thời lượng chuyến 15 phút và sạc 45 phút. Kết quả kèm giả định để bạn xem trước khi quyết định.</p><button class="primary">Chạy mô phỏng</button></form></section>`;
+    if (experience !== 'operator-web') return `<h1>Mô phỏng What-if</h1>${formCard}`;
+    return `<div class="dashboard-heading"><div><h1>Mô phỏng What-if</h1><p class="muted">Chạy thử 5 kịch bản vận hành trên ảnh chụp mạng lưới hiện tại mà không làm thay đổi dữ liệu thật.</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+      <div class="resource-metrics simulation-metrics"><section><span>Kịch bản chuẩn</span><strong>5</strong></section><section><span>Hub trong mạng lưới</span><strong>${state.hubs.length}</strong></section><section><span>Xe khả dụng hiện tại</span><strong>${state.resources.filter(item => item.kind === 'vehicle' && resourceStatusKey(item.status) === 'available').length}</strong></section><section><span>Kết quả đã lưu</span><strong>${state.results.length}</strong></section></div>
+      <div class="simulation-layout">${formCard}<section class="card simulation-guide-card"><h2>${esc(labels[s])}</h2><p>${esc(scenarioDescriptions[s])}</p><dl class="transfer-meta"><div><dt>Nguồn dữ liệu</dt><dd>Ảnh chụp trực tiếp từ SQLite</dd></div><div><dt>Tính toàn vẹn</dt><dd>Bảo toàn số lượng phương tiện</dd></div><div><dt>Tái hiện kết quả</dt><dd>Cùng tham số và seed cho cùng kết quả</dd></div></dl>${state.results.length ? `<h3>Lần chạy gần nhất</h3><div class="simulation-recent">${state.results.slice(0, 3).map(item => `<button class="secondary full" data-result="${esc(item.id)}">${esc(labels[item.scenario])} · ${esc(date(item.inputSnapshotTime))}</button>`).join('')}</div>` : empty('Chưa có kết quả mô phỏng nào được lưu.')}</section></div>`;
   }
   function results() {
     const result = state.result;
     const fields = [['serviceSuccessRate', 'Tỷ lệ phục vụ (%)'], ['averageWaitMinutes', 'Chờ thuê trung bình (phút)'], ['rejectedTrips', 'Lượt thuê chưa phục vụ'], ['rejectedReturns', 'Lượt trả thiếu chỗ'], ['unservedChargingRequests', 'Yêu cầu sạc còn chờ']];
     const recommendation = item => item.kind === 'redistribute' ? `Điều chuyển ${item.quantity} xe từ ${name(item.sourceHubId)} đến ${name(item.destinationHubId)}` : item.kind === 'reroute' ? `Hướng dẫn từ ${name(item.sourceHubId)} sang ${name(item.destinationHubId)}` : item.kind === 'inspect-ports' ? `Kiểm tra ${item.failedPorts} cổng tại ${name(item.hubId)}` : `Xem lại lịch sạc tại ${name(item.hubId)} (${item.queuedRequests} yêu cầu chờ)`;
-    return `<h1>Kết quả đã lưu</h1>${result ? `<section class="card"><h2>${esc(labels[result.inputs.scenario])}</h2><p>Dữ liệu đầu vào lúc ${esc(date(result.inputSnapshotTime))}</p><p class="record-id">Mã kết quả: ${esc(result.id)}</p><div class="table-wrap"><table><thead><tr><th>Chỉ số</th><th>Cơ sở</th><th>Kịch bản</th></tr></thead><tbody>${fields.map(([field, text]) => `<tr><td>${text}</td><td>${esc(result.baselineMetrics[field])}</td><td>${esc(result.projectedMetrics[field])}</td></tr>`).join('')}</tbody></table></div><h3 style="margin-top:20px">Khuyến nghị</h3>${result.recommendations.map((item, index) => `<p>${esc(recommendation(item))}</p>${item.kind === 'redistribute' ? `<button class="secondary" data-recommendation="${index}">Xem phương án điều chuyển</button>` : ''}`).join('') || '<p class="muted">Chưa có khuyến nghị bổ sung trong lần chạy này.</p>'}<details><summary>Giả định của mô hình</summary><ul>${result.assumptions.map(text => `<li>${esc(text)}</li>`).join('')}</ul></details><button class="secondary" data-action="export">Xuất kết quả JSON</button></section>` : empty('Chọn một kết quả đã lưu để xem.')}<div class="live-grid">${state.results.map(result => `<section class="card"><h3>${esc(labels[result.scenario])}</h3><p>${esc(date(result.inputSnapshotTime))}</p><button class="primary" data-result="${esc(result.id)}">Mở kết quả</button></section>`).join('') || empty('Chưa có kết quả mô phỏng.')}</div>`;
+    const detail = result ? `<section class="card results-detail-card"><div class="transfer-card-head"><div><h2>${esc(labels[result.inputs.scenario])}</h2><p class="muted">Dữ liệu đầu vào lúc ${esc(date(result.inputSnapshotTime))}</p><p class="record-id">Mã kết quả: ${esc(result.id)}</p></div><button class="secondary" data-action="export">Xuất kết quả JSON</button></div><div class="table-wrap"><table><thead><tr><th>Chỉ số</th><th>Cơ sở</th><th>Kịch bản</th></tr></thead><tbody>${fields.map(([field, text]) => `<tr><td>${text}</td><td>${esc(result.baselineMetrics[field])}</td><td><strong>${esc(result.projectedMetrics[field])}</strong></td></tr>`).join('')}</tbody></table></div><h3 style="margin-top:20px">Khuyến nghị vận hành</h3><div class="results-recommendations">${result.recommendations.map((item, index) => `<div class="results-recommendation-item"><p>${esc(recommendation(item))}</p>${item.kind === 'redistribute' ? `<button class="secondary" data-recommendation="${index}">Xem phương án điều chuyển</button>` : ''}</div>`).join('') || '<p class="muted">Chưa có khuyến nghị bổ sung trong lần chạy này.</p>'}</div><details><summary>Giả định của mô hình</summary><ul>${result.assumptions.map(text => `<li>${esc(text)}</li>`).join('')}</ul></details></section>` : empty('Chọn một kết quả đã lưu để xem.');
+    const list = `<div class="live-grid results-catalog">${state.results.map(item => `<section class="card ${result?.id === item.id ? 'results-card-active' : ''}"><h3>${esc(labels[item.scenario])}</h3><p class="muted">${esc(date(item.inputSnapshotTime))}</p><p class="record-id">${esc(item.id)}</p><button class="primary" data-result="${esc(item.id)}">${result?.id === item.id ? 'Đang xem kết quả' : 'Mở kết quả'}</button></section>`).join('') || empty('Chưa có kết quả mô phỏng.')}</div>`;
+    if (experience !== 'operator-web') return `<h1>Kết quả đã lưu</h1>${detail}${list}`;
+    return `<div class="dashboard-heading"><div><h1>Kết quả đã lưu</h1><p class="muted">Đối chiếu chỉ số cơ sở với kịch bản giả định, xuất báo cáo JSON hoặc chuyển khuyến nghị sang điều phối.</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+      <div class="resource-metrics results-metrics"><section><span>Tổng kết quả đã lưu</span><strong>${state.results.length}</strong></section><section><span>Kịch bản đang mở</span><strong>${esc(result ? labels[result.inputs.scenario] : 'Chưa chọn')}</strong></section><section><span>Tỷ lệ phục vụ dự kiến</span><strong>${result ? `${esc(result.projectedMetrics.serviceSuccessRate)}%` : '—'}</strong></section><section><span>Khuyến nghị</span><strong>${result ? result.recommendations.length : 0}</strong></section></div>
+      ${detail}<h2 class="results-list-heading">Danh sách kết quả mô phỏng (${state.results.length})</h2>${list}`;
   }
   function transfer() {
     const draft = state.draft;
@@ -574,7 +591,12 @@
     if (!roles.includes(operator ? 'operator' : 'user')) {
       root.innerHTML = '<section class="card"><p>Tài khoản không có quyền sử dụng giao diện này. Hãy mở đúng ứng dụng hoặc đăng nhập bằng tài khoản phù hợp.</p><button class="secondary" data-action="logout">Đăng xuất</button></section>'; return;
     }
-    const account = () => `<section class="card"><h1>Tài khoản</h1><p>${esc(state.user.id)}</p><button class="secondary" data-action="logout">Đăng xuất</button></section>`;
+    const unresolved = Object.entries(pendingStore().values).filter(([, entry]) => entry.path);
+    const account = () => experience !== 'operator-web'
+      ? `<section class="card"><h1>Tài khoản</h1><p>${esc(state.user.id)}</p><button class="secondary" data-action="logout">Đăng xuất</button></section>`
+      : `<div class="dashboard-heading"><div><h1>Tài khoản vận hành</h1><p class="muted">Thông tin phiên xác thực, vai trò phân quyền tại máy chủ và trạng thái kết nối trung tâm điều hành.</p></div><button class="secondary" data-action="refresh">Tải lại dữ liệu</button></div>
+        <div class="resource-metrics account-metrics"><section><span>Tài khoản đang đăng nhập</span><strong>${esc(state.user.id)}</strong></section><section><span>Vai trò phân quyền</span><strong>${esc(roles.map(role => role === 'operator' ? 'Operator' : 'User').join(', '))}</strong></section><section><span>Phạm vi quản lý</span><strong>${state.hubs.length} Hub</strong></section><section><span>Yêu cầu chờ đối soát</span><strong>${unresolved.length}</strong></section></div>
+        <section class="card account-detail-card"><h2>Phiên làm việc hiện tại</h2><dl class="transfer-meta"><div><dt>Định danh người vận hành</dt><dd>${esc(state.user.id)}</dd></div><div><dt>Quyền hạn máy chủ</dt><dd>Toàn quyền điều hành mạng lưới, tài nguyên, điều phối, sự cố, lịch sạc và mô phỏng</dd></div><div><dt>Cơ chế xác thực</dt><dd>Phiên máy chủ (HttpOnly Cookie · kiểm tra cùng Origin)</dd></div><div><dt>Bảo vệ ghi dữ liệu</dt><dd>Idempotency-Key tự động và lưu trữ khôi phục khi mất kết nối</dd></div></dl><div class="transfer-actions"><button class="danger" data-action="logout">Đăng xuất khỏi phiên</button></div></section>`;
     const screens = operator ? {
       overview,
       resources,
@@ -589,7 +611,6 @@
     } : { home, journeys, account };
     if (!screens[state.view]) state.view = operator ? 'overview' : 'home';
     history.replaceState(null, '', '#' + state.view);
-    const unresolved = Object.entries(pendingStore().values).filter(([, entry]) => entry.path);
     const pending = unresolved.length ? `<section class="card"><h2>Yêu cầu chưa rõ kết quả</h2><p>Bạn có thể lấy lại kết quả của yêu cầu trước bằng cách thử lại an toàn.</p>${unresolved.map(([operation]) => `<button class="secondary" data-retry-operation="${esc(operation)}">Thử lại yêu cầu trước</button>`).join('')}</section>` : '';
     const feedback = (state.success ? `<p class="success" role="status">${esc(state.success)}</p>` : '') + pending;
     let content = screens[state.view]();
@@ -636,7 +657,7 @@
       const description = prompt('Mô tả sự cố của chuyến đi:');
       if (description?.trim()) run(async () => { await write(`/trips/${encodeURIComponent(button.dataset.report)}/incidents`, { description: description.trim() }, 'incident:' + button.dataset.report); state.success = 'Đã ghi nhận sự cố. Chuyến vẫn được giữ để xử lý an toàn.'; });
     }
-    else if (button.dataset.result) run(async () => { state.result = await api('/simulations/' + encodeURIComponent(button.dataset.result)); state.view = 'results'; });
+    else if (button.dataset.result) run(async () => { state.result = await api('/simulations/' + encodeURIComponent(button.dataset.result)); state.view = 'results'; state.success = `Đã mở kết quả mô phỏng ${state.result.id}.`; });
     else if (button.dataset.resourceStatus) run(async () => {
       const id = button.dataset.resourceStatus, target = button.dataset.targetStatus;
       await write(`/operations/resources/${encodeURIComponent(id)}`, { status: target, reason: 'Cập nhật từ Operator Dashboard' }, `resource-status:${id}:${target}`, 'PATCH');
@@ -742,7 +763,7 @@
       const parameters = {};
       for (const [key, value] of data.entries()) if (!['scenario', 'hubIds'].includes(key)) parameters[key] = key === 'targetHubId' ? value : Number(value);
       state.result = await write('/simulations', { scenario: data.get('scenario'), hubIds: data.getAll('hubIds'), parameters }, 'simulation');
-      state.results = await api('/simulations'); state.view = 'results';
+      state.results = await api('/simulations'); state.view = 'results'; state.success = `Đã chạy mô phỏng và lưu kết quả ${state.result.id}.`;
     });
     else if (formId === 'transfer-form') run(async () => {
       const vehicleIds = data.getAll('vehicleIds'), destinationSlotIds = data.getAll('slotIds');
