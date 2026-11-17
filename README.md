@@ -14,9 +14,9 @@
 
 Watch the end-to-end Version 2.0 walkthrough recorded directly from a physical Android device and live browser session:
 
-- **Direct video file**: [docs/assets/demo/smart-emobility-v2-demo.webm](docs/assets/demo/smart-emobility-v2-demo.webm) (VP8 WebM, 1280x720)
+![Smart E-Mobility Hub v2.0 Live Demo](docs/assets/demo/smart-emobility-v2-demo.gif)
 
-<video src="docs/assets/demo/smart-emobility-v2-demo.webm" controls width="100%"></video>
+- **Full-resolution video (1280×720 VP8 WebM, 2.3 MB)**: [Open / Download Raw WebM](docs/assets/demo/smart-emobility-v2-demo.webm?raw=1) *(uses `?raw=1` so the browser plays or downloads directly instead of opening GitHub's blob text preview)*
 
 ---
 
