@@ -52,13 +52,17 @@ The local demo uses the versioned `demo-des-v1` schema documented in [Simulation
 
 | UC | Role | Method and path | Request → response |
 |---|---|---|---|
+| UC06-S1 | U | GET /private-vehicles | → authenticated User's provisioned private vehicles |
 | UC06-S1 | U | GET /hubs/{hubId}/parking-availability | `privateVehicleId, pool, [plannedArrival, plannedCheckout]` → compatible slot IDs |
+| UC06-S1 | U | GET /parking-reservations | → authenticated User's parking reservations |
 | UC06-S1 | U | POST /parking-reservations | `hubId, slotId, privateVehicleId, pool, [plannedArrival, plannedCheckout]` → reservation ID, status, ticket code, arrival deadline and applicable hold expiry or planned interval |
 | UC06-S1 | U | POST /parking-reservations/{id}/cancel | → reservation ID and status |
 | UC06 | U, O | GET /parking-reservations/{id} | → reservation record and associated occupancy ID when present |
 | UC06-S2 | U, O | POST /parking-reservations/{id}/check-in | `hubId, ticketCode` → reservation ID, status, occupancy ID, actual check-in time |
+| UC06-S3 | U | GET /parking-occupancies | → authenticated User's parking occupancies |
 | UC06-S3 | U, O | POST /parking-occupancies/{id}/check-out | `[cancelQueuedCharging]` → occupancy ID, actual checkout time, final fee if calculable |
 | UC06-S3 | U, O | GET /parking-occupancies/{id} | → occupancy record |
+| UC07 | U | GET /charging-requests | → authenticated User's charging requests |
 | UC07 | U | POST /charging-requests | `occupancyId, targetBatteryPercent, [requestedStart]` → request ID and status |
 | UC07 | U, O | GET /charging-requests/{id} | → request status and allocation/session IDs when present |
 | UC07 | U | POST /charging-requests/{id}/cancel | → request ID and `Cancelled` status (releases unenergized port hold; rejects `Active`/`Stopping` with 409) |
@@ -72,6 +76,8 @@ The local demo uses the versioned `demo-des-v1` schema documented in [Simulation
 - Use `409 SLOT_OCCUPIED` for LIM-01. Preserve occupancy and commitments. Report the conflict to Operations and return compatible alternatives when available. Checkout requires verified departure and safe charging disconnection. End only the current occupancy, preserve future commitments and record BR08b fees when calculable.
 - UC07 records demand. UC12 checks priority, compatibility, time, port availability and hub power limits. Device activation confirmation creates the active session. Stop requires power-off confirmation before releasing power and disconnection confirmation before releasing the port. Parking occupancy persists. Reuse the same device command ID for the lifecycle's three-attempt limit and escalate an unconfirmed stop. Technical interruption can requeue the request under BR09.
 
+**Current demo boundary:** The HTTP router exposes request submission/cancellation, allocation, schedule and stopping an existing session. `activateAllocation`, `confirmUnplug`, uncertain-allocation reconciliation and safety checks exist as service methods and are exercised by service tests, but have no corresponding public routes in this router. Allocation alone leaves the point Reserved; it does not create an Active session. Consequently the listed HTTP flows do not establish an end-to-end activation/unplug workflow. On successful stop, the service releases power and holds the connector; it does not itself call the scheduler.
+
 ## 3. Operations
 
 | UC | Role | Method and path | Request → response |
@@ -80,14 +86,16 @@ The local demo uses the versioned `demo-des-v1` schema documented in [Simulation
 | UC09 | O | GET /operations/resources | Optional `hubId, kind` → resource IDs, kinds and operational states |
 | UC09 | O | POST /operations/resources | `kind, hubId, attributes` → resource record |
 | UC09 | O | PATCH /operations/resources/{id} | Kind-specific mutable attributes → resource record |
+| UC09 | O | DELETE /operations/resources/{id} | → `{ deleted: true, id }` (vehicles without active commitments only) |
 | UC10 | O | POST /transfers | `sourceHubId, destinationHubId, vehicleIds, destinationSlotIds` → transfer ID and `Planned` status |
 | UC10 | O | GET /transfers/{id} | → transfer state, vehicle IDs and destination holds |
 | UC10 | O | POST /transfers/{id}/depart | → transfer ID and `InTransit` status |
 | UC10A | O | POST /transfers/{id}/arrive | `observedVehicleIds, [replacementDestinationHubId, replacementSlotIds]` → transfer ID and `Completed` status |
 | UC10B | O | POST /transfers/{id}/cancel | `reason` → transfer ID and `Cancelled` status |
-| UC11A | U | POST /trips/{id}/incidents | `description` → incident ID and status |
+| UC11A | U | POST /trips/{id}/incidents | `description, [reportedLocation]` → incident ID and status |
 | UC11 | O | GET /incidents | Optional `status, hubId` → incident records |
 | UC11 | O | POST /incidents/{id}/handle | `resourceId, technicianId, scheduledAt` → incident and maintenance assignment IDs and statuses |
+| UC11 | O | POST /incidents/{id}/resolve | `[resolutionNotes]` → resolved incident status and completion timestamp |
 
 Reserve eligible vehicles and compatible destination capacity when planning a transfer. Recheck readiness at departure. Cancel and depart compete on `Planned`. Arrival requires the complete vehicle set. A valid replacement moves destination holds atomically with arrival. A report from an active trip preserves the trip and blocks unsafe reallocation. Incident handling records isolation and maintenance assignment, with physical intervention gated by safe state.
 

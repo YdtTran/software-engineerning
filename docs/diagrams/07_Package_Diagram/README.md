@@ -1,4 +1,6 @@
 # DV02 — Package Diagram
+
+> **Current demo:** This page and its diagram describe the target logical organization. The running backend has Operations, Mobility/Simulation and Parking/Charging modules, with an Android User app and API-connected Operator browser interfaces. See [version 2 traceability](../../requirements/VERSION_2_TRACEABILITY.md) and [demo deployment](../deployment/README-deployment.md). Statements below about an unimplemented backend or mockup-only clients describe the historical design baseline, not the current demo.
 [alt text](DV02-Package_Diagram_New.drawio)
 ## 1. Purpose and scope
 
@@ -20,16 +22,16 @@ Use the PlantUML model and the Development View rules as the semantic reference 
 
 #### Presentation
 
-- **User Mobile Experience** — proposed grouping for the User-facing UI experience; the existing UI is a mockup.
+- **User Mobile Experience** — proposed grouping for the User-facing UI; the current client is the API-connected Android app.
 - **Operator Field Mobile Experience** — proposed grouping for the field-operator UI experience.
 - **Operator Web Dashboard Experience** — proposed grouping for the operator web experience.
 - **Shared Preview Shell** — the existing mockup viewer grouping; it is not an implemented backend client.
 
-Presentation-to-API package dependencies are target-only. The current mockups are not wired to the target API.
+The diagram’s package boundaries are proposed. The Android and live Operator clients call the current API; the separate design viewer remains a mockup.
 
 #### API / Interface
 
-- **Express HTTP API** — target API package for client request and external-input translation. Node.js + Express are confirmed MVP target technology; the API contract/endpoints remain undecided.
+- **Express HTTP API** — target API package for client request and external-input translation. Node.js + Express also implement the current demo API; see [API contracts](../../architecture/API_CONTRACTS.md).
 
 #### Application
 
@@ -68,9 +70,9 @@ Package dependencies use a dashed UML dependency arrow directed from the **clien
 
 | Client/source package | Supplier/used package | Meaning in the proposed structure |
 | --- | --- | --- |
-| User Mobile Experience | Express HTTP API | Planned access to the target API; not implemented by the current mockup. |
-| Operator Field Mobile Experience | Express HTTP API | Planned access to the target API; not implemented by the current mockup. |
-| Operator Web Dashboard Experience | Express HTTP API | Planned access to the target API; not implemented by the current mockup. |
+| User Mobile Experience | Express HTTP API | The corresponding live demo client calls the Express API. |
+| Operator Field Mobile Experience | Express HTTP API | The corresponding live demo client calls the Express API. |
+| Operator Web Dashboard Experience | Express HTTP API | The corresponding live demo client calls the Express API. |
 | Express HTTP API | Use-case Modules | API package depends on application use-case packages. |
 | Express HTTP API | Telemetry Input Contract | Incoming telemetry is submitted through the application-owned contract. |
 | Operations | Telemetry Input Contract | Operations depends on the contract it provides/realizes in the Component Diagram. |
@@ -102,13 +104,13 @@ An application-owned interface remains an interface contract in the component vi
 
 | Area | Choice | Status and interpretation |
 | --- | --- | --- |
-| Presentation | HTML5, CSS3, Modern JavaScript | Existing prototype/mockup technology; integration with the target API is not established. |
-| Backend API | Node.js + Express | Confirmed MVP target; not evidence of an implemented backend. |
+| Presentation | HTML5, CSS3, Modern JavaScript | Operator web clients use HTML/CSS/JavaScript and MapLibre; the User client is native Android. |
+| Backend API | Node.js + Express | The current demo runs a Node.js/Express backend. |
 | Persistent storage | SQLite | Confirmed MVP target behind the Repository Adapter; not represented as a package. |
 | Package layout | Five layers and five Application modules | Proposed source organization; not an existing repository tree. |
 | Telemetry adapter | Simulated telemetry | Permitted MVP option; real hardware protocol is not selected. |
 | Notification adapter | Mock notification | Permitted MVP option; production provider is not selected. |
-| API contract, authentication implementation, schema/migrations, driver/ORM, validation/logging/testing, hosting and CI/CD | Not selected | Remain open; no specific library or deployment technology is inferred by this diagram. |
+| API, authentication and persistence | Demo implementation | The demo has API routes, in-memory sessions, Node SQLite and SQL migrations; see [app README](../../../app/README.md). Production choices remain separate. |
 
 ## 6. Modeling rules and interpretation
 

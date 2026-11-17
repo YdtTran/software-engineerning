@@ -6,7 +6,7 @@ const { scryptSync } = require('node:crypto');
 const { backendFixture } = require('../modules/mobility-simulation/tests/fixtures/backend-fixture');
 const { createApp } = require('../app');
 
-test('live UI completes rental, lost-response retry and five simulations on mobile and desktop', { timeout: 60000 }, async t => {
+test('operator UI handles live workflows and five simulations on mobile and desktop', { timeout: 60000 }, async t => {
   let chromium;
   try { ({ chromium } = require(process.env.LIVE_PLAYWRIGHT || 'playwright')); }
   catch (error) { if (process.env.LIVE_PLAYWRIGHT) throw error; t.skip('Set LIVE_PLAYWRIGHT to a Playwright module to run browser integration.'); return; }
@@ -28,72 +28,30 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
     page.setDefaultNavigationTimeout(10000);
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(origin + '/' + experience + '.html');
-    await page.getByLabel('Tài khoản', { exact: true }).fill(experience === 'user-app' ? 'rider' : 'operator');
+    await page.getByLabel('Tài khoản', { exact: true }).fill('operator');
     await page.getByLabel('Mật khẩu', { exact: true }).fill('test-password');
     await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
     await page.locator('#live-nav button').first().waitFor();
     return page;
   }
-  async function revealVehicle(page, vehicleId) {
-    const vehicle = page.locator(`[data-vehicle="${vehicleId}"]`);
-    while (await vehicle.count() === 0) {
-      const more = page.locator('[data-action="show-more-vehicles"]');
-      assert.equal(await more.count(), 1, `Expected ${vehicleId} in the live vehicle list.`);
-      await more.click();
-    }
-    await vehicle.click();
-  }
-  const user = await pageFor('user-app', { width: 390, height: 844 });
-  if (process.env.LIVE_SCREENSHOT_DIR) {
-    fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
-    await user.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'user-mobile-home.png'), fullPage: true });
-  }
-  await user.locator('[data-hub="metro"]').click();
-  await revealVehicle(user, 'EB-024');
-  await user.getByRole('button', { name: 'Xác nhận giữ xe', exact: true }).click();
-  await user.locator('.pickup-form').waitFor();
-  await user.reload(); await user.locator('.pickup-form').waitFor();
-  await user.getByLabel('Mã trên xe').fill('WRONG');
-  await user.getByRole('button', { name: 'Xác nhận nhận xe', exact: true }).click();
-  await user.waitForFunction(() => document.getElementById('live-status').textContent.includes('không khớp'));
-  await user.getByLabel('Mã trên xe').fill('EB-024');
-  await user.getByRole('button', { name: 'Xác nhận nhận xe', exact: true }).click();
-  await user.locator('.return-form').waitFor();
-  await user.getByLabel('Hub trả xe').selectOption('bku');
-  await user.getByRole('button', { name: 'Kiểm tra chỗ trả', exact: true }).click();
-  await user.locator('select[name="slotId"] option[value="bku-A01"]').waitFor({ state: 'attached' });
-  await user.getByLabel('Chỗ trả', { exact: true }).selectOption('bku-A01');
-  await user.locator('input[name="confirmed"]').check();
-  await user.getByRole('button', { name: 'Xác nhận trả xe', exact: true }).click();
-  await user.waitForFunction(() => document.querySelector('.success')?.textContent.includes('kết thúc chuyến'));
-  assert.equal(db.prepare('SELECT status FROM mobility_trips').get().status, 'Completed');
-  assert.equal(await user.evaluate(() => fetch('/api/v1/simulations').then(response => response.status)), 403);
-  await user.locator('[data-view="home"]').click();
-  await user.locator('[data-hub="metro"]').click();
-  await revealVehicle(user, 'EB-031');
-  let lost = false;
-  await user.route('**/api/v1/vehicle-reservations', async route => {
-    if (route.request().method() === 'POST' && !lost) { lost = true; await route.fetch(); await route.abort('failed'); }
-    else await route.continue();
-  });
-  await user.getByRole('button', { name: 'Xác nhận giữ xe', exact: true }).click();
-  await user.waitForFunction(() => document.getElementById('live-status').textContent.includes('Mất kết nối'));
-  await user.reload();
-  await user.getByRole('button', { name: 'Thử lại yêu cầu trước', exact: true }).click();
-  await user.locator('.pickup-form').waitFor();
-  assert.equal(db.prepare("SELECT count(*) AS n FROM vehicle_reservations WHERE vehicle_id='EB-031'").get().n, 1);
-  await user.locator('[data-cancel]').click();
-  await user.waitForFunction(() => !document.querySelector('.pickup-form'));
-  assert.equal(await user.evaluate(() => fetch('/api/v1/operations/hubs').then(response => response.status)), 403);
-  assert.ok(await user.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   const desktop = await pageFor('operator-web', { width: 1440, height: 1000 });
   await desktop.getByRole('heading', { name: 'Tổng quan mạng lưới', exact: true }).waitFor();
-  // The completed rental above occupies bku-A01, so the live count drops from 39 to 38.
-  assert.deepEqual(await desktop.locator('.dashboard-metric strong').allTextContents(), ['62', '38', '9', '0']);
+  assert.deepEqual(await desktop.locator('.dashboard-metric strong').allTextContents(), ['62', '39', '9', '0']);
   assert.equal(await desktop.locator('#live-nav button').count(), 8);
   assert.ok((await desktop.locator('.hub-table tbody tr').count()) === 4);
-  assert.equal(await desktop.locator('.operator-web-visual').isVisible(), true);
-  assert.match(await desktop.locator('.operator-web-visual').evaluate(element => getComputedStyle(element).backgroundImage), /operator-dashboard-background\.jpg/);
+  assert.equal(await desktop.locator('#hub-map').isVisible(), true);
+  assert.match(await desktop.locator('.hub-map-note').innerText(), /minh họa/);
+  await desktop.locator('.hub-map-marker').first().waitFor();
+  assert.equal(await desktop.locator('.hub-map-marker').count(), 4);
+  await desktop.locator('.hub-map-marker').first().click();
+  assert.match(await desktop.locator('.maplibregl-popup').innerText(), /khả dụng/);
+  await desktop.route('https://tiles.openfreemap.org/**', route => route.abort());
+  await desktop.reload();
+  await desktop.locator('.hub-map-status').getByText('Không tải được bản đồ. Vui lòng kiểm tra kết nối mạng.').waitFor();
+  assert.equal(await desktop.locator('.hub-table tbody tr').count(), 4);
+  await desktop.unroute('https://tiles.openfreemap.org/**');
+  await desktop.reload();
+  await desktop.locator('.hub-map-marker').first().waitFor();
   if (process.env.LIVE_SCREENSHOT_DIR) {
     fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
     await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-overview.png'), fullPage: true });
@@ -195,28 +153,22 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
     await desktop.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-desktop-redistribute.png'), fullPage: true });
   }
   const incidentVehicle = db.prepare("SELECT id FROM electric_vehicles WHERE hub_id = 'metro' AND status = 'Available' ORDER BY id LIMIT 1").get().id;
-  await user.locator('[data-view="home"]').click();
-  await user.locator('[data-hub="metro"]').click();
-  await revealVehicle(user, incidentVehicle);
-  await user.getByRole('button', { name: 'Xác nhận giữ xe', exact: true }).click();
-  await user.locator('.pickup-form').waitFor();
-  await user.getByLabel('Mã trên xe').fill(incidentVehicle);
-  await user.getByRole('button', { name: 'Xác nhận nhận xe', exact: true }).click();
-  await user.locator('.return-form').waitFor();
-  user.once('dialog', dialog => dialog.accept('Phanh sau kêu bất thường khi xuống dốc'));
-  await user.locator('[data-report]').click();
-  await user.waitForFunction(() => document.querySelector('.success')?.textContent.includes('Đã ghi nhận sự cố'));
-  const activeTrip = db.prepare("SELECT id, status FROM mobility_trips WHERE vehicle_id = ? AND status = 'Active'").get(incidentVehicle);
-  assert.ok(activeTrip, 'Reporting a trip incident must not terminate or lose the active trip.');
+  const rider = await browser.newContext();
+  const login = await rider.request.post(origin + '/api/v1/session', { headers: { origin }, data: { username: 'rider', password: 'test-password' } });
+  assert.equal(login.status(), 200);
+  async function riderPost(route, data, key) {
+    const response = await rider.request.post(origin + '/api/v1' + route, { headers: { origin, 'idempotency-key': key }, data });
+    assert.ok(response.ok(), await response.text());
+    return (await response.json()).data;
+  }
+  const reservation = await riderPost('/vehicle-reservations', { vehicleId: incidentVehicle, hubId: 'metro' }, 'incident-reserve');
+  const activeTrip = await riderPost(`/vehicle-reservations/${reservation.id}/pickup`, { vehicleCode: incidentVehicle }, 'incident-pickup');
+  await riderPost(`/trips/${activeTrip.id}/incidents`, { description: 'Phanh sau kêu bất thường khi xuống dốc' }, 'incident-report');
+  assert.equal(db.prepare('SELECT status FROM mobility_trips WHERE id = ?').get(activeTrip.id).status, 'Active');
   assert.equal(db.prepare('SELECT status FROM electric_vehicles WHERE id = ?').get(incidentVehicle).status, 'InUse');
   const returnSlot = db.prepare("SELECT id FROM parking_slots WHERE hub_id = 'bku' AND status = 'Available' ORDER BY id LIMIT 1").get().id;
-  await user.getByLabel('Hub trả xe').selectOption('bku');
-  await user.getByRole('button', { name: 'Kiểm tra chỗ trả', exact: true }).click();
-  await user.locator(`select[name="slotId"] option[value="${returnSlot}"]`).waitFor({ state: 'attached' });
-  await user.getByLabel('Chỗ trả', { exact: true }).selectOption(returnSlot);
-  await user.locator('input[name="confirmed"]').check();
-  await user.getByRole('button', { name: 'Xác nhận trả xe', exact: true }).click();
-  await user.waitForFunction(() => document.querySelector('.success')?.textContent.includes('kết thúc chuyến'));
+  await riderPost(`/trips/${activeTrip.id}/return`, { hubId: 'bku', slotId: returnSlot, confirmed: true }, 'incident-return');
+  await rider.close();
   assert.equal(db.prepare('SELECT status FROM electric_vehicles WHERE id = ?').get(incidentVehicle).status, 'Faulty');
   const incidentRecord = db.prepare('SELECT id FROM incidents WHERE reported_trip_id = ?').get(activeTrip.id);
   await desktop.locator('[data-view="incidents"]').click();
@@ -334,7 +286,7 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   await desktop.locator('#login-form').waitFor();
   const mobile = await pageFor('operator-app', { width: 390, height: 844 });
   await mobile.getByRole('heading', { name: 'Tổng quan mạng lưới', exact: true }).waitFor();
-  assert.equal(await mobile.locator('.operator-web-visual').isVisible(), false);
+  assert.equal(await mobile.locator('#hub-map').count(), 0);
   if (process.env.LIVE_SCREENSHOT_DIR) {
     fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
     await mobile.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, 'operator-mobile-overview.png'), fullPage: true });
@@ -347,9 +299,14 @@ test('live UI completes rental, lost-response retry and five simulations on mobi
   assert.ok(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   if (process.env.LIVE_SCREENSHOT_DIR) {
     fs.mkdirSync(process.env.LIVE_SCREENSHOT_DIR, { recursive: true });
-    for (const [name, page] of [['user-mobile', user], ['operator-desktop', desktop], ['operator-mobile', mobile]]) {
+    for (const [name, page] of [['operator-desktop', desktop], ['operator-mobile', mobile]]) {
       await page.screenshot({ path: path.join(process.env.LIVE_SCREENSHOT_DIR, name + '.png'), fullPage: true });
     }
   }
+  const newHubs = ['demo-dorm-b', 'demo-hcmus', 'demo-hcmussh', 'demo-uit', 'demo-iu', 'demo-uel'];
+  for (const id of newHubs) db.prepare('INSERT INTO mobility_hubs (id, name) VALUES (?, ?)').run(id, id);
+  const overview = await pageFor('operator-web', { width: 1440, height: 1000 });
+  await overview.locator('.hub-map-marker').nth(9).waitFor();
+  assert.equal(await overview.locator('.hub-map-marker').count(), 10);
   assert.deepEqual(errors, []);
 });

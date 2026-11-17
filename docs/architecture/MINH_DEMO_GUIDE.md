@@ -30,24 +30,26 @@ Mở các địa chỉ sau:
 
 | Địa chỉ | Đăng nhập |
 |---|---|
-| `http://127.0.0.1:3000/user-app.html` | `minh` và mật khẩu bạn đã đặt |
+| [Ứng dụng Android](../../android/README.md) | `user` và mật khẩu bạn đã đặt |
 | `http://127.0.0.1:3000/operator-web.html` | `operator` và mật khẩu tương ứng |
 | `http://127.0.0.1:3000/operator-app.html` | Tài khoản Operator, bố cục mobile |
 
-Dùng DevTools → thiết bị mobile để demo app trên máy tính. Server hiện chỉ lắng nghe localhost; chưa cấu hình chạy qua Wi-Fi hoặc HTTPS. `Ctrl+C` dừng server. Khi khởi động lại, dữ liệu nghiệp vụ còn nguyên nhưng cần đăng nhập lại.
+Dùng Android Studio để chạy User app và DevTools để xem Operator mobile. Server mặc định lắng nghe localhost; `DEMO_HOST` cho phép đổi địa chỉ, nhưng chưa cấu hình HTTPS. `Ctrl+C` dừng server. Khi khởi động lại, dữ liệu nghiệp vụ còn nguyên nhưng cần đăng nhập lại.
 
 ## 3. Thử luồng người dùng
+
+Chạy [Android User app](../../android/README.md) trước; các bước dưới đây mô tả nghiệp vụ chung.
 
 1. Chọn **Tìm xe → Ga Metro ĐHQG → Xem xe**.
 2. Chọn một xe khả dụng, rồi **Xác nhận giữ xe**. Phiếu có mã và hạn nhận thực tế tối đa 15 phút.
 3. Trong **Chuyến của tôi**, thử nhập mã xe sai: hệ thống báo lỗi và không tạo chuyến.
 4. Nhập đúng mã trên phiếu để nhận xe. Demo adapter xác nhận mở khóa, sau đó tạo chuyến.
 5. Chọn Hub trả → **Kiểm tra chỗ trả** → chọn slot → đánh dấu đã đỗ/khóa an toàn → **Xác nhận trả xe**.
-6. Reload trang: chuyến đã hoàn tất vẫn được tải từ server. Quãng đường hiển thị chưa có số đo nếu adapter không cung cấp odometer.
+6. Mở lại ứng dụng: chuyến đã hoàn tất vẫn được tải từ server. Quãng đường hiển thị chưa có số đo nếu adapter không cung cấp odometer.
 
 Có thể hủy phiếu trước khi nhận xe. Trong chuyến đang hoạt động, **Báo sự cố** gửi tới Operations và giữ chuyến đang chạy. Server kiểm tra danh tính và chủ sở hữu ở mọi thao tác.
 
-Nếu mất phản hồi, giao diện giữ khóa yêu cầu trong trình duyệt. Sau khi mở lại trang, dùng **Thử lại yêu cầu trước** để lấy lại kết quả, tránh tạo phiếu/chuyến trùng. Nếu thiết bị chưa xác nhận an toàn, chuyến/claim được giữ để đối soát; không có nút ép giải phóng tài nguyên.
+Nếu mất phản hồi, ứng dụng giữ khóa yêu cầu cục bộ. Sau khi mở lại ứng dụng, dùng **Thử lại yêu cầu trước** để lấy lại kết quả, tránh tạo phiếu/chuyến trùng. Nếu thiết bị chưa xác nhận an toàn, chuyến/claim được giữ để đối soát; không có nút ép giải phóng tài nguyên.
 
 ## 4. Thử mô phỏng
 
@@ -68,4 +70,4 @@ Kiểm thử trình duyệt dùng Edge và một module Playwright đã cài; đ
 
 Đã kiểm tra cạnh tranh giữa trả xe, giữ chỗ đỗ và điều chuyển trên cùng sức chứa; rollback; retry; phân quyền; nâng cấp database cũ; và giao diện ở 390×844/1440×1000. Hình ảnh kiểm tra và database tạm không đưa vào Git.
 
-Inventory hiện chưa có tọa độ, nên Hub trả `location: null`. Mô phỏng là mô hình sự kiện có seed và giả định rõ, chưa phải dự báo đã hiệu chỉnh. Parking/Charging, giao thức IoT thật, cơ chế xác nhận cách ly và dịch vụ thông báo ngoài còn thuộc các phần tích hợp tương ứng. Bộ xem thiết kế cũ ở `app/prototype/index.html` vẫn dùng mock; khi mở các entry point qua backend, server chuyển sang giao diện API.
+Inventory hiện chưa có tọa độ, nên Hub trả `location: null`. Mô phỏng là mô hình sự kiện có seed và giả định rõ, chưa phải dự báo đã hiệu chỉnh. Parking/Charging đã được tích hợp vào demo; giao thức IoT thật, cơ chế xác nhận cách ly và dịch vụ thông báo ngoài còn cần tích hợp tương ứng. Bộ xem thiết kế cũ ở `app/prototype/index.html` vẫn dùng mock; khi mở các entry point qua backend, server chuyển sang giao diện API.

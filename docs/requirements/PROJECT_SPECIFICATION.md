@@ -147,6 +147,7 @@ flowchart LR
     Operator --- UC12
     Operator --- UC13
     Operator --- UC14
+    UC13 -. "include" .-> UC14
 
     style LeftActors fill:none,stroke:none
     style SystemBoundary fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
@@ -177,6 +178,8 @@ flowchart LR
 ---
 
 ### 3.3. Phân hệ Người dùng (User Perspective - UC01 đến UC07)
+
+Các hợp đồng 11 trường của các ca chính nằm trong [CORE_SCENARIOS.md](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md); UC06 và các tương tác vòng đời nằm trong [LIFECYCLE_SCENARIOS.md](../diagrams/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md).
 
 #### UC01: Tìm kiếm Hub di chuyển (`Search Mobility Hub`)
 - **Tác nhân:** `User`
@@ -238,6 +241,7 @@ UC06 gồm ba tương tác độc lập: UC06-S1 tạo đặt chỗ, UC06-S2 xá
   - `Request Charging` $\xrightarrow{\ll include \gg}$ `Confirm Charging Request`: Ghi yêu cầu hợp lệ vào hàng đợi hoặc lịch hẹn; UC12 cấp tài nguyên.
   - Ca sử dụng kết hợp: `Cancel Charging Request` (cho phép hủy yêu cầu sạc khi chưa thực hiện cắm sạc).
 - **Sơ đồ chi tiết:** Xem file [`UC07-Request_Charging.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC07-Request_Charging.drawio).
+- **Demo hiện tại:** API tiếp nhận kiểm tra quyền, xe, mục tiêu pin và thời gian. Kiểm tra tương thích cổng và công suất được thực hiện khi UC12 phân bổ; tiếp nhận không tự tạo phiên sạc. Xem [API contracts](../architecture/API_CONTRACTS.md).
 
 ---
 
@@ -301,8 +305,7 @@ UC06 gồm ba tương tác độc lập: UC06-S1 tạo đặt chỗ, UC06-S2 xá
   - `Run What-if Simulation` $\xrightarrow{\ll include \gg}$ `Select Simulation Scenario`: Chọn kịch bản kiểm thử (Tải đỉnh Metro, Đầy bãi đỗ, Đột biến sạc, Hỏng trụ sạc, Tồn ứ xe).
   - `Run What-if Simulation` $\xrightarrow{\ll include \gg}$ `Configure Scenario Parameters`: Tùy chỉnh các thông số giả định (tỷ lệ người dùng đến, số cổng sạc hỏng, thời lượng mô phỏng).
   - `Run What-if Simulation` $\xrightarrow{\ll include \gg}$ `Execute Network Simulation`: Chạy thuật toán mô phỏng diễn biến mạng lưới Hub theo thời gian.
-  - `Apply Coordination Recommendations` $\xrightarrow{\ll extend \gg}$ `Run What-if Simulation`: Cho phép Operator chấp thuận và áp dụng trực tiếp các giải pháp điều phối được máy tính đề xuất.
-  - `Export Simulation Report` $\xrightarrow{\ll extend \gg}$ `Run What-if Simulation`: Xuất báo cáo kết quả mô phỏng phục vụ báo cáo quản trị.
+  - `Run What-if Simulation` $\xrightarrow{\ll include \gg}$ `View Simulation Results`: Xem kết quả sau khi chạy thành công. Xuất và xem phương án điều chuyển thuộc UC14.
 - **Sơ đồ chi tiết:** Xem file [`UC13-Run_What-if_Simulation.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC13-Run_What-if_Simulation.drawio).
 
 #### UC14: Xem kết quả mô phỏng & Đề xuất (`View Simulation Results`)
@@ -313,9 +316,9 @@ UC06 gồm ba tương tác độc lập: UC06-S1 tạo đặt chỗ, UC06-S2 xá
   - `View Simulation Results` $\xrightarrow{\ll include \gg}$ `Display Simulation Metrics`: Hiển thị các chỉ số đo lường cốt lõi (Tỷ lệ phục vụ thành công, thời gian chờ trung bình, số chuyến đi bị từ chối).
   - `View Simulation Results` $\xrightarrow{\ll include \gg}$ `Retrieve Simulation Results`: Truy xuất tập dữ liệu kết quả từ bộ nhớ mô phỏng.
   - `View Simulation Results` $\xrightarrow{\ll include \gg}$ `Display Recommendations`: Trình bày phương án giải quyết (Số lượng xe cần điều chuyển, điều chỉnh khung giờ sạc, hướng dẫn đổi trạm).
-  - `Filter Simulation Results` $\xrightarrow{\ll extend \gg}$ `View Simulation Results`: Lọc kết quả theo từng Hub hoặc mốc thời gian cao điểm.
-  - `Compare Simulation Results` $\xrightarrow{\ll extend \gg}$ `View Simulation Results`: Đối chiếu so sánh hiệu quả giữa các cấu hình tham số khác nhau.
-  - `Export Simulation Results` $\xrightarrow{\ll extend \gg}$ `View Simulation Results`: Xuất dữ liệu biểu đồ và số liệu phân tích dạng CSV/PDF.
+  - `Export Simulation Results` $\xrightarrow{\ll extend \gg}$ `View Simulation Results`: Giao diện demo xuất kết quả đang xem thành JSON.
+  - `Apply Coordination Recommendations` $\xrightarrow{\ll extend \gg}$ `View Simulation Results`: Với khuyến nghị điều chuyển, Operator mở phương án, chọn xe và ô từ dữ liệu hiện tại rồi xác nhận tạo lệnh UC10; hệ thống kiểm tra lại điều kiện thực. Các khuyến nghị khác được hiển thị để Operator xem xét, không tự áp dụng.
+- **Tùy chọn chưa có trong demo:** lọc kết quả theo Hub/thời gian, so sánh nhiều lần chạy và xuất CSV/PDF. Giao diện hiện so sánh chỉ số cơ sở với kịch bản của cùng một lần chạy.
 - **Sơ đồ chi tiết:** Xem file [`UC14-View_Simulation_Results.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC14-View_Simulation_Results.drawio).
 
 ---
@@ -343,11 +346,13 @@ flowchart TD
     end
 ```
 
-#### Chi tiết 5 Kịch bản Mô phỏng Bắt buộc theo Đề bài:
+#### Năm ví dụ kịch bản mô phỏng từ đề bài:
+
+Đề bài nêu các tình huống này làm ví dụ. Các con số và phương án bên dưới chỉ minh họa giả định, không phải ngưỡng bắt buộc hay lệnh vận hành tự động. Kết quả mô phỏng và khuyến nghị không tự thay đổi trạng thái thực; việc áp dụng đi qua UC10 hoặc UC12 và kiểm tra lại trạng thái thực.
 1. **Kịch bản 1: Người dùng tăng đột biến tại Ga Metro vào giờ cao điểm (Metro Station Surge):**
    - *Tình huống giả định:* Chuyến tàu Metro số 1 cập bến Ga ĐHQG mang theo hơn 300 sinh viên cùng lúc vào khung 06:45 – 07:15 sáng, nhu cầu thuê xe tăng vọt gấp 4 lần bình thường.
    - *Mô phỏng tác động:* Hub Metro nhanh chóng cạn kiệt xe khả dụng trong 10 phút, hàng đợi kéo dài, thời gian chờ lấy xe vượt quá 20 phút.
-   - *Đề xuất điều phối:* Tự động kích hoạt lệnh điều chuyển 60 xe từ các Hub KTX và bãi dự phòng tập kết sẵn về Hub Metro trước 06:30.
+   - *Đề xuất điều phối:* Đề xuất điều chuyển 60 xe từ các Hub KTX và bãi dự phòng tập kết sẵn về Hub Metro trước 06:30.
 2. **Kịch bản 2: Hub chạm ngưỡng 100% sức chứa chỗ đỗ (Hub Full Parking Capacity):**
    - *Tình huống giả định:* Khung giờ vào lớp tại Hub trường ĐH Bách Khoa và ĐH CNTT đạt 100% tỷ lệ lấp đầy slot đỗ xe.
    - *Mô phỏng tác động:* Người dùng đi xe thuê và xe cá nhân đến trạm không thể trả xe hoặc gửi xe, gây ách tắc lối vào trạm.
@@ -355,11 +360,11 @@ flowchart TD
 3. **Kịch bản 3: Nhu cầu sạc điện tăng đột biến (Surge in Charging Demand):**
    - *Tình huống giả định:* Thời tiết mưa kéo dài hoặc thời điểm ban đêm (21:00 – 23:00) tại Ký túc xá Khu B, hàng loạt sinh viên cắm sạc xe điện cá nhân và xe dùng chung.
    - *Mô phỏng tác động:* Tổng công suất sạc vượt quá ngưỡng an toàn của trạm biến áp Hub, hàng đợi sạc kéo dài qua đêm.
-   - *Đề xuất điều phối:* Áp dụng thuật toán chia ca sạc so le thông minh (Time-of-Use staggered charging), tự động ngắt sạc khi xe đạt 80% pin để nhường cổng sạc cho xe có mức pin dưới 20%.
+   - *Đề xuất điều phối:* Đề xuất chia ca sạc so le, xét ưu tiên xe pin thấp và nhu cầu sử dụng gần theo BR09.
 4. **Kịch bản 4: Trục trặc hỏng hóc một phần cổng sạc (Partial Charging Point Failure):**
    - *Tình huống giả định:* Sự cố ngắn mạch làm 4/8 cổng sạc nhanh tại Hub Trung tâm Thể dục Thể thao bị ngắt điện hoàn toàn.
    - *Mô phỏng tác động:* Giảm 50% năng lực sạc tại trạm, dẫn đến thiếu hụt xe pin đầy sẵn sàng cho khung giờ tiếp theo.
-   - *Đề xuất điều phối:* Hệ thống tự động chuyển đổi trạng thái 4 cổng sạc sang `Out of Order`, phân bổ lại các xe đang chờ sang trạm sạc lân cận tại Hub Thư viện Trung tâm và gửi cảnh báo điều động kỹ thuật viên đến sửa chữa.
+   - *Đề xuất điều phối:* Đề xuất cách ly 4 cổng sạc, phân bổ lại các xe đang chờ sang Hub lân cận và điều động kỹ thuật viên xử lý.
 5. **Kịch bản 5: Xe phân bổ dồn ứ mất cân bằng nghiêm trọng (Excessive Vehicle Clustering):**
    - *Tình huống giả định:* Sau 18:00 mỗi ngày, phần lớn sinh viên di chuyển từ các trường đại học về tụ tập tại khu dịch vụ ăn uống và Ký túc xá, làm các Hub giảng đường hoàn toàn không còn xe.
    - *Mô phỏng tác động:* Sáng hôm sau các Hub khu giảng đường thiếu phương tiện cho người dùng nội khu di chuyển giữa các phòng thí nghiệm.
@@ -468,7 +473,7 @@ Theo yêu cầu môn học, bài tập lớn được chia làm 4 cột mốc n�
 - **Phát triển sản phẩm mẫu (MVP Demonstration):**
   - Tự do lựa chọn ngôn ngữ lập trình (HTML/JS, Python, C#, Flutter,...).
   - **Không bắt buộc dựng cơ sở dữ liệu backend phức tạp** (cho phép lưu trữ In-memory hoặc Mock data trong code file để tập trung vào logic nghiệp vụ).
-  - **Kế thừa & Trình diễn:** Tận dụng trực tiếp bản mẫu tương tác đa nền tảng trong thư mục [`app/prototype/`](../../app/prototype) (`index.html`, `user-app.html`, `operator-app.html`, `operator-web.html`) để trình diễn chuỗi màn hình thao tác hoàn chỉnh (Sequence of screens) từ lúc người dùng đặt xe $\rightarrow$ lấy xe $\rightarrow$ trả xe $\rightarrow$ hệ thống điều phối $\rightarrow$ kịch bản What-if.
+  - **Kế thừa & Trình diễn:** Tận dụng trực tiếp bản mẫu tương tác đa nền tảng trong thư mục [`app/prototype/`](../../app/prototype) (`index.html`, `operator-app.html`, `operator-web.html`; ứng dụng người dùng Android nằm trong `android/`) để trình diễn chuỗi màn hình thao tác hoàn chỉnh (Sequence of screens) từ lúc người dùng đặt xe $\rightarrow$ lấy xe $\rightarrow$ trả xe $\rightarrow$ hệ thống điều phối $\rightarrow$ kịch bản What-if.
 - **Báo cáo thuyết trình:** Chuẩn bị Slide ngắn gọn, đúng trọng tâm, nêu rõ bài học kinh nghiệm (Lessons learned).
 - **Bản Khai báo Sử dụng AI:** Bắt buộc kê khai minh bạch theo quy định môn học (tham khảo mẫu tại Mục 8).
 
@@ -476,12 +481,14 @@ Theo yêu cầu môn học, bài tập lớn được chia làm 4 cột mốc n�
 
 ## 6. THIẾT KẾ GIAO DIỆN UI/UX & BẢN MẪU TƯƠNG TÁC
 
+> **Phạm vi mục 6:** Các màn hình và tài nguyên bên dưới mô tả bộ mockup thiết kế ban đầu, không phải bảng xác nhận tính năng của giao diện demo hiện tại. Xem [truy vết phiên bản 2](VERSION_2_TRACEABILITY.md) và [hướng dẫn demo](../architecture/MINH_DEMO_GUIDE.md) cho trạng thái hiện tại.
+
 Hệ thống được trang bị bộ khung ứng dụng và bản mẫu tương tác hoàn chỉnh tại thư mục [`app/prototype/`](../../app/prototype), xây dựng bằng công nghệ Web thuần (HTML5, CSS3, Modern JavaScript) không phụ thuộc vào thư viện ngoài, tối ưu hóa cho cả việc thuyết minh báo cáo và trình diễn trực tiếp.
 
 ### 6.1. Triết lý Thiết kế: 2 Luồng Nghiệp vụ & 3 Giao diện Độc lập
 Hệ thống xác định phạm vi sản phẩm (Product Scope) theo các nguyên tắc kỹ thuật chặt chẽ:
 
-1. **Phân hệ Người dùng / Người dùng phổ thông (Chỉ Mobile App - `user-app.html`):**
+1. **Phân hệ Người dùng / Người dùng phổ thông (Chỉ Mobile App - `android/`):**
    - **Quyết định phạm vi:** **Không cung cấp phiên bản Web máy tính cho Người dùng.** Người dùng di chuyển trong đô thị ĐHQG chỉ tương tác thông qua ứng dụng di động để tra cứu vị trí gần nhất, mở khóa xe bằng mã/QR và xác nhận trả xe tại bãi.
    - **Tính năng bao phủ:** UC01 $\rightarrow$ UC07 (Tìm Hub, xem xe, giữ chỗ, nhận/trả xe, đặt chỗ đỗ cá nhân, yêu cầu sạc, thông báo và tài khoản).
 2. **Phân hệ Đơn vị Vận hành - Hiện trường (Operator Mobile App - `operator-app.html`):**

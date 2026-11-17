@@ -2,6 +2,8 @@
 
 Editable diagrams are in `drawio/`.
 
+The [11-field core scenarios](CORE_SCENARIOS.md) and [parking/lifecycle scenarios](LIFECYCLE_SCENARIOS.md) describe triggers, preconditions, outcomes and exceptions. The [version 2 review](../../requirements/VERSION_2_CONTRACT_REVIEW.md) distinguishes target behavior from the current demo.
+
 Open a `.drawio` file in diagrams.net or the Draw.io extension for VS Code to edit it.
 
 | Diagram | Draw.io |
@@ -32,11 +34,11 @@ Open a `.drawio` file in diagrams.net or the Draw.io extension for VS Code to ed
 
 ## Overview consistency
 
-The overall view is the union of the User and Operator views: 27 goals. User is the end-user role. Telemetry and Notification Service are supporting external actors. Lifecycle goals are separate interactions; cancellation is not an extension of the original booking transaction. Simulation results are reviewed independently or after a successful run; applying recommendations still requires live resource validation.
+The overall view is the union of the User and Operator views: 25 goals. User is the end-user role. Telemetry and Notification Service are supporting external actors. Lifecycle goals are separate interactions; cancellation is not an extension of the original booking transaction. Simulation results are reviewed independently or after a successful run; applying recommendations still requires live resource validation.
 
 ### user_usecases
 
-[Editable SVG](drawio/user_usecases.drawio)
+[Editable Draw.io](drawio/user_usecases.drawio)
 
 ```plantuml
 @startuml
@@ -128,7 +130,7 @@ uc_UC06 --- actor_notification
 
 ### operator_usecases
 
-[Editable SVG](drawio/operator_usecases.drawio)
+[Editable Draw.io](drawio/operator_usecases.drawio)
 
 ```plantuml
 @startuml
@@ -159,6 +161,7 @@ actor_operator -- uc_UC12
 uc_UC12_uc_ext2 ..> uc_UC12 : <<extend>>
 actor_operator -- uc_UC13
 actor_operator -- uc_UC14
+uc_UC13 ..> uc_UC14 : <<include>>
 uc_UC14_uc_ext1 ..> uc_UC14 : <<extend>>
 uc_UC14_uc_apply ..> uc_UC14 : <<extend>>
 uc_UC08 -- actor_telemetry
@@ -197,6 +200,7 @@ actor_operator --- uc_UC12
 uc_UC12_uc_ext2 -. "extend" .-> uc_UC12
 actor_operator --- uc_UC13
 actor_operator --- uc_UC14
+uc_UC13 -. "include" .-> uc_UC14
 uc_UC14_uc_ext1 -. "extend" .-> uc_UC14
 uc_UC14_uc_apply -. "extend" .-> uc_UC14
 uc_UC08 --- actor_telemetry
@@ -208,7 +212,7 @@ uc_UC12 --- actor_telemetry
 
 ### general_usecase_diagram
 
-[Editable SVG](drawio/general_usecase_diagram.drawio)
+[Editable Draw.io](drawio/general_usecase_diagram.drawio)
 
 ```plantuml
 @startuml
@@ -267,6 +271,7 @@ actor_operator -- uc_UC12
 uc_UC12_uc_ext2 ..> uc_UC12 : <<extend>>
 actor_operator -- uc_UC13
 actor_operator -- uc_UC14
+uc_UC13 ..> uc_UC14 : <<include>>
 uc_UC14_uc_ext1 ..> uc_UC14 : <<extend>>
 uc_UC14_uc_apply ..> uc_UC14 : <<extend>>
 uc_UC04 -- actor_telemetry
@@ -341,6 +346,7 @@ actor_operator --- uc_UC12
 uc_UC12_uc_ext2 -. "extend" .-> uc_UC12
 actor_operator --- uc_UC13
 actor_operator --- uc_UC14
+uc_UC13 -. "include" .-> uc_UC14
 uc_UC14_uc_ext1 -. "extend" .-> uc_UC14
 uc_UC14_uc_apply -. "extend" .-> uc_UC14
 uc_UC04 --- actor_telemetry
@@ -360,13 +366,64 @@ uc_UC06 --- actor_notification
 
 | Quality check | Result |
 |---|---|
-| Overall goals equal union of role views | 27 goals |
+| Overall goals equal union of role views | 25 goals |
 | Primary actors left; supporting actors right | Applied |
 | System boundary and separate relationship labels | Preserved |
-| PlantUML, Mermaid, editable SVG and PNG | Generated |
+| PlantUML, Mermaid and editable Draw.io | Available |
 
 - VS Code: double-click `.drawio` to edit.
 - Draw.io: `+` → `Advanced` → `PlantUML`.
 - VP Online: `File` → `Import` → `PlantUML...`.
 
 [UC06 parent contract and lifecycle scenarios](LIFECYCLE_SCENARIOS.md). The overview shows the parent, and the detailed files use the current scenario IDs.
+
+## UC13–UC14: current simulation interactions
+
+The detailed canvases expand the overview with scenario selection, execution and result display. After a successful run, UC13 includes UC14. An Operator may also open UC14 independently. From a result, the live demo exports JSON locally or opens a transfer recommendation for review; creating the transfer uses UC10 and checks live resources. Other recommendations remain informational. Filtering by Hub/time, comparing separate runs and CSV/PDF export are optional capabilities outside the current demo.
+
+```plantuml
+@startuml
+left to right direction
+actor Operator
+rectangle "Smart E-Mobility Hub System" {
+  usecase "Run What-if Simulation" as Run
+  usecase "Select Simulation Scenario" as Select
+  usecase "Configure Scenario Parameters" as Configure
+  usecase "Execute Network Simulation" as Execute
+  usecase "View Simulation Results" as View
+  usecase "Display Recommendations" as Recommendations
+  usecase "Retrieve Simulation Results" as Retrieve
+  usecase "Display Simulation Metrics" as Metrics
+  usecase "Export Simulation Results" as Export
+  usecase "Apply Coordination Recommendations" as Apply
+}
+Operator -- Run
+Operator -- View
+Run ..> Select : <<include>>
+Run ..> Configure : <<include>>
+Run ..> Execute : <<include>>
+Run ..> View : <<include>>
+View ..> Recommendations : <<include>>
+View ..> Retrieve : <<include>>
+View ..> Metrics : <<include>>
+Export ..> View : <<extend>>
+Apply ..> View : <<extend>>
+@enduml
+```
+
+```mermaid
+flowchart LR
+  Operator[Operator] --- Run([Run What-if Simulation])
+  Operator --- View([View Simulation Results])
+  Run -. include .-> Select([Select Simulation Scenario])
+  Run -. include .-> Configure([Configure Scenario Parameters])
+  Run -. include .-> Execute([Execute Network Simulation])
+  Run -. include .-> View
+  View -. include .-> Recommendations([Display Recommendations])
+  View -. include .-> Retrieve([Retrieve Simulation Results])
+  View -. include .-> Metrics([Display Simulation Metrics])
+  Export([Export Simulation Results]) -. extend .-> View
+  Apply([Apply Coordination Recommendations]) -. extend .-> View
+```
+
+Open the editable `.drawio` files in VS Code with Draw.io Integration. To import the PlantUML preview, use **Advanced → PlantUML** in Draw.io or **File → Import → PlantUML** in Visual Paradigm Online. Check: actor outside the boundary; include points to the included use case; extend points to the base use case; UC14 remains independently accessible.
