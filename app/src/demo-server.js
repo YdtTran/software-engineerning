@@ -5,8 +5,9 @@ const { createApp } = require('./app');
 const accountFile = process.env.DEMO_ACCOUNTS_FILE;
 const databaseFile = process.env.DEMO_DB_PATH;
 const portText = process.env.DEMO_PORT || '3000';
-if (!accountFile || !databaseFile || !/^\d+$/.test(portText) || Number(portText) > 65535) {
-  throw new Error('Set DEMO_ACCOUNTS_FILE, DEMO_DB_PATH and a valid DEMO_PORT.');
+const host = (process.env.DEMO_HOST || '127.0.0.1').trim();
+if (!accountFile || !databaseFile || !/^\d+$/.test(portText) || Number(portText) > 65535 || !host || /\s/.test(host)) {
+  throw new Error('Set DEMO_ACCOUNTS_FILE, DEMO_DB_PATH, valid DEMO_PORT and DEMO_HOST.');
 }
 if (process.env.DEMO_INSECURE_HTTP === '1' && process.env.NODE_ENV === 'production') {
   throw new Error('Insecure demo cookies are not permitted in production.');
@@ -41,8 +42,8 @@ const parkingExpiryTimer = Number.isFinite(parkingExpiryIntervalMs) && parkingEx
 if (parkingExpiryTimer && typeof parkingExpiryTimer.unref === 'function') {
   parkingExpiryTimer.unref();
 }
-const server = app.listen(Number(portText), '127.0.0.1', () => {
-  process.stdout.write(`Demo server listening on 127.0.0.1:${server.address().port}\n`);
+const server = app.listen(Number(portText), host, () => {
+  process.stdout.write(`Demo server listening on ${server.address().address}:${server.address().port}\n`);
 });
 for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, () => {

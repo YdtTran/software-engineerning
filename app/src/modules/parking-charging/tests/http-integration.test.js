@@ -144,6 +144,15 @@ test('HTTP routes enforce authentication, RBAC, JSON envelopes, and Idempotency-
   assert.equal(opDeniedAvail.status, 403);
   assert.equal(opDeniedAvail.json.error.code, 'FORBIDDEN_OPERATION');
 
+  // Private vehicle listing is strictly scoped to owning user
+  assert.equal((await callApi('GET', '/private-vehicles')).status, 401);
+  assert.equal((await callApi('GET', '/private-vehicles', { cookie: opCookie })).status, 403);
+  const u1Vehicles = await callApi('GET', '/private-vehicles', { cookie: u1Cookie });
+  assert.equal(u1Vehicles.status, 200);
+  assert.deepEqual(u1Vehicles.json.data.map(v => v.id), ['PV-HTTP-1']);
+  const u2Vehicles = await callApi('GET', '/private-vehicles', { cookie: u2Cookie });
+  assert.deepEqual(u2Vehicles.json.data.map(v => v.id), ['PV-HTTP-2']);
+
   // User availability query -> 200
   const avail = await callApi('GET', '/hubs/bku/parking-availability?privateVehicleId=PV-HTTP-1&pool=immediate', { cookie: u1Cookie });
   assert.equal(avail.status, 200);
@@ -175,8 +184,10 @@ test('HTTP routes enforce authentication, RBAC, JSON envelopes, and Idempotency-
   assert.equal(resConflict.status, 409);
   assert.equal(resConflict.json.error.code, 'IDEMPOTENCY_KEY_REUSED');
 
-  // Other user cannot GET or cancel u1's reservation -> 403
+  // Other user cannot GET or cancel u1's reservation -> 403; list routes are isolated per user
   assert.equal((await callApi('GET', `/parking-reservations/${res1.json.data.id}`, { cookie: u2Cookie })).status, 403);
+  assert.deepEqual((await callApi('GET', '/parking-reservations', { cookie: u1Cookie })).json.data.map(r => r.id), [res1.json.data.id]);
+  assert.deepEqual((await callApi('GET', '/parking-reservations', { cookie: u2Cookie })).json.data, []);
 
   // Check-in -> 200 + GET occupancy
   const checkIn = await callApi('POST', `/parking-reservations/${res1.json.data.id}/check-in`, {
@@ -187,6 +198,8 @@ test('HTTP routes enforce authentication, RBAC, JSON envelopes, and Idempotency-
   assert.equal(checkIn.status, 200);
   const occId = checkIn.json.data.occupancyId;
   assert.equal((await callApi('GET', `/parking-occupancies/${occId}`, { cookie: u1Cookie })).status, 200);
+  assert.deepEqual((await callApi('GET', '/parking-occupancies', { cookie: u1Cookie })).json.data.map(o => o.id), [occId]);
+  assert.deepEqual((await callApi('GET', '/parking-occupancies', { cookie: u2Cookie })).json.data, []);
 
   // Submit charging request -> 201, cancel via additive route -> 200
   const creqCancelable = await callApi('POST', '/charging-requests', {
@@ -210,6 +223,8 @@ test('HTTP routes enforce authentication, RBAC, JSON envelopes, and Idempotency-
     body: { occupancyId: occId, targetBatteryPercent: 85 }
   });
   assert.equal(creqMain.status, 201);
+  assert.equal((await callApi('GET', '/charging-requests', { cookie: u1Cookie })).json.data[0].id, creqMain.json.data.id);
+  assert.deepEqual((await callApi('GET', '/charging-requests', { cookie: u2Cookie })).json.data, []);
 
   assert.equal((await callApi('GET', '/hubs/bku/charging-schedule', { cookie: u1Cookie })).status, 403);
   const sched = await callApi('GET', '/hubs/bku/charging-schedule', { cookie: opCookie });
