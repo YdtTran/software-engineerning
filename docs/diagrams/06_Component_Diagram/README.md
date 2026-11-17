@@ -1,4 +1,6 @@
 # DV01 — Component Diagram
+
+> **Current demo:** This page and its diagram describe the target logical organization. The running backend has Operations, Mobility/Simulation and Parking/Charging modules, with an Android User app and API-connected Operator browser interfaces. See [version 2 traceability](../../requirements/VERSION_2_TRACEABILITY.md) and [demo deployment](../deployment/README-deployment.md). Statements below about an unimplemented backend or mockup-only clients describe the historical design baseline, not the current demo.
 [alt text](DV01-Component_Diagram_New.drawio)
 ## 1. Purpose and scope
 
@@ -28,20 +30,20 @@ The diagram groups the five application modules under a `Use-case Modules` bound
 
 ## 3. Components and responsibilities
 
-### Presentation — existing prototype, not integrated
+### Presentation — target concepts and demo
 
 | Component | Responsibility and status |
 | --- | --- |
-| **User Mobile experience** | Presents the User-facing prototype experience. Its HTTP dependency is planned; the current mockup is not wired to the target API. |
-| **Operator Field Mobile experience** | Presents the field-operator prototype experience. API integration is planned, not established. |
-| **Operator Web Dashboard experience** | Presents the operator web prototype. API integration is planned, not established. |
+| **User Mobile experience** | The Android User app calls the demo API; the original design viewer remains a mockup. |
+| **Operator Field Mobile experience** | The Operator mobile browser interface calls the demo API. |
+| **Operator Web Dashboard experience** | The Operator desktop browser interface calls the demo API. |
 | **Shared Preview Shell (`index.html` + `app.js`)** | Renders the three mockup experiences for review. It is not a backend client or an implemented application service. |
 
 ### API / Interface — MVP target
 
 | Component | Responsibility and status |
 | --- | --- |
-| **Express HTTP API** | Target HTTP entry point. It translates client requests and incoming telemetry into application-level operations. Node.js + Express are selected for the MVP target; endpoint contracts remain open. |
+| **Express HTTP API** | Express translates demo HTTP requests into application operations. Current endpoints are described in [API contracts](../../architecture/API_CONTRACTS.md). |
 
 ### Application — cohesive modules and ports
 
@@ -69,7 +71,7 @@ Service names and UC/FR mappings provide design traceability. They do not prove 
 | Component | Responsibility and status |
 | --- | --- |
 | **SQLite Repository Adapter** | Target implementation of the Repository Ports. It isolates database-specific operations from application and domain rules. |
-| **SQLite Persistence** | Selected MVP persistence technology, not a deployment node or source package. Schema, driver, and migration approach remain open. |
+| **SQLite Persistence** | Selected MVP persistence technology, not a deployment node or source package. The demo uses Node’s SQLite adapter and versioned SQL migrations; the target production driver remains a separate decision. |
 | **Simulated Telemetry Adapter** | Permitted MVP option that submits telemetry through the Application-owned input contract. A real hardware protocol is undecided. |
 | **Mock Notification Adapter** | Permitted MVP option that realizes the Notification Outbound Port. A production notification provider is undecided. |
 
@@ -79,7 +81,7 @@ The PlantUML source uses UML 2 component notation (`componentStyle uml2`) and di
 
 | Source | Target | Meaning |
 | --- | --- | --- |
-| User Mobile, Operator Field Mobile, Operator Web Dashboard | Express HTTP API | Planned HTTP dependencies only; current mockups are not integrated. |
+| User Mobile, Operator Field Mobile, Operator Web Dashboard | Express HTTP API | The Android and live Operator clients call the demo API; the separate design viewer is a mockup. |
 | Express HTTP API | Use-case Modules | The API uses application operations. |
 | Use-case Modules | Domain Model & Business Invariants | Application use cases use domain behavior. |
 | Use-case Modules | Persistence Ports | Application modules use repository abstractions rather than a concrete database API. |
@@ -97,10 +99,10 @@ The distinction between **uses/dependency** and **realization** is intentional. 
 
 | Area | Choice | Status |
 | --- | --- | --- |
-| Frontend | HTML5, CSS3, Modern JavaScript | Existing prototype technology; UI/API integration is not established. |
-| Backend API | Node.js + Express | Confirmed MVP target; backend implementation is not established by this diagram. |
+| Frontend | HTML5, CSS3, Modern JavaScript | Operator interfaces use HTML/CSS/JavaScript and MapLibre; the User app is native Android. Live clients call the API. |
+| Backend API | Node.js + Express | One Express demo backend implements the three modules listed in the current-demo note. |
 | Persistent storage | SQLite | Confirmed MVP target behind the Repository Adapter. |
-| Repository abstraction and transaction boundaries | Repository Ports; transactions for applicable allocation and state transitions | Confirmed architectural requirements; concrete driver, schema, and migration tool remain open. |
+| Repository abstraction and transaction boundaries | Repository Ports; transactions for applicable allocation and state transitions | The demo has SQLite repositories and SQL migrations; production driver and schema decisions remain separate. |
 | Telemetry | Simulated adapter is an MVP option | Real hardware protocol is undecided. |
 | Notifications | Mock adapter is an MVP option | Production provider is undecided. |
 
@@ -109,7 +111,7 @@ The distinction between **uses/dependency** and **realization** is intentional. 
 - Read this as a Development View: components describe logical software responsibilities and contracts.
 - Do not infer server, cloud, container, network, hardware, process, or deployment topology from component placement.
 - Do not connect Presentation directly to SQLite or make Domain/Application depend on framework/database-specific implementations.
-- Keep the planned status of frontend-to-API dependencies visible.
+- Distinguish the API-connected demo clients from the offline design viewer.
 - Preserve the application ownership of telemetry input and the adapter direction shown in the PlantUML source.
 - Use the class catalog for detailed domain classes; this component view intentionally groups those concepts into a Domain component.
 - If an approved architecture decision changes, update the decision record and synchronize the PlantUML model, other diagram formats, and supporting documentation.

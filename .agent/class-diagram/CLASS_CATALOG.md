@@ -67,7 +67,7 @@ At most three attributes and two operations per class; names select the unchange
 | ElectricBicycle | ElectricVehicle | Every electric bicycle has the battery, status and eligibility contract of an electric vehicle. No artificial override is needed. |
 | ElectricMotorcycle | ElectricVehicle | Every electric motorcycle has that same contract; ownership does not change its physical type. |
 | VehicleReservation | Reservation | Every vehicle hold can be cancelled/expired and specializes expiry to reservedAt + 15 minutes. |
-| ParkingReservation | Reservation | An unfulfilled booking can be cancelled or expired under BR08a. |
+| ParkingReservation | Reservation | Every unfulfilled parking booking can be cancelled or expired under BR08a. |
 
 No inheritance is introduced for account roles, ownership, status or simulation scenario types. Abstractness means incomplete instantiable category, not merely having subclasses. ElectricVehicle has concrete shared methods; Reservation additionally declares an abstract operation.
 
@@ -367,7 +367,7 @@ These are acceptance examples for the design, not claims that the UI prototype e
 
 ## Sequence lifeline mapping
 
-Derived from the current seven [sequence declarations](../../docs/diagrams/02_Sequence_Diagram/README.md). These are responsibility mappings, not new classes or operations.
+Derived from the lifeline headers in the seven editable [sequence diagrams](../../docs/diagrams/02_Sequence_Diagram/README.md). These are responsibility mappings, not new classes or operations.
 
 | Exact sequence name | Kind | Domain/service interpretation |
 | --- | --- | --- |

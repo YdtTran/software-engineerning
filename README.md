@@ -1,143 +1,126 @@
-# Smart E-Mobility Hub – Hệ thống Điều phối Phương tiện Điện ĐHQG-HCM
+# Smart E-Mobility Hub — Version 2.0
 
-[Repository index](index.md) · [Prototype](app/prototype/README.md) · [SQLite setup](app/db/README.md)
+**Smart E-Mobility Hub** is a unified urban micro-mobility, private EV parking, and smart-charging management platform combining:
 
-[![Course](https://img.shields.io/badge/Course-Software%20Engineering%20(HK261)-0284c7.svg)](#)
-[![University](https://img.shields.io/badge/University-VNU--HCM-152584.svg)](#)
-[![UML Standard](https://img.shields.io/badge/UML-PlantUML%20%7C%20Draw.io%20SVG-059669.svg)](#)
-[![UI/UX Prototype](https://img.shields.io/badge/UI%2FUX-Playwright%20Verified%20(26%20Screens)-00B8D6.svg)](#)
+- **Backend & Web Consoles (`app/`)**: Node.js / Express modular monolith (`operations`, `parking-charging`, `mobility-simulation`) backed by SQLite (WAL mode, schema `v12`), serving the Operator & Admin web experience (`app/prototype/live.html` via `/operator-web.html` and `/operator-app.html`).
+- **Mobile Rider Clients (`android/`, `app/flutter_mobile/`)**: Native Kotlin Jetpack Compose + OpenFreeMap app (`android/`) and Flutter mobile client (`app/flutter_mobile/`) for riders and private EV owners (discover hubs, book/unlock rentals via QR/ticket, reserve private parking, submit smart-charging requests, and report trip incidents).
+- **Synchronized Architecture & UML Specification (`docs/`)**: Complete 4+1 views, UC01–UC14 domain contracts, sequence/activity/state-chart/class models, and API contracts reconciled with the live codebase.
 
-> **Capstone Dashboard**  
-> *Tài liệu đặc tả kiến trúc & yêu cầu chi tiết đầy đủ xem tại:* **[`PROJECT_SPECIFICATION.md`](docs/requirements/PROJECT_SPECIFICATION.md)**
-
-[Bổ sung vòng đời nghiệp vụ](docs/diagrams/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md): sáu ca phụ cho check-in/check-out xe cá nhân, kết thúc sạc, hoàn tất/hủy điều chuyển và báo sự cố giữa chuyến; kèm đặc tả 11 mục và file Draw.io chỉnh sửa được.
+> Course duties and milestone checklists from v1.0 have been archived to [docs/reports/SUBMISSION_PROGRESS_ARCHIVE.md](docs/reports/SUBMISSION_PROGRESS_ARCHIVE.md).
 
 ---
 
-## 1. TỔNG QUAN DỰ ÁN
+## Demo Video (Mobile App + Admin Dashboard)
 
-Hệ thống **Smart E-Mobility Hub** giải quyết bài toán **điều phối đa tài nguyên phân tán** (Distributed Multi-Resource Coordination) cho mạng lưới phương tiện giao thông xanh (xe đạp điện, xe máy điện dùng chung và xe điện cá nhân) kết nối chặng cuối từ **Ga Metro số 1 ĐHQG** đến các trường đại học thành viên, ký túc xá và khu chức năng trong Khu đô thị ĐHQG-HCM.
+Watch the end-to-end Version 2.0 walkthrough recorded directly from a physical Android device and live browser session:
 
-Hệ thống tập trung vào các bài toán kỹ nghệ phần mềm cốt lõi:
-- **Quản lý trạng thái đa thực thể:** Xe (`Available`, `Reserved`, `In-Use`, `Needs Charging`, `Under Maintenance`, `In-Transit`), Slot đỗ, Cổng sạc thông minh.
-- **Phân bổ tài nguyên đồng thời:** Chống double-booking xe và chỗ đỗ theo thời gian thực.
-- **Lập lịch sạc tối ưu (Smart Charging Scheduling):** Ưu tiên xe pin yếu (< 20%) và xe có lịch đặt trước cho chuyến đi sắp tới.
-- **Tái cân bằng mạng lưới (Vehicle Redistribution):** Tự động phát hiện và điều phối xe giữa các Hub.
-- **Bộ máy mô phỏng What-if:** Đánh giá 5 kịch bản giả định (cao điểm Metro, Hub đầy chỗ, quá tải sạc, hỏng cổng sạc, dồn ứ xe) để xuất khuyến nghị điều phối.
+![Smart E-Mobility Hub v2.0 Live Demo](docs/assets/demo/smart-emobility-v2-demo.gif)
+
+- **Full-resolution video (1280×720 VP8 WebM, 2.3 MB)**: [Open / Download Raw WebM](docs/assets/demo/smart-emobility-v2-demo.webm?raw=1) *(uses `?raw=1` so the browser plays or downloads directly instead of opening GitHub's blob text preview)*
 
 ---
 
-## 2. TIẾN ĐỘ DỰ ÁN (PROJECT PROGRESS TRACKER)
+## Visual Walkthrough
 
-### Thiết lập Môi trường & Bộ Quy chuẩn Ban đầu
-- [x] **Cấu hình Workspace:** Tích hợp extension `hediet.vscode-drawio` qua [`.vscode/extensions.json`](.vscode/extensions.json) để chỉnh sửa diagram kéo thả trực tiếp trong VS Code.
-- [x] **Thiết lập Bộ quy tắc UML Designer:** Xây dựng cẩm nang tiêu chuẩn thiết kế chuẩn slide bài giảng ĐHQG-HCM & Ian Sommerville tại [`docs/standards/`](docs/standards) (Use Case, Activity, Sequence, Class, State-chart Diagram và Kiến trúc 4+1 View).
-- [x] **Thiết lập Agent Guidelines:** Ban hành quy chuẩn bắt buộc chống lỗi hình học Draw.io tại [`AGENTS.md`](AGENTS.md) và [`GEMINI.md`](GEMINI.md).
-- [x] **Đặc tả Yêu cầu Toàn diện:** Soạn thảo hồ sơ kiến trúc master [`PROJECT_SPECIFICATION.md`](docs/requirements/PROJECT_SPECIFICATION.md).
+### 1. Android Rider & Private EV App (`android/`)
 
----
+| 1. Live Hub Home | 2. OpenFreeMap Discovery | 3. Rental Booking (`UC05`) | 4. QR Unlock & Ticket (`UC06`) |
+| :---: | :---: | :---: | :---: |
+| ![Android Home](docs/assets/demo/android-home.png) | ![Android Map](docs/assets/demo/android-map.png) | ![Android Rental](docs/assets/demo/android-rental.png) | ![Android Ticket](docs/assets/demo/android-ticket.png) |
+| Connects to live `/api/stations` & user trips | Interactive station pins & availability | Select hub/vehicle type & issue booking | Scan/enter vehicle code to start trip |
 
-### Giai đoạn 1: Submission #1 (Đặc tả Yêu cầu & Use Case)
-- [x] **Phân tích Bối cảnh & Phạm vi Dự án:** Xác định bài toán kết nối Metro số 1 và hệ thống Hub ĐHQG.
-- [x] **Phân tích Tác nhân (Stakeholders):** Xác định Primary Actors (User và Operator - bên trái) và Secondary Actors (IoT Sensor Stream, Notification Service - bên phải khi tham gia).
-- [x] **Sơ đồ Use Case Tổng quan Toàn Hệ thống:** Khởi tạo [`general_usecase_diagram.drawio`](docs/diagrams/01_Usecase_Diagram/drawio/general_usecase_diagram.drawio) bao trọn 14 Use Cases.
-- [x] **Sơ đồ Use Case Chi tiết Nhóm Người dùng (7 UC):**
-  - [x] [`UC01: Search Mobility Hub`](docs/diagrams/01_Usecase_Diagram/drawio/UC01-Search_Mobility_Hub.drawio)
-  - [x] [`UC02: View Available Vehicles`](docs/diagrams/01_Usecase_Diagram/drawio/UC02-View_Available_Vehicles.drawio)
-  - [x] [`UC03: Reserve Vehicle`](docs/diagrams/01_Usecase_Diagram/drawio/UC03-Reserve_Vehicle.drawio)
-  - [x] [`UC04: Pick Up Vehicle`](docs/diagrams/01_Usecase_Diagram/drawio/UC04-Pick_Up_Vehicle.drawio)
-  - [x] [`UC05: Return Vehicle`](docs/diagrams/01_Usecase_Diagram/drawio/UC05-Return_Vehicle.drawio)
-  - [x] [`UC06: Manage Parking Reservation`](docs/diagrams/01_Usecase_Diagram/drawio/UC06-S1-Create_Parking_Reservation.drawio)
-  - [x] [`UC07: Request Charging`](docs/diagrams/01_Usecase_Diagram/drawio/UC07-Request_Charging.drawio)
-- [x] **Sơ đồ Use Case Chi tiết Nhóm Vận hành (7 UC):**
-  - [x] [`UC08: Monitor Mobility Hub Network`](docs/diagrams/01_Usecase_Diagram/drawio/UC8-Monitor_Mobility_Hub_Network.drawio)
-  - [x] [`UC09: Manage Mobility Resources`](docs/diagrams/01_Usecase_Diagram/drawio/UC9-Manage_Mobility_Resources.drawio)
-  - [x] [`UC10: Redistribute Vehicles`](docs/diagrams/01_Usecase_Diagram/drawio/UC10-Redistribute_Vehicles.drawio)
-  - [x] [`UC11: Handle Operational Incident`](docs/diagrams/01_Usecase_Diagram/drawio/UC11-Handle_Operational_Incident.drawio)
-  - [x] [`UC12: Manage Charging Schedule`](docs/diagrams/01_Usecase_Diagram/drawio/UC12-Manage_Charging_Schedule.drawio)
-  - [x] [`UC13: Run What-if Simulation`](docs/diagrams/01_Usecase_Diagram/drawio/UC13-Run_What-if_Simulation.drawio)
-  - [x] [`UC14: View Simulation Results`](docs/diagrams/01_Usecase_Diagram/drawio/UC14-View_Simulation_Results.drawio)
-- [x] **Bộ Mã nguồn PlantUML & Mermaid Use Case:** Đóng gói toàn bộ trong [`danh mục sơ đồ`](docs/diagrams/01_Usecase_Diagram/README.md).
-- [x] **Yêu cầu Phi chức năng (General NFRs):** Thời gian thực, chống double-booking, tính tin cậy.
-- [x] **Yêu cầu Chức năng Phi tương tác (Bonus):** 4 tiến trình nền (Hủy quá hạn 15p, Giả lập hao pin, Watcher ngưỡng tải, Rebalance sạc tự động).
-- [x] **Viết Kịch bản Chi tiết từng Use Case (Individual Work):** Hoàn thành 100% kịch bản cho 14 Use Cases theo chuẩn mẫu bảng trong slide bài giảng ĐHQG-HCM (Slide Ch3 p.56 & Ch6 p.19-20).
-- [x] **Đóng gói Hồ sơ Báo cáo Đợt 1:** Xuất bản hoàn chỉnh file báo cáo tổng hợp [`SUBMISSION_1_REPORT.md`](docs/reports/SUBMISSION_1_REPORT.md).
+| 5. Active Trip & Incident Report (`UC06`, `UC11A`) | 6. Private Parking Check-In (`UC08`) | 7. Smart Charging Request (`UC07`, `UC09`) |
+| :---: | :---: | :---: |
+| ![Android Active Trip](docs/assets/demo/android-active-trip.png) | ![Android Parking](docs/assets/demo/android-parking.png) | ![Android Charging](docs/assets/demo/android-charging.png) |
+| Live trip telemetry & incident submission | Reserve & check in private EV slot | Submit target SoC & desired finish time |
+
+### 2. Operator & Admin Web Dashboards (`app/prototype/live.html`)
+
+| Network Overview & Dispatch (`UC10`, `UC14`) | Fleet & Charging Resources (`UC10`, `UC13`) |
+| :---: | :---: |
+| ![Admin Overview](docs/assets/demo/admin-overview.png) | ![Admin Resources](docs/assets/demo/admin-resources.png) |
+
+| Incident Intake & Resolution (`UC11`) | Smart Charging Allocation (`UC12`) |
+| :---: | :---: |
+| ![Admin Incidents](docs/assets/demo/admin-incidents.png) | ![Admin Charging](docs/assets/demo/admin-charging.png) |
+
+| What-If Demand Simulation (`UC13`, `UC14`) | Field Operator Mobile Console (`UC10`, `UC11`) |
+| :---: | :---: |
+| ![Admin Simulation](docs/assets/demo/admin-simulation.png) | ![Operator Mobile](docs/assets/demo/operator-mobile.png) |
 
 ---
 
-### Giai đoạn 2: Submission #2 (Mô hình Động & Giao diện UI)
-- [x] **Thiết kế UI Mockup Toàn hệ thống (Group Work - Đã hoàn thành sẵn):**
-  - [x] **Phân hệ Người dùng (Mobile App):** Bản mẫu [`user-app.html`](app/prototype/user-app.html) (9 màn hình nghiệp vụ).
-  - [x] **Phân hệ Operator Hiện trường (Mobile App):** Bản mẫu [`operator-app.html`](app/prototype/operator-app.html) (8 màn hình tác nghiệp).
-  - [x] **Phân hệ Operator Trung tâm (Web Dashboard):** Bản mẫu [`operator-web.html`](app/prototype/operator-web.html) (7 màn hình phân tích).
-  - [x] **Trình duyệt Mockup Toàn cảnh:** Bản mẫu [`index.html`](app/prototype/index.html) chuyển đổi linh hoạt 26 màn hình.
-  - [x] **Hồ sơ UI/UX Xuất bản:** File tài liệu 14 trang A4 Landscape [`UI-UX.pdf`](app/prototype/UI-UX.pdf) và 26 ảnh chất lượng cao [`screens/`](app/prototype/screens).
-  - [x] **Kiểm định Tự động Playwright:** Chạy kiểm tra 9 kịch bản nghiệp vụ đạt chuẩn (`verification.json` -> `passed: true`).
-- [x] **Thiết kế Sơ đồ Tuần tự (Sequence Diagrams - Individual Work):**
-  - Hoàn thành 7 sơ đồ tuần tự chuẩn kỹ thuật (`SQ01` - `SQ07`) trong [`docs/diagrams/02_Sequence_Diagram/`](docs/diagrams/02_Sequence_Diagram).
-  - Đóng gói tài liệu PlantUML & Mermaid tại [`danh mục sơ đồ`](docs/diagrams/02_Sequence_Diagram/README.md).
-- [x] **Thiết kế Sơ đồ Hoạt động (Activity Diagrams - Individual Work):**
-  - Hoàn thành 7 sơ đồ hoạt động có guard condition, cơ chế thoát và chống lặp vô tận (`AD01` - `AD07`) trong [`docs/diagrams/03_Activity_Diagram/`](docs/diagrams/03_Activity_Diagram).
-  - Đóng gói tài liệu PlantUML & Mermaid tại [`danh mục sơ đồ`](docs/diagrams/03_Activity_Diagram/README.md).
-- [x] **Thiết kế Sơ đồ Trạng thái (State-chart Diagrams - Bonus):**
-  - Hoàn thành 3 sơ đồ trạng thái thực thể lõi (`SC01` Vòng đời Xe, `SC02` Vòng đời Trụ sạc, `SC03` Vòng đời Đặt giữ & Cuốc xe) trong [`docs/diagrams/04_Statechart_Diagram/`](docs/diagrams/04_Statechart_Diagram).
-  - Đóng gói tài liệu PlantUML & Mermaid tại [`danh mục sơ đồ`](docs/diagrams/04_Statechart_Diagram/README.md).
+## Architecture at a Glance
+
+```text
+android/ (Kotlin + Compose)   ──┐
+app/flutter_mobile/ (Flutter) ──┼──► Express REST API + Cookie Auth (app/src/)
+app/prototype/live.html       ──┘      ├── modules/operations/           (UC05, UC06, UC10, UC11, UC13)
+  (operator-web / operator-app)        ├── modules/parking-charging/     (UC07, UC08, UC09, UC12)
+                                       └── modules/mobility-simulation/  (UC14 what-if & JSON export)
+                                                │
+                                                ▼
+                                       SQLite WAL + Repository Adapter (app/db/)
+```
+
+Key boundaries in v2.0 are documented transparently in [docs/architecture/API_CONTRACTS.md](docs/architecture/API_CONTRACTS.md) and [docs/PRODUCTION_GUIDE.md](docs/PRODUCTION_GUIDE.md).
 
 ---
 
-### Giai đoạn 3: Submission #3 (Kiến trúc Hệ thống & Thiết kế Chi tiết)
-- [ ] **Deployment View (Góc nhìn Triển khai):** Sơ đồ máy chủ, client di động, kết nối cảm biến IoT telemetry.
-- [ ] **Development / Implementation View (Góc nhìn Phát triển):** Kiến trúc phân tầng (Clean/Layered Architecture), module và thư viện.
-- [ ] **Class Diagram (Biểu đồ Lớp):** Thiết kế cấu trúc các lớp thực thể, dịch vụ, bộ điều khiển, mối quan hệ và bội số quan hệ.
-- [ ] **Đặc tả Phương thức (Method Descriptions):** Mô tả chi tiết 100% các phương thức trong Class Diagram (mục đích, tham số, giá trị trả về, giải thuật).
-- [ ] **Kịch bản Kiểm thử (Test Cases - Bonus):** Bộ Test Cases kiểm thử chức năng và luồng nghiệp vụ.
+## Quick Start
+
+### 1. Run the Backend & Operator Dashboards
+
+```bash
+cd app
+npm install
+npm start
+```
+
+By default the server listens on `http://localhost:3000`:
+
+- **Admin Dashboard**: `http://localhost:3000/operator-web.html` (and `/` redirects here)
+- **Operator Mobile Console**: `http://localhost:3000/operator-app.html`
+
+See [app/README.md](app/README.md) for demo login credentials and environment variables (`PORT`, `SQLITE_DB_PATH`, `AUTH_COOKIE_SECRET`), and [docs/PRODUCTION_GUIDE.md](docs/PRODUCTION_GUIDE.md) for production hardening, WAL backups, and reverse-proxy TLS configuration.
+
+### 2. Run the Native Android App
+
+Open `android/` in Android Studio or build via Gradle:
+
+```bash
+cd android
+./gradlew assembleDebug
+```
+
+Configure the backend URL inside the app settings (`10.0.2.2:3000` for Android Emulator, or `adb reverse tcp:3000 tcp:3000` with `http://127.0.0.1:3000` over USB). See [android/README.md](android/README.md) for details.
 
 ---
 
-### Giai đoạn 4: Submission #Final & Trình diễn MVP
-- [ ] **Hợp nhất Báo cáo Tổng kết:** Gộp nội dung #1, #2, #3 thành 01 file PDF duy nhất.
-- [ ] **Chuẩn bị Bài thuyết trình & Slide:** Nêu rõ kiến trúc, kết quả đạt được và bài học kinh nghiệm (Lessons learned).
-- [ ] **Khai báo Minh bạch Generative AI:** Điền bảng kê khai công cụ, phạm vi và mức độ đóng góp theo quy định.
-- [ ] **Trình diễn Sản phẩm Mẫu (MVP Demonstration):** Trình diễn chuỗi màn hình thao tác hoàn chỉnh (Sequence of screens) trên nền tảng prototype [`app/prototype/`](app/prototype).
+## Verification & Quality Checks
+
+Run the backend test suite and UML/documentation consistency checks before committing:
+
+```bash
+npm --prefix app test
+python3 .agent/scripts/check_usecases.py
+python3 .agent/scripts/check_process_diagrams.py
+python3 .agent/scripts/check_sequences.py
+python3 .agent/class-diagram/check_compact_projection.py
+git diff --check
+```
 
 ---
 
-## 3. DANH MỤC TÀI NGUYÊN & LỐI TẮT NHANH
+## Documentation Index
 
-Mỗi tài nguyên được duy trì tại một nơi: prototype và ảnh xuất tại `app/prototype/`, ảnh giao diện tham khảo tại `docs/references/ui/`, quy chuẩn UML tại `docs/standards/`, skill tại `.agents/skills/uml-designer/`. `refs/` giữ đề bài tham khảo và PNG use case gốc có nội dung khác bản hiện tại. `GEMINI.md` và `.agent/rules/uml-designer.md` tham chiếu bộ hướng dẫn chung trong `AGENTS.md`.
-
-| Danh mục | Đường dẫn | Nội dung & Mục đích |
-| :--- | :--- | :--- |
-| **Master Specification** | [`PROJECT_SPECIFICATION.md`](docs/requirements/PROJECT_SPECIFICATION.md) | Tài liệu đặc tả kỹ thuật chi tiết toàn bộ dự án (Bối cảnh, FRs, NFRs, What-if, UI/UX, AI Policy). |
-| **Báo cáo Submission #1** | [`SUBMISSION_1_REPORT.md`](docs/reports/SUBMISSION_1_REPORT.md) | Báo cáo hoàn chỉnh Giai đoạn 1 gồm bối cảnh, 14 kịch bản Use Case chi tiết, NFRs và Bonus FRs. |
-| **Thư mục Sơ đồ Hệ thống** | [`docs/diagrams/`](docs/diagrams) | Thư mục gốc chứa toàn bộ các loại sơ đồ UML chuẩn hóa của hệ thống. |
-| **Sơ đồ Use Case** | [`docs/diagrams/01_Usecase_Diagram/`](docs/diagrams/01_Usecase_Diagram) | Sơ đồ tổng quan và các sơ đồ chi tiết `.drawio` kèm [`danh mục sơ đồ`](docs/diagrams/01_Usecase_Diagram/README.md). |
-| **Bộ Use Case đã rà soát** | [`Danh mục & checklist`](docs/diagrams/01_Usecase_Diagram/README.md) | 15 file `.drawio` gốc chỉnh sửa được, SVG/PNG đã kiểm tra không giao cắt hoặc chồng đường nối; quy tắc nghiệp vụ đã đồng bộ với báo cáo. |
-| **Sơ đồ Tuần tự (Sequence)** | [`docs/diagrams/02_Sequence_Diagram/`](docs/diagrams/02_Sequence_Diagram) | 7 sơ đồ vector `.drawio` (`SQ01` - `SQ07`) kèm [`danh mục sơ đồ`](docs/diagrams/02_Sequence_Diagram/README.md). |
-| **Sơ đồ Hoạt động (Activity)** | [`docs/diagrams/03_Activity_Diagram/`](docs/diagrams/03_Activity_Diagram) | 7 sơ đồ vector `.drawio` (`AD01` - `AD07`) kèm [`danh mục sơ đồ`](docs/diagrams/03_Activity_Diagram/README.md). |
-| **Sơ đồ Trạng thái (Statechart)** | [`docs/diagrams/04_Statechart_Diagram/`](docs/diagrams/04_Statechart_Diagram) | 3 sơ đồ vector `.drawio` (`SC01` - `SC03`) kèm [`danh mục sơ đồ`](docs/diagrams/04_Statechart_Diagram/README.md). |
-| **Bản mẫu UI/UX** | [`app/prototype/`](app/prototype) | Prototype tương tác hoàn chỉnh (26 màn hình), không cần cài đặt server, mở chạy trực tiếp trên Chrome/Edge. |
-| **Hồ sơ UI/UX PDF** | [`UI-UX.pdf`](app/prototype/UI-UX.pdf) | Bộ tài liệu 14 trang A4 Landscape chất lượng cao phục vụ nộp bài **Submission #2**. |
-| **Quy chuẩn UML** | [`docs/standards/`](docs/standards) | Cẩm nang quy tắc vẽ chuẩn slide ĐHQG-HCM: Use Case, Activity, Sequence, Class, State-chart Diagram và Kiến trúc 4+1 View. |
-| **Đề bài Gốc Môn học** | [`04_BTL_SoftwareEngineering_HK261.pdf`](docs/references/04_BTL_SoftwareEngineering_HK261.pdf) | Yêu cầu bài tập lớn chính thức từ Giảng viên ĐHQG-HCM. |
-
----
-
-## 4. HƯỚNG DẪN THAO TÁC NHANH
-
-### Cách 1: Xem & Trải nghiệm Prototype UI/UX
-- Nhấp đúp mở file [`app/prototype/index.html`](app/prototype/index.html) bằng trình duyệt **Google Chrome** hoặc **Microsoft Edge**.
-- Bấm các nút phía trên: `App người dùng` (Mobile Người dùng), `App operator` (Mobile Hiện trường) hoặc `Web operator` (Dashboard PC).
-- Dùng menu `Màn hình` để nhảy nhanh tới bất kỳ Use Case nào cần kiểm tra.
-
-### Cách 2: Xem & Chỉnh sửa Sơ đồ Vẽ offline trong VS Code
-- Mở bất kỳ file `.drawio` nào trong thư mục [`docs/diagrams/`](docs/diagrams) ngay trên VS Code (đã tích hợp sẵn extension Draw.io).
-- Bạn có thể kéo thả, thêm bớt node trực quan và lưu lại trực tiếp dưới dạng ảnh vector sắc nét.
-
-### Cách 3: Import Mã PlantUML vào Visual Paradigm Online hoặc Draw.io
-- Mở file PlantUML tương ứng (`danh mục sơ đồ`, `danh mục sơ đồ`, `danh mục sơ đồ`, `danh mục sơ đồ`) và sao chép đoạn mã cần dùng.
-- **Draw.io:** Chọn `+` -> `Advanced` -> `PlantUML`, dán mã và bấm `Insert`.
-- **Visual Paradigm Online:** Chọn `File` -> `Import` -> `PlantUML...`.
-
----
-*Tài liệu tóm tắt quản lý tiến độ Công nghệ phần mềm ĐHQG-HCM – Học kỳ 261.*
+| Document | Purpose |
+| :--- | :--- |
+| [CHANGELOG.md](CHANGELOG.md) | Version 2.0.0 release notes and reconciled scope |
+| [docs/PRODUCTION_GUIDE.md](docs/PRODUCTION_GUIDE.md) | Production deployment, SQLite WAL ops, security & boundaries |
+| [docs/architecture/API_CONTRACTS.md](docs/architecture/API_CONTRACTS.md) | HTTP endpoints, auth, idempotency & service-only methods |
+| [docs/requirements/PROJECT_SPECIFICATION.md](docs/requirements/PROJECT_SPECIFICATION.md) | System requirements, constraints, and NFRs |
+| [docs/requirements/VERSION_2_CONTRACT_REVIEW.md](docs/requirements/VERSION_2_CONTRACT_REVIEW.md) | Reconciliation status across UC contracts, UML diagrams & tests |
+| [docs/requirements/VERSION_2_TRACEABILITY.md](docs/requirements/VERSION_2_TRACEABILITY.md) | End-to-end requirement -> code -> diagram traceability matrix |
+| [index.md](index.md) | Full repository navigation map (4+1 Views & UML folders) |
+| [docs/reports/SUBMISSION_PROGRESS_ARCHIVE.md](docs/reports/SUBMISSION_PROGRESS_ARCHIVE.md) | Archived v1.0 course submission checklist and role matrix |
