@@ -1,0 +1,243 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1880" height="1020" viewBox="0 0 1880 1020" style="background:#FFFFFF;font-family:'Segoe UI',sans-serif;">
+<defs>
+  <marker id="openArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+    <path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#334155" stroke-width="1.3"/>
+  </marker>
+</defs>
+<text x="940.0" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#000000">Smart E-Mobility Hub — UML 2 Component Diagram (Actual Implementation)</text>
+<path d="M 120,48 L 255,48 L 263,70 L 1140,70 L 1140,152 L 120,152 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+<line x1="120" y1="70" x2="263" y2="70" stroke="#64748B" stroke-width="1.5"/>
+<text x="128" y="63" font-size="11" font-weight="700" fill="#000000">Client Applications</text>
+<path d="M 1210,270 L 1400,270 L 1408,292 L 1830,292 L 1830,380 L 1210,380 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+<line x1="1210" y1="292" x2="1408" y2="292" stroke="#64748B" stroke-width="1.5"/>
+<text x="1218" y="285" font-size="11" font-weight="700" fill="#000000">External Geo &amp; Map Services</text>
+<rect x="40" y="260" width="1130" height="580" rx="4" ry="4" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+<rect x="1148" y="266" width="15" height="10" fill="#FFFFFF" stroke="#64748B" stroke-width="1"/>
+<rect x="1146" y="268" width="4" height="2" fill="#FFFFFF" stroke="#64748B" stroke-width="1"/>
+<rect x="1146" y="272" width="4" height="2" fill="#FFFFFF" stroke="#64748B" stroke-width="1"/>
+<text x="605.0" y="278" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">Smart E-Mobility Hub Backend</text>
+<text x="605.0" y="292" text-anchor="middle" font-size="11" font-weight="700" fill="#000000">&lt;&lt;Node.js / Express 5 Modular Monolith&gt;&gt;</text>
+<path d="M 70,410 L 180,410 L 188,432 L 1140,432 L 1140,640 L 70,640 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+<line x1="70" y1="432" x2="188" y2="432" stroke="#64748B" stroke-width="1.5"/>
+<text x="78" y="425" font-size="11" font-weight="700" fill="#000000">Core Modules</text>
+<path d="M 70,670 L 280,670 L 288,692 L 1140,692 L 1140,815 L 70,815 Z" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5"/>
+<line x1="70" y1="692" x2="288" y2="692" stroke="#64748B" stroke-width="1.5"/>
+<text x="78" y="685" font-size="11" font-weight="700" fill="#000000">Infrastructure &amp; Demo Adapters</text>
+<rect x="265" y="128" width="185" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="430" y="133" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="428" y="135" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="428" y="139" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="350.5" y="153.0" text-anchor="middle" font-size="11" fill="#000000">Static Design Viewer</text>
+<text x="350.5" y="167.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;mockup, in-memory&gt;&gt;</text>
+<rect x="485" y="128" width="235" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="700" y="133" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="698" y="135" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="698" y="139" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="595.5" y="153.0" text-anchor="middle" font-size="11" fill="#000000">Operator Web / Mobile Console</text>
+<text x="595.5" y="167.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;HTML5 / JS / MapLibre GL&gt;&gt;</text>
+<rect x="755" y="128" width="175" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="910" y="133" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="908" y="135" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="908" y="139" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="835.5" y="153.0" text-anchor="middle" font-size="11" fill="#000000">Flutter Mobile App</text>
+<text x="835.5" y="167.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;Dart / Flutter&gt;&gt;</text>
+<rect x="965" y="128" width="225" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="1170" y="133" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="1168" y="135" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="1168" y="139" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="1070.5" y="153.0" text-anchor="middle" font-size="11" fill="#000000">Android User App</text>
+<text x="1070.5" y="167.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;Kotlin / Jetpack Compose&gt;&gt;</text>
+<rect x="2440" y="576" width="185" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="2605" y="581" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="2603" y="583" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="2603" y="587" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="2525.5" y="601.0" text-anchor="middle" font-size="11" fill="#000000">OpenFreeMap Tiles</text>
+<text x="2525.5" y="615.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;tiles.openfreemap.org&gt;&gt;</text>
+<rect x="2645" y="576" width="175" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="2800" y="581" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="2798" y="583" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="2798" y="587" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="2725.5" y="601.0" text-anchor="middle" font-size="11" fill="#000000">Photon Geocoding</text>
+<text x="2725.5" y="615.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;photon.komoot.io&gt;&gt;</text>
+<rect x="2840" y="576" width="185" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="3005" y="581" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="3003" y="583" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="3003" y="587" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="2925.5" y="601.0" text-anchor="middle" font-size="11" fill="#000000">OSRM Routing</text>
+<text x="2925.5" y="615.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;router.project-osrm.org&gt;&gt;</text>
+<rect x="70" y="325" width="250" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="300" y="330" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="298" y="332" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="298" y="336" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="188.0" y="350.0" text-anchor="middle" font-size="11" fill="#000000">Express API &amp; Auth Shell</text>
+<text x="188.0" y="364.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;in-memory sessions, CSRF, timers&gt;&gt;</text>
+<rect x="100" y="505" width="230" height="58" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="310" y="510" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="308" y="512" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="308" y="516" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="208.0" y="531.0" text-anchor="middle" font-size="11" fill="#000000">Operations Module</text>
+<text x="208.0" y="545.0" text-anchor="middle" font-size="11" fill="#000000">(UC08–UC11A)</text>
+<rect x="480" y="505" width="250" height="58" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="710" y="510" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="708" y="512" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="708" y="516" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="598.0" y="531.0" text-anchor="middle" font-size="11" fill="#000000">Mobility &amp; Simulation Module</text>
+<text x="598.0" y="545.0" text-anchor="middle" font-size="11" fill="#000000">(UC01–UC05, UC13–UC14)</text>
+<rect x="860" y="505" width="250" height="58" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="1090" y="510" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="1088" y="512" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="1088" y="516" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="978.0" y="531.0" text-anchor="middle" font-size="11" fill="#000000">Parking &amp; Charging Module</text>
+<text x="978.0" y="545.0" text-anchor="middle" font-size="11" fill="#000000">(UC06–UC07A, UC12)</text>
+<rect x="215" y="742" width="220" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="415" y="747" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="413" y="749" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="413" y="753" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="318.0" y="767.0" text-anchor="middle" font-size="11" fill="#000000">SQLiteClient</text>
+<text x="318.0" y="781.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;transaction / driver adapter&gt;&gt;</text>
+<rect x="505" y="742" width="200" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="685" y="747" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="683" y="749" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="683" y="753" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="598.0" y="767.0" text-anchor="middle" font-size="11" fill="#000000">SimulatedDock</text>
+<text x="598.0" y="781.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;demo adapter, opt-in&gt;&gt;</text>
+<rect x="880" y="742" width="210" height="56" rx="3" ry="3" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="1070" y="747" width="15" height="10" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="1068" y="749" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<rect x="1068" y="753" width="4" height="2" fill="#F8FAFC" stroke="#334155" stroke-width="1"/>
+<text x="978.0" y="767.0" text-anchor="middle" font-size="11" fill="#000000">SimulatedDeviceAdapter</text>
+<text x="978.0" y="781.0" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;demo adapter&gt;&gt;</text>
+<path d="M 230,945 C 230,935 430,935 430,945 L 430,990 C 430,1000 230,1000 230,990 Z" fill="#F1F1F1" stroke="#181818" stroke-width="1"/>
+<path d="M 230,945 C 230,955 430,955 430,945" fill="none" stroke="#181818" stroke-width="1"/>
+<text x="330.0" y="969" text-anchor="middle" font-size="11" fill="#000000">SQLite Database</text>
+<text x="330.0" y="983" text-anchor="middle" font-size="11" fill="#000000">&lt;&lt;WAL mode, schema v12&gt;&gt;</text>
+<path d="M 1210,420 L 1558,420 L 1570,432 L 1570,488 L 1210,488 Z" fill="#FEFFDD" stroke="#181818" stroke-width="0.8"/>
+<path d="M 1558,420 L 1558,432 L 1570,432" fill="none" stroke="#181818" stroke-width="0.8"/>
+<text x="1218" y="438" font-size="11" fill="#000000">Composition root (app/src/app.js) wires</text>
+<text x="1218" y="452" font-size="11" fill="#000000">all 3 modules, applies session/CSRF middleware</text>
+<text x="1218" y="466" font-size="11" fill="#000000">to /api/v1/*, and runs 30s expiry timers (demo-server.js).</text>
+<path d="M 1210,520 L 1558,520 L 1570,532 L 1570,588 L 1210,588 Z" fill="#FEFFDD" stroke="#181818" stroke-width="0.8"/>
+<path d="M 1558,520 L 1558,532 L 1570,532" fill="none" stroke="#181818" stroke-width="0.8"/>
+<text x="1218" y="538" font-size="11" fill="#000000">activateAllocation() &amp; confirmUnplug()</text>
+<text x="1218" y="552" font-size="11" fill="#000000">exist at service level without HTTP routes.</text>
+<text x="1218" y="566" font-size="11" fill="#000000">Notification &amp; isolationVerifier ports are unimplemented.</text>
+<polyline points="320.0,253.0 320.0,208.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="660.0,253.0 660.0,208.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="357.5,184.0 357.0,175.0 305.0,175.0 308.5,187.5" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(310.9,196.1) rotate(74.4)"/>
+<polyline points="543.8,184.0 544.0,175.0 340.0,175.0 333.6,188.3" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(329.7,196.4) rotate(115.6)"/>
+<polyline points="626.0,184.0 626.0,175.0 655.0,175.0 655.0,179.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(655.2,188.0) rotate(89.3)"/>
+<polyline points="842.5,184.0 842.0,175.0 660.0,175.0 660.0,179.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(660.0,188.0) rotate(90.0)"/>
+<polyline points="1010.0,184.0 1010.0,175.0 670.0,175.0 668.6,179.6" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(666.0,188.2) rotate(107.0)"/>
+<polyline points="2532.5,576.0 1322.0,218.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="2732.5,576.0 1522.0,218.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="2932.5,576.0 1722.0,218.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="684.8,184.0 685.0,165.0 1317.0,165.0 1317.1,189.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(1317.2,198.0) rotate(89.7)"/>
+<polyline points="1077.5,184.0 1077.0,175.0 1327.0,175.0 1326.9,189.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(1326.8,198.0) rotate(90.4)"/>
+<polyline points="1122.5,184.0 1122.0,158.0 1522.0,158.0 1522.0,189.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(1522.0,198.0) rotate(90.0)"/>
+<polyline points="1167.5,184.0 1167.0,146.0 1722.0,146.0 1722.0,189.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(1722.0,198.0) rotate(90.0)"/>
+<polyline points="320.0,353.0 387.0,353.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="215.0,505.0 215.0,473.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="605.0,505.0 605.0,473.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="985.0,505.0 985.0,473.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="320.0,267.0 320.0,300.0 195.0,300.0 195.0,325.0" fill="none" stroke="#334155" stroke-width="1" marker-end="url(#openArrow)"/>
+<rect x="227.5" y="292.0" width="60" height="14" fill="#FFFFFF" opacity="0.85"/>
+<text x="257.5" y="303.0" text-anchor="middle" font-size="10" fill="#000000">&lt;&lt;delegate&gt;&gt;</text>
+<polyline points="655.8,267.0 655.0,305.0 395.0,305.0 395.0,345.0" fill="none" stroke="#334155" stroke-width="1" marker-end="url(#openArrow)"/>
+<rect x="495.0" y="297.0" width="60" height="14" fill="#FFFFFF" opacity="0.85"/>
+<text x="525.0" y="308.0" text-anchor="middle" font-size="10" fill="#000000">&lt;&lt;delegate&gt;&gt;</text>
+<polyline points="658.6,267.0 658.0,395.0 215.0,395.0 215.0,457.0" fill="none" stroke="#334155" stroke-width="1" marker-end="url(#openArrow)"/>
+<rect x="406.5" y="387.0" width="60" height="14" fill="#FFFFFF" opacity="0.85"/>
+<text x="436.5" y="398.0" text-anchor="middle" font-size="10" fill="#000000">&lt;&lt;delegate&gt;&gt;</text>
+<polyline points="661.4,267.0 662.0,415.0 605.0,415.0 605.0,457.0" fill="none" stroke="#334155" stroke-width="1" marker-end="url(#openArrow)"/>
+<rect x="603.5" y="407.0" width="60" height="14" fill="#FFFFFF" opacity="0.85"/>
+<text x="633.5" y="418.0" text-anchor="middle" font-size="10" fill="#000000">&lt;&lt;delegate&gt;&gt;</text>
+<polyline points="664.2,267.0 666.0,395.0 985.0,395.0 985.0,457.0" fill="none" stroke="#334155" stroke-width="1" marker-end="url(#openArrow)"/>
+<rect x="795.5" y="387.0" width="60" height="14" fill="#FFFFFF" opacity="0.85"/>
+<text x="825.5" y="398.0" text-anchor="middle" font-size="10" fill="#000000">&lt;&lt;delegate&gt;&gt;</text>
+<polyline points="480.0,525.3 413.0,515.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="330.0,525.3 384.2,517.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(393.0,515.6) rotate(-8.7)"/>
+<polyline points="295.5,563.0 295.0,605.0 397.0,605.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="517.5,563.0 517.0,605.0 426.0,605.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(417.0,605.0) rotate(180.0)"/>
+<polyline points="885.0,563.0 885.0,628.0 405.0,628.0 405.0,626.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(405.0,617.0) rotate(-90.0)"/>
+<polyline points="249.5,563.0 250.0,640.0 760.0,640.0 760.0,605.0 787.0,605.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="922.5,563.0 922.0,605.0 816.0,605.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(807.0,605.0) rotate(180.0)"/>
+<polyline points="860.0,525.3 803.0,515.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="330.0,545.6 330.0,545.0 330.0,485.0 760.0,485.0 760.0,515.0 774.0,515.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(783.0,515.0) rotate(0.0)"/>
+<polyline points="325.0,742.0 320.0,720.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="169.0,563.0 169.0,680.0 315.0,680.0 315.1,691.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(315.2,700.0) rotate(89.5)"/>
+<polyline points="567.5,563.0 567.0,670.0 320.0,670.0 320.0,691.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(320.0,700.0) rotate(90.0)"/>
+<polyline points="985.0,563.0 985.0,660.0 325.0,660.0 324.9,691.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(324.8,700.0) rotate(90.3)"/>
+<polyline points="605.0,742.0 605.0,720.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="605.0,563.0 605.0,691.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(605.0,700.0) rotate(90.0)"/>
+<polyline points="505.0,770.0 470.0,770.0 470.0,648.0 405.0,648.0 405.0,626.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(405.0,617.0) rotate(-90.0)"/>
+<polyline points="985.0,742.0 985.0,720.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="1047.5,563.0 1047.0,680.0 985.0,680.0 985.0,691.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(985.0,700.0) rotate(90.0)"/>
+<polyline points="325.0,798.0 330.0,833.0" fill="none" stroke="#334155" stroke-width="1" marker-end="url(#openArrow)"/>
+<rect x="297.5" y="807.5" width="60" height="14" fill="#FFFFFF" opacity="0.85"/>
+<text x="327.5" y="818.5" text-anchor="middle" font-size="10" fill="#000000">&lt;&lt;delegate&gt;&gt;</text>
+<polyline points="330.0,935.0 330.0,903.0" fill="none" stroke="#334155" stroke-width="1"/>
+<polyline points="330.0,847.0 330.0,874.0" fill="none" stroke="#334155" stroke-width="1"/>
+<path d="M -9,-9 A 9,9 0 0,1 -9,9" fill="none" stroke="#334155" stroke-width="1.5" transform="translate(330.0,883.0) rotate(90.0)"/>
+<polyline points="320.0,353.0 1185.0,353.0 1185.0,454.0 1210.0,454.0" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="5,5"/>
+<polyline points="1110.0,534.0 1210.0,554.0" fill="none" stroke="#334155" stroke-width="1" stroke-dasharray="5,5"/>
+<circle cx="320" cy="200" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="320" y="187" text-anchor="middle" font-size="11" fill="#000000">IStaticAssets (/)</text>
+<circle cx="660" cy="200" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="660" y="187" text-anchor="middle" font-size="11" fill="#000000">IHubRestAPI (/api/v1)</text>
+<circle cx="1322" cy="210" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="1322" y="197" text-anchor="middle" font-size="11" fill="#000000">IOpenFreeMapTiles</text>
+<circle cx="1522" cy="210" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="1522" y="197" text-anchor="middle" font-size="11" fill="#000000">IPhotonGeocoding</text>
+<circle cx="1722" cy="210" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="1722" y="197" text-anchor="middle" font-size="11" fill="#000000">IOSRMRouting</text>
+<rect x="313" y="253" width="14" height="14" fill="#F1F1F1" stroke="#181818" stroke-width="1.5"/>
+<text x="320.0" y="281" text-anchor="middle" font-size="11" fill="#000000">/ (static)</text>
+<rect x="653" y="253" width="14" height="14" fill="#F1F1F1" stroke="#181818" stroke-width="1.5"/>
+<text x="660.0" y="281" text-anchor="middle" font-size="11" fill="#000000">/api/v1</text>
+<rect x="323" y="833" width="14" height="14" fill="#F1F1F1" stroke="#181818" stroke-width="1.5"/>
+<text x="330.0" y="827" text-anchor="middle" font-size="11" fill="#000000">SQLite</text>
+<circle cx="395" cy="353" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="395" y="373" text-anchor="middle" font-size="11" fill="#000000">ISessionAuthAPI</text>
+<circle cx="215" cy="465" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="215" y="452" text-anchor="middle" font-size="11" fill="#000000">IOperationsHTTP</text>
+<circle cx="605" cy="465" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="605" y="452" text-anchor="middle" font-size="11" fill="#000000">IMobilitySimulationHTTP</text>
+<circle cx="985" cy="465" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="985" y="452" text-anchor="middle" font-size="11" fill="#000000">IParkingChargingHTTP</text>
+<circle cx="405" cy="515" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="405" y="502" text-anchor="middle" font-size="11" fill="#000000">ITripReader</text>
+<circle cx="405" cy="605" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="405" y="625" text-anchor="middle" font-size="11" fill="#000000">InventoryInterface</text>
+<circle cx="795" cy="605" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="795" y="625" text-anchor="middle" font-size="11" fill="#000000">IIncidentReporter</text>
+<circle cx="795" cy="515" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="795" y="502" text-anchor="middle" font-size="11" fill="#000000">IChargingGuard</text>
+<circle cx="320" cy="712" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="320" y="699" text-anchor="middle" font-size="11" fill="#000000">ISQLiteClient</text>
+<circle cx="605" cy="712" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="605" y="699" text-anchor="middle" font-size="11" fill="#000000">IMobilityDeviceAdapter</text>
+<circle cx="985" cy="712" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="985" y="699" text-anchor="middle" font-size="11" fill="#000000">IParkingChargingDeviceAdapter</text>
+<circle cx="330" cy="895" r="8" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.5"/>
+<text x="330" y="915" text-anchor="middle" font-size="11" fill="#000000">ISQLiteDatabase (DatabaseSync)</text>
+</svg>
