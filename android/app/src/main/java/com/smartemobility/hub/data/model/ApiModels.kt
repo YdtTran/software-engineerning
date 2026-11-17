@@ -37,7 +37,13 @@ object HubGeoCatalog {
         "metro" to HubCoordinates(10.8794, 106.8091, isIllustrativeFallback = true),
         "bku" to HubCoordinates(10.8805, 106.8053, isIllustrativeFallback = true),
         "dorm-a" to HubCoordinates(10.8781, 106.8065, isIllustrativeFallback = true),
-        "library" to HubCoordinates(10.8758, 106.8017, isIllustrativeFallback = true)
+        "library" to HubCoordinates(10.8758, 106.8017, isIllustrativeFallback = true),
+        "demo-dorm-b" to HubCoordinates(10.8748, 106.7992, isIllustrativeFallback = true),
+        "demo-hcmus" to HubCoordinates(10.8784, 106.8017, isIllustrativeFallback = true),
+        "demo-hcmussh" to HubCoordinates(10.8804, 106.8031, isIllustrativeFallback = true),
+        "demo-uit" to HubCoordinates(10.8706, 106.8021, isIllustrativeFallback = true),
+        "demo-iu" to HubCoordinates(10.8805, 106.8081, isIllustrativeFallback = true),
+        "demo-uel" to HubCoordinates(10.8821, 106.8112, isIllustrativeFallback = true)
     )
 
     val defaultCenter = HubCoordinates(10.8781, 106.8065, isIllustrativeFallback = true)

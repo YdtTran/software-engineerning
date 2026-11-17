@@ -30,6 +30,8 @@ test('reconnect APIs preserve identity and ownership while serving only frontend
   assert.equal((await get(`/hubs/bku/return-slots?tripId=${trip.id}`, other)).status, 403);
   const slots = (await (await get(`/hubs/bku/return-slots?tripId=${trip.id}`)).json()).data;
   assert.ok(slots.some(slot => slot.id === 'bku-A01'));
+  assert.equal((await fetch(origin + '/user-app.html')).status, 404);
+  assert.equal((await fetch(origin + '/', { redirect: 'manual' })).headers.get('location'), '/operator-web.html');
   assert.equal((await fetch(origin + '/live.html')).status, 200);
   assert.equal((await fetch(origin + '/live.js')).status, 200);
   assert.equal((await fetch(origin + '/db/.local/hub.sqlite')).status, 404);

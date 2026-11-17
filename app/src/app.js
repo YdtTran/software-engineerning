@@ -120,11 +120,12 @@ function createApp({
   app.use('/api/v1', operations.router);
   app.use('/api/v1', mobility.router);
   app.use('/api/v1', parkingCharging.router);
-  app.get('/', (req, res) => res.redirect('/user-app.html'));
-  app.get(['/user-app.html', '/operator-app.html', '/operator-web.html'], (req, res) => {
+  app.get('/', (req, res) => res.redirect('/operator-web.html'));
+  app.get(['/operator-app.html', '/operator-web.html'], (req, res) => {
     const experience = path.basename(req.path, '.html');
     return res.redirect('/live.html?experience=' + experience);
   });
+  app.use('/vendor/maplibre', express.static(path.dirname(require.resolve('maplibre-gl/package.json')) + '/dist', { index: false, dotfiles: 'deny' }));
   app.use(express.static(path.resolve(__dirname, '../prototype'), { index: false, dotfiles: 'deny' }));
   app.use((req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found.', details: {} } }));
   app.use((err, req, res, next) => {

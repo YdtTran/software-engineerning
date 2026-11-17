@@ -69,8 +69,12 @@ def compact_projection(classes, selection):
 
 def check_lifelines(catalog=CATALOG, sequence=None):
     if sequence is None:
-        sequence = (ROOT / 'docs/diagrams/02_Sequence_Diagram/PLANTUML_SEQUENCE.md').read_text(encoding='utf-8')
-    names = set(re.findall(r'^(?:actor|participant) "([^"\n]+)"', sequence, re.M))
+        files = sorted((ROOT / 'docs/diagrams/02_Sequence_Diagram/drawio').glob('SQ*.drawio'))
+        assert len(files) == 7, 'Expected seven editable sequence diagrams'
+        names = {cell.get('value') for file in files for cell in ET.parse(file).iter('mxCell')
+                 if re.fullmatch(r'header_\d+', cell.get('id', ''))}
+    else:
+        names = set(re.findall(r'^(?:actor|participant) "([^"\n]+)"', sequence, re.M))
     assert names, 'No sequence lifelines found'
     for name in names:
         assert f'| {name} |' in catalog, ('Unmapped current lifeline', name)

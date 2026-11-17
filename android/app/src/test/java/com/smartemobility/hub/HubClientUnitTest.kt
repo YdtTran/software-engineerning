@@ -72,6 +72,14 @@ class HubClientUnitTest {
     }
 
     @Test
+    fun demoHubsUseDistinctIllustrativePositions() {
+        val ids = listOf("demo-dorm-b", "demo-hcmus", "demo-hcmussh", "demo-uit", "demo-iu", "demo-uel")
+        val locations = ids.map { HubGeoCatalog.resolve(HubDto(id = it, name = it)) }
+        assertTrue(locations.all { it.isIllustrativeFallback && it != HubGeoCatalog.defaultCenter })
+        assertEquals(ids.size, locations.map { it.lat to it.lng }.distinct().size)
+    }
+
+    @Test
     fun normalizeBaseUrlAddsDefaultSchemeAndStripsTrailingSlash() {
         assertEquals("http://10.0.2.2:3000", HubApiClient.normalizeBaseUrl("10.0.2.2:3000/"))
         assertEquals("https://hub.example.com", HubApiClient.normalizeBaseUrl("https://hub.example.com///"))

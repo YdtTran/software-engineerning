@@ -1,6 +1,6 @@
 # Smart E-Mobility Hub demo
 
-One Express application serves Operations, Mobility/Simulation (UC01–05, UC08–11A, UC13–14), Parking & Charging (UC06, UC07, UC07A, UC12), the User mobile interface, and Operator desktop/mobile interfaces. See the [Vietnamese demo walkthrough](../docs/architecture/MINH_DEMO_GUIDE.md) for setup and workflows.
+One Express application serves Operations, Mobility/Simulation (UC01–05, UC08–11A, UC13–14), Parking & Charging (UC06, UC07, UC07A, UC12), the Android User app, and Operator desktop/mobile interfaces. See the [Vietnamese demo walkthrough](../docs/architecture/MINH_DEMO_GUIDE.md) for setup and workflows.
 
 ## Run on Windows
 
@@ -28,12 +28,14 @@ Open these entry points at `http://127.0.0.1:3000`:
 
 | Path | Experience |
 |---|---|
-| `/user-app.html` | User mobile layout: find/reserve/pickup/return, own history and trip incidents |
+| [`android/`](../android/README.md) | Native Android User app |
 | `/operator-app.html` | Operator mobile layout: live UC08 overview, simulations and transfer recommendations |
 | `/operator-web.html` | Operator desktop dashboard: live network overview, resource administration, inter-hub transfers, incidents/maintenance, smart charging schedule, and what-if simulations |
 | `/index.html` | Original offline design viewer; mock behavior remains separate |
 
-The live User, Operator mobile, and Operator web shells reuse the visual language of the offline mockup (navy/cyan palette, mobile header and bottom navigation, desktop sidebar, cards and status colors). Their state is not copied from `app.js`: `live.js` reads authenticated API data, while `index.html` remains a presentation-only design viewer with in-memory examples.
+The live Operator mobile and Operator web shells reuse the visual language of the offline mockup (navy/cyan palette, mobile header and bottom navigation, desktop sidebar, cards and status colors). Their state is not copied from `app.js`: `live.js` reads authenticated API data, while `index.html` remains a presentation-only design viewer with in-memory examples.
+
+The operator overview uses MapLibre GL JS and the Android app's OpenFreeMap Bright style. Map tiles require internet access. Hub locations come from the API where available; the known demo hubs otherwise use the Android app's illustrative fallback coordinates, and hubs without either are omitted from the map. The hub status table remains available if the map cannot load.
 
 The demo binds to `127.0.0.1`; use browser mobile emulation for a PC-only demonstration. `DEMO_PORT` changes the port. Phone-over-Wi-Fi deployment and HTTPS configuration are not included in this local launcher.
 
@@ -48,6 +50,8 @@ The current database version is 12: upstream `0008` records incident-isolation v
 Device simulation is opt-in (`DEMO_SIMULATED_DEVICES=1` for Mobility dock actions; Parking & Charging uses `SimulatedDeviceAdapter` by default unless injected). Without a trusted Mobility device adapter, pickup/return fails closed. The demo confirms arrival/lock without actual IoT hardware and leaves distance null without a measured odometer. Uncertain commands preserve claims for trusted reconciliation. Background jobs scan overdue vehicle and parking reservations every 30 seconds; automatic external notification delivery is not implemented.
 
 Mobility supplies the trusted trip reader for UC11A. Simulation uses a consistent, immutable network snapshot and never applies recommendations automatically. Reviewed transfer recommendations call the normal Operations API, which rechecks current resources and creates a Planned transfer. Parking & Charging APIs (`UC06`, `UC07`, `UC07A`, `UC12`) and `chargingGuard` (`SC02`) are wired into `app/src/app.js` alongside Operations and Mobility; real hardware/isolation verification (`isolationVerifier`) still requires a production provider, while `/operator-web.html` provides live desktop workflows for network monitoring, resource administration, inter-hub transfers, incidents/maintenance, smart charging schedules, and what-if simulations.
+
+The charging HTTP routes support request submission/cancellation, scheduling/allocation and stopping an existing session. Activation and unplug confirmation are currently service-level operations with tests, without public routes; allocation alone leaves the point Reserved and does not start charging. See [API contracts](../docs/architecture/API_CONTRACTS.md) for this boundary.
 
 ## Verify
 

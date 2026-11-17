@@ -70,7 +70,7 @@
         "Normal Flow (Steps 1..n)": "1. Chọn phiên. 2. Kiểm tra quyền và trạng thái mới nhất. 3. Xác nhận dừng, gửi lệnh ngắt nguồn. 4. Nhận xác nhận ngắt điện. 5. Ghi giờ dừng, đóng phiên/yêu cầu và giải phóng phân bổ nguyên tử. 6. Thông báo, gọi scheduler phục vụ xe kế tiếp.",
         "Alternative Flows": "Đạt mục tiêu hoặc ngưỡng 80% khi có xe chờ gấp: scheduler dừng theo BR09. Ngắt do lỗi: giữ phiên Interrupted, yêu cầu trở về Queued và kích hoạt UC11/UC12; không coi là người dùng hủy.",
         "Exceptions": "Không xác nhận ngắt điện: không báo thành công, giữ cổng không khả dụng và tạo sự cố. Thử lại lệnh tối đa 3 lần với cùng mã giao dịch, sau đó chuyển Operator xử lý.",
-        "Notes and Issues": "Phân biệt dừng chủ động (không tự xếp hàng lại) với gián đoạn kỹ thuật (xếp lại). Cổng Fault vẫn bị cách ly dù phân bổ công suất đã trả. Back/Close trước gửi lệnh không thay đổi phiên."
+        "Notes and Issues": "Phân biệt dừng chủ động (không tự xếp hàng lại) với gián đoạn kỹ thuật (xếp lại). Cổng Fault vẫn bị cách ly dù phân bổ công suất đã trả. Back/Close trước gửi lệnh không thay đổi phiên. Bước gọi scheduler là yêu cầu mục tiêu; service demo hiện không tự gọi scheduler sau `stopSession`. Phương thức xác nhận tháo cổng có trong service nhưng chưa có route công khai."
       }
     },
     {
@@ -85,8 +85,8 @@
         "Preconditions": "Lệnh InTransit; danh sách xe và chỗ đích được giữ theo lệnh; tài khoản Operator hợp lệ.",
         "Postconditions": "Lệnh Completed; xe tới đúng Hub/slot; slot đích Occupied; bỏ giữ chỗ điều chuyển. Xe chỉ Available nếu không còn sự cố hoặc nhu cầu sạc.",
         "Normal Flow (Steps 1..n)": "1. Mở lệnh. 2. Đối chiếu từng mã xe với danh sách. 3. Xác nhận đủ xe thực tế tới và các slot đích còn hợp lệ. 4. Cập nhật xe, slot và lệnh nguyên tử. 5. Cập nhật dashboard và lưu kết quả.",
-        "Alternative Flows": "Slot đích không dùng được: Operator chọn chỗ/Hub thay thế, kiểm tra và chuyển giữ chỗ nguyên tử trước khi xác nhận đến.",
-        "Exceptions": "Thiếu/sai xe: không hoàn tất cả lô, giữ InTransit và chuyển xử lý sự cố. Không giải phóng giữ chỗ đang cần cho xe chưa tới. Gửi lặp trả lại kết quả Completed đã ghi.",
+        "Alternative Flows": "Slot đích không dùng được: Operator chọn chỗ/Hub thay thế; hệ thống kiểm tra, chuyển giữ chỗ và xác nhận đến trong cùng giao dịch.",
+        "Exceptions": "Thiếu/sai xe: không hoàn tất cả lô, giữ InTransit và chuyển xử lý sự cố. Không giải phóng giữ chỗ đang cần cho xe chưa tới. Thử lại cùng Idempotency-Key và payload trả lại kết quả Completed đã ghi; lệnh mới sau Completed bị từ chối.",
         "Notes and Issues": "MVP hoàn tất theo cả lệnh; không hỗ trợ hoàn tất một phần. Điều kiện pin ≥80% áp dụng lúc chọn/xuất xe, không từ chối ghi nhận xe đã tới chỉ vì pin giảm trong vận chuyển. Back/Close không hoàn tất lệnh."
       }
     },
@@ -102,7 +102,7 @@
         "Preconditions": "Quyền Operator; lệnh Planned và xe vẫn ở Hub nguồn.",
         "Postconditions": "Lệnh Cancelled; bỏ giữ xe và giữ sức chứa đích của lệnh; xe lỗi vẫn không khả dụng; lịch sử lệnh được giữ.",
         "Normal Flow (Steps 1..n)": "1. Chọn lệnh. 2. Kiểm tra trạng thái Planned mới nhất. 3. Xác nhận hủy và lý do. 4. Đổi trạng thái và giải phóng đúng các giữ chỗ nguyên tử. 5. Cập nhật hai Hub và thông báo.",
-        "Alternative Flows": "Lệnh đã Cancelled: trả lại kết quả cũ, không giải phóng lần hai. Back/Close hộp xác nhận: giữ Planned.",
+        "Alternative Flows": "Thử lại cùng Idempotency-Key và payload trả kết quả cũ, không giải phóng lần hai; lệnh mới cho phiếu đã Cancelled bị từ chối. Back/Close hộp xác nhận: giữ Planned.",
         "Exceptions": "Xe đã xuất phát hoặc lệnh Completed: từ chối hủy. Nếu cần đổi đích khi InTransit, xử lý theo ngoại lệ UC10A, không đưa xe về Available tại Hub nguồn.",
         "Notes and Issues": "Hủy và xác nhận xuất phát tranh chấp cùng trạng thái Planned; chỉ một thao tác được commit."
       }
