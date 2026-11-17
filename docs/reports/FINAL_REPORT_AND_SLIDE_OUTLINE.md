@@ -99,21 +99,25 @@ Theo yêu cầu của giảng viên (`docs/references/04_BTL_SoftwareEngineering
 ### Chương 4: Hiện thực MVP, Kiểm thử và Trình diễn Hệ thống
 - **File LaTeX:** `docs/reports/final-report/sections/04_mvp_testing_demo.tex`
 - **Các mục chính (chuẩn Slide `Ch8`, `Ch9` & PDF trang 5):**
-  1. **Cấu trúc 3 Module Backend và Tích hợp:**
-     - `mobility-simulation`: Tìm Hub, đặt/nhận/trả xe (UC01–05) & bộ máy mô phỏng 5 kịch bản What-if trên *immutable snapshot* (UC13–14).
-     - `parking-charging`: Đặt chỗ đỗ xe cá nhân, check-in/out, lập lịch & phiên sạc thông minh (UC06, UC07, UC12 — bổ sung ở PR #16 với Migration `0012`).
-     - `operations`: Quản lý tài nguyên, giám sát KPI/cảnh báo, điều phối chuyển xe & xử lý sự cố (UC08–11), cung cấp `InventoryInterface`.
+  1. **Cấu trúc 3 Module Backend và Ứng dụng Client (Web & Android):**
+     - `app/src/modules/mobility-simulation`: Tìm Hub, đặt/nhận/trả xe (UC01–05) & bộ máy mô phỏng 5 kịch bản What-if trên *immutable snapshot* (UC13–14).
+     - `app/src/modules/parking-charging`: Đặt chỗ đỗ xe cá nhân, check-in/out, lập lịch & phiên sạc thông minh (UC06, UC07, UC12 — PR #16, Migration `0012`).
+     - `app/src/modules/operations`: Quản lý tài nguyên, giám sát KPI/cảnh báo, điều phối chuyển xe & xử lý sự cố (UC08–11), cung cấp `InventoryInterface`.
+     - **Native Android User App (`android/` — PR #17):** Kotlin + Jetpack Compose + MapLibre/OpenFreeMap + chỉ đường OSRM + quét QR nhận xe (CameraX/ZXing), phục vụ đầy đủ luồng Người dùng (`UC01–UC07A, UC11A`).
+     - **Operator Live Dashboard (`app/prototype/live.html`, `live.js` — PR #18):** Giao diện quản trị trực tiếp nối API backend cho toàn bộ luồng Operator (`UC08–UC14`).
   2. **Kiểm thử Phần mềm và Kịch bản Kiểm thử (`Test Cases` – `Bonus`):**
-     - Phân tầng theo `Ch9`: *Unit*, *Component/Integration*, *Concurrency* và *Migration* testing trên **31 file kiểm thử (183 test cases)**: Core (5 file / 10 tests), Mobility-Simulation (8 file / 27 tests), Operations (12 file / 121 tests), Parking-Charging (6 file / 25 tests).
-     - *Lưu ý đối chiếu:* `docs/audits/post-merge/EXECUTIVE_SUMMARY.md` phản ánh snapshot tại commit `ac21515` (25 file / 144 pass trước PR #16); khi xuất bản PDF cuối kỳ cần chạy lại `npm test --prefix app` (sau `npm install`) để ghi nhận số pass mới nhất.
+     - Phân tầng theo `Ch9`: *Unit*, *Component/Integration*, *Concurrency*, *Migration* và *E2E Playwright* trên **32 file kiểm thử (185 test cases)** trong `app/src/`: Core (6 file / 12 tests — gồm `dashboard-demo.test.js` & `live-browser.test.js`), Mobility-Simulation (8 file / 27 tests), Operations (12 file / 121 tests), Parking-Charging (6 file / 25 tests) + JVM unit tests cho Android (`android/gradlew testDebugUnitTest`).
+     - *Lưu ý đối chiếu:* `docs/audits/post-merge/EXECUTIVE_SUMMARY.md` phản ánh snapshot cũ tại commit `ac21515` (25 file / 144 pass trước PR #16, #17, #18); các thiếu sót cũ F-01 (`parking-charging`) và F-02 (`live.js` Operator UI) đã được khắc phục ở bản hiện tại. Khi xuất bản PDF cuối kỳ cần chạy lại `npm test --prefix app` (sau `npm install`) để ghi nhận số pass mới nhất.
   3. **Trình diễn Sản phẩm Mẫu (`Working Demonstration`):**
-     - Luồng Live Web App (`app/prototype/live.html`, `app/src/demo-server.js`): Mobility UC01–05, Báo sự cố UC11A, What-if Simulation UC13–14, Tạo lệnh điều phối UC10.
-     - Luồng Prototype Mockup (`app/prototype/index.html`): Trình diễn chuỗi 26 màn hình bao gồm các phân hệ quản trị mở rộng.
-     - **Ghi chú minh bạch:** Phân tách rõ phần đã chạy Live End-to-End và phần kiểm chứng qua Backend API + Test Suite / Mockup UI.
+     - **Luồng User trên Android App (`android/README.md`) & Web Live:** Tìm Hub trên bản đồ MapLibre, quét QR nhận xe, đặt đỗ & sạc xe cá nhân (`UC01–UC07A, UC11A`).
+     - **Luồng Operator trên Live Dashboard (`app/prototype/live.html`, `app/db/create-dashboard-demo.js`):** Giám sát `UC08`, quản trị tài nguyên `UC09`, điều chuyển `UC10/10A/10B`, xử lý sự cố `UC11`, lập lịch sạc `UC12`, What-if `UC13–14`.
+     - **Bộ Prototype Mockup (`app/prototype/index.html`):** Tham chiếu 26 màn hình thiết kế UI/UX chuẩn (`screens/`).
 - **File nguồn liên quan:**
   - `docs/slides/08_Ch8 Implementation_2025.pdf`, `docs/slides/09_Ch9 Software Testing_2025.pdf`
-  - `app/README.md`, `app/package.json`
+  - `android/README.md`, `android/app/build.gradle.kts`, `android/app/src/main/java/com/smartemobility/hub/`
+  - `app/README.md`, `app/package.json`, `app/db/create-dashboard-demo.js`
   - `app/src/app.js`, `app/src/demo-server.js`
+  - `app/src/tests/` (`dashboard-demo.test.js`, `live-browser.test.js`, `demo-auth.test.js`, `demo-server.test.js`, `database-initializer.test.js`, `reconnect-http.test.js`)
   - `app/src/modules/mobility-simulation/` (`README.md`, `index.js`, `tests/`)
   - `app/src/modules/operations/` (`README.md`, `index.js`, `tests/`)
   - `app/src/modules/parking-charging/` (`index.js`, `tests/`)
@@ -127,7 +131,7 @@ Theo yêu cầu của giảng viên (`docs/references/04_BTL_SoftwareEngineering
 
 ### Chương 5: Đánh giá, Bài học Kinh nghiệm và Hướng Phát triển
 - **File LaTeX:** `docs/reports/final-report/sections/05_evaluation_lessons.tex`
-- Đánh giá kết quả đạt được (SQLite ACID + 12 migrations, 31 file test / 183 test cases, Playwright check), hạn chế hiện tại & lộ trình hoàn thiện (`REMEDIATION_ROADMAP.md`), và *Bài học Kinh nghiệm (Lessons Learned)*.
+- Đánh giá kết quả đạt được (SQLite ACID + 12 migrations, 32 file test / 185 test cases, Playwright E2E, đầy đủ 14 Use Cases trên Android User App & Operator Live Dashboard), hạn chế hiện tại & hướng phát triển (tích hợp IoT thực tế OCPP/MQTT, OAuth2/JWT, Docker/CI-CD), và *Bài học Kinh nghiệm (Lessons Learned)*.
 - **File nguồn liên quan:**
   - `docs/audits/post-merge/REMEDIATION_ROADMAP.md`
   - `docs/audits/post-merge/ARCHITECTURE_CONSISTENCY.md`
@@ -162,9 +166,9 @@ Bộ slide trong `docs/reports/SLIDE_CNPM/main.tex` gồm **5 phần (`sections/
 | **6** | `sections/02_dynamic_ui.tex` | **Mô hình Động: Tương tác và Hành vi (Ch6)** | Chèn 1–2 sơ đồ đại diện sắc nét: *Interaction Models* (`SQ02`/`SQ05`), *Behavioral Models* (`AD01`/`AD05`, `SC01` – Bonus). | `docs/diagrams/02_Sequence_Diagram/`, `03_Activity_Diagram/`, `04_Statechart_Diagram/` |
 | **7** | `sections/03_architecture.tex` | **Kiến trúc 4+1 Views: Deployment và Development View** | Chèn `DP01`, `DV01`, `DV02`; giải thích *Modular Monolith* theo *Layered Architecture Pattern* (5 tầng) + *Repository Pattern*. | `docs/diagrams/deployment/DP01-deployment.drawio`, `DV01`, `DV02`, `docs/architecture/DECISION.md` |
 | **8** | `sections/03_architecture.tex` | **Mô hình Cấu trúc: Class Diagram và Cơ sở dữ liệu** | Chèn `Class Diagram` (19 lớp, 18 operations, 31 associations) + 12 SQLite Migrations (`0001–0012`), tách biệt Domain khỏi Infrastructure. | `docs/diagrams/05_Class_Diagram/smart_emobility_class_diagram.drawio`, `.agent/class-diagram/CLASS_CATALOG.md`, `app/db/migrations/` |
-| **9** | `sections/03_architecture.tex` | **Hiện thực 3 Module Backend và Bộ máy Mô phỏng What-if** | Ánh xạ 5 module thiết kế $\rightarrow$ 3 module code (`mobility-simulation`, `parking-charging`, `operations`) qua `InventoryInterface` & `tripReader`; 5 kịch bản What-if trên *immutable snapshot*. | `docs/architecture/operations-architecture.html`, `app/src/app.js`, `docs/architecture/API_CONTRACTS.md` |
-| **10** | `sections/04_testing_demo.tex` | **Kiểm thử Phần mềm và Bảo đảm Chất lượng (Test Cases -- Bonus)** | Kiểm thử đa tầng `Ch9` (Unit, Component/Integration, Concurrency, Migration) trên 31 bộ test (183 test cases); xác minh *single-winner*, *idempotent replay*, *rollback*. | `app/package.json`, `docs/audits/post-merge/EXECUTIVE_SUMMARY.md`, `TEST_COVERAGE_GAPS.md` |
-| **11** | `sections/04_testing_demo.tex` | **Trình diễn Sản phẩm Mẫu (Working Demonstration)** | Kịch bản demo ngắn gọn chuẩn xác: User Flow (`live.html`) $\rightarrow$ Operator What-if & Transfer (`UC10`) $\rightarrow$ Prototype 26 màn hình (`index.html`). | `app/src/demo-server.js`, `app/prototype/live.html`, `app/prototype/index.html`, `docs/architecture/MINH_DEMO_GUIDE.md` |
-| **12** | `sections/05_lessons_genai.tex` | **Bài học Kinh nghiệm (Lessons Learned) và Hướng Phát triển** | Bài học về chuẩn hóa API contracts, kiểm soát đồng thời ở tầng giao dịch, đồng bộ tài liệu–UML–code; hướng phát triển Live UI & OCPP/MQTT. | `docs/audits/post-merge/REMEDIATION_ROADMAP.md` |
+| **9** | `sections/03_architecture.tex` | **Hiện thực 3 Module Backend và Bộ máy Mô phỏng What-if** | Ánh xạ 5 module thiết kế $\rightarrow$ 3 module code (`mobility-simulation`, `parking-charging`, `operations`) qua `InventoryInterface` & `tripReader`, kết nối Android User App & Web Live Dashboard; 5 kịch bản What-if trên *immutable snapshot*. | `docs/architecture/operations-architecture.html`, `app/src/app.js`, `android/README.md` |
+| **10** | `sections/04_testing_demo.tex` | **Kiểm thử Phần mềm và Bảo đảm Chất lượng (Test Cases -- Bonus)** | Kiểm thử đa tầng `Ch9` (Unit, Component/Integration, Concurrency, Migration, Playwright E2E) trên 32 bộ test (185 test cases) + Android JVM unit tests; xác minh *single-winner*, *idempotent replay*, *rollback*. | `app/package.json`, `app/src/tests/`, `android/README.md`, `docs/audits/post-merge/` |
+| **11** | `sections/04_testing_demo.tex` | **Trình diễn Sản phẩm Mẫu (Working Demonstration)** | Android User App (`android/`: MapLibre, OSRM, QR pickup `UC01–07A, UC11A`) + Operator Live Dashboard (`live.html`: `UC08–UC14` đầy đủ). | `android/README.md`, `app/prototype/live.html`, `app/db/create-dashboard-demo.js`, `app/README.md` |
+| **12** | `sections/05_lessons_genai.tex` | **Bài học Kinh nghiệm (Lessons Learned) và Hướng Phát triển** | Bài học về chuẩn hóa API contracts, kiểm soát đồng thời ở tầng giao dịch, đồng bộ tài liệu–UML–code; hướng phát triển IoT thực tế (OCPP/MQTT), OAuth2/JWT, Docker/CI-CD. | `docs/audits/post-merge/REMEDIATION_ROADMAP.md` |
 | **13** | `sections/05_lessons_genai.tex` | **Khai báo Minh bạch Generative AI (Tools, Scope, Contribution)** | Tóm tắt công cụ AI, phạm vi hỗ trợ và phần nhóm tự phân tích, sửa lỗi logic, kiểm chứng kết quả. | `docs/requirements/PROJECT_SPECIFICATION.md` (§8), `04_BTL_SoftwareEngineering_HK261.pdf` (trang 5–6) |
 | **14** | `sections/05_lessons_genai.tex` | **Cảm ơn và Hỏi đáp (Q\&A)** | Lời cảm ơn và sẵn sàng trình diễn MVP / trả lời câu hỏi phản biện. | – |

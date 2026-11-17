@@ -182,7 +182,7 @@ flowchart LR
 - **Tác nhân:** `User`
 - **Mục tiêu:** Giúp người dùng tra cứu và lựa chọn Hub phù hợp nhất cho lộ trình di chuyển (từ Ga Metro về trường hoặc giữa các cơ sở).
 - **Quan hệ kỹ thuật:**
-  - `Filter by Vehicle Type` $\xrightarrow{\ll extend \gg}$ `Search Mobility Hub`: Lọc danh sách Hub có sẵn loại xe mong muốn (xe đạp điện hoặc xe máy điện).
+  - `View Route to Hub` $\xrightarrow{\ll extend \gg}$ `Search Mobility Hub`: Xem tuyến đường và khoảng cách di chuyển từ điểm xuất phát tới Hub trên bản đồ.
   - `Filter by Distance` $\xrightarrow{\ll extend \gg}$ `Search Mobility Hub`: Lọc theo bán kính khoảng cách địa lý gần nhất.
 - **Sơ đồ chi tiết:** Xem file [`UC01-Search_Mobility_Hub.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC01-Search_Mobility_Hub.drawio).
 
@@ -190,7 +190,8 @@ flowchart LR
 - **Tác nhân:** `User`
 - **Mục tiêu:** Cung cấp thông tin chi tiết về từng phương tiện tại Hub được chọn để người dùng quyết định trước khi đặt xe.
 - **Quan hệ kỹ thuật:**
-  - `View Vehicle Details` $\xrightarrow{\ll extend \gg}$ `View Available Vehicles`: Xem thông số xe, mức % pin còn lại, tình trạng kỹ thuật và ước lượng cự ly di chuyển khả dụng (Estimated Range).
+  - `Filter by Vehicle Type` $\xrightarrow{\ll extend \gg}$ `View Available Vehicles`: Lọc danh sách xe khả dụng theo loại phương tiện (`electric_bicycle` hoặc `electric_motorbike`).
+  - `View Vehicle Details` $\xrightarrow{\ll extend \gg}$ `View Available Vehicles`: Xem thông số xe, mức % pin còn lại, tình trạng kỹ thuật và thông tin Hub trước khi đặt giữ.
 - **Sơ đồ chi tiết:** Xem file [`UC02-View_Available_Vehicles.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC02-View_Available_Vehicles.drawio).
 
 #### UC03: Đặt trước phương tiện (`Reserve Vehicle`)
@@ -198,6 +199,7 @@ flowchart LR
 - **Mục tiêu:** Cho phép người dùng giữ chỗ xe trước tối đa 15 phút, đảm bảo có xe khi đến Hub.
 - **Quan hệ kỹ thuật:**
   - `Reserve Vehicle` $\xrightarrow{\ll include \gg}$ `Verify Vehicle Availability`: Bắt buộc kiểm tra tính khả dụng của xe và khóa trạng thái sang `Reserved` nhằm ngăn chặn xung đột double-booking.
+  - `Cancel Vehicle Reservation` $\xrightarrow{\ll extend \gg}$ `Reserve Vehicle`: Cho phép người dùng chủ động hủy phiếu giữ chỗ trước khi nhận xe để giải phóng phương tiện về trạng thái `Available`.
 - **Sơ đồ chi tiết:** Xem file [`UC03-Reserve_Vehicle.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC03-Reserve_Vehicle.drawio).
 
 #### UC04: Nhận phương tiện tại Hub (`Pick Up Vehicle`)

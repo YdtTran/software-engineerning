@@ -4,5 +4,61 @@
 % ===================================================
 \section*{Mở đầu: Phân công Thành viên và Quản lý Tài liệu}
 \addcontentsline{toc}{section}{Mở đầu: Phân công Thành viên và Quản lý Tài liệu}
-% TODO: Đưa bảng phân công 4 module (UX/UI - Ý, Mobility & Simulation - Minh,
-%       Parking & Charging - Triết, Operations - Duy) và bảng thuật ngữ (GLOSSARY.md).
+
+Báo cáo tổng kết này trình bày toàn bộ quy trình kỹ nghệ phần mềm cho hệ thống \textbf{Smart E-Mobility Hub -- Hệ thống Điều phối Phương tiện Điện Khu đô thị ĐHQG-HCM}, được thực hiện trong khuôn khổ học phần \textit{Công nghệ Phần mềm (CO3001 -- HK261)}. Tài liệu hợp nhất đầy đủ các cột mốc báo cáo theo quy định môn học gồm: Đặc tả Yêu cầu và Mô hình hóa Use Case (Submission \#1), Mô hình Động và Thiết kế Giao diện UI/UX (Submission \#2), Thiết kế Kiến trúc và Thiết kế Chi tiết (Submission \#3), Hiện thực Sản phẩm Mẫu MVP kèm Bộ kiểm thử và Trình diễn hệ thống (Working Demonstration), cũng như Đánh giá và Khai báo Minh bạch Generative AI.
+
+\subsection*{Phân công Trách nhiệm Thành viên và Module}
+
+Hệ thống được tổ chức phát triển song song theo mô hình bốn luồng công việc độc lập (bám sát tài liệu \texttt{docs/architecture/DEVELOPMENT\_GUIDE.md}), bảo đảm ranh giới sở hữu dữ liệu và giao tiếp qua hợp đồng API thống nhất như trình bày tại Bảng~\ref{tab:team-ownership}.
+
+\begin{table}[H]
+\centering
+\caption{Not confirm - Bảng phân công trách nhiệm phát triển theo phân hệ của nhóm}
+\label{tab:team-ownership}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.9cm} >{\raggedright\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{4.4cm}}
+\toprule
+\textbf{Phân hệ} & \textbf{Phụ trách} & \textbf{Phạm vi sở hữu chính} & \textbf{Cơ chế phối hợp liên module} \\
+\midrule
+UX/UI và Client Prototype & Ý & Thiết kế trải nghiệm User Mobile, Operator Mobile và Operator Web Dashboard (26 màn hình, tài liệu \texttt{UI-UX.pdf}). & Hợp đồng HTTP REST (\texttt{API\_CONTRACTS.md}) và phản hồi mẫu. \\
+\addlinespace[4pt]
+Mobility và Simulation & Minh & Tra cứu Hub, đặt giữ, nhận và trả xe dùng chung (\texttt{UC01--UC05}); bộ máy mô phỏng What-if 5 kịch bản (\texttt{UC13--UC14}). & Giao diện \texttt{InventoryInterface} và bản chụp mạng lưới bất biến (\textit{immutable snapshot}). \\
+\addlinespace[4pt]
+Parking và Charging & Triết & Đặt chỗ đỗ xe cá nhân (\texttt{UC06-S1/S2/S3}), yêu cầu sạc và kết thúc phiên sạc (\texttt{UC07, UC07A}), lập lịch sạc thông minh (\texttt{UC12}). & Truy vấn và cập nhật tài nguyên vật lý qua \texttt{InventoryInterface}, xác minh ngắt nguồn an toàn. \\
+\addlinespace[4pt]
+Operations & Duy & Quản trị tài nguyên (\texttt{UC09}), giám sát mạng lưới và cảnh báo (\texttt{UC08}), điều chuyển xe liên Hub (\texttt{UC10/10A/10B}), xử lý sự cố (\texttt{UC11/11A}). & Cung cấp \texttt{InventoryInterface} dùng chung cho các module khác và đầu vào chỉ đọc phục vụ giám sát. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{Bảng Thuật ngữ và Ký hiệu Chuyên ngành}
+
+Nhằm bảo đảm tính nhất quán xuyên suốt giữa đặc tả yêu cầu, mô hình UML và mã nguồn hiện thực, Bảng~\ref{tab:glossary} hệ thống hóa các thuật ngữ và khái niệm cốt lõi được sử dụng trong báo cáo.
+
+\begin{table}[H]
+\centering
+\caption{Thuật ngữ chuyên ngành và khái niệm miền nghiệp vụ cốt lõi}
+\label{tab:glossary}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.1cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Thuật ngữ / Ký hiệu} & \textbf{Định nghĩa chuẩn hóa trong hệ thống} \\
+\midrule
+\textbf{User / Student} & Vai trò người dùng cuối (sinh viên, giảng viên, cán bộ ĐHQG-HCM) tìm kiếm, đặt, nhận/trả xe dùng chung hoặc đặt chỗ đỗ, sạc cho xe cá nhân. \\
+\addlinespace[3pt]
+\textbf{Operator} & Vai trò đơn vị vận hành và kỹ thuật viên hiện trường giám sát mạng lưới, quản trị tài nguyên, điều chuyển xe, xử lý sự cố và chạy mô phỏng. \\
+\addlinespace[3pt]
+\textbf{Mobility Hub} & Trạm trung chuyển đa năng tại ĐHQG-HCM (Ga Metro, KTX, Trường thành viên), tích hợp phương tiện điện, vị trí đỗ và cổng sạc. \\
+\addlinespace[3pt]
+\textbf{Shared vs. Private EV} & Phân loại sở hữu phương tiện: xe dùng chung (thuộc hệ thống, cho phép thuê và điều chuyển) và xe cá nhân (chỉ hỗ trợ đỗ và sạc). \\
+\addlinespace[3pt]
+\textbf{Parking Commitment vs. Physical Occupancy} & Phân biệt rõ \textit{cam kết đặt chỗ} (phiếu \texttt{Reserved} theo hạn giữ hoặc khoảng thời gian) với \textit{chiếm dụng vật lý} (xe thực tế hiện diện tại slot sau check-in). \\
+\addlinespace[3pt]
+\textbf{Charging Allocation vs. Charging Session} & Phân biệt \textit{phân bổ cổng/công suất} trước khi cấp điện với \textit{phiên sạc thực tế} (\texttt{Active}) chỉ bắt đầu sau khi xác nhận cấp điện an toàn. \\
+\addlinespace[3pt]
+\textbf{Single-Winner Semantics} & Tính chất chỉ cho phép duy nhất một giao dịch thành công khi nhiều yêu cầu tranh chấp cùng một tài nguyên nhờ giao dịch cô lập (\texttt{BEGIN IMMEDIATE}). \\
+\addlinespace[3pt]
+\textbf{Idempotency-Key} & Khóa định danh chống trùng lặp giúp mọi thao tác ghi gửi lại do sự cố mạng trả về nguyên vẹn kết quả đã cam kết mà không gây tác dụng phụ. \\
+\addlinespace[3pt]
+\textbf{Immutable Snapshot} & Bản sao trạng thái mạng lưới tại một thời điểm dùng riêng cho bộ máy What-if Simulation nhằm bảo đảm mô phỏng không làm sai lệch dữ liệu thực. \\
+\bottomrule
+\end{tabularx}
+\end{table}

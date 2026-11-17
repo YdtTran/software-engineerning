@@ -1,15 +1,71 @@
 % ===================================================
 % CHƯƠNG 5: ĐÁNH GIÁ, BÀI HỌC KINH NGHIỆM VÀ HƯỚNG PHÁT TRIỂN
-% Nguồn: docs/audits/post-merge/REMEDIATION_ROADMAP.md, 04_BTL_SoftwareEngineering_HK261.pdf (trang 4)
+% Nguồn: docs/references/04_BTL_SoftwareEngineering_HK261.pdf, docs/audits/post-merge/,
+%        docs/architecture/MINH_DEMO_GUIDE.md, docs/diagrams/deployment/README-deployment.md
 % ===================================================
 \section{Đánh giá, Bài học Kinh nghiệm và Hướng Phát triển}
 
+Chương này tổng kết mức độ hoàn thành của dự án \textit{Smart E-Mobility Hub} khi đối chiếu với chuẩn đầu ra môn Công nghệ Phần mềm (CO3001), phân tích thẳng thắn các giới hạn kỹ thuật của phiên bản MVP hiện tại, đề xuất lộ trình nâng cấp lên môi trường sản xuất và đúc kết các bài học thực tiễn của nhóm phát triển.
+
+% ---------------------------------------------------
 \subsection{Đánh giá Kết quả Đạt được}
-% TODO: So sánh với yêu cầu tối thiểu của đề bài (SQLite ACID + 12 migrations, 31 test files / 183 test cases trên 3 modules, Playwright UI check).
 
+Đối chiếu với tài liệu đặc tả chính thức của môn học (\texttt{docs/\allowbreak references/\allowbreak 04\_BTL\_\allowbreak SoftwareEngineering\_\allowbreak HK261.pdf}) và bộ kiểm tra tuân thủ (\texttt{docs/audits/post-merge/\allowbreak ASSIGNMENT\_\allowbreak COMPLIANCE.md}), nhóm đã hoàn thành toàn bộ các phân pha quy trình từ phân tích yêu cầu đến cài đặt và kiểm chứng sản phẩm khả dụng tối thiểu. Bảng~\ref{tab:eval-criteria} tổng hợp kết quả đạt được trên sáu nhóm tiêu chí cốt lõi.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}p{3.9cm} >{\raggedright\arraybackslash}p{4.8cm} >{\centering\arraybackslash}p{2.1cm}}
+\caption{Bảng đánh giá mức độ đáp ứng yêu cầu đồ án môn học CO3001} \label{tab:eval-criteria} \\
+\toprule
+\textbf{Hạng mục đánh giá} & \textbf{Yêu cầu của môn học} & \textbf{Kết quả nhóm đã đạt được} & \textbf{Đánh giá} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Hạng mục đánh giá} & \textbf{Yêu cầu của môn học} & \textbf{Kết quả nhóm đã đạt được} & \textbf{Đánh giá} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\textbf{1. Phân tích Yêu cầu} (Submission~\#1) & Danh mục tác nhân, Use Case tổng quan/phân hệ, đặc tả kịch bản chi tiết và yêu cầu phi chức năng. & 14 Use Cases chính (\texttt{UC01--UC14}) + 7 tương tác vòng đời đặc tả đủ 11 trường; 13 NFRs chuẩn ISO/IEC~25010, 17 quy tắc \texttt{BR01--BR17} và 4 Bonus \texttt{FR-NI01..04}. & \textbf{Đạt đầy đủ} \\
+\midrule
+\textbf{2. Mô hình Động và UI/UX} (Submission~\#2) & Sơ đồ Tuần tự, Sơ đồ Hoạt động, bản mẫu UI; khuyến khích State-chart (Bonus). & 7 Sequence (\texttt{SQ01--07}), 7 Activity (\texttt{AD01--07}), 3 State-chart (\texttt{SC01--03} -- Bonus); 26 màn hình UI kiểm chứng Playwright (\texttt{passed: true}). & \textbf{Đạt vượt mức} \\
+\midrule
+\textbf{3. Kiến trúc và Thiết kế} (Submission~\#3) & Mô hình 4+1 View, Sơ đồ Lớp, đặc tả phương thức, sơ đồ thành phần/gói/triển khai. & Hoàn chỉnh \texttt{DP01}, \texttt{DV01}, \texttt{DV02}, bản vẽ 19 lớp -- 31 liên kết -- 18 hợp đồng phương thức (\texttt{CLASS\_CATALOG.md}) và 12 SQLite migrations. & \textbf{Đạt đầy đủ} \\
+\midrule
+\textbf{4. Hiện thực MVP và Trình diễn} & Ứng dụng chạy được cho chuỗi màn hình chính; bảo đảm toàn vẹn nghiệp vụ cốt lõi. & Backend 3 module chạy trọn vẹn \texttt{UC01--UC14} + 2 tác vụ nền 30s; Native Android App (PR~\#17) + Operator Live Dashboard (PR~\#18) kết nối trực tiếp API và SQLite ACID. & \textbf{Đạt đầy đủ} \\
+\midrule
+\textbf{5. Kiểm thử Hệ thống} (Bonus) & Xây dựng Test Plan / Test Cases chứng minh chất lượng phần mềm. & 32 tệp kiểm thử backend (\textbf{185 test cases} \texttt{node:test}), \textbf{9 unit test JUnit} Android và bộ Playwright UI; baseline \texttt{ac21515} đạt 144/144 pass (\texttt{npm test} sau hợp nhất cần xác nhận lại trên máy cài đủ gói). & \textbf{Đạt tốt} \\
+\midrule
+\textbf{6. Báo cáo Hợp nhất} & 1 tệp PDF tổng hợp đầy đủ các phần và khai báo sử dụng GenAI minh bạch. & Hợp nhất Chương~1--5 bằng LaTeX theo quy chuẩn ĐHQG-HCM; Chương~6 hoàn thiện minh bạch GenAI trước khi nộp PDF cuối cùng. & \textbf{Đang hoàn tất} \\
+\bottomrule
+\end{longtable}
+
+% ---------------------------------------------------
 \subsection{Hạn chế Hiện tại và Hướng Phát triển}
-% TODO: Trích từ docs/audits/post-merge/REMEDIATION_ROADMAP.md
-% - Hoàn thiện nối Live UI cho UC08/09/11 và Parking/Charging; tích hợp thiết bị IoT thực tế (OCPP/MQTT).
 
+Mặc dù phiên bản MVP đã giải quyết triệt để bài toán toàn vẹn dữ liệu, chống trùng lặp và kết nối liên thông giữa giao diện người dùng và vận hành viên, nhóm nhìn nhận bốn giới hạn kỹ thuật cần khắc phục nếu đưa sản phẩm ra vận hành thực tế:
+
+\begin{enumerate}[leftmargin=*,nosep]
+    \item \textbf{Phần cứng IoT và Cảm biến còn ở mức giả lập:} Mọi lệnh mở khóa trạm (\texttt{SimulatedDock}) và điều khiển đóng/ngắt trụ sạc (\texttt{SimulatedDeviceAdapter}) hiện chạy đồng bộ/giả lập trong \texttt{Node.js Runtime}. Trong môi trường thực tế tại khuôn viên ĐHQG-HCM, độ trễ mạng di động và trạng thái phần cứng có thể phức tạp hơn nhiều.
+    \item \textbf{Hạ tầng đơn nút (\textit{Single Node}) và Ràng buộc tọa độ Hub:} Như đã chỉ ra trong \texttt{README-deployment.md}, toàn bộ Express Server và tệp SQLite đang chạy trên một \texttt{Application Host} duy nhất (điểm lỗi đơn). Đồng thời, theo \texttt{MINH\_DEMO\_GUIDE.md}, bảng \texttt{mobility\_hubs} trong SQLite chưa bổ sung hai cột \texttt{latitude}/\texttt{longitude} nên API \texttt{/api/v1/hubs} vẫn trả \texttt{location: null}, phần bản đồ Android hiện dựa trên tọa độ danh bạ phía client.
+    \item \textbf{Xác thực phiên demo và Kênh thông báo ngoài:} Cơ chế đăng nhập hiện đọc tệp băm \texttt{demo-accounts.json} (hỗ trợ cờ \texttt{DEMO\_INSECURE\_HTTP=1} khi trình diễn localhost), chưa tích hợp SSO/OAuth2 chuẩn của trường đại học. Luồng đẩy thông báo từ \texttt{Notification Outbound Port} mới dừng ở mức lưu sự kiện và đọc qua API trên app, chưa kết nối thông báo đẩy (\textit{Push Notification}).
+    \item \textbf{Độ chính xác của Mô hình Mô phỏng \textit{What-if}:} Động cơ \texttt{simulation-engine.js} hiện sử dụng mô hình rời rạc theo tham số kịch bản và hạt giống (\textit{seed}) cố định, chưa được hiệu chuẩn từ chuỗi số liệu lịch sử đi lại thực tế của sinh viên theo khung giờ học hoặc lịch tàu Metro số~1.
+\end{enumerate}
+
+\noindent\textbf{Định hướng phát triển trong tương lai:} Nhờ kiến trúc \textit{Modular Monolith} phân tách sạch theo \textit{Ports/Adapters}, hệ thống có thể mở rộng tuần tự theo bốn bước mà không cần viết lại tầng nghiệp vụ \textit{Domain}:
+\begin{itemize}[leftmargin=*,nosep]
+    \item \textit{Tích hợp phần cứng IoT thực:} Hiện thực giao thức \textbf{OCPP~1.6/2.0.1} (cho trụ sạc thông minh) và \textbf{MQTT} (cho khóa xe tại trạm) đằng sau giao diện \texttt{DeviceCommandRunner} và \texttt{Telemetry Input Contract}.
+    \item \textit{Mở rộng lưu trữ và Đóng gói Đám mây:} Bổ sung migration nâng cấp tọa độ địa lý cho \texttt{mobility\_hubs}; thay thế \texttt{SQLiteClient} bằng \textbf{PostgreSQL} kết hợp \textbf{Redis} (lưu phiên và khóa phân tán); đóng gói \textbf{Docker} và thiết lập đường ống \textbf{CI/CD} chạy tự động cả 185 test backend, 9 test Android và bộ Playwright sau mỗi lần đẩy mã nguồn.
+    \item \textit{Chuẩn hóa Bảo mật và Thông báo Đẩy:} Tích hợp \textbf{OAuth2 / OpenID Connect (JWT)} qua HTTPS/TLS bắt buộc, kết hợp \textbf{Firebase Cloud Messaging (FCM)} phía sau \texttt{Notification Outbound Port} để cảnh báo tức thời sắp hết hạn giữ xe hoặc xe pin $<10\%$.
+    \item \textit{Hiệu chuẩn Mô phỏng bằng Dữ liệu Vận hành:} Thu thập log chuyến đi và mật độ bãi đỗ thực tế để hiệu chỉnh tham số dự báo nhu cầu, tiến tới gợi ý điều chuyển chủ động theo thời gian thực.
+\end{itemize}
+
+% ---------------------------------------------------
 \subsection{Bài học Kinh nghiệm của Nhóm (Lessons Learned)}
-% TODO: Tổng hợp bài học về quản lý trạng thái, kiểm soát đồng thời, hợp đồng API và phối hợp nhóm.
+
+Qua quá trình phân tích, thiết kế, cài đặt song song nhiều nhánh tính năng và hợp nhất mã nguồn, nhóm rút ra bốn bài học quan trọng:
+
+\begin{enumerate}[leftmargin=*,nosep]
+    \item \textbf{Tách biệt I/O phần cứng khỏi Giao dịch Khóa dữ liệu (\textit{Never hold DB locks across device I/O}):} Khi xử lý mở khóa xe (\texttt{UC04}) hay ngắt điện trụ sạc (\texttt{UC07A}), nếu giữ khóa \texttt{BEGIN IMMEDIATE} trong lúc đợi phản hồi thiết bị sẽ gây nghẽn toàn bộ cơ sở dữ liệu khi thiết bị chậm hoặc mất kết nối. Thiết kế cờ trạng thái trung gian (\texttt{pickup\_claimed}), bảng theo dõi lệnh thiết bị (\texttt{mobility\_commands}, \texttt{device\_commands}) và \texttt{Idempotency-Key} giúp hệ thống vừa nhất quán tuyệt đối vừa phục hồi an toàn trước lỗi \texttt{503 DEVICE\_UNCONFIRMED}.
+    \item \textbf{Truy vết hai chiều giữa Đặc tả UML và Mã nguồn thực tế:} Trong quá trình triển khai, kiến trúc 5 module khái niệm ở bước thiết kế ban đầu được tinh gọn thành 3 module code thực tế, đồng thời sản phẩm được bổ sung mạnh ở giai đoạn cuối qua PR~\#16 (\textit{Parking \& Charging}), PR~\#17 (\textit{Native Android}) và PR~\#18 (\textit{Operator Dashboard}). Nếu thiếu bảng ma trận truy vết và kiểm toán định kỳ (như các báo cáo dưới \texttt{docs/audits/post-merge/}), tài liệu báo cáo rất dễ bị lệch pha với mã nguồn thật.
+    \item \textbf{Chốt Hợp đồng API và Mã lỗi Chuẩn trước khi Chia nhánh Song song:} Nhờ thống nhất sớm cấu trúc endpoint \texttt{/api/v1/...}, bảng ánh xạ lỗi JSON và tập lệnh tạo dữ liệu demo (\texttt{create-dashboard-demo.js}), các thành viên phụ trách Android Kotlin, Web Dashboard và từng module backend có thể phát triển độc lập mà vẫn tích hợp trơn tru với số lượng xung đột thấp.
+    \item \textbf{Ưu tiên Kiến trúc Đủ dùng và Kiểm chứng Tự động cho Quy mô MVP:} Quyết định chọn \textit{Modular Monolith + SQLite} thay vì chạy theo kiến trúc vi dịch vụ phân tán giúp nhóm dồn nguồn lực vào chất lượng cốt lõi của luật miền, giao dịch nguyên tử và phủ kín bộ kiểm thử hồi quy tự động -- yếu tố then chốt tạo nên độ tin cậy của sản phẩm trong phạm vi thời gian một học kỳ.
+\end{enumerate}

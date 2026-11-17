@@ -23,9 +23,9 @@
 
 \begin{frame}
 \frametitle{Hiện thực 3 Module Backend và Bộ máy Mô phỏng What-if}
-% TODO: Tham khảo docs/architecture/operations-architecture.html và app/src/app.js
+% TODO: Tham khảo docs/architecture/operations-architecture.html, app/src/app.js và android/README.md
 \begin{itemize}
-    \item \textbf{Tổ chức hiện thực:} Ánh xạ 5 nhóm module logic thiết kế thành \textbf{3 module mã nguồn} (\texttt{mobility-simulation}, \texttt{parking-charging}, \texttt{operations}), liên kết lỏng qua interface (\texttt{InventoryInterface}, \texttt{tripReader}).
+    \item \textbf{Tổ chức hiện thực:} Ánh xạ 5 nhóm module logic thiết kế thành \textbf{3 module mã nguồn} (\texttt{mobility-simulation}, \texttt{parking-charging}, \texttt{operations}), liên kết lỏng qua interface (\texttt{InventoryInterface}, \texttt{tripReader}); kết nối tới \textbf{Android User App} và \textbf{Web Live Dashboard}.
     \item \textbf{What-if Simulation Engine (UC13--UC14):} Mô phỏng 5 kịch bản giả định trên bản sao bất biến (\textit{immutable snapshot}), không làm thay đổi trạng thái dữ liệu vận hành.
 \end{itemize}
 \end{frame}
