@@ -8,6 +8,9 @@ function createParkingChargingRouter(controller) {
   const router = express.Router();
 
   // UC06 Parking Availability, Reservations, Check-In & Check-Out
+  router.get('/private-vehicles', (req, res) => controller.listPrivateVehicles(req, res));
+  router.get('/parking-reservations', (req, res) => controller.listReservations(req, res));
+  router.get('/parking-occupancies', (req, res) => controller.listOccupancies(req, res));
   router.get('/hubs/:hubId/parking-availability', (req, res) => controller.getParkingAvailability(req, res));
   router.post('/parking-reservations', (req, res) => controller.createReservation(req, res));
   router.post('/parking-reservations/:id/cancel', (req, res) => controller.cancelReservation(req, res));
@@ -17,6 +20,7 @@ function createParkingChargingRouter(controller) {
   router.get('/parking-occupancies/:id', (req, res) => controller.getOccupancy(req, res));
 
   // UC07 / UC07A Charging Requests & Sessions
+  router.get('/charging-requests', (req, res) => controller.listChargingRequests(req, res));
   router.post('/charging-requests', (req, res) => controller.submitChargingRequest(req, res));
   router.get('/charging-requests/:id', (req, res) => controller.getChargingRequest(req, res));
   router.post('/charging-requests/:id/cancel', (req, res) => controller.cancelChargingRequest(req, res));

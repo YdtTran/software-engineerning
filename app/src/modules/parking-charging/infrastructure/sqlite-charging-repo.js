@@ -411,6 +411,31 @@ class SQLiteChargingRepository {
     );
   }
 
+  async listRequestsByUser(userId) {
+    return this.client.all(
+      `SELECT r.id, r.user_id AS userId, r.vehicle_id AS vehicleId,
+              r.occupancy_id AS occupancyId, r.hub_id AS hubId,
+              r.battery_at_request AS batteryAtRequest,
+              r.target_battery_percent AS targetBatteryPercent,
+              r.needed_by AS neededBy, r.requested_start AS requestedStart,
+              r.manual_priority_rank AS manualPriorityRank,
+              r.status, r.created_at AS createdAt, r.updated_at AS updatedAt,
+              v.connector_type AS vehicleConnectorType, v.battery_percent AS currentBatteryPercent,
+              v.owner_id AS vehicleOwnerId,
+              a.allocation_id AS allocationId,
+              a.point_id AS pointId,
+              (SELECT s.id FROM charging_sessions s WHERE s.request_id = r.id ORDER BY s.rowid DESC LIMIT 1) AS sessionId,
+              (SELECT s.status FROM charging_sessions s WHERE s.request_id = r.id ORDER BY s.rowid DESC LIMIT 1) AS sessionStatus
+       FROM charging_requests r
+       JOIN electric_vehicles v ON v.id = r.vehicle_id
+       LEFT JOIN charging_allocations a ON a.request_id = r.id AND a.released_at IS NULL
+       WHERE r.user_id = ?
+       ORDER BY r.created_at DESC, r.rowid DESC
+       LIMIT 100;`,
+      [userId]
+    );
+  }
+
   /**
    * Synchronize shared fleet vehicle SC01 status when entering/exiting active charging.
    * Private vehicles keep their ownership status unchanged.
