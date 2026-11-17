@@ -2,8 +2,8 @@
 
 **Smart E-Mobility Hub** is a unified urban micro-mobility, private EV parking, and smart-charging management platform combining:
 
-- **Backend & Web Consoles (`app/`)**: Node.js / Express modular monolith (`operations`, `parking-charging`, `mobility-simulation`) backed by SQLite (WAL mode, schema `v12`), serving an Admin Dashboard (`operator-web.html`), a Field Operator Console (`operator-app.html`), and a Web Rider Preview (`index.html`).
-- **Native Android App (`android/`)**: Jetpack Compose + OpenFreeMap client for riders and private EV owners (discover hubs, book/unlock rentals via QR/ticket, reserve private parking, submit smart-charging requests, and report trip incidents).
+- **Backend & Web Consoles (`app/`)**: Node.js / Express modular monolith (`operations`, `parking-charging`, `mobility-simulation`) backed by SQLite (WAL mode, schema `v12`), serving the Operator & Admin web experience (`app/prototype/live.html` via `/operator-web.html` and `/operator-app.html`).
+- **Mobile Rider Clients (`android/`, `app/flutter_mobile/`)**: Native Kotlin Jetpack Compose + OpenFreeMap app (`android/`) and Flutter mobile client (`app/flutter_mobile/`) for riders and private EV owners (discover hubs, book/unlock rentals via QR/ticket, reserve private parking, submit smart-charging requests, and report trip incidents).
 - **Synchronized Architecture & UML Specification (`docs/`)**: Complete 4+1 views, UC01–UC14 domain contracts, sequence/activity/state-chart/class models, and API contracts reconciled with the live codebase.
 
 > Course duties and milestone checklists from v1.0 have been archived to [docs/reports/SUBMISSION_PROGRESS_ARCHIVE.md](docs/reports/SUBMISSION_PROGRESS_ARCHIVE.md).
@@ -34,7 +34,7 @@ Watch the end-to-end Version 2.0 walkthrough recorded directly from a physical A
 | ![Android Active Trip](docs/assets/demo/android-active-trip.png) | ![Android Parking](docs/assets/demo/android-parking.png) | ![Android Charging](docs/assets/demo/android-charging.png) |
 | Live trip telemetry & incident submission | Reserve & check in private EV slot | Submit target SoC & desired finish time |
 
-### 2. Operator & Admin Web Dashboards (`app/public/`)
+### 2. Operator & Admin Web Dashboards (`app/prototype/live.html`)
 
 | Network Overview & Dispatch (`UC10`, `UC14`) | Fleet & Charging Resources (`UC10`, `UC13`) |
 | :---: | :---: |
@@ -53,14 +53,14 @@ Watch the end-to-end Version 2.0 walkthrough recorded directly from a physical A
 ## Architecture at a Glance
 
 ```text
-android/ (Kotlin + Compose) ──┐
-app/public/operator-web.html ─┼──► Express REST API + Cookie Auth (app/src/)
-app/public/operator-app.html ─┘      ├── modules/operations/           (UC05, UC06, UC10, UC11, UC13)
-                                     ├── modules/parking-charging/     (UC07, UC08, UC09, UC12)
-                                     └── modules/mobility-simulation/  (UC14 what-if & JSON export)
-                                              │
-                                              ▼
-                                     SQLite WAL + Repository Adapter (app/db/)
+android/ (Kotlin + Compose)   ──┐
+app/flutter_mobile/ (Flutter) ──┼──► Express REST API + Cookie Auth (app/src/)
+app/prototype/live.html       ──┘      ├── modules/operations/           (UC05, UC06, UC10, UC11, UC13)
+  (operator-web / operator-app)        ├── modules/parking-charging/     (UC07, UC08, UC09, UC12)
+                                       └── modules/mobility-simulation/  (UC14 what-if & JSON export)
+                                                │
+                                                ▼
+                                       SQLite WAL + Repository Adapter (app/db/)
 ```
 
 Key boundaries in v2.0 are documented transparently in [docs/architecture/API_CONTRACTS.md](docs/architecture/API_CONTRACTS.md) and [docs/PRODUCTION_GUIDE.md](docs/PRODUCTION_GUIDE.md).
@@ -79,9 +79,8 @@ npm start
 
 By default the server listens on `http://localhost:3000`:
 
-- **Admin Dashboard**: `http://localhost:3000/operator-web.html`
+- **Admin Dashboard**: `http://localhost:3000/operator-web.html` (and `/` redirects here)
 - **Operator Mobile Console**: `http://localhost:3000/operator-app.html`
-- **Web Rider Preview**: `http://localhost:3000/`
 
 See [app/README.md](app/README.md) for demo login credentials and environment variables (`PORT`, `SQLITE_DB_PATH`, `AUTH_COOKIE_SECRET`), and [docs/PRODUCTION_GUIDE.md](docs/PRODUCTION_GUIDE.md) for production hardening, WAL backups, and reverse-proxy TLS configuration.
 
