@@ -260,9 +260,9 @@ Luồng sự kiện chính (Main Flow):
 6. Hệ thống chuyển sang màn hình thông tin chi tiết của Hub đó. Use Case kết thúc thành công.
 
 Luồng rẽ nhánh (Alternative Flows):
-- 4a. Người dùng sử dụng bộ lọc loại phương tiện (Filter by Vehicle Type - extend):
-  1. Người dùng bấm chọn lọc "Chỉ xe đạp điện" hoặc "Chỉ xe máy điện".
-  2. Hệ thống lọc lại danh sách Hub có ít nhất 1 phương tiện thuộc loại đã chọn.
+- 4a. Người dùng xem tuyến đường tới Hub (View Route to Hub - extend):
+  1. Người dùng chọn điểm xuất phát và bấm xem lộ trình tới Hub trên bản đồ.
+  2. Hệ thống tính toán và hiển thị tuyến đường dự kiến cùng khoảng cách tới Hub.
 - 4b. Người dùng sử dụng bộ lọc khoảng cách (Filter by Distance - extend):
   1. Người dùng chọn bán kính tìm kiếm (ví dụ: < 500m, < 1km).
   2. Hệ thống cập nhật danh sách các Hub nằm trong cự ly đã chọn.
@@ -302,8 +302,12 @@ Luồng sự kiện chính (Main Flow):
 6. Người dùng có thể bấm "Đặt xe này" để chuyển sang UC03. Use Case kết thúc.
 
 Luồng rẽ nhánh (Alternative Flows):
-- 3a. Người dùng bấm xem các xe đang cắm sạc (Viewing Charging Vehicles):
-  1. Hệ thống hiển thị thêm tab các xe đang sạc kèm thời gian dự kiến sạc đầy và mức pin hiện tại.
+- 3a. Người dùng lọc theo loại phương tiện (Filter by Vehicle Type - extend):
+  1. Người dùng chọn bộ lọc "Xe đạp điện" (`electric_bicycle`) hoặc "Xe máy điện" (`electric_motorbike`).
+  2. Hệ thống cập nhật danh sách chỉ hiển thị các xe khả dụng thuộc loại đã chọn.
+- 4a. Người dùng xem chi tiết phương tiện (View Vehicle Details - extend):
+  1. Người dùng bấm chọn một phương tiện trong danh sách.
+  2. Hệ thống hiển thị thông số chi tiết: loại xe, mã định danh, mức pin (%) và Hub hiện tại.
 
 Luồng ngoại lệ (Exception Flows):
 - 2a. Hub hiện tại không còn phương tiện nào khả dụng (0 xe):
@@ -337,7 +341,7 @@ Luồng sự kiện chính (Main Flow):
 6. Hệ thống gửi thông báo xác nhận thành công qua Notification Service. Use Case kết thúc.
 
 Luồng rẽ nhánh (Alternative Flows):
-- 5a. Người dùng chủ động hủy đặt chỗ:
+- 5a. Người dùng chủ động hủy đặt chỗ (Cancel Vehicle Reservation - extend):
   1. Người dùng bấm nút "Hủy giữ xe" trên phiếu.
   2. Hệ thống hiển thị hộp thoại xác nhận hủy.
   3. Người dùng xác nhận hủy.
