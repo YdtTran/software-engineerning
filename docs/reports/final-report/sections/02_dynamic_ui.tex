@@ -8,14 +8,14 @@
 \subsection{Thiết kế Giao diện UI (UI Design: Mockup -- 26 Màn hình)}
 
 \subsubsection*{Triết lý Thiết kế: Hai Luồng Nghiệp vụ và Ba Giao diện Độc lập}
-Giao diện người dùng được xây dựng hoàn chỉnh dưới dạng bản mẫu tương tác bằng HTML5, CSS3 và Modern JavaScript thuần tại thư mục \texttt{app/prototype/}, kế thừa chuẩn nhận diện màu sắc ĐHQG-HCM (Primary Navy \texttt{\#152584}, Accent Cyan \texttt{\#00B8D6}, nền Cloud \texttt{\#F2F5F9}). Nhằm phân tách nghiêm ngặt thẩm quyền tác nghiệp, hệ thống chia thành ba giao diện độc lập (không cho phép chuyển quyền trái phép trong sản phẩm thực tế):
+Bản mẫu giao diện (\textit{UI Mockup}) được xây dựng bằng HTML5, CSS3 và JavaScript thuần tại \texttt{app/prototype/} (\texttt{index.html}, \texttt{app.js}, \texttt{styles.css}), sử dụng bảng màu Primary Navy \texttt{\#152584}, Accent Cyan \texttt{\#00B8D6} và nền \texttt{\#F2F5F9}. Hệ thống tách biệt ba giao diện theo thẩm quyền tác nghiệp (nút chuyển trên thanh công cụ của \texttt{index.html} chỉ phục vụ duyệt thiết kế ngoại tuyến, không phải cơ chế đổi quyền trên máy chủ):
 \begin{enumerate}[leftmargin=*,nosep]
-    \item \textbf{Mobile User App (\texttt{user-app.html}):} Phục vụ hành khách và sinh viên di chuyển trong khu đô thị ĐHQG thực hiện \texttt{UC01--UC07}, xem thông báo và quản lý tài khoản (không cung cấp bản Web PC đặt xe cho User).
-    \item \textbf{Mobile Operator App (\texttt{operator-app.html}):} Giao diện thẻ di động tối ưu thao tác một tay cho nhân viên vận hành và kỹ thuật viên hiện trường thông qua thanh điều hướng dưới và danh mục \texttt{\#op-menu}.
-    \item \textbf{Desktop Operator Web Dashboard (\texttt{operator-web.html}):} Bảng điều khiển toàn cảnh trên máy tính với thanh bên (\textit{Sidebar}), chỉ số KPI thời gian thực, bản đồ mạng lưới và bảng dữ liệu phân tích kịch bản \textit{What-if}.
+    \item \textbf{Mobile User App (bản mẫu trong \texttt{index.html}):} Trình bày luồng người dùng cuối thực hiện \texttt{UC01--UC07} trên thiết bị di động (không cung cấp giao diện Web PC đặt xe cho \texttt{User}). Ở sản phẩm chạy thật, luồng này được hiện thực bằng ứng dụng Native Android (\texttt{android/}) và client Flutter (\texttt{app/flutter\_mobile/}).
+    \item \textbf{Mobile Operator App (\texttt{/operator-app.html}):} Giao diện thẻ di động tối ưu thao tác một tay cho \texttt{Operator} hiện trường qua thanh điều hướng dưới và menu \texttt{\#op-menu}; khi chạy qua máy chủ Express sẽ chuyển hướng tới \texttt{live.html?\allowbreak experience=operator-app}.
+    \item \textbf{Desktop Operator Web Dashboard (\texttt{/operator-web.html}):} Bảng điều khiển trên máy tính với thanh bên, thẻ KPI, bản đồ MapLibre và bảng dữ liệu phân tích \textit{What-if}; chuyển hướng tới \texttt{live.html?\allowbreak experience=operator-web}.
 \end{enumerate}
 
-Hình~\ref{fig:ui-user-board} và Hình~\ref{fig:ui-operator-board} minh họa tổng quan các màn hình thiết kế của phân hệ Người dùng và phân hệ Vận hành (xuất bản đầy đủ 14 trang A4 Landscape trong \texttt{app/prototype/UI-UX.pdf}).
+\Cref{fig:ui-user-board} trình bày chuỗi màn hình thiết kế của phân hệ Người dùng (từ tìm Hub, xem xe, đặt giữ đến đỗ và sạc xe cá nhân), còn \Cref{fig:ui-operator-board} tổng hợp các màn hình của phân hệ Vận hành trên cả giao diện di động và desktop (bản xuất đầy đủ gồm 14 trang A4 Landscape trong \texttt{app/prototype/UI-UX.pdf}).
 
 \begin{figure}[H]
     \centering
@@ -34,7 +34,7 @@ Hình~\ref{fig:ui-user-board} và Hình~\ref{fig:ui-operator-board} minh họa t
 \end{figure}
 
 \subsubsection*{Ánh xạ 14 Use Cases sang 26 Màn hình và Kiểm định Playwright}
-Bảng~\ref{tab:ui-26-screens} đối chiếu toàn bộ 26 tệp ảnh giao diện tại \texttt{app/prototype/screens/} với mã Use Case tương ứng. Bộ kiểm thử tự động \texttt{app/prototype/verify.cjs} chạy trên Playwright xác nhận 100\% 26 màn hình hiển thị không lỗi JavaScript (\textit{console error}), không tràn bố cục ngang trên cả Mobile (\texttt{390px}) và Desktop (\texttt{1280px}), kết quả lưu tại \texttt{app/prototype/verification.json} (\texttt{passed: true}).
+\Cref{tab:ui-26-screens} đối chiếu toàn bộ 26 tệp ảnh giao diện tại \texttt{app/prototype/screens/} với mã Use Case tương ứng. Bộ kiểm thử tự động \texttt{app/prototype/verify.cjs} chạy trên Playwright xác nhận 26/26 màn hình hiển thị không lỗi JavaScript (\textit{console error}) và không tràn bố cục ngang trên cả Mobile (\texttt{390px}) và Desktop (\texttt{1280px}), kết quả lưu tại \texttt{app/prototype/verification.json} (\texttt{passed: true}).
 
 \begin{longtable}{>{\centering\arraybackslash}p{1.4cm} >{\raggedright\arraybackslash}p{3.9cm} >{\centering\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}p{6.8cm}}
 \caption{Bảng ánh xạ 14 Use Cases sang 26 màn hình giao diện (\texttt{app/prototype/screens/})} \label{tab:ui-26-screens} \\
@@ -68,7 +68,7 @@ Bảng~\ref{tab:ui-26-screens} đối chiếu toàn bộ 26 tệp ảnh giao di�
 
 \subsubsection*{Luồng Chuyển màn hình (Screen Flow) và Thành phần Tương tác Cốt lõi}
 
-Để liên kết trực quan 26 màn hình rời rạc thành chuỗi tác nghiệp khép kín, Bảng~\ref{tab:screen-flow} tóm tắt các tuyến điều hướng chính và Bảng~\ref{tab:ui-components} chú thích các thành phần điều khiển trọng tâm trên những màn hình tiêu biểu.
+Để liên kết 26 màn hình rời rạc thành chuỗi tác nghiệp khép kín, \Cref{tab:screen-flow} tóm tắt các tuyến điều hướng chính và \Cref{tab:ui-components} chú thích các thành phần điều khiển trọng tâm trên những màn hình tiêu biểu.
 
 \begin{table}[H]
 \centering
@@ -107,7 +107,7 @@ Phân tích What-if (\texttt{UC13--14}) & \texttt{\#simulation} $\to$ \texttt{\#
 
 \subsection{Mô hình Tương tác: Sơ đồ Tuần tự (Sequence Diagrams -- SQ01--SQ07)}
 
-Theo bài giảng CO3001 (Ch6 tr.~21--26), nhóm xây dựng 7 sơ đồ tuần tự chuẩn UML (\texttt{SQ01--SQ07}) đặt tác nhân bên trái, phân tách rõ lớp biên giao diện (\texttt{:MobileApp}, \texttt{:OperatorDashboard}), lớp điều phối nghiệp vụ (\texttt{:Reservation}, \texttt{:Pickup}, \texttt{:Return}, \texttt{:Charging}, \texttt{:Transfer}, \texttt{:Incident}, \texttt{:Simulation}) và bộ điều hợp thiết bị (\texttt{:SimulatedDock}, \texttt{:SimulatedCharger}). Điểm nổi bật về kỹ nghệ là toàn bộ thao tác I/O với phần cứng/giả lập khóa chốt được đặt \textbf{bên ngoài ranh giới khóa giao dịch cơ sở dữ liệu}, tránh treo khóa ghi khi thiết bị chậm phản hồi. Tổng hợp phạm vi và truy vết 7 sơ đồ tuần tự được trình bày tại Bảng~\ref{tab:sq-overview}.
+Theo bài giảng CO3001 (Ch6 tr.~21--26), nhóm xây dựng 7 sơ đồ tuần tự chuẩn UML (\texttt{SQ01--SQ07}) đặt tác nhân bên trái, phân tách lớp biên giao diện (\texttt{:MobileApp}, \texttt{:Operator\allowbreak Dashboard}), lớp điều phối nghiệp vụ (\texttt{:Reservation}, \texttt{:Pickup}, \texttt{:Return}, \texttt{:Charging}, \texttt{:Transfer}, \texttt{:Incident}, \texttt{:Simulation}) và bộ điều hợp thiết bị (\texttt{:Simulated\allowbreak Dock}, \texttt{:Simulated\allowbreak Charger}). Toàn bộ thao tác I/O với phần cứng hoặc bộ giả lập khóa chốt được đặt \textbf{bên ngoài ranh giới khóa giao dịch cơ sở dữ liệu}, tránh treo khóa ghi \texttt{BEGIN IMMEDIATE} khi thiết bị chậm phản hồi. Tổng hợp phạm vi và truy vết 7 sơ đồ tuần tự được trình bày tại \Cref{tab:sq-overview} và minh họa tại \Cref{fig:sq-01-02}--\Cref{fig:sq-05-07}.
 
 \begin{table}[H]
 \centering
@@ -130,47 +130,32 @@ Theo bài giảng CO3001 (Ch6 tr.~21--26), nhóm xây dựng 7 sơ đồ tuần 
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{%
-        \centering\vspace{0.35cm}
-        \textbf{[Hình vẽ: SQ01 -- Reserve Vehicle \& SQ02 -- Pick Up Vehicle]}\\[4pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/02\_Sequence\_Diagram/drawio/SQ01-Reserve\_Vehicle.drawio} và \texttt{SQ02-Pick\_Up\_Vehicle.drawio}}\vspace{0.35cm}
-    }}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/02_Sequence_Diagram/drawio/SQ01-Reserve_Vehicle.pdf}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/02_Sequence_Diagram/drawio/SQ02-Pick_Up_Vehicle.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ01-Reserve_Vehicle.png}
+    \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ02-Pick_Up_Vehicle.png}
     \caption{Sơ đồ tuần tự đặt giữ xe (\texttt{SQ01}) và nhận xe tại Hub (\texttt{SQ02})}
     \label{fig:sq-01-02}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{%
-        \centering\vspace{0.35cm}
-        \textbf{[Hình vẽ: SQ03 -- Return Vehicle \& SQ04 -- Request Charging]}\\[4pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/02\_Sequence\_Diagram/drawio/SQ03-Return\_Vehicle.drawio} và \texttt{SQ04-Request\_Charging.drawio}}\vspace{0.35cm}
-    }}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/02_Sequence_Diagram/drawio/SQ03-Return_Vehicle.pdf}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/02_Sequence_Diagram/drawio/SQ04-Request_Charging.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ03-Return_Vehicle.png}
+    \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ04-Request_Charging.png}
     \caption{Sơ đồ tuần tự trả xe (\texttt{SQ03}) và tiếp nhận yêu cầu sạc (\texttt{SQ04})}
     \label{fig:sq-03-04}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{%
-        \centering\vspace{0.35cm}
-        \textbf{[Hình vẽ: SQ05 -- Redistribute Vehicles, SQ06 -- Incident \& SQ07 -- Simulation]}\\[4pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/02\_Sequence\_Diagram/drawio/SQ05...}, \texttt{SQ06...}, và \texttt{SQ07...}}\vspace{0.35cm}
-    }}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/02_Sequence_Diagram/drawio/SQ05-Redistribute_Vehicles.pdf}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/02_Sequence_Diagram/drawio/SQ06-Handle_Operational_Incident.pdf}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/02_Sequence_Diagram/drawio/SQ07-Run_What_if_Simulation.pdf}
+    \includegraphics[width=0.92\textwidth,height=0.25\textheight,keepaspectratio]{graphics/diagrams/SQ05-Redistribute_Vehicles.png}\par\medskip
+    \includegraphics[width=0.92\textwidth,height=0.25\textheight,keepaspectratio]{graphics/diagrams/SQ06-Handle_Operational_Incident.png}\par\medskip
+    \includegraphics[width=0.92\textwidth,height=0.25\textheight,keepaspectratio]{graphics/diagrams/SQ07-Run_What_if_Simulation.png}
     \caption{Sơ đồ tuần tự điều chuyển xe (\texttt{SQ05}), xử lý sự cố (\texttt{SQ06}) và mô phỏng What-if (\texttt{SQ07})}
     \label{fig:sq-05-07}
 \end{figure}
 
 \subsection{Mô hình Hành vi: Sơ đồ Hoạt động (Activity Diagrams -- AD01--AD07)}
 
-Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\textit{Swimlanes}) phân định rạch ròi trách nhiệm giữa \texttt{User / App} (hoặc \texttt{Operator / App}), \texttt{Backend} và \texttt{IoT / Simulated Station}. Mọi nút rẽ nhánh đều gắn điều kiện bảo vệ (\textit{guard condition}) minh tường như \texttt{[Available, battery >=20\%, no hold]}, đồng thời bảo đảm mọi nhánh xung đột hoặc ngoại lệ đều dẫn về nút kết thúc hợp lệ mà không rơi vào vòng lặp vô tận (Bảng~\ref{tab:ad-overview}). Đặc biệt, \texttt{AD04} tách biệt hoàn toàn điểm bắt đầu check-in/checkout chỗ đỗ với thao tác gửi yêu cầu và dừng sạc an toàn.
+Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\textit{Swimlanes}) phân định trách nhiệm giữa \texttt{User / App} (hoặc \texttt{Operator / App}), \texttt{Backend} và \texttt{IoT / Simulated Station}. Mọi nút rẽ nhánh đều gắn điều kiện bảo vệ (\textit{guard condition}) như \texttt{[Available, battery >=20\%, no hold]}, bảo đảm mọi nhánh xung đột hoặc ngoại lệ đều dẫn về nút kết thúc hợp lệ (\Cref{tab:ad-overview} và \Cref{fig:ad-01}--\Cref{fig:ad-07}). Đặc biệt, \texttt{AD04} tách biệt điểm bắt đầu check-in/checkout chỗ đỗ với thao tác gửi yêu cầu và dừng sạc an toàn.
 
 \begin{table}[H]
 \centering
@@ -191,52 +176,92 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \end{tabularx}
 \end{table}
 
+\clearpage
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{%
-        \centering\vspace{0.35cm}
-        \textbf{[Hình vẽ: Bộ Sơ đồ Hoạt động AD01 -- AD04 (Luồng Người dùng)]}\\[4pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/03\_Activity\_Diagram/drawio/AD01...} đến \texttt{AD04...} (kèm PlantUML trong \texttt{ACTIVITY\_PREVIEWS.md})}\vspace{0.35cm}
-    }}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/03_Activity_Diagram/drawio/AD01-Reserve_Vehicle.pdf}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/03_Activity_Diagram/drawio/AD04-Reserve_Parking_and_Charging.pdf}
-    \caption{Sơ đồ hoạt động các nghiệp vụ Người dùng (\texttt{AD01--AD04})}
-    \label{fig:ad-01-04}
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD01-Reserve_Vehicle.png}
+    \caption{Sơ đồ hoạt động đặt giữ xe dùng chung (\texttt{AD01 -- UC03})}
+    \label{fig:ad-01}
 \end{figure}
 
+\clearpage
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{%
-        \centering\vspace{0.35cm}
-        \textbf{[Hình vẽ: Bộ Sơ đồ Hoạt động AD05 -- AD07 (Luồng Vận hành và Mô phỏng)]}\\[4pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/03\_Activity\_Diagram/drawio/AD05...} đến \texttt{AD07...}}\vspace{0.35cm}
-    }}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/03_Activity_Diagram/drawio/AD05-Redistribute_Vehicles.pdf}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/03_Activity_Diagram/drawio/AD06-Handle_Operational_Incident.pdf}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/03_Activity_Diagram/drawio/AD07-Run_What_if_Simulation.pdf}
-    \caption{Sơ đồ hoạt động các nghiệp vụ Vận hành và What-if (\texttt{AD05--AD07})}
-    \label{fig:ad-05-07}
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD02-Pick_Up_Vehicle.png}
+    \caption{Sơ đồ hoạt động nhận xe tại Hub (\texttt{AD02 -- UC04})}
+    \label{fig:ad-02}
 \end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD03-Return_Vehicle.png}
+    \caption{Sơ đồ hoạt động trả xe tại Hub đích (\texttt{AD03 -- UC05})}
+    \label{fig:ad-03}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD04-Reserve_Parking_and_Charging.png}
+    \caption{Sơ đồ hoạt động đặt chỗ đỗ, sạc và dừng sạc xe cá nhân (\texttt{AD04 -- UC06, UC07, UC12})}
+    \label{fig:ad-04}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD05-Redistribute_Vehicles.png}
+    \caption{Sơ đồ hoạt động điều chuyển xe liên Hub (\texttt{AD05 -- UC10, UC10A/B})}
+    \label{fig:ad-05}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD06-Handle_Operational_Incident.png}
+    \caption{Sơ đồ hoạt động xử lý sự cố vận hành (\texttt{AD06 -- UC11, UC11A})}
+    \label{fig:ad-06}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD07-Run_What_if_Simulation.png}
+    \caption{Sơ đồ hoạt động mô phỏng What-if (\texttt{AD07 -- UC13, UC14})}
+    \label{fig:ad-07}
+\end{figure}
+\clearpage
 
 \subsection{Mô hình Hành vi: Sơ đồ Trạng thái (State-chart Diagrams -- Bonus: SC01--SC03)}
 
-Để hoàn thiện tiêu chí điểm cộng của Submission \#2 và bảo đảm không xảy ra chuyển đổi trạng thái bất hợp lệ khi thực thi đồng thời, nhóm thiết kế 3 máy trạng thái hữu hạn cho các thực thể lõi:
+Để đáp ứng tiêu chí điểm cộng của Submission \#2 và kiểm soát chuyển đổi trạng thái khi thực thi đồng thời, nhóm thiết kế 3 máy trạng thái hữu hạn cho các thực thể lõi (\Cref{fig:sc-01}--\Cref{fig:sc-03}):
 \begin{enumerate}[leftmargin=*,nosep]
-    \item \textbf{\texttt{SC01} -- Vòng đời Phương tiện Điện (\texttt{Vehicle State Machine}):} Mô hình hóa 10 trạng thái chuẩn (\texttt{Available}, \texttt{Reserved}, \texttt{InUse}, \texttt{NeedsCharging}, \texttt{Charging}, \texttt{TransferHeld}, \texttt{InTransit}, \texttt{Faulty}, \texttt{Maintenance}, \texttt{Retired}). Các điều kiện chuyển đổi bảo vệ chặt chẽ việc phân biệt xe dùng chung (cho thuê và điều chuyển) với xe cá nhân (chỉ tham gia đỗ/sạc), đồng thời chặn chuyển về \texttt{Available} khi chưa nghiệm thu sự cố hoặc pin dưới $20\%$.
-    \item \textbf{\texttt{SC02} -- Vòng đời Cổng sạc (\texttt{Charging Point State Machine}):} Bao gồm 9 trạng thái (\texttt{Idle}, \texttt{Reserved}, \texttt{Starting}, \texttt{Charging}, \texttt{Stopping}, \texttt{Complete}, \texttt{Fault}, \texttt{Repair}, \texttt{Retired}). Điểm nhấn thiết kế là phân tách trạng thái \texttt{Complete} (đã ngắt điện an toàn, giải phóng công suất nhưng vẫn giữ đầu nối chờ rút) và duy trì khóa cô lập cổng \texttt{Fault/Repair} ngay cả khi đã hoàn trả ngân sách công suất.
-    \item \textbf{\texttt{SC03} -- Vòng đời Đặt giữ và Chuyến đi (\texttt{Reservation and Trip State Machine}):} Quản lý song hành vòng đời phiếu giữ xe (\texttt{Pending}, \texttt{Reserved}, \texttt{Fulfilled}, \texttt{Cancelled}, \texttt{Expired}) với biến cờ \texttt{pickupClaimed} và vòng đời chuyến đi (\texttt{Active}, \texttt{Completed}). Mọi sự kiện báo sự cố giữa chuyến (\texttt{UC11A}) đều không tự động đóng chuyến đang \texttt{Active}.
+    \item \textbf{\texttt{SC01} -- Vòng đời Phương tiện Điện (\texttt{Vehicle State Machine}):} Mô hình hóa 10 trạng thái chuẩn (\texttt{Available}, \texttt{Reserved}, \texttt{InUse}, \texttt{Needs\allowbreak Charging}, \texttt{Charging}, \texttt{Transfer\allowbreak Held}, \texttt{InTransit}, \texttt{Faulty}, \texttt{Maintenance}, \texttt{Retired}). Điều kiện chuyển đổi phân biệt xe dùng chung (cho thuê và điều chuyển) với xe cá nhân (chỉ tham gia đỗ/sạc), đồng thời chặn chuyển về \texttt{Available} khi chưa nghiệm thu sự cố hoặc pin $< 20\%$.
+    \item \textbf{\texttt{SC02} -- Vòng đời Cổng sạc (\texttt{Charging Point State Machine}):} Bao gồm 9 trạng thái (\texttt{Idle}, \texttt{Reserved}, \texttt{Starting}, \texttt{Charging}, \texttt{Stopping}, \texttt{Complete}, \texttt{Fault}, \texttt{Repair}, \texttt{Retired}), phân tách trạng thái \texttt{Complete} (đã ngắt điện, giữ đầu nối chờ rút) và duy trì khóa cô lập cổng \texttt{Fault/Repair}. Trong mã nguồn hiện tại, phần chuyển đổi từ \texttt{Reserved} sang \texttt{Active} (\texttt{activateAllocation}) và rút phích (\texttt{confirmUnplug}) được hiện thực ở tầng \texttt{ChargingService} kèm unit test, chưa mở route HTTP công khai.
+    \item \textbf{\texttt{SC03} -- Vòng đời Đặt giữ và Chuyến đi (\texttt{Reservation and Trip State Machine}):} Quản lý song hành vòng đời phiếu giữ xe (\texttt{Pending}, \texttt{Reserved}, \texttt{Fulfilled}, \texttt{Cancelled}, \texttt{Expired}) với cờ \texttt{pickupClaimed} và vòng đời chuyến đi (\texttt{Active}, \texttt{Completed}). Sự cố báo giữa chuyến (\texttt{UC11A}) không tự động đóng chuyến đang \texttt{Active}.
 \end{enumerate}
 
+\clearpage
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{%
-        \centering\vspace{0.35cm}
-        \textbf{[Hình vẽ: SC01 -- Vehicle State Machine, SC02 -- Charging Point State Machine \& SC03 -- Reservation and Trip State Machine]}\\[4pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/04\_Statechart\_Diagram/drawio/SC01...}, \texttt{SC02...}, và \texttt{SC03...}}\vspace{0.35cm}
-    }}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/04_Statechart_Diagram/drawio/SC01-Vehicle_State_Machine.pdf}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/04_Statechart_Diagram/drawio/SC02-Charging_Point_State_Machine.pdf}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/04_Statechart_Diagram/drawio/SC03-Reservation_and_Trip_State_Machine.pdf}
-    \caption{Bộ 3 sơ đồ máy trạng thái thực thể lõi (\texttt{SC01}, \texttt{SC02}, \texttt{SC03})}
-    \label{fig:sc-01-03}
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/SC01-Vehicle_State_Machine.png}
+    \caption{Sơ đồ máy trạng thái vòng đời phương tiện điện (\texttt{SC01})}
+    \label{fig:sc-01}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/SC02-Charging_Point_State_Machine.png}
+    \caption{Sơ đồ máy trạng thái vòng đời cổng sạc (\texttt{SC02})}
+    \label{fig:sc-02}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/SC03-Reservation_and_Trip_State_Machine.png}
+    \caption{Sơ đồ máy trạng thái đặt giữ và chuyến đi (\texttt{SC03})}
+    \label{fig:sc-03}
 \end{figure}

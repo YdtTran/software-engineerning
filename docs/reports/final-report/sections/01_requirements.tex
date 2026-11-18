@@ -9,18 +9,24 @@
 \subsection{Bối cảnh và Phạm vi Dự án (Project Details Specification)}
 
 \subsubsection*{Bối cảnh Thực tiễn}
-Khu đô thị Đại học Quốc gia TP. Hồ Chí Minh (ĐHQG-HCM) là quần thể giáo dục, nghiên cứu đa ngành tập trung hơn 70.000 sinh viên, giảng viên và cán bộ khoa học sinh hoạt tại nhiều đơn vị thành viên (ĐH Bách Khoa, ĐH Khoa học Tự nhiên, ĐH KHXH\&NV, ĐH Quốc tế, ĐH Công nghệ Thông tin, ĐH Kinh tế -- Luật), hệ thống Ký túc xá Khu A và Khu B, Thư viện Trung tâm cùng các khu dịch vụ. Khi \textbf{Tuyến Metro số 1 (Bến Thành -- Suối Tiên)} vận hành qua \textbf{Ga ĐHQG}, nhu cầu di chuyển chặng cuối (\textit{last-mile transit}) kết nối từ nhà ga đến từng giảng đường và khu nội trú bằng phương tiện điện xanh (xe đạp điện, xe máy điện dùng chung và phương tiện điện cá nhân) trở thành bài toán cấp thiết.
+Khu đô thị Đại học Quốc gia TP. Hồ Chí Minh (ĐHQG-HCM) tập trung nhiều trường đại học thành viên (ĐH Bách Khoa, ĐH Khoa học Tự nhiên, ĐH KHXH\&NV, ĐH Quốc tế, ĐH Công nghệ Thông tin, ĐH Kinh tế -- Luật), hệ thống Ký túc xá Khu A và Khu B, Thư viện Trung tâm cùng các khu dịch vụ. Khi \textbf{Tuyến Metro số 1 (Bến Thành -- Suối Tiên)} vận hành qua \textbf{Ga ĐHQG}, nhu cầu di chuyển chặng cuối (\textit{last-mile transit}) kết nối từ nhà ga đến từng giảng đường và khu nội trú bằng phương tiện điện (xe đạp điện, xe máy điện dùng chung và phương tiện điện cá nhân) đòi hỏi một hệ thống điều phối tập trung.
 
-Mô hình vận hành thực tế đặt ra bốn thách thức kỹ nghệ phần mềm cốt lõi về \textbf{điều phối đa tài nguyên phân tán} (\textit{Distributed Multi-Resource Coordination}):
+Bài toán vận hành đặt ra bốn thách thức kỹ nghệ phần mềm cốt lõi về \textbf{điều phối đa tài nguyên phân tán} (\textit{Distributed Multi-Resource Coordination}):
 \begin{enumerate}[leftmargin=*,nosep]
-    \item \textbf{Lệch pha cung -- cầu theo khung giờ:} Buổi sáng phương tiện tập trung dồn ứ tại các giảng đường trong khi Ga Metro thiếu xe; buổi chiều phương tiện dồn về Ký túc xá.
-    \item \textbf{Xung đột tranh chấp tài nguyên đồng thời:} Nhiều người dùng cùng tra cứu và đặt giữ một phương tiện hoặc một vị trí đỗ duy nhất vào giờ cao điểm dễ gây hiện tượng \textit{double-booking}.
+    \item \textbf{Lệch pha cung -- cầu theo khung giờ:} Buổi sáng phương tiện tập trung tại các giảng đường trong khi Ga Metro thiếu xe; buổi chiều phương tiện dồn về khu Ký túc xá.
+    \item \textbf{Xung đột tranh chấp tài nguyên đồng thời:} Nhiều \texttt{User} cùng tra cứu và đặt giữ một phương tiện hoặc một chỗ đỗ vào giờ cao điểm dễ gây \textit{double-booking}.
     \item \textbf{Giới hạn năng lực bãi đỗ và hạ tầng sạc:} Công suất trạm biến áp và số cổng sạc tại mỗi Hub là hữu hạn; cần cơ chế ưu tiên xe pin yếu và xe có lịch trình kế tiếp.
-    \item \textbf{Rủi ro sự cố vận hành:} Xe hỏng giữa hành trình, mất kết nối thiết bị hoặc sự cố cổng sạc đòi hỏi quy trình cách ly an toàn và dự báo tình huống trước khi can thiệp.
+    \item \textbf{Rủi ro sự cố vận hành:} Xe hỏng giữa hành trình, mất kết nối thiết bị hoặc sự cố cổng sạc đòi hỏi quy trình cách ly an toàn và đánh giá kịch bản trước khi can thiệp.
 \end{enumerate}
 
+\subsubsection*{User Stories theo Vai trò}
+\begin{itemize}[leftmargin=*,nosep]
+    \item \textbf{Với vai trò \texttt{User} (bao gồm \textit{Student}):} Tôi muốn tìm Hub gần nhất (\texttt{UC01}), xem xe khả dụng có pin $\ge 20\%$ (\texttt{UC02}), đặt giữ xe trong 15 phút (\texttt{UC03}), quét QR nhận xe (\texttt{UC04}), trả xe vào slot trống (\texttt{UC05}) và báo sự cố khi đang di chuyển (\texttt{UC11A}). Với xe cá nhân, tôi muốn đặt chỗ đỗ (\texttt{UC06-S1..S3}), gửi yêu cầu sạc (\texttt{UC07}) và dừng phiên sạc chủ động (\texttt{UC07A}).
+    \item \textbf{Với vai trò \texttt{Operator}:} Tôi muốn theo dõi trạng thái toàn mạng lưới Hub (\texttt{UC08}), quản trị phương tiện/chỗ đỗ/cổng sạc (\texttt{UC09}), lập và xác nhận lệnh điều chuyển xe liên Hub (\texttt{UC10/10A/10B}), tiếp nhận và xử lý sự cố (\texttt{UC11}), điều phối hàng đợi sạc (\texttt{UC12}) và chạy mô phỏng \textit{What-if} (\texttt{UC13--UC14}) trên bản chụp cô lập trước khi áp dụng phương án điều chuyển.
+\end{itemize}
+
 \subsubsection*{Mục tiêu Kỹ thuật và Ranh giới Hệ thống}
-Hệ thống \textbf{Smart E-Mobility Hub} được xây dựng nhằm giải quyết năm mục tiêu cốt lõi: (i) quản lý vòng đời đa thực thể (phương tiện, chỗ đỗ, cổng sạc) gần thời gian thực; (ii) phân bổ tài nguyên nguyên tử chống \textit{double-booking}; (iii) lập lịch sạc thông minh tối ưu công suất Hub; (iv) điều phối tái cân bằng phương tiện giữa các Hub; và (v) cung cấp bộ máy mô phỏng \textit{What-if Simulation} đánh giá 5 kịch bản giả định. Ranh giới hệ thống được xác lập rõ tại Bảng~\ref{tab:system-scope}.
+Hệ thống \textbf{Smart E-Mobility Hub} hướng tới năm mục tiêu kỹ thuật: (i) quản lý vòng đời đa thực thể (phương tiện, chỗ đỗ, cổng sạc) gần thời gian thực; (ii) phân bổ tài nguyên nguyên tử chống \textit{double-booking}; (iii) lập lịch sạc ưu tiên theo ngưỡng công suất Hub; (iv) điều phối tái cân bằng phương tiện giữa các Hub; và (v) mô phỏng \textit{What-if Simulation} với 5 kịch bản giả định. Ranh giới hệ thống được xác lập tại \Cref{tab:system-scope}.
 
 \begin{table}[H]
 \centering
@@ -40,7 +46,7 @@ Hệ thống \textbf{Smart E-Mobility Hub} được xây dựng nhằm giải qu
 \subsection{Phân tích Bên liên quan và Tác nhân Hệ thống (Stakeholders and Actors)}
 
 \subsubsection*{Phân tích Các bên Liên quan (Stakeholders)}
-Nhóm xác định năm nhóm bên liên quan chính tác động và thụ hưởng trực tiếp từ hệ thống như tổng hợp tại Bảng~\ref{tab:stakeholders}.
+Nhóm xác định năm nhóm bên liên quan chính tác động và thụ hưởng từ hệ thống như tổng hợp tại \Cref{tab:stakeholders}.
 
 \begin{table}[H]
 \centering
@@ -73,48 +79,32 @@ Tuân thủ quy chuẩn UML trong bài giảng CO3001 (Ch3 và Ch6), các tác n
 
 \subsection{Mô hình Tương tác: Sơ đồ Use Case Toàn hệ thống (System-wide Use Case Diagram)}
 
-Toàn bộ hệ thống bao gồm \textbf{14 Use Cases cốt lõi} chia thành hai phân hệ rõ rệt (Phân hệ Người dùng: \texttt{UC01--UC07}; Phân hệ Vận hành: \texttt{UC08--UC14}) cùng \textbf{7 tương tác/kịch bản vòng đời bổ sung} (\texttt{UC06-S1/S2/S3}, \texttt{UC07A}, \texttt{UC10A}, \texttt{UC10B}, \texttt{UC11A}) nhằm khép kín toàn bộ quy trình nghiệp vụ thực tế. Các sơ đồ tổng quan và phân rã từng phân hệ được thể hiện từ Hình~\ref{fig:uc-general} đến Hình~\ref{fig:uc-operator}.
+Toàn bộ hệ thống bao gồm \textbf{14 Use Cases cốt lõi} chia thành hai phân hệ (Phân hệ Người dùng: \texttt{UC01--UC07}; Phân hệ Vận hành: \texttt{UC08--UC14}) cùng \textbf{7 tương tác/kịch bản vòng đời bổ sung} (\texttt{UC06-S1/S2/S3}, \texttt{UC07A}, \texttt{UC10A}, \texttt{UC10B}, \texttt{UC11A}). Các sơ đồ tổng quan và phân rã từng phân hệ được đối chiếu từ \Cref{fig:uc-general} đến \Cref{fig:uc-operator}.
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{%
-        \centering\vspace{0.45cm}
-        \textbf{[Hình vẽ: Sơ đồ Use Case Tổng quan Toàn hệ thống (14 Use Cases)]}\\[4pt]
-        {\footnotesize Nguồn sơ đồ gốc: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/general\_usecase\_diagram.drawio}\\
-        (Xuất ra file \texttt{.pdf} hoặc \texttt{.png} và bỏ comment lệnh \texttt{\textbackslash includegraphics} bên dưới để hiển thị hình)}\vspace{0.45cm}
-    }}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/general_usecase_diagram.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/general_usecase_diagram.png}
     \caption{Sơ đồ Use Case tổng quan hệ thống Smart E-Mobility Hub}
     \label{fig:uc-general}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{%
-        \centering\vspace{0.4cm}
-        \textbf{[Hình vẽ: Sơ đồ Use Case Phân hệ Người dùng (UC01--UC07)]}\\[4pt]
-        {\footnotesize Nguồn sơ đồ gốc: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/user\_usecases.drawio}}\vspace{0.4cm}
-    }}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/user_usecases.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/user_usecases.png}
     \caption{Sơ đồ Use Case phân hệ Người dùng (\texttt{UC01--UC07})}
     \label{fig:uc-user}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{%
-        \centering\vspace{0.4cm}
-        \textbf{[Hình vẽ: Sơ đồ Use Case Phân hệ Vận hành (UC08--UC14)]}\\[4pt]
-        {\footnotesize Nguồn sơ đồ gốc: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/operator\_usecases.drawio}}\vspace{0.4cm}
-    }}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/operator_usecases.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/operator_usecases.png}
     \caption{Sơ đồ Use Case phân hệ Vận hành (\texttt{UC08--UC14})}
     \label{fig:uc-operator}
 \end{figure}
 
-Danh mục đầy đủ 14 Use Cases cốt lõi và các kịch bản vòng đời bổ sung kèm đường dẫn tệp sơ đồ chi tiết được tổng hợp tại Bảng~\ref{tab:uc-catalog}.
+Danh mục đầy đủ 14 Use Cases cốt lõi và các kịch bản vòng đời bổ sung kèm đường dẫn tệp sơ đồ chi tiết được tổng hợp tại \Cref{tab:uc-catalog}.
 
-\begin{longtable}{>{\centering\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}p{3.9cm} >{\centering\arraybackslash}p{1.3cm} >{\raggedright\arraybackslash\small}p{7.6cm}}
+\begin{longtable}{>{\centering\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}p{3.9cm} >{\centering\arraybackslash}p{1.3cm} >{\raggedright\arraybackslash\small}p{6.8cm}}
 \caption{Danh mục 14 Use Cases cốt lõi và các kịch bản vòng đời bổ sung} \label{tab:uc-catalog} \\
 \toprule
 \textbf{Mã UC} & \textbf{Tên Use Case} & \textbf{Tác nhân} & \textbf{Tệp sơ đồ Draw.io chi tiết (\texttt{01\_Usecase\_Diagram/drawio/})} \\
@@ -131,21 +121,21 @@ Danh mục đầy đủ 14 Use Cases cốt lõi và các kịch bản vòng đ�
 \texttt{UC03} & Reserve Vehicle & User & \texttt{UC03-Reserve\_Vehicle.drawio} \\
 \texttt{UC04} & Pick Up Vehicle & User & \texttt{UC04-Pick\_Up\_Vehicle.drawio} \\
 \texttt{UC05} & Return Vehicle & User & \texttt{UC05-Return\_Vehicle.drawio} \\
-\texttt{UC06-S1} & Create Parking Reservation & User & \texttt{UC06-S1-Create\_Parking\_\allowbreak Reservation.drawio} \\
-\texttt{UC06-S2} & Check In Private Vehicle & User/Op & \texttt{UC06-S2-Check\_In\_Private\_\allowbreak Vehicle.drawio} \\
-\texttt{UC06-S3} & Check Out Private Vehicle & User/Op & \texttt{UC06-S3-Check\_Out\_Private\_\allowbreak Vehicle.drawio} \\
+\texttt{UC06-S1} & Create Parking Reservation & User & \texttt{UC06-S1-Create\_\allowbreak Parking\_\allowbreak Reservation.drawio} \\
+\texttt{UC06-S2} & Check In Private Vehicle & User/Op & \texttt{UC06-S2-Check\_In\_\allowbreak Private\_\allowbreak Vehicle.drawio} \\
+\texttt{UC06-S3} & Check Out Private Vehicle & User/Op & \texttt{UC06-S3-Check\_Out\_\allowbreak Private\_\allowbreak Vehicle.drawio} \\
 \texttt{UC07} & Request Charging & User & \texttt{UC07-Request\_Charging.drawio} \\
-\texttt{UC07A} & Stop Charging Session & User & \texttt{UC07A-Stop\_Charging\_\allowbreak Session.drawio} \\
-\texttt{UC08} & Monitor Mobility Hub Network & Operator & \texttt{UC8-Monitor\_Mobility\_\allowbreak Hub\_Network.drawio} \\
-\texttt{UC09} & Manage Mobility Resources & Operator & \texttt{UC9-Manage\_Mobility\_\allowbreak Resources.drawio} \\
+\texttt{UC07A} & Stop Charging Session & User & \texttt{UC07A-Stop\_\allowbreak Charging\_\allowbreak Session.drawio} \\
+\texttt{UC08} & Monitor Mobility Hub Network & Operator & \texttt{UC8-Monitor\_\allowbreak Mobility\_\allowbreak Hub\_Network.drawio} \\
+\texttt{UC09} & Manage Mobility Resources & Operator & \texttt{UC9-Manage\_\allowbreak Mobility\_\allowbreak Resources.drawio} \\
 \texttt{UC10} & Redistribute Vehicles & Operator & \texttt{UC10-Redistribute\_\allowbreak Vehicles.drawio} \\
-\texttt{UC10A} & Confirm Transfer Arrival & Operator & \texttt{UC10A-Confirm\_Transfer\_\allowbreak Arrival.drawio} \\
-\texttt{UC10B} & Cancel Transfer Order & Operator & \texttt{UC10B-Cancel\_Transfer\_\allowbreak Order.drawio} \\
-\texttt{UC11} & Handle Operational Incident & Operator & \texttt{UC11-Handle\_Operational\_\allowbreak Incident.drawio} \\
+\texttt{UC10A} & Confirm Transfer Arrival & Operator & \texttt{UC10A-Confirm\_\allowbreak Transfer\_\allowbreak Arrival.drawio} \\
+\texttt{UC10B} & Cancel Transfer Order & Operator & \texttt{UC10B-Cancel\_\allowbreak Transfer\_\allowbreak Order.drawio} \\
+\texttt{UC11} & Handle Operational Incident & Operator & \texttt{UC11-Handle\_\allowbreak Operational\_\allowbreak Incident.drawio} \\
 \texttt{UC11A} & Report Trip Incident & User/Op & \texttt{UC11A-Report\_Trip\_\allowbreak Incident.drawio} \\
-\texttt{UC12} & Manage Charging Schedule & Operator & \texttt{UC12-Manage\_Charging\_\allowbreak Schedule.drawio} \\
+\texttt{UC12} & Manage Charging Schedule & Operator & \texttt{UC12-Manage\_\allowbreak Charging\_\allowbreak Schedule.drawio} \\
 \texttt{UC13} & Run What-if Simulation & Operator & \texttt{UC13-Run\_What-if\_\allowbreak Simulation.drawio} \\
-\texttt{UC14} & View Simulation Results & Operator & \texttt{UC14-View\_Simulation\_\allowbreak Results.drawio} \\
+\texttt{UC14} & View Simulation Results & Operator & \texttt{UC14-View\_\allowbreak Simulation\_\allowbreak Results.drawio} \\
 \end{longtable}
 
 \subsection{Đặc tả Chi tiết Use Case (Use-Case Specifications)}
@@ -157,10 +147,7 @@ Tất cả 14 Use Cases cốt lõi và 7 kịch bản vòng đời bổ sung đ�
 % --- UC01 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC01 -- Search Mobility Hub]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC01-Search\_Mobility\_Hub.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC01-Search_Mobility_Hub.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC01-Search_Mobility_Hub.png}
     \caption{Sơ đồ Use Case \texttt{UC01 -- Search Mobility Hub}}
     \label{fig:uc01}
 \end{figure}
@@ -190,10 +177,7 @@ Quy tắc nghiệp vụ & \texttt{BR01} (bán kính mặc định 1.000m), \text
 % --- UC02 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC02 -- View Available Vehicles]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC02-View\_Available\_Vehicles.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC02-View_Available_Vehicles.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC02-View_Available_Vehicles.png}
     \caption{Sơ đồ Use Case \texttt{UC02 -- View Available Vehicles}}
     \label{fig:uc02}
 \end{figure}
@@ -223,10 +207,7 @@ Quy tắc nghiệp vụ & \texttt{BR03} (xe pin $<20\%$ chuyển hàng đợi s�
 % --- UC03 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC03 -- Reserve Vehicle]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC03-Reserve\_Vehicle.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC03-Reserve_Vehicle.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC03-Reserve_Vehicle.png}
     \caption{Sơ đồ Use Case \texttt{UC03 -- Reserve Vehicle}}
     \label{fig:uc03}
 \end{figure}
@@ -256,10 +237,7 @@ Quy tắc nghiệp vụ & \texttt{BR04} (tối đa 1 xe/User), \texttt{BR05} (gi
 % --- UC04 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC04 -- Pick Up Vehicle]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC04-Pick\_Up\_Vehicle.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC04-Pick_Up_Vehicle.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC04-Pick_Up_Vehicle.png}
     \caption{Sơ đồ Use Case \texttt{UC04 -- Pick Up Vehicle}}
     \label{fig:uc04}
 \end{figure}
@@ -289,10 +267,7 @@ Quy tắc nghiệp vụ & \texttt{BR06} (không mở khóa khi mã xác thực k
 % --- UC05 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC05 -- Return Vehicle]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC05-Return\_Vehicle.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC05-Return_Vehicle.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC05-Return_Vehicle.png}
     \caption{Sơ đồ Use Case \texttt{UC05 -- Return Vehicle}}
     \label{fig:uc05}
 \end{figure}
@@ -322,10 +297,7 @@ Quy tắc nghiệp vụ & \texttt{BR07} (chuyến chỉ kết thúc khi khóa v�
 % --- UC06-S1 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC06-S1 -- Create Parking Reservation]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC06-S1-Create\_Parking\_Reservation.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC06-S1-Create_Parking_Reservation.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC06-S1-Create_Parking_Reservation.png}
     \caption{Sơ đồ Use Case \texttt{UC06-S1 -- Create Parking Reservation}}
     \label{fig:uc06s1}
 \end{figure}
@@ -355,10 +327,7 @@ Quy tắc nghiệp vụ & \texttt{BR08}, \texttt{BR08a}, \texttt{LIM-01}. \\
 % --- UC06-S2 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC06-S2 -- Check In Private Vehicle]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC06-S2-Check\_In\_Private\_Vehicle.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC06-S2-Check_In_Private_Vehicle.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC06-S2-Check_In_Private_Vehicle.png}
     \caption{Sơ đồ Use Case \texttt{UC06-S2 -- Check In Private Vehicle}}
     \label{fig:uc06s2}
 \end{figure}
@@ -388,10 +357,7 @@ Quy tắc nghiệp vụ & \texttt{BR08a}, \texttt{LIM-01}. \\
 % --- UC06-S3 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC06-S3 -- Check Out Private Vehicle]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC06-S3-Check\_Out\_Private\_Vehicle.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC06-S3-Check_Out_Private_Vehicle.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC06-S3-Check_Out_Private_Vehicle.png}
     \caption{Sơ đồ Use Case \texttt{UC06-S3 -- Check Out Private Vehicle}}
     \label{fig:uc06s3}
 \end{figure}
@@ -421,10 +387,7 @@ Quy tắc nghiệp vụ & \texttt{BR08b} (công thức tính phí đỗ quá gi�
 % --- UC07 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC07 -- Request Charging]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC07-Request\_Charging.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC07-Request_Charging.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC07-Request_Charging.png}
     \caption{Sơ đồ Use Case \texttt{UC07 -- Request Charging}}
     \label{fig:uc07}
 \end{figure}
@@ -454,10 +417,7 @@ Quy tắc nghiệp vụ & \texttt{BR09}, \texttt{BR15}, \texttt{FR-NI04}. \\
 % --- UC07A ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC07A -- Stop Charging Session]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC07A-Stop\_Charging\_Session.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC07A-Stop_Charging_Session.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC07A-Stop_Charging_Session.png}
     \caption{Sơ đồ Use Case \texttt{UC07A -- Stop Charging Session}}
     \label{fig:uc07a}
 \end{figure}
@@ -489,10 +449,7 @@ Quy tắc nghiệp vụ & \texttt{BR09}, \texttt{BR15}. \\
 % --- UC08 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC08 -- Monitor Mobility Hub Network]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC8-Monitor\_Mobility\_Hub\_Network.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC8-Monitor_Mobility_Hub_Network.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC8-Monitor_Mobility_Hub_Network.png}
     \caption{Sơ đồ Use Case \texttt{UC08 -- Monitor Mobility Hub Network}}
     \label{fig:uc08}
 \end{figure}
@@ -522,10 +479,7 @@ Quy tắc nghiệp vụ & \texttt{BR10} / \texttt{FR-NI03} (Đỏ: lấp đầy 
 % --- UC09 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC09 -- Manage Mobility Resources]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC9-Manage\_Mobility\_Resources.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC9-Manage_Mobility_Resources.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC9-Manage_Mobility_Resources.png}
     \caption{Sơ đồ Use Case \texttt{UC09 -- Manage Mobility Resources}}
     \label{fig:uc09}
 \end{figure}
@@ -555,10 +509,7 @@ Quy tắc nghiệp vụ & \texttt{BR11} (cấm hard delete hoặc ghi đè trạ
 % --- UC10 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC10 -- Redistribute Vehicles]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC10-Redistribute\_Vehicles.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC10-Redistribute_Vehicles.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC10-Redistribute_Vehicles.png}
     \caption{Sơ đồ Use Case \texttt{UC10 -- Redistribute Vehicles}}
     \label{fig:uc10}
 \end{figure}
@@ -588,10 +539,7 @@ Quy tắc nghiệp vụ & \texttt{BR12}, \texttt{BR13}. \\
 % --- UC10A ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC10A -- Confirm Transfer Arrival]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC10A-Confirm\_Transfer\_Arrival.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC10A-Confirm_Transfer_Arrival.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC10A-Confirm_Transfer_Arrival.png}
     \caption{Sơ đồ Use Case \texttt{UC10A -- Confirm Transfer Arrival}}
     \label{fig:uc10a}
 \end{figure}
@@ -621,10 +569,7 @@ Quy tắc nghiệp vụ & \texttt{BR12}, Migration~\texttt{0009}. \\
 % --- UC10B ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC10B -- Cancel Transfer Order]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC10B-Cancel\_Transfer\_Order.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC10B-Cancel_Transfer_Order.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC10B-Cancel_Transfer_Order.png}
     \caption{Sơ đồ Use Case \texttt{UC10B -- Cancel Transfer Order}}
     \label{fig:uc10b}
 \end{figure}
@@ -654,10 +599,7 @@ Quy tắc nghiệp vụ & Bất biến sở hữu hold: không bao giờ giải 
 % --- UC11 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC11 -- Handle Operational Incident]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC11-Handle\_Operational\_Incident.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC11-Handle_Operational_Incident.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC11-Handle_Operational_Incident.png}
     \caption{Sơ đồ Use Case \texttt{UC11 -- Handle Operational Incident}}
     \label{fig:uc11}
 \end{figure}
@@ -687,10 +629,7 @@ Quy tắc nghiệp vụ & \texttt{BR14} (sự cố Khẩn cấp phải cô lập
 % --- UC11A ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC11A -- Report Trip Incident]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC11A-Report\_Trip\_Incident.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC11A-Report_Trip_Incident.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC11A-Report_Trip_Incident.png}
     \caption{Sơ đồ Use Case \texttt{UC11A -- Report Trip Incident}}
     \label{fig:uc11a}
 \end{figure}
@@ -720,10 +659,7 @@ Quy tắc nghiệp vụ & Lưu bất biến dấu vết chuyến đi gốc tại
 % --- UC12 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC12 -- Manage Charging Schedule]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC12-Manage\_Charging\_Schedule.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC12-Manage_Charging_Schedule.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC12-Manage_Charging_Schedule.png}
     \caption{Sơ đồ Use Case \texttt{UC12 -- Manage Charging Schedule}}
     \label{fig:uc12}
 \end{figure}
@@ -753,10 +689,7 @@ Quy tắc nghiệp vụ & \texttt{BR15} (\texttt{powerLimitKW} = 85\% công su�
 % --- UC13 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC13 -- Run What-if Simulation]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC13-Run\_What-if\_Simulation.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC13-Run_What-if_Simulation.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC13-Run_What-if_Simulation.png}
     \caption{Sơ đồ Use Case \texttt{UC13 -- Run What-if Simulation}}
     \label{fig:uc13}
 \end{figure}
@@ -786,10 +719,7 @@ Quy tắc nghiệp vụ & \texttt{BR16} (tuyệt đối không làm biến đổ
 % --- UC14 ---
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.92\textwidth}{\centering\vspace{0.22cm}
-        \textbf{[Sơ đồ Use Case UC14 -- View Simulation Results]}\\[3pt]
-        {\footnotesize Nguồn: \texttt{docs/diagrams/01\_Usecase\_Diagram/drawio/UC14-View\_Simulation\_Results.drawio}}\vspace{0.22cm}}}
-    % \includegraphics[width=0.9\textwidth]{../../../docs/diagrams/01_Usecase_Diagram/drawio/UC14-View_Simulation_Results.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC14-View_Simulation_Results.png}
     \caption{Sơ đồ Use Case \texttt{UC14 -- View Simulation Results}}
     \label{fig:uc14}
 \end{figure}
@@ -818,31 +748,31 @@ Quy tắc nghiệp vụ & \texttt{BR17} (khuyến nghị phải kèm mức độ
 
 \subsection{Yêu cầu Phi chức năng (Non-Functional Requirements) và Quy tắc Nghiệp vụ}
 
-Hệ thống tuân thủ khung chất lượng phần mềm quốc tế \textbf{ISO/IEC 25010} với 6 nhóm Yêu cầu Phi chức năng (Bảng~\ref{tab:nfrs}) và hệ thống Quy tắc Nghiệp vụ xuyên suốt \texttt{BR01--BR17} kèm giới hạn đã nhận diện \texttt{LIM-01} (Bảng~\ref{tab:business-rules}).
+Hệ thống đối chiếu khung chất lượng \textbf{ISO/IEC 25010} với 6 nhóm Yêu cầu Phi chức năng mục tiêu (\Cref{tab:nfrs}) và hệ thống Quy tắc Nghiệp vụ \texttt{BR01--BR17} kèm giới hạn mô hình \texttt{LIM-01} (\Cref{tab:business-rules}). Trong phạm vi MVP, các tiêu chí về đồng thời (\texttt{NFR-CD01..02}) và bảo mật phiên (\texttt{NFR-SE01..02}) đã được kiểm chứng bằng mã nguồn và bộ kiểm thử tự động; các ngưỡng hiệu năng/độ sẵn sàng (\texttt{<= 1.5s}, \texttt{<= 5.0s}, \texttt{>= 99.5\%}) là chỉ tiêu thiết kế và chưa thực hiện đo tải (\textit{load test}) trên hạ tầng thực tế.
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{2.9cm} >{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{9.1cm}}
-\caption{Đặc tả Yêu cầu Phi chức năng (NFRs) theo chuẩn ISO/IEC 25010} \label{tab:nfrs} \\
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{8.5cm}}
+\caption{Đặc tả Yêu cầu Phi chức năng mục tiêu (NFRs) theo ISO/IEC 25010} \label{tab:nfrs} \\
 \toprule
-\textbf{Nhóm NFR} & \textbf{Mã định danh} & \textbf{Tiêu chí định lượng và cam kết kỹ thuật} \\
+\textbf{Nhóm NFR} & \textbf{Mã định danh} & \textbf{Tiêu chí định lượng mục tiêu và tình trạng kiểm chứng} \\
 \midrule
 \endfirsthead
 \toprule
-\textbf{Nhóm NFR} & \textbf{Mã định danh} & \textbf{Tiêu chí định lượng và cam kết kỹ thuật} \\
+\textbf{Nhóm NFR} & \textbf{Mã định danh} & \textbf{Tiêu chí định lượng mục tiêu và tình trạng kiểm chứng} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-Hiệu năng và Thời gian thực & \texttt{NFR-PE01..03} & Truy vấn Hub, xem xe và đặt chỗ phản hồi $\le 1.5\text{s}$; cập nhật telemetry hiển thị $\le 2.0\text{s}$; mô phỏng What-if 10 Hub / 1.000 xe trong 24 giờ hoàn tất $\le 5.0\text{s}$. \\
+Hiệu năng và Thời gian thực & \texttt{NFR-PE01..03} & Mục tiêu: truy vấn Hub, xem xe và đặt chỗ phản hồi $\le 1{,}5\,\text{s}$; cập nhật telemetry $\le 2{,}0\,\text{s}$; mô phỏng What-if 10 Hub / 1.000 xe trong 24 giờ hoàn tất $\le 5{,}0\,\text{s}$ \textit{(chỉ tiêu thiết kế, chưa benchmark)}. \\
 \addlinespace[3pt]
-Kiểm soát Đồng thời và Toàn vẹn & \texttt{NFR-CD01..02} & Chống \textit{double-booking} bằng giao dịch cô lập (\textit{single-winner semantics}); đảm bảo tính chất ACID và cơ chế tái thực thi lũy đẳng qua \texttt{Idempotency-Key} khi gián đoạn mạng. \\
+Kiểm soát Đồng thời và Toàn vẹn & \texttt{NFR-CD01..02} & Chống \textit{double-booking} bằng giao dịch cô lập (\textit{single-winner semantics}, \texttt{BEGIN IMMEDIATE}); đảm bảo tính chất ACID và tái thực thi lũy đẳng qua \texttt{Idempotency-Key} \textit{(đã hiện thực trong \texttt{SQLiteClient})}. \\
 \addlinespace[3pt]
-Độ tin cậy và Sẵn sàng & \texttt{NFR-RA01..02} & Độ sẵn sàng dịch vụ $\ge 99.5\%$ trong khung giờ vận hành (05:00--23:30); cô lập cục bộ cổng sạc/xe lỗi mà không ảnh hưởng các dịch vụ khác của Hub. \\
+Độ tin cậy và Sẵn sàng & \texttt{NFR-RA01..02} & Mục tiêu độ sẵn sàng $\ge 99{,}5\%$ trong khung giờ 05:00--23:30 \textit{(chưa đo thực tế)}; cô lập cục bộ cổng sạc/xe lỗi không làm gián đoạn dịch vụ khác của Hub \textit{(đã hiện thực qua \texttt{IncidentService})}. \\
 \addlinespace[3pt]
-Khả năng Sử dụng (Usability) & \texttt{NFR-UA01..02} & Giao diện di động dạng thẻ (vùng chạm $\ge 44\times 44\text{px}$), hoàn tất đặt/nhận xe trong $\le 3$ thao tác; kết hợp đồng thời nhãn chữ và màu sắc tương phản hỗ trợ truy cập. \\
+Khả năng Sử dụng (Usability) & \texttt{NFR-UA01..02} & Giao diện di động dạng thẻ (vùng chạm $\ge 44\times 44\,\text{px}$), hoàn tất đặt/nhận xe trong $\le 3$ thao tác; kết hợp nhãn chữ và màu tương phản hỗ trợ truy cập. \\
 \addlinespace[3pt]
-Mở rộng và Bảo trì & \texttt{NFR-SM01..02} & Kiến trúc phân tầng tách biệt mô-đun cho phép bổ sung Hub/tuyến mới qua cấu hình dữ liệu; tương thích đa trình duyệt hiện đại và ứng dụng Android. \\
+Mở rộng và Bảo trì & \texttt{NFR-SM01..02} & Kiến trúc modular monolith tách biệt 3 module trong \texttt{app/src/modules/}; tương thích trình duyệt hiện đại và ứng dụng Android (\texttt{android/}). \\
 \addlinespace[3pt]
-An toàn và Bảo mật & \texttt{NFR-SE01..02} & Phân quyền RBAC nghiêm ngặt giữa \texttt{User} và \texttt{Operator} ở tầng API; xác thực phiên phía máy chủ (Cookie HTTP-only / Origin check) và bảo vệ dữ liệu cá nhân. \\
+An toàn và Bảo mật & \texttt{NFR-SE01..02} & Phân quyền RBAC giữa \texttt{User} và \texttt{Operator} ở tầng router; xác thực phiên phía máy chủ (Cookie \texttt{HttpOnly}, \texttt{SameSite=Strict}, kiểm tra \texttt{Origin}, băm \texttt{scrypt} trong \texttt{app/src/app.js}). \\
 \end{longtable}
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{12.2cm}}
@@ -875,10 +805,10 @@ An toàn và Bảo mật & \texttt{NFR-SE01..02} & Phân quyền RBAC nghiêm ng
 
 \subsection{Yêu cầu Chức năng Phi tương tác (Bonus)}
 
-Để đáp ứng tiêu chí điểm cộng của Submission \#1, hệ thống thiết kế 4 dịch vụ tự động vận hành nền (\textit{Non-Interactive Functional Requirements}) mà không phụ thuộc thao tác trực tiếp của tác nhân:
+Hệ thống thiết kế 4 cơ chế tự động không phụ thuộc thao tác trực tiếp của tác nhân (\textit{Non-Interactive Functional Requirements}). Tình trạng hiện thực cụ thể trong mã nguồn MVP như sau:
 \begin{enumerate}[leftmargin=*,nosep]
-    \item \textbf{\texttt{FR-NI01} -- Tiến trình Hủy Đặt chỗ Quá hạn:} Định kỳ mỗi 30 giây quét các phiếu đặt chỗ quá hạn (\texttt{VehicleReservation} hạn 15 phút và \texttt{ParkingReservation} theo \texttt{BR08a}), chuyển các phiếu chưa nhận xe/chưa check-in quá hạn sang \texttt{Expired}, chỉ thu hồi đúng cam kết của phiếu đó mà không chạm tới chiếm dụng vật lý hoặc phiếu đang \texttt{pickupClaimed}, sau đó gửi thông báo.
-    \item \textbf{\texttt{FR-NI02} -- Luồng Giả lập Suy giảm Pin và Telemetry:} Cập nhật tiêu hao pin của phương tiện \texttt{InUse} theo quãng đường và thời gian ($\Delta \text{Battery} = \alpha \times v \times \Delta t$), tự động phát cảnh báo khẩn cấp khi mức pin tụt xuống dưới $15\%$.
-    \item \textbf{\texttt{FR-NI03} -- Bộ Kích hoạt Cảnh báo Sức chứa Hub:} Tự động đánh giá lại trạng thái mạng lưới sau mỗi biến cố nhận, trả, check-in, checkout hoặc điều chuyển theo ngưỡng Đỏ/Vàng tại \texttt{BR10}.
-    \item \textbf{\texttt{FR-NI04} -- Cơ chế Tự động Tái lập lịch Hàng đợi Sạc:} Lắng nghe sự kiện cổng sạc chuyển \texttt{Fault} hoặc xe có pin khẩn cấp ($<10\%$) đăng ký sạc để lập tức tính toán lại thứ tự ưu tiên phân bổ cổng và công suất.
+    \item \textbf{\texttt{FR-NI01} -- Tiến trình Hủy Đặt chỗ Quá hạn:} Đã hiện thực bằng hai bộ đếm chu kỳ 30 giây trong \texttt{app/src/demo-server.js} gọi \texttt{rentalService.\allowbreak expireReservations()} và \texttt{parkingService.\allowbreak runExpiryScan()}, chuyển các phiếu quá hạn chưa nhận xe/chưa check-in sang \texttt{Expired} mà không tác động tới chiếm dụng vật lý hay phiếu có \texttt{pickup\_claimed=1}.
+    \item \textbf{\texttt{FR-NI02} -- Cập nhật Pin và Telemetry:} Trong bản MVP, cập nhật mức pin được thực hiện qua \texttt{PATCH /api/v1/\allowbreak operations/\allowbreak resources/:id} và đầu ra của \texttt{SimulatedDock} / \texttt{Simulated\allowbreak Device\allowbreak Adapter} thay vì chạy tiến trình nền suy giảm pin liên tục.
+    \item \textbf{\texttt{FR-NI03} -- Bộ Đánh giá Cảnh báo Sức chứa Hub:} \texttt{Monitoring\allowbreak Service} (\texttt{GET /api/v1/\allowbreak operations/\allowbreak hubs}) tự động tính toán tỷ lệ lấp đầy và gắn nhãn cảnh báo Vàng/Đỏ theo ngưỡng \texttt{BR10} khi đọc trạng thái mạng lưới.
+    \item \textbf{\texttt{FR-NI04} -- Tự động Tái lập lịch Hàng đợi Sạc:} Đã hiện thực qua hook \texttt{chargingService.\allowbreak setRebalanceHook(...)} trong \texttt{app/src/\allowbreak modules/\allowbreak parking-charging/\allowbreak index.js}, kích hoạt \texttt{SchedulerService.\allowbreak rebalanceHubQueue()} khi có yêu cầu sạc khẩn cấp ($<10\%$ pin) hoặc thay đổi trạng thái trụ.
 \end{enumerate}

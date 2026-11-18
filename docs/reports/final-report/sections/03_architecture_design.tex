@@ -32,16 +32,16 @@ Các quyết định nền tảng của hệ thống được ghi nhận và ph�
 \midrule
 \texttt{DV-03} & Nền tảng công nghệ Backend & Lựa chọn \textbf{Node.js + Express} làm runtime và web framework cho khối máy chủ ứng dụng; sử dụng \textbf{SQLite} làm hệ quản trị cơ sở dữ liệu nhúng cho lưu trữ trạng thái bền vững. \\
 \midrule
-\texttt{DV-04} & Công nghệ Giao diện (\textit{Presentation}) & Tập trung chuẩn hóa giao diện bằng HTML5/CSS3/Modern JavaScript thuần (\texttt{app/prototype/}) cho cả bản mẫu tĩnh và giao diện vận hành trực tiếp; sau đó mở rộng thêm ứng dụng \textit{Native Android} tại \texttt{android/} trong giai đoạn tích hợp. \\
+\texttt{DV-04} & Công nghệ Giao diện (\textit{Presentation}) & Sử dụng HTML5/CSS3/Modern JavaScript thuần (\texttt{app/prototype/}) cho bản mẫu và Operator Live Dashboard (\texttt{live.js} + MapLibre GL JS); mở rộng ứng dụng \textit{Native Android} tại \texttt{android/} (Kotlin/Compose) và client Flutter tại \texttt{app/flutter\_mobile/}. \\
 \midrule
-\texttt{DV-05} & Trừu tượng hóa lưu trữ (\textit{Repository Pattern}) & Tầng \textit{Application} chỉ làm việc qua các giao diện trừu tượng (\textit{Persistence Ports / Repository Ports}). Lớp \textit{SQLite Repository Adapter} ở tầng \textit{Infrastructure} chịu trách nhiệm ánh xạ SQL, giúp tách biệt truy vấn dữ liệu khỏi luật miền. \\
+\texttt{DV-05} & Trừu tượng hóa lưu trữ (\textit{Repository Pattern}) & Theo thiết kế mục tiêu, tầng \textit{Application} làm việc qua \textit{Persistence Ports}. Trong mã nguồn MVP, mỗi module có repository riêng nhưng \texttt{SQLiteClient} đặt tại \texttt{operations/infrastructure/} và được dùng chung giữa các module. \\
 \midrule
-\texttt{DV-06} & Ranh giới mô phỏng thiết bị IoT & Mọi tương tác phần cứng trạm khóa và trụ sạc được cô lập sau giao diện \textit{Telemetry Input Contract} và \textit{Device Adapter} (\textit{SimulatedDock}, \textit{SimulatedDeviceAdapter}), tạo điều kiện thay thế bằng giao thức OCPP/MQTT thực tế về sau. \\
+\texttt{DV-06} & Ranh giới mô phỏng thiết bị IoT & Trong thiết kế mục tiêu dùng \textit{Telemetry Input Contract} và \textit{Notification Outbound Port}. Ở mã nguồn MVP, tương tác phần cứng đi qua \texttt{SimulatedDock} (\texttt{mobility-simulation}) và \texttt{SimulatedDeviceAdapter} (\texttt{parking-charging}); \textit{Notification Port} và \texttt{isolationVerifier} chưa có lớp cài đặt. \\
 \midrule
-\texttt{DV-07} & Cơ chế đồng thời và toàn vẹn dữ liệu & Áp dụng khóa giao dịch bi quan mức ghi ngay (\texttt{BEGIN IMMEDIATE}), khóa chống lặp yêu cầu (\textit{Idempotency-Key}) và kiểm tra lại điều kiện biên ngay tại thời điểm ghi dữ liệu nhằm ngăn tuyệt đối tình trạng giữ trùng xe hoặc trùng chỗ đỗ. \\
+\texttt{DV-07} & Cơ chế đồng thời và toàn vẹn dữ liệu & Áp dụng khóa giao dịch bi quan mức ghi ngay (\texttt{BEGIN IMMEDIATE}), khóa chống lặp yêu cầu (\textit{Idempotency-Key}) và kiểm tra lại điều kiện biên ngay tại thời điểm ghi dữ liệu nhằm ngăn tình trạng giữ trùng xe hoặc trùng chỗ đỗ. \\
 \end{longtable}
 
-Cụ thể hóa quyết định \texttt{DV-02}, Bảng~\ref{tab:5-layers} xác định trách nhiệm và ranh giới phụ thuộc của từng tầng kiến trúc trong hệ thống.
+Cụ thể hóa quyết định \texttt{DV-02}, \Cref{tab:5-layers} xác định trách nhiệm và ranh giới phụ thuộc của từng tầng kiến trúc theo thiết kế mục tiêu.
 
 \begin{table}[H]
 \centering
@@ -71,17 +71,12 @@ Góc nhìn triển khai (\textit{Physical/Deployment View}) mô tả cấu trúc
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{\centering\vspace{0.45cm}
-        \textbf{[Sơ đồ Triển khai hệ thống DP01 -- Deployment View]}\\[4pt]
-        Nguồn bản vẽ chuẩn: \texttt{docs/diagrams/deployment/DP01-deployment.drawio}\\
-        Tài liệu đặc tả: \texttt{docs/diagrams/deployment/README-deployment.md}\\[2pt]
-        \small{(Xuất ra file \texttt{.pdf} hoặc \texttt{.png} và bỏ comment lệnh \texttt{\textbackslash includegraphics} bên dưới để hiển thị hình)}\vspace{0.45cm}}}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/deployment/DP01-deployment.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/DP01-deployment.png}
     \caption{Sơ đồ Triển khai vật lý \texttt{DP01} (\texttt{docs/diagrams/deployment/DP01-deployment.drawio})}
     \label{fig:dp-01}
 \end{figure}
 
-Bảng~\ref{tab:dp01-nodes} liệt kê các nút thiết bị, môi trường thực thi, hiện vật triển khai (\textit{Artifacts}) và giao thức kết nối được định nghĩa trong \texttt{DP01}. Điểm đáng chú ý của mô hình triển khai này là cơ sở dữ liệu \texttt{SQLite Database} không nằm trên một nút máy chủ CSDL riêng biệt mà tồn tại dưới dạng tệp cục bộ (\texttt{data/mobility.sqlite} trong bản thiết kế; \texttt{app/db/.local/hub.sqlite} trong bản chạy MVP) gắn trực tiếp bên trong \texttt{Application Host}.
+\Cref{tab:dp01-nodes} liệt kê các nút thiết bị, môi trường thực thi, hiện vật triển khai (\textit{Artifacts}) và giao thức kết nối được định nghĩa trong \texttt{DP01}. Cơ sở dữ liệu \texttt{SQLite Database} không nằm trên nút máy chủ CSDL riêng biệt mà tồn tại dưới dạng tệp cục bộ (\texttt{app/db/.local/hub.sqlite} hoặc \texttt{dashboard-demo.sqlite} trong bản chạy MVP) gắn trực tiếp bên trong \texttt{Application Host}.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{2.9cm} >{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}p{4.6cm}}
 \caption{Phân rã các nút triển khai và kênh kết nối trong \texttt{DP01}} \label{tab:dp01-nodes} \\
@@ -115,42 +110,31 @@ Bảng~\ref{tab:dp01-nodes} liệt kê các nút thiết bị, môi trường th
 % ---------------------------------------------------
 \subsection{Góc nhìn Phát triển và Hiện thực (Development View -- DV01, DV02)}
 
-Góc nhìn phát triển (\textit{Development / Implementation View}) được chuẩn hóa qua hai sơ đồ: Sơ đồ Thành phần \texttt{DV01} (\texttt{DV01-Component\_Diagram\_New.drawio}) tập trung vào các cổng giao tiếp (\textit{Ports}) và phụ thuộc logic, và Sơ đồ Gói \texttt{DV02} (\texttt{DV02-Package\_Diagram\_New.drawio}) quy hoạch cấu trúc thư mục mã nguồn.
+Góc nhìn phát triển (\textit{Development / Implementation View}) gồm hai tầng tài liệu:
+\begin{enumerate}[leftmargin=*,nosep]
+    \item \textbf{Kiến trúc mục tiêu (\texttt{DV01}, \texttt{DV02}):} Mô tả 5 module logic và các port trừu tượng tại \texttt{docs/\allowbreak diagrams/\allowbreak 06\_Component\_Diagram/\allowbreak DV01-Component\_\allowbreak Diagram\_New.drawio} và \texttt{docs/\allowbreak diagrams/\allowbreak 07\_Package\_Diagram/\allowbreak DV02-Package\_\allowbreak Diagram\_New.drawio}.
+    \item \textbf{Sơ đồ Thành phần theo mã nguồn thực tế:} Được dựng trực tiếp từ \texttt{app/src/app.js}, \texttt{android/} và \texttt{app/flutter\_mobile/} tại \texttt{docs/\allowbreak diagrams/\allowbreak component-diagram.drawio} (kèm nguồn PlantUML \texttt{component-diagram.puml} và bản xem trước \texttt{component-diagram.svg}), thể hiện cổng biên \texttt{/api/v1}, \texttt{/ (static)}, \texttt{SQLite}, 3 module lõi, các adapter giả lập và dịch vụ bản đồ ngoài (\textit{OpenFreeMap}, \textit{OSRM}, \textit{Photon}).
+\end{enumerate}
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{\centering\vspace{0.45cm}
-        \textbf{[Sơ đồ Thành phần DV01 -- Component Diagram]}\\[4pt]
-        Nguồn bản vẽ chuẩn: \texttt{docs/diagrams/06\_Component\_Diagram/DV01-Component\_Diagram\_New.drawio}\\
-        Tài liệu đặc tả: \texttt{docs/diagrams/06\_Component\_Diagram/README.md}\\[2pt]
-        \small{(Xuất ra file \texttt{.pdf} hoặc \texttt{.png} và bỏ comment lệnh \texttt{\textbackslash includegraphics} bên dưới để hiển thị hình)}\vspace{0.45cm}}}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/06_Component_Diagram/DV01-Component_Diagram_New.pdf}
-    \caption{Sơ đồ Thành phần \texttt{DV01} mô tả phân tầng và các Ports/Adapters}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/component-diagram.png}
+    \caption{Sơ đồ Thành phần UML 2 mô tả các module, cổng giao tiếp và bộ điều hợp}
     \label{fig:dv-01}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{\centering\vspace{0.45cm}
-        \textbf{[Sơ đồ Gói DV02 -- Package Diagram]}\\[4pt]
-        Nguồn bản vẽ chuẩn: \texttt{docs/diagrams/07\_Package\_Diagram/DV02-Package\_Diagram\_New.drawio}\\
-        Tài liệu đặc tả: \texttt{docs/diagrams/07\_Package\_Diagram/README.md}\\[2pt]
-        \small{(Xuất ra file \texttt{.pdf} hoặc \texttt{.png} và bỏ comment lệnh \texttt{\textbackslash includegraphics} bên dưới để hiển thị hình)}\vspace{0.45cm}}}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/07_Package_Diagram/DV02-Package_Diagram_New.pdf}
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/DV02-Package_Diagram_New.png}
     \caption{Sơ đồ Gói \texttt{DV02} mô tả tổ chức mã nguồn và quan hệ \texttt{<<access>>}}
     \label{fig:dv-02}
 \end{figure}
 
-Trong thiết kế \texttt{DV01} và \texttt{DV02}, tầng \textit{Application} đóng vai trò hạt nhân liên kết giữa giao diện API và hạ tầng lưu trữ thông qua ba hợp đồng chuẩn:
-\begin{itemize}[leftmargin=*,nosep]
-    \item \textbf{\texttt{Persistence Ports} (\textit{Repository Ports}):} Tập giao diện lưu trữ do tầng \textit{Application} định nghĩa cho các nhóm thực thể (tài nguyên, đặt chỗ/chuyến, sạc, vận hành và mô phỏng), được hiện thực bởi \texttt{SQLite Repository Adapter}.
-    \item \textbf{\texttt{Telemetry Input Contract}:} Giao diện đầu vào chuẩn hóa luồng đo đạc (mức pin, lỗi trụ, cảm biến khóa) do khối \textit{Operations} hiện thực (\textit{UML realization}), được dùng chung bởi cả \texttt{Express HTTP API} và \texttt{Simulated Telemetry Adapter}.
-    \item \textbf{\texttt{Notification Outbound Port}:} Hợp đồng đẩy thông báo bất đồng bộ sau khi giao dịch CSDL đã \texttt{COMMIT}, tách biệt hoàn toàn logic nghiệp vụ khỏi nhà cung cấp gửi thông báo (\texttt{Mock Notification Adapter} trong bản MVP).
-\end{itemize}
+Trong thiết kế mục tiêu \texttt{DV01} và \texttt{DV02}, tầng \textit{Application} định nghĩa ba hợp đồng trừu tượng (\texttt{Persistence Ports}, \texttt{Telemetry Input Contract} và \texttt{Notification Outbound Port}). Tuy nhiên, ở mã nguồn MVP hiện tại, \texttt{Notification Outbound Port} và \texttt{isolationVerifier} chưa có lớp hiện thực, còn \texttt{parking-charging/index.js} nhập trực tiếp \texttt{SQLiteClient} và \texttt{SQLiteInventoryRepository} từ \texttt{operations/infrastructure/}.
 
 \subsubsection*{Truy vết từ Thiết kế 5 Module Logic (\texttt{DV01/DV02}) sang Hiện thực 3 Module Mã nguồn}
 
-Trong tài liệu kiến trúc đề xuất tại Submission~\#3 (\texttt{DEVELOPMENT\_\allowbreak IMPLEMENTATION\_\allowbreak VIEW\_REPORT.md}), tầng \textit{Application} được phân rã ở mức khái niệm thành \textbf{5 module logic} gắn với \textbf{7 khái niệm dịch vụ} (\textit{VehicleService}, \textit{ReservationHub}, \textit{ChargingScheduler}, \textit{RedistributionService}, \textit{IncidentService}, \texttt{TelemetryService}, \textit{SimulationEngine}). Khi chuyển sang giai đoạn xây dựng sản phẩm MVP trong thư mục \texttt{app/src/modules/} (trình bày chi tiết tại Chương~4), nhóm kỹ thuật hợp nhất thành \textbf{3 module mã nguồn gắn kết cao} nhằm khớp trực tiếp với phạm vi giao dịch SQLite ACID và phân công phát triển song song của các thành viên. Bảng~\ref{tab:module-traceability} minh họa đầy đủ ánh xạ truy vết này để bảo đảm tính nhất quán giữa hồ sơ thiết kế và mã nguồn thực tế.
+Trong tài liệu kiến trúc đề xuất tại Submission~\#3 (\texttt{DEVELOPMENT\_\allowbreak IMPLEMENTATION\_\allowbreak VIEW\_REPORT.md}), tầng \textit{Application} được phân rã ở mức khái niệm thành \textbf{5 module logic} gắn với \textbf{7 khái niệm dịch vụ} (\textit{VehicleService}, \textit{ReservationHub}, \textit{ChargingScheduler}, \textit{RedistributionService}, \textit{IncidentService}, \texttt{TelemetryService}, \textit{SimulationEngine}). Khi chuyển sang giai đoạn xây dựng sản phẩm MVP trong thư mục \texttt{app/src/modules/} (trình bày chi tiết tại Chương~4), nhóm kỹ thuật hợp nhất thành \textbf{3 module mã nguồn} khớp với phạm vi giao dịch SQLite ACID và phân công phát triển song song. \Cref{tab:module-traceability} minh họa ánh xạ truy vết giữa hồ sơ thiết kế và mã nguồn thực tế.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}p{3.8cm} >{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}p{2.6cm}}
 \caption{Ma trận truy vết từ 5 module logic (\texttt{DV01/DV02}) sang 3 module mã nguồn MVP} \label{tab:module-traceability} \\
@@ -187,17 +171,12 @@ Sơ đồ Lớp miền được đặc tả tại \texttt{docs/\allowbreak diagr
 
 \begin{figure}[H]
     \centering
-    \fbox{\parbox{0.94\textwidth}{\centering\vspace{0.45cm}
-        \textbf{[Sơ đồ Lớp Miền -- Domain Class Diagram]}\\[4pt]
-        Nguồn bản vẽ chuẩn: \texttt{docs/diagrams/\allowbreak 05\_Class\_Diagram/\allowbreak drawio/\allowbreak smart\_emobility\_\allowbreak class\_diagram.drawio}\\
-        Danh mục đặc tả: \texttt{.agent/class-diagram/CLASS\_CATALOG.md}\\[2pt]
-        \small{(Xuất ra file \texttt{.pdf} hoặc \texttt{.png} và bỏ comment lệnh \texttt{\textbackslash includegraphics} bên dưới để hiển thị hình)}\vspace{0.45cm}}}
-    % \includegraphics[width=0.95\textwidth]{../../../docs/diagrams/05_Class_Diagram/drawio/smart_emobility_class_diagram.pdf}
+    \includegraphics[width=0.95\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/smart_emobility_class_diagram.png}
     \caption{Sơ đồ Lớp miền hệ thống \textit{Smart E-Mobility Hub} (19 lớp, 31 liên kết)}
     \label{fig:class-diagram}
 \end{figure}
 
-Bảng~\ref{tab:class-catalog} tổng hợp danh mục 19 lớp trong sơ đồ, phân biệt rõ lớp trừu tượng (\textit{abstract}), lớp kế thừa và các phương thức được khai báo trực tiếp.
+\Cref{tab:class-catalog} tổng hợp danh mục 19 lớp trong sơ đồ, phân biệt rõ lớp trừu tượng (\textit{abstract}), lớp kế thừa và các phương thức được khai báo trực tiếp.
 
 \begin{longtable}{>{\centering\arraybackslash}p{0.8cm} >{\raggedright\arraybackslash}p{3.8cm} >{\raggedright\arraybackslash}p{5.5cm} >{\raggedright\arraybackslash}p{4.1cm}}
 \caption{Danh mục 19 lớp trong Sơ đồ Lớp (\texttt{CLASS\_CATALOG.md})} \label{tab:class-catalog} \\
@@ -252,7 +231,7 @@ Bảng~\ref{tab:class-catalog} tổng hợp danh mục 19 lớp trong sơ đồ,
 
 \subsubsection*{Các Kiểu Liệt kê (Enums) và Kiểu Dữ liệu Giá trị (Value Types)}
 
-Bảng~\ref{tab:supporting-types} chuẩn hóa miền giá trị cho 16 \textit{Enums} và các kiểu giá trị phức hợp đi kèm (\texttt{GeoLocation} thuộc $[-90,90]\times[-180,180]$, \texttt{TimeInterval}, \texttt{ParkingOutcome}, \texttt{NetworkSnapshot}, \texttt{ScenarioParameters}), khớp 100\% với các máy trạng thái \texttt{SC01--SC03} tại Chương~2.
+\Cref{tab:supporting-types} chuẩn hóa miền giá trị cho 16 \textit{Enums} và các kiểu giá trị phức hợp đi kèm (\texttt{GeoLocation} thuộc $[-90,90]\times[-180,180]$, \texttt{TimeInterval}, \texttt{ParkingOutcome}, \texttt{NetworkSnapshot}, \texttt{ScenarioParameters}), khớp với các máy trạng thái \texttt{SC01--SC03} tại Chương~2.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}p{10.0cm}}
 \caption{Hệ thống 16 kiểu liệt kê và kiểu giá trị hỗ trợ trong mô hình lớp} \label{tab:supporting-types} \\
@@ -287,7 +266,7 @@ Bảng~\ref{tab:supporting-types} chuẩn hóa miền giá trị cho 16 \textit{
 
 Toàn bộ mô hình cấu trúc liên kết 19 lớp thông qua \textbf{31 mối quan hệ (Associations)}. Trong đó, 30 mối quan hệ là liên kết thường (\textit{ordinary association}) vì hạ tầng Hub, chỗ đỗ, trụ sạc và lịch sử chuyến đi có vòng đời độc lập, không tự động xóa dây chuyền. Duy nhất liên kết giữa \texttt{SimulationResult} (\texttt{1}) và \texttt{CoordinationRecommendation} (\texttt{0..*}) là quan hệ hợp thành (\textit{composition}), bởi các bản ghi khuyến nghị không tồn tại độc lập ngoài kết quả mô phỏng sinh ra chúng (tuy nhiên khi chấp nhận khuyến nghị để tạo \texttt{TransferOrder}, lệnh điều chuyển thực tế có vòng đời độc lập sau khi tạo).
 
-Bảng~\ref{tab:associations-invariants} tóm tắt các nhóm liên kết chính cùng 10 bất biến vòng đời và cấp phát trọng yếu dùng để kiểm chứng mã nguồn.
+\Cref{tab:associations-invariants} tóm tắt các nhóm liên kết chính cùng 10 bất biến vòng đời và cấp phát trọng yếu dùng để kiểm chứng mã nguồn.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}p{4.8cm} >{\raggedright\arraybackslash}p{6.0cm}}
 \caption{Nhóm 31 liên kết quan hệ và 10 bất biến vòng đời cốt lõi (\texttt{CLASS\_CATALOG.md})} \label{tab:associations-invariants} \\
@@ -317,7 +296,7 @@ Mô phỏng What-if & \texttt{SimulationScenario} \texttt{1}--\texttt{0..*} \tex
 
 Tuân thủ nguyên tắc thiết kế hướng hợp đồng (\textit{Design by Contract}) và cấu trúc đặc tả phương thức trong \texttt{.agent/class-diagram/CLASS\_CATALOG.md}, mọi phương thức đọc (\textit{Query predicates}) đều thuần túy, không tự khóa tài nguyên; mọi phương thức chuyển trạng thái (\textit{Mutating operations}) đều phải được tầng dịch vụ (\textit{Application Services}) bọc trong giao dịch nguyên tử, kiểm tra lại quyền hạn, bất biến chéo và chỉ đẩy thông báo sau khi \texttt{COMMIT} thành công.
 
-Bảng~\ref{tab:method-contracts} trình bày chi tiết hợp đồng cho toàn bộ \textbf{18 phương thức} (bao gồm cả phương thức trừu tượng và 2 lớp ghi đè).
+\Cref{tab:method-contracts} trình bày chi tiết hợp đồng cho toàn bộ \textbf{18 phương thức} (bao gồm cả phương thức trừu tượng và 2 lớp ghi đè).
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}p{10.7cm}}
 \caption{Đặc tả chi tiết hợp đồng 18 phương thức trong Sơ đồ Lớp (\texttt{CLASS\_CATALOG.md})} \label{tab:method-contracts} \\
@@ -458,7 +437,7 @@ Bảng~\ref{tab:method-contracts} trình bày chi tiết hợp đồng cho toàn
 \textbf{Ngoại lệ:} \texttt{InvalidResult}, \texttt{ResultAlreadyOwned}, \texttt{InvalidTransition}. \\
 \end{longtable}
 
-Bảng~\ref{tab:inherited-methods} tóm tắt bốn lớp cụ thể thừa hưởng hoặc ghi đè hành vi từ hai lớp trừu tượng \texttt{ElectricVehicle} và \texttt{Reservation}, bảo đảm 100\% thành phần trên sơ đồ lớp đều có truy vết hợp đồng tường minh.
+\Cref{tab:inherited-methods} tóm tắt bốn lớp cụ thể thừa hưởng hoặc ghi đè hành vi từ hai lớp trừu tượng \texttt{ElectricVehicle} và \texttt{Reservation}, bảo đảm các thành phần trên sơ đồ lớp đều có truy vết hợp đồng tường minh.
 
 \begin{table}[H]
 \centering
@@ -520,7 +499,7 @@ Lược đồ cơ sở dữ liệu được quản trị bằng cơ chế di tr�
 
 \subsubsection*{Cấu trúc Các Bảng Dữ liệu Lõi trong SQLite}
 
-Bảng~\ref{tab:sqlite-core-tables} tóm tắt cấu trúc khóa chính, khóa ngoại và các ràng buộc toàn vẹn mức cơ sở dữ liệu của 8 bảng quan hệ trung tâm sau khi áp dụng đầy đủ 12 lượt migration.
+\Cref{tab:sqlite-core-tables} tóm tắt cấu trúc khóa chính, khóa ngoại và các ràng buộc toàn vẹn mức cơ sở dữ liệu của 8 bảng quan hệ trung tâm sau khi áp dụng đầy đủ 12 lượt migration.
 
 \begin{longtable}{>{\raggedright\arraybackslash\small}p{3.6cm} >{\raggedright\arraybackslash\small}p{4.3cm} >{\raggedright\arraybackslash}p{6.4cm}}
 \caption{Lược đồ khóa và ràng buộc toàn vẹn các bảng SQLite lõi} \label{tab:sqlite-core-tables} \\
