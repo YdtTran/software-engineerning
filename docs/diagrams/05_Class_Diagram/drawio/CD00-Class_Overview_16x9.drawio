@@ -1,0 +1,293 @@
+<mxfile host="drawio" version="26.0.0">
+  <diagram id="CD00" name="CD00 · Mô hình lớp tổng quan">
+    <mxGraphModel grid="0" page="1" background="#ffffff" pageScale="1" pageWidth="1600" pageHeight="900">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="accent" value="" style="strokeColor=none;fillColor=#0891b2;" vertex="1" parent="1">
+          <mxGeometry x="50" y="41" width="4" height="61" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="Mô hình lớp tổng quan" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=44;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="72" y="33" width="1480" height="57" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Smart E-Mobility Hub · Đặt xe, chuyến đi, tài nguyên tại Hub và sạc điện" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=23;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="74" y="90" width="1480" height="31" as="geometry" />
+        </mxCell>
+        <mxCell id="UserAccount" value="" style="container=1;collapsible=0;fillColor=#f5e9fc;strokeColor=#7c3c91;strokeWidth=1.6;" vertex="1" parent="1" data-class="UserAccount">
+          <mxGeometry x="66" y="158" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="UserAccount_title" value="UserAccount" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#ead2f6;strokeColor=#7c3c91;fontSize=22;fontStyle=1;" vertex="1" parent="UserAccount">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="UserAccount_attrs" value="-roles : UserRoleSet" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#f5e9fc;strokeColor=#7c3c91;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="UserAccount">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="UserAccount_ops" value="" style="fillColor=#f5e9fc;strokeColor=#7c3c91;" vertex="1" parent="UserAccount">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="UserAccount_op0" value="+hasRole(role : UserRole) : Boolean" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;fontSize=16;align=left;fontStyle=0;" vertex="1" parent="UserAccount_ops">
+          <mxGeometry x="11" y="0" width="270" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="Reservation" value="" style="container=1;collapsible=0;fillColor=#eaf6e9;strokeColor=#397a46;strokeWidth=1.6;" vertex="1" parent="1" data-class="Reservation">
+          <mxGeometry x="458" y="158" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="Reservation_title" value="Reservation" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#cce9cc;strokeColor=#397a46;fontSize=22;fontStyle=3;" vertex="1" parent="Reservation">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="Reservation_attrs" value="-expiresAt : DateTime" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#eaf6e9;strokeColor=#397a46;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="Reservation">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="Reservation_ops" value="" style="fillColor=#eaf6e9;strokeColor=#397a46;" vertex="1" parent="Reservation">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="Reservation_op0" value="+cancel() : void" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;fontSize=16;align=left;fontStyle=0;" vertex="1" parent="Reservation_ops">
+          <mxGeometry x="11" y="0" width="270" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="Reservation_op1" value="+calculateExpiry() : DateTime" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;fontSize=16;align=left;fontStyle=2;" vertex="1" parent="Reservation_ops">
+          <mxGeometry x="11" y="23" width="270" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="VehicleReservation" value="" style="container=1;collapsible=0;fillColor=#eaf6e9;strokeColor=#397a46;strokeWidth=1.6;" vertex="1" parent="1" data-class="VehicleReservation">
+          <mxGeometry x="850" y="158" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="VehicleReservation_title" value="VehicleReservation" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#cce9cc;strokeColor=#397a46;fontSize=22;fontStyle=1;" vertex="1" parent="VehicleReservation">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="VehicleReservation_attrs" value="-pickupClaimed : Boolean = false" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#eaf6e9;strokeColor=#397a46;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="VehicleReservation">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="VehicleReservation_ops" value="" style="fillColor=#eaf6e9;strokeColor=#397a46;" vertex="1" parent="VehicleReservation">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="Trip" value="" style="container=1;collapsible=0;fillColor=#eaf6e9;strokeColor=#397a46;strokeWidth=1.6;" vertex="1" parent="1" data-class="Trip">
+          <mxGeometry x="1242" y="158" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="Trip_title" value="Trip" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#cce9cc;strokeColor=#397a46;fontSize=22;fontStyle=1;" vertex="1" parent="Trip">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="Trip_attrs" value="-status : TripStatus" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#eaf6e9;strokeColor=#397a46;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="Trip">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="Trip_ops" value="" style="fillColor=#eaf6e9;strokeColor=#397a46;" vertex="1" parent="Trip">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="Trip_op0" value="+complete(at : DateTime) : void" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;fontSize=16;align=left;fontStyle=0;" vertex="1" parent="Trip_ops">
+          <mxGeometry x="11" y="0" width="270" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="MobilityHub" value="" style="container=1;collapsible=0;fillColor=#e7f1fd;strokeColor=#32679e;strokeWidth=1.6;" vertex="1" parent="1" data-class="MobilityHub">
+          <mxGeometry x="66" y="382" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="MobilityHub_title" value="MobilityHub" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#cce3fb;strokeColor=#32679e;fontSize=22;fontStyle=1;" vertex="1" parent="MobilityHub">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="MobilityHub_attrs" value="-name : String&#10;-powerLimitKW : Real" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#e7f1fd;strokeColor=#32679e;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="MobilityHub">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="MobilityHub_ops" value="" style="fillColor=#e7f1fd;strokeColor=#32679e;" vertex="1" parent="MobilityHub">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="MobilityHub_op0" value="+availableParkingCount() : Integer" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;fontSize=16;align=left;fontStyle=0;" vertex="1" parent="MobilityHub_ops">
+          <mxGeometry x="11" y="0" width="270" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="ParkingSlot" value="" style="container=1;collapsible=0;fillColor=#e7f1fd;strokeColor=#32679e;strokeWidth=1.6;" vertex="1" parent="1" data-class="ParkingSlot">
+          <mxGeometry x="458" y="382" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="ParkingSlot_title" value="ParkingSlot" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#cce3fb;strokeColor=#32679e;fontSize=22;fontStyle=1;" vertex="1" parent="ParkingSlot">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="ParkingSlot_attrs" value="-status : ParkingStatus" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#e7f1fd;strokeColor=#32679e;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="ParkingSlot">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="ParkingSlot_ops" value="" style="fillColor=#e7f1fd;strokeColor=#32679e;" vertex="1" parent="ParkingSlot">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="ElectricVehicle" value="" style="container=1;collapsible=0;fillColor=#ffeedf;strokeColor=#a4501c;strokeWidth=1.6;" vertex="1" parent="1" data-class="ElectricVehicle">
+          <mxGeometry x="850" y="382" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="ElectricVehicle_title" value="ElectricVehicle" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#ffdbba;strokeColor=#a4501c;fontSize=22;fontStyle=3;" vertex="1" parent="ElectricVehicle">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="ElectricVehicle_attrs" value="-batteryPercent : Integer&#10;-status : VehicleStatus" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#ffeedf;strokeColor=#a4501c;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="ElectricVehicle">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="ElectricVehicle_ops" value="" style="fillColor=#ffeedf;strokeColor=#a4501c;" vertex="1" parent="ElectricVehicle">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="ElectricVehicle_op0" value="+isRentable() : Boolean" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;fontSize=16;align=left;fontStyle=0;" vertex="1" parent="ElectricVehicle_ops">
+          <mxGeometry x="11" y="0" width="270" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingPoint" value="" style="container=1;collapsible=0;fillColor=#e7f1fd;strokeColor=#32679e;strokeWidth=1.6;" vertex="1" parent="1" data-class="ChargingPoint">
+          <mxGeometry x="66" y="606" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingPoint_title" value="ChargingPoint" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#cce3fb;strokeColor=#32679e;fontSize=22;fontStyle=1;" vertex="1" parent="ChargingPoint">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingPoint_attrs" value="-status : ChargingPointStatus&#10;-allocatedPowerKW : Real = 0" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#e7f1fd;strokeColor=#32679e;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="ChargingPoint">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingPoint_ops" value="" style="fillColor=#e7f1fd;strokeColor=#32679e;" vertex="1" parent="ChargingPoint">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingSession" value="" style="container=1;collapsible=0;fillColor=#fff6dc;strokeColor=#8b6420;strokeWidth=1.6;" vertex="1" parent="1" data-class="ChargingSession">
+          <mxGeometry x="458" y="606" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingSession_title" value="ChargingSession" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#ffecae;strokeColor=#8b6420;fontSize=22;fontStyle=1;" vertex="1" parent="ChargingSession">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingSession_attrs" value="-status : ChargingSessionStatus" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#fff6dc;strokeColor=#8b6420;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="ChargingSession">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingSession_ops" value="" style="fillColor=#fff6dc;strokeColor=#8b6420;" vertex="1" parent="ChargingSession">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingSession_op0" value="+stop(at : DateTime, reason : ChargingStopReason) : void" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;fontSize=16;align=left;fontStyle=0;" vertex="1" parent="ChargingSession_ops">
+          <mxGeometry x="11" y="0" width="270" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingRequest" value="" style="container=1;collapsible=0;fillColor=#fff6dc;strokeColor=#8b6420;strokeWidth=1.6;" vertex="1" parent="1" data-class="ChargingRequest">
+          <mxGeometry x="850" y="606" width="292" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingRequest_title" value="ChargingRequest" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#ffecae;strokeColor=#8b6420;fontSize=22;fontStyle=1;" vertex="1" parent="ChargingRequest">
+          <mxGeometry x="0" y="0" width="292" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingRequest_attrs" value="-targetBatteryPercent : Integer" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;fillColor=#fff6dc;strokeColor=#8b6420;fontSize=17;align=left;spacingLeft=11;" vertex="1" parent="ChargingRequest">
+          <mxGeometry x="0" y="37" width="292" height="47" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingRequest_ops" value="" style="fillColor=#fff6dc;strokeColor=#8b6420;" vertex="1" parent="ChargingRequest">
+          <mxGeometry x="0" y="84" width="292" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="ChargingRequest_op0" value="+isUrgent() : Boolean" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;fontSize=16;align=left;fontStyle=0;" vertex="1" parent="ChargingRequest_ops">
+          <mxGeometry x="11" y="0" width="270" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="g2" source="VehicleReservation" target="Reservation" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=0.0;exitY=0.45454545454545453;entryX=1.0;entryY=0.45454545454545453;endArrow=block;endFill=0;endSize=13;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r0" source="MobilityHub" target="ParkingSlot" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.4696969696969697;entryX=0.0;entryY=0.4696969696969697;endArrow=none;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r0_tail" value="1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r0">
+          <mxGeometry x="365" y="415" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r0_head" value="0..*" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r0">
+          <mxGeometry x="421" y="443" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r3" source="ParkingSlot" target="ElectricVehicle" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.4696969696969697;entryX=0.0;entryY=0.4696969696969697;endArrow=none;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r3_tail" value="0..1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r3">
+          <mxGeometry x="757" y="415" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r3_head" value="0..1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r3">
+          <mxGeometry x="813" y="443" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r5" source="UserAccount" target="Reservation" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.45454545454545453;entryX=0.0;entryY=0.45454545454545453;endArrow=none;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r5_tail" value="1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r5">
+          <mxGeometry x="365" y="189" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r5_head" value="0..*" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r5">
+          <mxGeometry x="421" y="217" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r10" source="VehicleReservation" target="Trip" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.45454545454545453;entryX=0.0;entryY=0.45454545454545453;endArrow=none;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r10_tail" value="1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r10">
+          <mxGeometry x="1149" y="189" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r10_head" value="0..1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r10">
+          <mxGeometry x="1205" y="217" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r15" source="ChargingRequest" target="ChargingSession" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=0.0;exitY=0.4772727272727273;entryX=1.0;entryY=0.4772727272727273;endArrow=none;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r15_tail" value="1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r15">
+          <mxGeometry x="813" y="640" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r15_head" value="0..*" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r15">
+          <mxGeometry x="757" y="668" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r16" source="ChargingPoint" target="ChargingSession" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.4772727272727273;entryX=0.0;entryY=0.4772727272727273;endArrow=none;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r16_tail" value="1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r16">
+          <mxGeometry x="365" y="640" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r16_head" value="0..*" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r16">
+          <mxGeometry x="421" y="668" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r1" source="MobilityHub" target="ChargingPoint" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;endArrow=none;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r1_tail" value="1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r1">
+          <mxGeometry x="221" y="515" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r1_head" value="0..*" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r1">
+          <mxGeometry x="221" y="575" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r6" source="ElectricVehicle" target="VehicleReservation" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;endArrow=none;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r6_tail" value="1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r6">
+          <mxGeometry x="1005" y="351" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r6_head" value="0..*" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r6">
+          <mxGeometry x="1005" y="291" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r14" source="ElectricVehicle" target="ChargingRequest" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;endArrow=none;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r14_tail" value="1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r14">
+          <mxGeometry x="1005" y="515" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r14_head" value="0..*" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r14">
+          <mxGeometry x="1005" y="575" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r9" source="ElectricVehicle" target="Trip" parent="1" edge="1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#334155;strokeWidth=1.6;exitPerimeter=0;entryPerimeter=0;exitX=1.0;exitY=0.3409090909090909;entryX=0.5;entryY=1.0;endArrow=none;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1388" y="427" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r9_tail" value="1" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r9">
+          <mxGeometry x="1149" y="398" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="r9_head" value="0..*" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;edgeLabel;resizable=0;strokeColor=none;fillColor=none;labelBackgroundColor=#ffffff;fontSize=17;" vertex="1" parent="r9">
+          <mxGeometry x="1397" y="291" width="0" height="0" as="geometry" relative="0" />
+        </mxCell>
+        <mxCell id="legend_0_key" value="" style="fillColor=#ead2f6;strokeColor=#7c3c91;strokeWidth=1.4;" vertex="1" parent="1">
+          <mxGeometry x="66" y="791" width="21" height="21" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_0_label" value="Tài khoản" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=19;" vertex="1" parent="1">
+          <mxGeometry x="95" y="788" width="255" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_1_key" value="" style="fillColor=#cce9cc;strokeColor=#397a46;strokeWidth=1.4;" vertex="1" parent="1">
+          <mxGeometry x="323" y="791" width="21" height="21" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_1_label" value="Đặt xe và chuyến đi" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=19;" vertex="1" parent="1">
+          <mxGeometry x="352" y="788" width="255" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_2_key" value="" style="fillColor=#cce3fb;strokeColor=#32679e;strokeWidth=1.4;" vertex="1" parent="1">
+          <mxGeometry x="675" y="791" width="21" height="21" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_2_label" value="Hạ tầng Hub" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=19;" vertex="1" parent="1">
+          <mxGeometry x="704" y="788" width="255" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_3_key" value="" style="fillColor=#ffdbba;strokeColor=#a4501c;strokeWidth=1.4;" vertex="1" parent="1">
+          <mxGeometry x="951" y="791" width="21" height="21" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_3_label" value="Phương tiện" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=19;" vertex="1" parent="1">
+          <mxGeometry x="980" y="788" width="255" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_4_key" value="" style="fillColor=#ffecae;strokeColor=#8b6420;strokeWidth=1.4;" vertex="1" parent="1">
+          <mxGeometry x="1242" y="791" width="21" height="21" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_4_label" value="Sạc điện" style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=19;" vertex="1" parent="1">
+          <mxGeometry x="1271" y="788" width="255" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="scope" value="Góc nhìn trình chiếu · Chỉ hiển thị lớp, thuộc tính, phương thức và quan hệ đại diện. Mô hình đầy đủ nằm trong các tab chi tiết." style="html=0;fontFamily=Arial;fontColor=#0f172a;whiteSpace=wrap;text;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=17;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="66" y="842" width="1470" height="26" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,7 +1,57 @@
 # DV02 — Package Diagram
 
-> **Current demo:** This page and its diagram describe the target logical organization. The running backend has Operations, Mobility/Simulation and Parking/Charging modules, with an Android User app and API-connected Operator browser interfaces. See [version 2 traceability](../../requirements/VERSION_2_TRACEABILITY.md) and [demo deployment](../deployment/README-deployment.md). Statements below about an unimplemented backend or mockup-only clients describe the historical design baseline, not the current demo.
-[alt text](DV02-Package_Diagram_New.drawio)
+## Tổng quan mã nguồn hiện tại · 16:9
+
+[Bản tổng quan Draw.io](DV02-Package_Overview_16x9.drawio) dùng thư mục thực tế trong repository. Ba module dưới `app/src/modules/` cùng có các thư mục `api/`, `application/`, `domain/` và `infrastructure/`. Mũi tên nét đứt cho thấy hai module dùng hợp đồng được Operations cung cấp qua cách lắp ghép trong [app.js](../../../app/src/app.js). Khung lồng nhau biểu thị vị trí mã nguồn theo [ký pháp Package UML](https://www.visual-paradigm.com/guide/uml-unified-modeling-language/what-is-package-diagram/).
+
+Mở tệp bằng Draw.io Integration trong VS Code. Xuất slide qua **File → Export as → PNG/SVG → Size: Page**. Nhập PlantUML qua **Advanced → PlantUML** trong Draw.io hoặc **File → Import → PlantUML** trong Visual Paradigm Online.
+
+<details>
+<summary>PlantUML và Mermaid cho bản tổng quan</summary>
+
+```plantuml
+@startuml
+package "android/" as Android
+package "app/" {
+  package "src/" {
+    package "modules/" {
+      package "mobility-simulation/" as Mobility
+      package "operations/" as Operations
+      package "parking-charging/" as Parking
+    }
+  }
+  package "flutter_mobile/" as Flutter
+  package "prototype/" as Prototype
+  package "db/" as DB
+}
+Mobility ..> Operations : Inventory
+Parking ..> Operations : Inventory / Incidents
+@enduml
+```
+
+```mermaid
+flowchart LR
+  Android["android/"]
+  subgraph App["app/"]
+    subgraph Src["src/"]
+      subgraph Modules["modules/"]
+        Mobility["mobility-simulation/"] -. Inventory .-> Operations["operations/"]
+        Parking["parking-charging/"] -. "Inventory / Incidents" .-> Operations
+      end
+    end
+    Flutter["flutter_mobile/"]
+    Prototype["prototype/"]
+    DB["db/"]
+  end
+```
+
+</details>
+
+## Thiết kế mục tiêu
+
+> **Current demo:** The sections below and their detailed diagram describe the target logical organization. The running backend has Operations, Mobility/Simulation and Parking/Charging modules, with an Android User app and API-connected Operator browser interfaces. See [version 2 traceability](../../requirements/VERSION_2_TRACEABILITY.md) and [demo deployment](../deployment/README-deployment.md). Statements below about an unimplemented backend or mockup-only clients describe the historical design baseline, not the current demo.
+[Bản Draw.io chi tiết của thiết kế mục tiêu](DV02-Package_Diagram_New.drawio)
+
 ## 1. Purpose and scope
 
 This diagram describes a **proposed source/package organization** for the Smart E-Mobility Hub MVP. Its purpose is to show logical grouping by layer and business module, together with package dependency direction.

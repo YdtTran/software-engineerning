@@ -80,7 +80,7 @@ Các bảng dùng 11 trường theo [quy tắc use case](../../standards/00_Usec
 | Normal Flow | 1. User chọn Hub, ô và xác nhận đã đỗ. 2. Hệ thống kiểm tra chủ chuyến và giữ ô hợp lệ. 3. Dock xác nhận xe đến, khóa và dữ liệu pin. 4. Hệ thống đóng chuyến, ghi chiếm dụng và phân loại xe nguyên tử. 5. Hiển thị kết quả. |
 | Alternative Flows | Hub/ô đầy: User chọn lựa chọn khác. Xe pin thấp được phân loại NeedsCharging. |
 | Exceptions | Không giữ được sức chứa hoặc dữ liệu dock thiếu/mâu thuẫn: không đóng chuyến; giữ yêu cầu không chắc chắn để đối soát. |
-| Notes and Issues | [AD03](../03_Activity_Diagram/drawio/AD03-Return_Vehicle.drawio) và [SQ03](../02_Sequence_Diagram/drawio/SQ03-Return_Vehicle.drawio) thể hiện xác nhận của User trước lệnh dock; quãng đường có thể thiếu nếu adapter không cung cấp số đo. |
+| Notes and Issues | [AD03](../03_Activity_Diagram/drawio/AD03-Return_Vehicle.drawio) và [SQ03](../02_Sequence_Diagram/README.md#sq03--confirm-parking-and-return) thể hiện xác nhận của User trước lệnh dock; quãng đường có thể thiếu nếu adapter không cung cấp số đo. |
 
 ## UC06 — Manage Parking Reservation
 

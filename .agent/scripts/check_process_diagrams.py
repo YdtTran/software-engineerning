@@ -5,13 +5,18 @@ import xml.etree.ElementTree as ET
 
 
 if __name__ == '__main__':
-    files = []
+    overview = STA / 'drawio/SC00-System_Lifecycle_Overview.drawio'
+    files = [overview]
     for folder, diagrams in ((ACT, ACTIVITIES), (STA, STATES)):
         expected = {diagram[0] for diagram in diagrams}
-        native = sorted((folder / 'drawio').glob('*.drawio'))
+        native = sorted(set((folder / 'drawio').glob('*.drawio')) - {overview})
         assert {file.stem for file in native} == expected
         files.extend(native)
     check(files)
+    slide = ET.parse(overview)
+    assert len(slide.findall('diagram')) == 1
+    model = slide.find('.//mxGraphModel')
+    assert int(model.get('pageWidth')) * 9 == int(model.get('pageHeight')) * 16
     vehicle = ET.parse(STA / 'drawio/SC01-Vehicle_State_Machine.drawio')
     uncertain = vehicle.find(".//mxCell[@id='e5']")
     assert (uncertain.get('source'), uncertain.get('target')) == ('Reserved', 'Reserved')

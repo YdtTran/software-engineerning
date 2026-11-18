@@ -1,0 +1,174 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usefonttheme{structurebold}
+\usefonttheme[onlymath]{serif}
+
+\definecolor{BKTemplate}{rgb}{0.11765, 0.30588, 0.47451}
+\usecolortheme[named=BKTemplate]{structure}
+\setbeamercolor{title}{fg=BKTemplate,bg=}
+\setbeamertemplate{caption}[numbered]
+
+% Engine-adaptive font configuration
+\usepackage{iftex}
+\ifLuaTeX
+  \usepackage{fontspec}
+  \setmainfont{Noto Sans}
+  \setsansfont{Noto Sans}
+  \setmonofont{Noto Sans Mono}
+\else\ifXeTeX
+  \usepackage{fontspec}
+  \setmainfont{Noto Sans}
+  \setsansfont{Noto Sans}
+  \setmonofont{Noto Sans Mono}
+\else
+  \usepackage[utf8]{inputenc}
+  \usepackage[T5,T1]{fontenc}
+\fi\fi
+
+\usepackage[english,vietnamese]{babel}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,decorations.pathreplacing}
+\usepackage{listings}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% Code listing configuration
+\lstset{
+  basicstyle=\ttfamily\fontsize{6.8}{8.2}\selectfont,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray!70!black},
+  stringstyle=\color{red!70!black},
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{BKTemplate!5},
+  rulecolor=\color{BKTemplate!40},
+  tabsize=2,
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true
+}
+\lstdefinestyle{dense}{basicstyle=\ttfamily\fontsize{6.2}{7.2}\selectfont}
+
+% HCMUT backgrounds (skipped silently if the image files are missing)
+\newcommand{\setHCMUTFrontBackground}{%
+  \setbeamertemplate{background canvas}{%
+    \IfFileExists{images/FrontBackground.pdf}{%
+      \includegraphics[width=\paperwidth,height=\paperheight]{images/FrontBackground.pdf}%
+    }{}%
+  }%
+}
+\newcommand{\setHCMUTInnerBackground}{%
+  \setbeamertemplate{background canvas}{%
+    \IfFileExists{images/Background.pdf}{%
+      \includegraphics[width=\paperwidth,height=\paperheight]{images/Background.pdf}%
+    }{}%
+  }%
+}
+
+% Common TikZ styles
+\tikzset{
+  arr/.style={->, >=stealth, line width=1.2pt},
+  lbl/.style={font=\tiny, align=center, inner sep=1pt},
+  hw/.style={rectangle, draw=BKTemplate, fill=blue!10, rounded corners=2pt, align=center, line width=1pt, font=\scriptsize},
+  hwred/.style={hw, draw=red!80!black, fill=red!10},
+  hwgreen/.style={hw, draw=green!50!black, fill=green!10},
+  hworange/.style={hw, draw=orange!80!black, fill=orange!10}
+}
+
+
+%------------------------------------------------------------
+% Shared slide helpers
+%------------------------------------------------------------
+\tikzset{
+  key/.style={rectangle, rounded corners=3pt, draw=BKTemplate, fill=BKTemplate!8, line width=0.8pt, align=center, font=\small, inner sep=5pt},
+  big/.style={font=\Huge\bfseries, text=red!75!black}
+}
+
+% Chapter divider
+\newcommand{\ChapterDivider}[3]{%
+  \begin{frame}[plain]
+    \centering\vspace{1.4cm}
+    {\Large\textcolor{gray}{#1}}\\[0.25cm]
+    {\Huge\textbf{\textcolor{BKTemplate}{#2}}}\\[0.5cm]
+    {\normalsize #3}
+  \end{frame}}
+
+\title[Smart E-Mobility Hub]
+{%
+  \texorpdfstring{%
+    \vspace*{0.8cm}\\
+    \textbf{BÁO CÁO BÀI TẬP LỚN}\\[0.22cm]
+    \Large\textbf{Smart E-Mobility Hub}%
+  }{Smart E-Mobility Hub}%
+}
+\subtitle{Công nghệ phần mềm (CO3001) · HK261}
+\author[]{\textbf{GVHD: Nguyễn Thành Công}}
+\date{}
+
+\begin{document}
+
+{
+\setHCMUTFrontBackground
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+}
+\setHCMUTInnerBackground
+
+\begin{frame}{Thành viên thực hiện}
+  \centering
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{@{}L{3.45cm}lL{0.60\linewidth}@{}}
+    \toprule
+    \textbf{Họ và tên} & \textbf{MSSV} & \textbf{Công việc chính} \\
+    \midrule
+    Trần Đình Ý & 2414100 &
+      \textbf{Project Owner · UX/UI.} Thiết kế giao diện người dùng và giao diện vận hành trên điện thoại, web. \\
+    \addlinespace[6pt]
+    Trần Văn Minh Triết & 2413603 &
+      \textbf{Bãi đỗ và sạc.} Đặt chỗ, ghi nhận xe vào/ra, lập lịch sạc và phát triển ứng dụng Android. \\
+    \addlinespace[6pt]
+    Nguyễn Thanh Duy & 2410536 &
+      \textbf{Vận hành.} Giám sát mạng lưới Hub, quản lý tài nguyên, điều chuyển xe và xử lý sự cố. \\
+    \addlinespace[6pt]
+    Nguyễn Đình Minh & 2412079 &
+      \textbf{Thuê xe và mô phỏng.} Tìm Hub, giữ–nhận–trả xe, mô phỏng What-if và tích hợp bảng điều khiển vận hành. \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{Nội dung trình bày}
+  \centering
+  \begin{minipage}{0.88\linewidth}
+    \Large
+    \begin{enumerate}
+      \setlength{\itemsep}{9pt}
+      \item Bài toán và mục tiêu
+      \item Yêu cầu và phạm vi ứng dụng
+      \item Thiết kế nghiệp vụ và giao diện
+      \item Kiến trúc và hiện thực MVP
+      \item Trình diễn ứng dụng
+      \item Kiểm thử, giới hạn và bài học
+    \end{enumerate}
+  \end{minipage}
+\end{frame}
+
+% \section{[Tên phần]}
+% \ChapterDivider{[Số phần]}{[Tên phần]}{[Mô tả]}
+%
+% \begin{frame}{[Tiêu đề slide]}
+%   \begin{block}{[Tiêu đề khối]}
+%     [Nội dung]
+%   \end{block}
+% \end{frame}
+
+\end{document}

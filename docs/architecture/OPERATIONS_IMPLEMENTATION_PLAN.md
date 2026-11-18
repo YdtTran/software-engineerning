@@ -68,9 +68,9 @@ Module **Operations** giữ vai trò là **nguồn dữ liệu vật lý có th�
 ### 2.3. Sơ đồ UML Đối sánh (Diagram Parity)
 | Loại sơ đồ | Tên file sơ đồ nguồn | Đường dẫn vector `.drawio` | Trọng tâm thiết kế |
 | :--- | :--- | :--- | :--- |
-| **Use Case** | UC08, UC09, UC10, UC11 | [`docs/diagrams/01_Usecase_Diagram/drawio/`](../diagrams/01_Usecase_Diagram/drawio/) | `operator_usecases.drawio`, `UC10-Redistribute_Vehicles.drawio`, `UC11-Handle_Operational_Incident.drawio`,... |
-| **Sequence** | SQ05 (Điều phối xe) | [`SQ05-Redistribute_Vehicles.drawio`](../diagrams/02_Sequence_Diagram/drawio/SQ05-Redistribute_Vehicles.drawio) | Chuỗi gọi UI $\rightarrow$ Controller $\rightarrow$ Service $\rightarrow$ Repo: Khóa slot đích, đổi trạng thái xe. |
-| **Sequence** | SQ06 (Xử lý sự cố) | [`SQ06-Handle_Operational_Incident.drawio`](../diagrams/02_Sequence_Diagram/drawio/SQ06-Handle_Operational_Incident.drawio) | Tiếp nhận sự cố $\rightarrow$ Cách ly tài nguyên $\rightarrow$ Phân công kỹ thuật viên hiện trường. |
+| **Use Case** | UC08, UC09, UC10, UC11 | [`docs/diagrams/01_Usecase_Diagram/drawio/`](../diagrams/01_Usecase_Diagram/drawio/) | `workflow_hub_operations.drawio`, `workflow_vehicle_redistribution.drawio` |
+| **Sequence** | SQ05 (Điều phối xe) | [SQ05 · Vehicle Redistribution](../diagrams/02_Sequence_Diagram/drawio/workflow_vehicle_redistribution.drawio) | Chuỗi gọi UI $\rightarrow$ Controller $\rightarrow$ Service $\rightarrow$ Repo: Khóa slot đích, đổi trạng thái xe. |
+| **Sequence** | SQ06 (Xử lý sự cố) | [SQ06 · Hub Operations](../diagrams/02_Sequence_Diagram/drawio/workflow_hub_operations.drawio) | Tiếp nhận sự cố $\rightarrow$ Cách ly tài nguyên $\rightarrow$ Phân công kỹ thuật viên hiện trường. |
 | **Activity** | AD05 (Quy trình điều phối) | [`AD05-Redistribute_Vehicles.drawio`](../diagrams/03_Activity_Diagram/drawio/AD05-Redistribute_Vehicles.drawio) | Fork/Join kiểm tra pin $\ge 80\%$ và kiểm tra sức chứa trạm đích; luồng rẽ nhánh đổi trạm thay thế. |
 | **Activity** | AD06 (Quy trình xử lý sự cố) | [`AD06-Handle_Operational_Incident.drawio`](../diagrams/03_Activity_Diagram/drawio/AD06-Handle_Operational_Incident.drawio) | Tiếp nhận $\rightarrow$ Phân loại mức độ $\rightarrow$ Cách ly tài nguyên $\rightarrow$ Gán SLA kỹ thuật viên. |
 | **Statechart** | Vòng đời Xe điện | [`SC01-Vehicle_State_Machine.drawio`](../diagrams/04_Statechart_Diagram/drawio/SC01-Vehicle_State_Machine.drawio) | Chuyển trạng thái: `available` $\leftrightarrow$ `in_transfer`, `faulted`, `suspended`, `maintenance`. |

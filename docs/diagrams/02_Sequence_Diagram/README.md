@@ -4,15 +4,17 @@ Editable diagrams are in `drawio/`.
 
 Open a `.drawio` file in diagrams.net or the Draw.io extension for VS Code to edit it.
 
-| Diagram | Draw.io |
-| --- | --- |
-| SQ01-Reserve_Vehicle | [Edit](drawio/SQ01-Reserve_Vehicle.drawio) |
-| SQ02-Pick_Up_Vehicle | [Edit](drawio/SQ02-Pick_Up_Vehicle.drawio) |
-| SQ03-Return_Vehicle | [Edit](drawio/SQ03-Return_Vehicle.drawio) |
-| SQ04-Request_Charging | [Edit](drawio/SQ04-Request_Charging.drawio) |
-| SQ05-Redistribute_Vehicles | [Edit](drawio/SQ05-Redistribute_Vehicles.drawio) |
-| SQ06-Handle_Operational_Incident | [Edit](drawio/SQ06-Handle_Operational_Incident.drawio) |
-| SQ07-Run_What_if_Simulation | [Edit](drawio/SQ07-Run_What_if_Simulation.drawio) |
+| Workflow | Pages | Draw.io |
+| --- | --- | --- |
+| Vehicle Rental | SQ01, SQ02, SQ03 | [Edit](drawio/workflow_vehicle_rental.drawio) |
+| Charging | SQ04 | [Edit](drawio/workflow_charging.drawio) |
+| Vehicle Redistribution | SQ05 | [Edit](drawio/workflow_vehicle_redistribution.drawio) |
+| Hub Operations | SQ06 | [Edit](drawio/workflow_hub_operations.drawio) |
+| What-if Simulation | SQ07 | [Edit](drawio/workflow_what_if_simulation.drawio) |
+
+Each page retains its SQ ID and interaction. In Draw.io, select the page by its SQ tab. To export it separately, select **Current Page** in the export dialog, or pass `--page-index` to the Draw.io CLI. Vehicle Rental uses page indices 1–3. All other workflow files use page index 1.
+
+The editable workflow files are the current source. The slide-style generator writes separate SVG previews from an earlier interaction model into the local exports directory.
 
 ## Phạm vi và truy vết
 

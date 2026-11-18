@@ -1,0 +1,281 @@
+<mxfile host="drawio" version="26.0.0">
+  <diagram id="SC00" name="SC00 · Vòng đời xe dùng chung">
+    <mxGraphModel grid="0" page="1" background="#ffffff" pageScale="1" pageWidth="1600" pageHeight="900">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="accent" value="" style="strokeColor=none;fillColor=#0891b2;" vertex="1" parent="1">
+          <mxGeometry x="52" y="41" width="4" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="Vòng đời vận hành của xe dùng chung" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=42;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="74" y="35" width="1450" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="summary" value="Smart E-Mobility Hub · Từ đặt xe và bắt đầu chuyến đến sạc, bảo trì hoặc ngừng phục vụ" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=21;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="76" y="89" width="1460" height="27" as="geometry" />
+        </mxCell>
+        <mxCell id="available" value="" style="rounded=1;arcSize=32;fillColor=#ffffff;strokeColor=#0891b2;strokeWidth=2.3;" vertex="1" parent="1">
+          <mxGeometry x="206" y="310" width="220" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="available_header" value="Sẵn sàng" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=24;fontStyle=1;" vertex="1" parent="available">
+          <mxGeometry x="0" y="1" width="220" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="available_rule" value="" style="fillColor=#0891b2;strokeColor=none;" vertex="1" parent="available">
+          <mxGeometry x="1" y="35" width="218" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="available_action" value="do: chờ đặt xe" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=19;" vertex="1" parent="available">
+          <mxGeometry x="3" y="38" width="214" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="reserved" value="" style="rounded=1;arcSize=32;fillColor=#ffffff;strokeColor=#0891b2;strokeWidth=2.3;" vertex="1" parent="1">
+          <mxGeometry x="590" y="225" width="220" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="reserved_header" value="Đang giữ" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=24;fontStyle=1;" vertex="1" parent="reserved">
+          <mxGeometry x="0" y="1" width="220" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="reserved_rule" value="" style="fillColor=#0891b2;strokeColor=none;" vertex="1" parent="reserved">
+          <mxGeometry x="1" y="35" width="218" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="reserved_action" value="do: giữ xe đến hạn" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=19;" vertex="1" parent="reserved">
+          <mxGeometry x="3" y="38" width="214" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="in_use" value="" style="rounded=1;arcSize=32;fillColor=#ffffff;strokeColor=#0891b2;strokeWidth=2.3;" vertex="1" parent="1">
+          <mxGeometry x="960" y="225" width="220" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="in_use_header" value="Đang sử dụng" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=24;fontStyle=1;" vertex="1" parent="in_use">
+          <mxGeometry x="0" y="1" width="220" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="in_use_rule" value="" style="fillColor=#0891b2;strokeColor=none;" vertex="1" parent="in_use">
+          <mxGeometry x="1" y="35" width="218" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="in_use_action" value="do: duy trì chuyến đi" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=19;" vertex="1" parent="in_use">
+          <mxGeometry x="3" y="38" width="214" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="needs_charge" value="" style="rounded=1;arcSize=32;fillColor=#ffffff;strokeColor=#0891b2;strokeWidth=2.3;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="417" width="220" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="needs_charge_header" value="Cần sạc" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=24;fontStyle=1;" vertex="1" parent="needs_charge">
+          <mxGeometry x="0" y="1" width="220" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="needs_charge_rule" value="" style="fillColor=#0891b2;strokeColor=none;" vertex="1" parent="needs_charge">
+          <mxGeometry x="1" y="35" width="218" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="needs_charge_action" value="do: chờ phân bổ sạc" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=19;" vertex="1" parent="needs_charge">
+          <mxGeometry x="3" y="38" width="214" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="charging" value="" style="rounded=1;arcSize=32;fillColor=#ffffff;strokeColor=#0891b2;strokeWidth=2.3;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="590" width="220" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="charging_header" value="Đang sạc" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=24;fontStyle=1;" vertex="1" parent="charging">
+          <mxGeometry x="0" y="1" width="220" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="charging_rule" value="" style="fillColor=#0891b2;strokeColor=none;" vertex="1" parent="charging">
+          <mxGeometry x="1" y="35" width="218" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="charging_action" value="do: theo dõi mức pin" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=19;" vertex="1" parent="charging">
+          <mxGeometry x="3" y="38" width="214" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="faulty" value="" style="rounded=1;arcSize=32;fillColor=#ffffff;strokeColor=#0891b2;strokeWidth=2.3;" vertex="1" parent="1">
+          <mxGeometry x="605" y="520" width="220" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="faulty_header" value="Gặp lỗi" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=24;fontStyle=1;" vertex="1" parent="faulty">
+          <mxGeometry x="0" y="1" width="220" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="faulty_rule" value="" style="fillColor=#0891b2;strokeColor=none;" vertex="1" parent="faulty">
+          <mxGeometry x="1" y="35" width="218" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="faulty_action" value="entry / chặn cấp xe mới" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=19;" vertex="1" parent="faulty">
+          <mxGeometry x="3" y="38" width="214" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="maintenance" value="" style="rounded=1;arcSize=32;fillColor=#ffffff;strokeColor=#0891b2;strokeWidth=2.3;" vertex="1" parent="1">
+          <mxGeometry x="206" y="570" width="220" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="maintenance_header" value="Đang bảo trì" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=24;fontStyle=1;" vertex="1" parent="maintenance">
+          <mxGeometry x="0" y="1" width="220" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="maintenance_rule" value="" style="fillColor=#0891b2;strokeColor=none;" vertex="1" parent="maintenance">
+          <mxGeometry x="1" y="35" width="218" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="maintenance_action" value="do: kiểm tra và sửa xe" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=19;" vertex="1" parent="maintenance">
+          <mxGeometry x="3" y="38" width="214" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="retired" value="" style="rounded=1;arcSize=32;fillColor=#ffffff;strokeColor=#0891b2;strokeWidth=2.3;" vertex="1" parent="1">
+          <mxGeometry x="530" y="728" width="220" height="86" as="geometry" />
+        </mxCell>
+        <mxCell id="retired_header" value="Ngừng phục vụ" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=24;fontStyle=1;" vertex="1" parent="retired">
+          <mxGeometry x="0" y="1" width="220" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="retired_rule" value="" style="fillColor=#0891b2;strokeColor=none;" vertex="1" parent="retired">
+          <mxGeometry x="1" y="35" width="218" height="1" as="geometry" />
+        </mxCell>
+        <mxCell id="retired_action" value="entry / lưu hồ sơ" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=19;" vertex="1" parent="retired">
+          <mxGeometry x="3" y="38" width="214" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="initial" value="" style="ellipse;fillColor=#0891b2;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="99" y="341" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="final" value="" style="ellipse;fillColor=#ffffff;strokeColor=#0891b2;strokeWidth=2.3;" vertex="1" parent="1">
+          <mxGeometry x="840" y="757" width="28" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="final_inner" value="" style="ellipse;fillColor=#0891b2;strokeColor=none;" vertex="1" parent="final">
+          <mxGeometry x="5" y="5" width="18" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="charging_note" value="Cổng sạc sẵn sàng cho lượt tiếp theo&#10;sau khi xác nhận đã rút cáp." style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=19;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="731" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="scope" value="Góc nhìn theo xe · Xem SC01–SC03 để tra cứu điều chuyển, đối soát thiết bị và vòng đời phiếu, chuyến đi, cổng sạc." style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=17;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="75" y="857" width="1470" height="27" as="geometry" />
+        </mxCell>
+        <mxCell id="e_initial_available" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.5;entryX=0;entryY=0.5;endSize=7;" edge="1" parent="1" source="initial" target="available">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_available_reserved" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.22;entryX=0;entryY=0.35;endSize=7;" edge="1" parent="1" source="available" target="reserved">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="484" y="329" />
+              <mxPoint x="484" y="255" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_available_reserved" value="Đặt xe thành công" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_available_reserved">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-14" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_reserved_available" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.78;entryX=1;entryY=0.79;endSize=7;" edge="1" parent="1" source="reserved" target="available">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="536" y="292" />
+              <mxPoint x="536" y="378" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_reserved_available" value="Hủy / hết hạn&#10;[chưa bắt đầu nhận]" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_reserved_available">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_reserved_in_use" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.5;entryX=0;entryY=0.5;endSize=7;" edge="1" parent="1" source="reserved" target="in_use">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_e_reserved_in_use" value="Xác nhận mở khóa&#10;/ bắt đầu chuyến" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_reserved_in_use">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-41" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_in_use_available" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=0;entryX=0.5;entryY=0;endSize=7;" edge="1" parent="1" source="in_use" target="available">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1070" y="154" />
+              <mxPoint x="316" y="154" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_in_use_available" value="Trả xe an toàn [pin ≥ 20%]" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_in_use_available">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_in_use_needs_charge" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.5;entryX=0.5;entryY=0;endSize=7;" edge="1" parent="1" source="in_use" target="needs_charge">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1390" y="268" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_in_use_needs_charge" value="Trả xe an toàn&#10;[pin &lt; 20%]" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_in_use_needs_charge">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="10" y="-24" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_needs_charge_charging" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=1;entryY=0.5;endSize=7;" edge="1" parent="1" source="needs_charge" target="charging">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1390" y="633" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_needs_charge_charging" value="Xác nhận cấp điện&#10;[cổng đã phân bổ]" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_needs_charge_charging">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="52" y="-6" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_charging_available" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=0;entryY=0.91;endSize=7;" edge="1" parent="1" source="charging" target="available">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1120" y="828" />
+              <mxPoint x="156" y="828" />
+              <mxPoint x="156" y="388" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_charging_available" value="Xác nhận ngắt điện [pin ≥ 20%]" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_charging_available">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_charging_needs_charge" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.25;entryX=0;entryY=0.78;endSize=7;" edge="1" parent="1" source="charging" target="needs_charge">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1252" y="612" />
+              <mxPoint x="1252" y="484" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_charging_needs_charge" value="Xác nhận ngắt điện&#10;[pin &lt; 20%]" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_charging_needs_charge">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-111" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_in_use_faulty" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.31;exitY=1;entryX=1;entryY=0.45;endSize=7;" edge="1" parent="1" source="in_use" target="faulty">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1028" y="438" />
+              <mxPoint x="858" y="438" />
+              <mxPoint x="858" y="559" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_in_use_faulty" value="Phát hiện lỗi" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_in_use_faulty">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-4" y="-13" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_faulty_maintenance" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0;exitY=0.7;entryX=1;entryY=0.38;endSize=7;" edge="1" parent="1" source="faulty" target="maintenance">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="522" y="580" />
+              <mxPoint x="522" y="603" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_faulty_maintenance" value="Phân công sửa chữa&#10;[xe ở vị trí an toàn]" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_faulty_maintenance">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-5" y="-30" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_maintenance_available" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=0;entryX=0.5;entryY=1;endSize=7;" edge="1" parent="1" source="maintenance" target="available">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_e_maintenance_available" value="Kiểm tra đạt&#10;[đã đóng chuyến, pin ≥ 20%]" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_maintenance_available">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_maintenance_retired" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=0.5;exitY=1;entryX=0;entryY=0.5;endSize=7;" edge="1" parent="1" source="maintenance" target="retired">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="316" y="771" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="label_e_maintenance_retired" value="Duyệt ngừng phục vụ&#10;[xe an toàn, hết cam kết]" style="html=0;fontFamily=Arial;fontSize=14;fontColor=#000000;strokeColor=#000000;strokeWidth=1.5;edgeLabel;align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;resizable=0;fontSize=18;" vertex="1" parent="e_maintenance_retired">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="20" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_retired_final" value="" style="html=0;fontFamily=Segoe UI;fontSize=14;fontColor=#334155;strokeColor=#334155;strokeWidth=1.5;endArrow=block;endFill=1;rounded=0;edgeStyle=none;jumpStyle=arc;jumpSize=8;exitX=1;exitY=0.5;entryX=0;entryY=0.5;endSize=7;" edge="1" parent="1" source="retired" target="final">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

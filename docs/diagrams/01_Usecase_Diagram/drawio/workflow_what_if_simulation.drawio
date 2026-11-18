@@ -1,0 +1,54 @@
+<mxfile host="65bd71144e">
+  <diagram id="what_if_simulation" name="What-if Simulation">
+    <mxGraphModel dx="964" dy="276" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="964" pageHeight="276" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="sys_boundary" parent="1" style="rounded=0;whiteSpace=wrap;html=0;verticalAlign=top;spacingTop=8;fontFamily=Arial;fontSize=14;fontStyle=1;fontColor=#0f172a;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;pointerEvents=0;" value="Smart E-Mobility Hub System&#10;What-if Simulation" vertex="1">
+          <mxGeometry height="232" width="654" x="120" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC13" edge="1" parent="1" source="actor_operator" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC13" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC14" edge="1" parent="1" source="actor_operator" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC14" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="extend_uc_UC14_uc_ext1" edge="1" parent="1" source="uc_UC14_uc_ext1" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#0369a1;dashed=1;endArrow=open;endSize=7;endFill=0;exitX=0;exitY=0.5;entryX=0.96;entryY=0.3;" target="uc_UC14" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="extend_uc_UC14_uc_ext1_lbl" connectable="0" parent="extend_uc_UC14_uc_ext1" style="edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=11;fontColor=#075985;labelBackgroundColor=#e0f2fe;" value="&lt;&lt;extend&gt;&gt;" vertex="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="extend_uc_UC14_uc_apply" edge="1" parent="1" source="uc_UC14_uc_apply" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#0369a1;dashed=1;endArrow=open;endSize=7;endFill=0;exitX=0;exitY=0.5;entryX=0.96;entryY=0.7;" target="uc_UC14" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="extend_uc_UC14_uc_apply_lbl" connectable="0" parent="extend_uc_UC14_uc_apply" style="edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=11;fontColor=#075985;labelBackgroundColor=#e0f2fe;" value="&lt;&lt;extend&gt;&gt;" vertex="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc13_include_uc14" edge="1" parent="1" source="uc_UC13" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#0369a1;dashed=1;endArrow=open;endSize=7;endFill=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="uc_UC14" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc13_include_uc14_label" connectable="0" parent="uc13_include_uc14" style="edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=11;fontColor=#075985;labelBackgroundColor=#e0f2fe;" value="&lt;&lt;include&gt;&gt;" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="39" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uc_UC13" data-model-id="uc_UC13" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="Run What-if Simulation" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC14" data-model-id="uc_UC14" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="View Simulation Results" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="137" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC14_uc_ext1" data-model-id="uc_UC14_uc_ext1" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;" value="Export Simulation Results" vertex="1">
+          <mxGeometry height="39" width="224" x="490" y="111" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC14_uc_apply" data-model-id="uc_UC14_uc_apply" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;" value="Apply Coordination Recommendations" vertex="1">
+          <mxGeometry height="39" width="224" x="490" y="163" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_operator" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=0;fontFamily=Arial;fontSize=12;fontColor=#0f172a;strokeColor=#334155;strokeWidth=1.2;" value="Operator" vertex="1">
+          <mxGeometry height="49" width="26" x="36" y="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

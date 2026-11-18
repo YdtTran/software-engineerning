@@ -13,7 +13,7 @@
 
 | Diagram Category | Storage Path | Formats Available | Source of Truth |
 |---|---|---|---|
-| **Use-Case Diagrams** | `docs/diagrams/01_Usecase_Diagram/drawio/` | `.drawio`, `.md` | `general_usecase_diagram.drawio`, `user_usecases.drawio`, `operator_usecases.drawio` |
+| **Use-Case Diagrams** | `docs/diagrams/01_Usecase_Diagram/drawio/` | `.drawio`, `.md` | Six [workflow overviews](../../diagrams/01_Usecase_Diagram/README.md#workflow-diagrams) |
 | **Sequence Diagrams** | `docs/diagrams/02_Sequence_Diagram/drawio/` | `.drawio`, PlantUML/Mermaid in `README.md` | SQ01 through SQ07 |
 | **Activity Diagrams** | `docs/diagrams/03_Activity_Diagram/drawio/` | `.drawio`, PlantUML/Mermaid in `ACTIVITY_PREVIEWS.md` | AD01 through AD07 |
 | **Statechart Diagrams** | `docs/diagrams/04_Statechart_Diagram/drawio/` | `.drawio` | SC01 (Vehicle), SC02 (Charging Point), SC03 (Reservation & Trip) |
@@ -29,14 +29,12 @@
 ### 2.1. Use-Case Diagrams Audit
 
 - **Files Examined:**
-  - [`docs/diagrams/01_Usecase_Diagram/drawio/general_usecase_diagram.drawio`](file:///home/ydt/Documents/Workspace/software-engineerning/docs/diagrams/01_Usecase_Diagram/drawio/general_usecase_diagram.drawio)
-  - [`docs/diagrams/01_Usecase_Diagram/drawio/user_usecases.drawio`](file:///home/ydt/Documents/Workspace/software-engineerning/docs/diagrams/01_Usecase_Diagram/drawio/user_usecases.drawio)
-  - [`docs/diagrams/01_Usecase_Diagram/drawio/operator_usecases.drawio`](file:///home/ydt/Documents/Workspace/software-engineerning/docs/diagrams/01_Usecase_Diagram/drawio/operator_usecases.drawio)
-  - 14 individual use case `.drawio` files (UC01 through UC14).
+  - [Current workflow overviews](../../diagrams/01_Usecase_Diagram/README.md#workflow-diagrams)
+  - [Core scenario contracts](../../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md) for UC01–UC14.
 
 - **Conformance against Standards (CO3001 Ch3, Ch6; `docs/standards/00_Usecase_diagram.md`):**
   1. **Actor Placement:** Primary actors (`User`, `Operator`) are positioned on the LEFT outside the boundary; secondary/external actors (`IoT Sensor Stream`, `Notification Service`) are positioned on the RIGHT. Fully compliant.
-  2. **System Boundary:** All 14 use cases are enclosed within `sys_boundary` rectangle with `fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2`. Fully compliant.
+  2. **System Boundary:** Each diagram encloses its use cases within a `sys_boundary` rectangle with `fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2`. Fully compliant.
   3. **No Actor-to-Actor Associations:** Actors interact strictly with use cases, never directly with each other. Compliant.
   4. **Simulation Engine Boundary:** The What-if Simulation Engine is correctly modeled as an internal capability initiated by the Operator (`UC13`, `UC14`), not as an external actor. Fully compliant with lecturer guidelines.
   5. **Sub-use Cases Modeling:**

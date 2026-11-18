@@ -1,0 +1,87 @@
+<mxfile host="65bd71144e">
+  <diagram id="vehicle_rental" name="Vehicle Rental">
+    <mxGraphModel dx="654" dy="568" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="654" pageHeight="568" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="sys_boundary" parent="1" style="rounded=0;whiteSpace=wrap;html=0;verticalAlign=top;spacingTop=8;fontFamily=Arial;fontSize=14;fontStyle=1;fontColor=#0f172a;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;pointerEvents=0;" value="Smart E-Mobility Hub System&#10;Vehicle Rental" vertex="1">
+          <mxGeometry height="524" width="344" x="120" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC01" edge="1" parent="1" source="actor_user" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC01" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC02" edge="1" parent="1" source="actor_user" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC02" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC03" edge="1" parent="1" source="actor_user" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC03" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_uc_UC03_uc_cancel" edge="1" parent="1" source="actor_user" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC03_uc_cancel" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC04" edge="1" parent="1" source="actor_user" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC04" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="extend_uc_UC04_uc_ext" edge="1" parent="1" source="uc_UC04_uc_ext" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#0369a1;dashed=1;endArrow=open;endSize=7;endFill=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="uc_UC04" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="extend_uc_UC04_uc_ext_lbl" connectable="0" parent="extend_uc_UC04_uc_ext" style="edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=11;fontColor=#075985;labelBackgroundColor=#e0f2fe;" value="&lt;&lt;extend&gt;&gt;" vertex="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="39" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="assoc_UC05" edge="1" parent="1" source="actor_user" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC05" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC11A" edge="1" parent="1" source="actor_user" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC11A" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="telemetry_uc_UC04" edge="1" parent="1" source="uc_UC04" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.33;" target="actor_telemetry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="telemetry_uc_UC05" edge="1" parent="1" source="uc_UC05" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.33;" target="actor_telemetry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="notification_uc_UC03" edge="1" parent="1" source="uc_UC03" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.33;" target="actor_notification">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="notification_uc_UC11A" edge="1" parent="1" source="uc_UC11A" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.33;" target="actor_notification">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC01" data-model-id="uc_UC01" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="Search Mobility Hub" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC02" data-model-id="uc_UC02" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="View Available Vehicles" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="128" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC03" data-model-id="uc_UC03" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="Reserve Vehicle" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="181" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC03_uc_cancel" data-model-id="uc_UC03_uc_cancel" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;" value="Cancel Vehicle Reservation" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="234" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC04" data-model-id="uc_UC04" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="Pick Up Vehicle" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="402" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC04_uc_ext" data-model-id="uc_UC04_uc_ext" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;" value="Report Vehicle Damage" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC05" data-model-id="uc_UC05" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="Return Vehicle" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="455" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC11A" data-model-id="uc_UC11A" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;" value="Report Trip Incident" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="287" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_user" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=0;fontFamily=Arial;fontSize=12;fontColor=#0f172a;strokeColor=#334155;strokeWidth=1.2;" value="User" vertex="1">
+          <mxGeometry height="49" width="26" x="36" y="264" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_telemetry" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=0;fontFamily=Arial;fontSize=12;fontColor=#0f172a;strokeColor=#334155;strokeWidth=1.2;labelBackgroundColor=#ffffff;" value="IoT / Simulated Telemetry" vertex="1">
+          <mxGeometry height="49" width="26" x="539" y="406" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_notification" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=0;fontFamily=Arial;fontSize=12;fontColor=#0f172a;strokeColor=#334155;strokeWidth=1.2;labelBackgroundColor=#ffffff;" value="Notification Service" vertex="1">
+          <mxGeometry height="49" width="26" x="539" y="164" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

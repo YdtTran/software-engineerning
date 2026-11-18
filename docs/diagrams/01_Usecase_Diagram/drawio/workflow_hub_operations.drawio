@@ -1,0 +1,43 @@
+<mxfile host="65bd71144e">
+  <diagram id="hub_operations" name="Hub Operations">
+    <mxGraphModel dx="654" dy="294" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="654" pageHeight="294" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="sys_boundary" parent="1" style="rounded=0;whiteSpace=wrap;html=0;verticalAlign=top;spacingTop=8;fontFamily=Arial;fontSize=14;fontStyle=1;fontColor=#0f172a;fillColor=#e0f2fe;strokeColor=#0284c7;strokeWidth=2;pointerEvents=0;" value="Smart E-Mobility Hub System&#10;Hub Operations" vertex="1">
+          <mxGeometry height="250" width="344" x="120" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC08" edge="1" parent="1" source="actor_operator" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC08" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC09" edge="1" parent="1" source="actor_operator" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC09" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="assoc_UC11" edge="1" parent="1" source="actor_operator" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_UC11" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="telemetry_uc_UC08" edge="1" parent="1" source="uc_UC08" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.33;" target="actor_telemetry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="telemetry_uc_UC11" edge="1" parent="1" source="uc_UC11" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeWidth=1;exitPerimeter=0;entryPerimeter=0;strokeColor=#64748b;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.33;" target="actor_telemetry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC08" data-model-id="uc_UC08" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="Monitor Mobility Hub Network" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="75" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC09" data-model-id="uc_UC09" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="Manage Mobility Resources" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="128" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_UC11" data-model-id="uc_UC11" parent="1" style="ellipse;whiteSpace=wrap;html=0;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#0f172a;fillColor=#ffffff;strokeColor=#0284c7;strokeWidth=1;fontStyle=1;" value="Handle Operational Incident" vertex="1">
+          <mxGeometry height="39" width="224" x="180" y="181" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_operator" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=0;fontFamily=Arial;fontSize=12;fontColor=#0f172a;strokeColor=#334155;strokeWidth=1.2;" value="Operator" vertex="1">
+          <mxGeometry height="49" width="26" x="36" y="132" as="geometry" />
+        </mxCell>
+        <mxCell id="actor_telemetry" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=0;fontFamily=Arial;fontSize=12;fontColor=#0f172a;strokeColor=#334155;strokeWidth=1.2;labelBackgroundColor=#ffffff;" value="IoT / Simulated Telemetry" vertex="1">
+          <mxGeometry height="49" width="26" x="539" y="132" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

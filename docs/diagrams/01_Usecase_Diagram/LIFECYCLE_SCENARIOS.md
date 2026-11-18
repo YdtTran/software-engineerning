@@ -162,7 +162,7 @@ Còn mở: cách xác định giờ checkout dự kiến khi bắt đầu lượ
 
 ## Phạm vi sơ đồ
 
-- UC06 xuất hiện một lần trong hai overview có User. Ba sơ đồ chi tiết dùng mã UC06-S1, UC06-S2 và UC06-S3 trong danh mục.
+- UC06 xuất hiện một lần trong [sơ đồ tổng quan đặt chỗ đỗ](drawio/workflow_parking_reservation.drawio). Ba kịch bản UC06-S1, UC06-S2 và UC06-S3 được đặc tả trong tài liệu này.
 - AD04 tách điểm bắt đầu check-in và checkout khỏi lần tạo phiếu và kết thúc sạc. SQ04 kết thúc khi tiếp nhận yêu cầu vào hàng đợi. UC12 phân bổ cổng, khung giờ và công suất trong tương tác sau. Chỉ ghi phiên Active sau xác nhận cấp điện.
 - SC02 giữ vòng đời cổng sạc; SC03 giữ vòng đời đặt xe chung và chuyến đi. Quy tắc trạng thái riêng của đỗ cá nhân nằm tại BR08a. Class view biểu diễn khoảng dự kiến và kết quả đỗ riêng với quan hệ chiếm dụng hiện tại.
 - Các view vận hành, triển khai, thành phần và gói giữ nguyên cấu trúc. Xuất PNG cục bộ khi cần xem trước.
@@ -171,7 +171,7 @@ Còn mở: cách xác định giờ checkout dự kiến khi bắt đầu lượ
 |---|---|
 | 14 mã UC chính, một UC06, giữ actor | Đã đối chiếu catalog và overview |
 | S1, S2, S3 có trigger độc lập | Đã đối chiếu đặc tả và AD04 |
-| Nhãn include là cell riêng | Đã kiểm tra XML của sơ đồ chi tiết |
+| Nhãn include là cell riêng | Đã kiểm tra XML của sơ đồ tổng quan |
 
 Mở tệp `.drawio` trong VS Code bằng tiện ích Draw.io Integration.
 Trong Draw.io, chọn `+` → `Advanced` → `PlantUML` và dán khối PlantUML từ danh mục.
