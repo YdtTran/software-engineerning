@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="UC03-Reserve_Vehicle.drawio" name="UC03-Reserve_Vehicle">
-        <mxGraphModel dx="832" dy="381" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1350" pageHeight="270" background="#ffffff" math="0" shadow="0">
+        <mxGraphModel dx="832" dy="381" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1620" pageHeight="270" background="#ffffff" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -40,6 +40,12 @@
                     <mxGeometry relative="1" x="0.35" as="geometry">
                         <mxPoint x="-44" y="3" as="offset"/>
                     </mxGeometry>
+                </mxCell>
+                <mxCell id="actor_right" parent="1" style="shape=umlActor;html=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;fontFamily=Arial;fontSize=16;fontStyle=1;fontColor=#0f172a;fillColor=#bae6fd;strokeColor=#0284c7;strokeWidth=1.6;" value="Notification Service" vertex="1">
+                    <mxGeometry height="80" width="40" x="1480" y="226" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" edge="1" parent="1" source="uc_base" style="edgeStyle=none;noEdgeStyle=1;rounded=0;html=0;strokeColor=#0284c7;strokeWidth=1.6;exitX=1;exitY=0.5;entryX=0;entryY=0.33;exitPerimeter=0;entryPerimeter=0;exitDx=0;exitDy=0;entryDx=0;entryDy=0;endArrow=none;" target="actor_right" value="">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
