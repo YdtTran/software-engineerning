@@ -59,17 +59,11 @@ flowchart TD
 |User / App|
 start
 |User / App|
-:Select ticket and confirm pickup;
+:Select reservation; scan or enter vehicle code;
 |Backend|
-:Check owner, Hub and unexpired reservation;
+:Check owner, vehicle code, Hub and unexpired reservation;
 |Backend|
 if (Valid reservation?) then ([valid])
-|User / App|
-if (Report damage before unlock?) then ([damage reported])
-|Backend|
-:Report damage and block pickup;
-stop
-else ([else])
 |Backend|
 :Claim pickup atomically Serialize with expiry / cancellation;
 |IoT / Simulated Station|
@@ -85,9 +79,8 @@ if (Unlock confirmed?) then ([matching acknowledgement])
 stop
 else ([else])
 |Backend|
-:Keep vehicle unavailable and hand off to UC11;
+:Keep claim; record unconfirmed device event; reconcile before releasing vehicle;
 stop
-endif
 endif
 else ([else])
 |Backend|
@@ -100,19 +93,16 @@ endif
 ```mermaid
 flowchart TD
     n0((Start))
-    n1["User / App · Select ticket and confirm pickup"]
-    n5["Backend · Check owner, Hub and unexpired reservation"]
+    n1["User / App · Select reservation; scan or enter vehicle code"]
+    n5["Backend · Check owner, vehicle code, Hub and unexpired reservation"]
     n6{"Backend · Valid reservation?"}
-    n7{"User / App · Report damage before unlock?"}
-    n8["Backend · Report damage and block pickup"]
-    n10((End))
     n11["Backend · Claim pickup atomically Serialize with expiry / cancellation"]
     n12["IoT / Simulated Station · Unlock vehicle and await acknowledgement"]
     n13{"Backend · Unlock confirmed?"}
     n14["Backend · Atomically consume reservation Start trip; free source slot; set InUse"]
     n15["Backend · :Trip [Active]"]
     n16["User / App · Display active trip"]
-    n17["Backend · Keep vehicle unavailable and hand off to UC11"]
+    n17["Backend · Keep claim; record unconfirmed device event; reconcile before releasing vehicle"]
     n18((End))
     n19["Backend · Reject invalid or expired ticket"]
     n20((End))
@@ -120,10 +110,7 @@ flowchart TD
     n0 --> n1
     n1 --> n5
     n5 --> n6
-    n6 -->|"[valid]"| n7
-    n7 -->|"[damage reported]"| n8
-    n8 --> n10
-    n7 -->|"[else]"| n11
+    n6 -->|"[valid]"| n11
     n11 --> n12
     n12 --> n13
     n13 -->|"[matching acknowledgement]"| n14
@@ -143,19 +130,17 @@ flowchart TD
 |User / App|
 start
 |User / App|
-:Choose destination and request return;
+:Choose Hub / slot; confirm vehicle parked;
 |Backend|
 :Validate active-trip owner Claim usable destination slot;
 |Backend|
 if (Destination claim succeeded?) then ([claimed])
 |User / App|
-:Dock vehicle safely;
-| |
+:Wait for dock verification;
+|IoT / Simulated Station|
 :Confirm vehicle, Hub and lock, read battery;
 |Backend|
 if (Safe return confirmed?) then ([matching vehicle and locked])
-|User / App|
-:Confirm return after lock acknowledgement;
 |Backend|
 :Close trip and occupy slot atomically Record duration / distance, no payment;
 |Backend|
@@ -181,13 +166,12 @@ endif
 ```mermaid
 flowchart TD
     n0((Start))
-    n1["User / App · Choose destination and request return"]
+    n1["User / App · Choose Hub / slot; confirm vehicle parked"]
     n5["Backend · Validate active-trip owner Claim usable destination slot"]
     n6{"Backend · Destination claim succeeded?"}
-    n7["User / App · Dock vehicle safely"]
-    n8["  · Confirm vehicle, Hub and lock; read battery"]
+    n7["User / App · Wait for dock verification"]
+    n8["IoT / Simulated Station · Confirm vehicle, Hub and lock; read battery"]
     n9{"Backend · Safe return confirmed?"}
-    confirm_return["User / App · Confirm return after lock acknowledgement"]
     n10["Backend · Close trip and occupy slot atomically Record duration / distance; no payment"]
     n11["Backend · :Trip [Completed]"]
     n13["Backend · Classify vehicle by fault and recorded battery"]
@@ -203,7 +187,7 @@ flowchart TD
     n6 -->|"[claimed]"| n7
     n7 --> n8
     n8 --> n9
-    n9 -->|"[matching vehicle and locked]"| confirm_return
+    n9 -->|"[matching vehicle and locked]"| n10
     n10 --> n11
     n11 --> n13
     n13 --> n19
@@ -212,7 +196,6 @@ flowchart TD
     n6 -->|"[else]"| n22
     n22 --> n23
     n19 --> n24
-    confirm_return --> n10
 ```
 
 ## AD04-Reserve_Parking_and_Charging
@@ -289,7 +272,7 @@ start
 |User / App|
 :Submit charging request (UC07);
 |Backend / Scheduler|
-:Validate ownership, battery, connector and needed-by time;
+:Validate occupancy, ownership, battery target and time;
 |Backend / Scheduler|
 if (Charging request valid?) then ([valid])
 |Backend / Scheduler|
@@ -308,7 +291,7 @@ endif
 |Backend / Scheduler|
 start
 |Backend / Scheduler|
-:Allocate compatible port, time and power (UC12) Confirm safe connection and power-on before Active;
+:Allocate port and power (UC12); Reserved; activation is service-level;
 stop
 @enduml
 ```
@@ -318,7 +301,7 @@ stop
 |Backend / Scheduler|
 start
 |Backend / Scheduler|
-:Stop safely (UC07A) Confirm power-off before release, confirm unplug before freeing port;
+:Stop Active session: power-off ACK frees power; unplug confirmation is service-level;
 stop
 @enduml
 ```
@@ -336,7 +319,7 @@ flowchart TD
     n10{"Backend / Scheduler · Check-in valid and vehicle present?"}
     n11["Backend / Scheduler · Atomically mark Fulfilled Record arrival and occupancy"]
     n12["User / App · Submit charging request (UC07)"]
-    n13["Backend / Scheduler · Validate ownership, battery, connector and needed-by time"]
+    n13["Backend / Scheduler · Validate occupancy, ownership, battery target and time"]
     n14{"Backend / Scheduler · Charging request valid?"}
     n15["Backend / Scheduler · Save request Queued and acknowledge receipt"]
     n42["Backend / Scheduler · Reject invalid charging request"]
@@ -359,10 +342,10 @@ flowchart TD
     request_final((End))
     request_start((Start))
     allocation_start((Start))
-    n16["Backend / Scheduler · Allocate compatible port, time and power (UC12) Confirm safe connection and power-on before Active"]
+    n16["Backend / Scheduler · Allocate port and power (UC12); Reserved; activation is service-level"]
     allocation_final((End))
     stop_start((Start))
-    n33["Backend / Scheduler · Stop safely (UC07A) Confirm power-off before release; confirm unplug before freeing port"]
+    n33["Backend / Scheduler · Stop Active session: power-off ACK frees power; unplug confirmation is service-level"]
     stop_final((End))
     n0 --> n1
     n1 --> n5
@@ -372,7 +355,7 @@ flowchart TD
     n8 --> n9
     n9 --> n10
     n10 -->|"[valid and arrival confirmed]"| n11
-    n12 -->|"[yes]"| n13
+    n12 --> n13
     n13 --> n14
     n14 -->|"[valid]"| n15
     n14 -->|"[else]"| n42
@@ -406,13 +389,13 @@ flowchart TD
 |Operator|
 start
 |Operator|
-:Choose source, destination and vehicles, submit plan;
+:Choose source, destination, vehicles and destination slots, submit plan;
 |Backend / Rebalance|
 :Validate Operator, check battery >=80% Available vehicles and destination capacity;
 |Backend / Rebalance|
-if (Atomic resource claim succeeded?) then ([claimed])
+if (Inputs eligible?) then ([eligible])
 |Backend / Rebalance|
-:Create Planned order Hold vehicles and destination slots;
+:Atomically create Planned order and claim vehicles and destination slots;
 |Backend / Rebalance|
 ::TransferOrder [Planned];
 stop
@@ -431,11 +414,11 @@ start
 |Operator|
 :Confirm departure for Planned order;
 |Backend / Rebalance|
-:Recheck eligibility and commit departure if still Planned;
+:Recheck eligibility and Planned status;
 |Backend / Rebalance|
-if (Departure commit succeeded?) then ([committed against cancellation])
+if (Departure eligible?) then ([eligible])
 |Backend / Rebalance|
-:Record confirmed departure, set InTransit Release source slots atomically;
+:Commit departure and set InTransit Release source slots atomically;
 |Field / Simulated Telemetry|
 :Transport vehicles to destination Report arrival to Operator;
 |Operator|
@@ -473,15 +456,15 @@ stop
 ```mermaid
 flowchart TD
     n0((Start))
-    n1["Operator · Choose source, destination and vehicles; submit plan"]
+    n1["Operator · Choose source, destination, vehicles and destination slots; submit plan"]
     n5["Backend / Rebalance · Validate Operator; check battery >=80% Available vehicles and destination capacity"]
-    n6{"Backend / Rebalance · Atomic resource claim succeeded?"}
-    n7["Backend / Rebalance · Create Planned order Hold vehicles and destination slots"]
+    n6{"Backend / Rebalance · Inputs eligible?"}
+    n7["Backend / Rebalance · Atomically create Planned order and claim vehicles and destination slots"]
     n8["Backend / Rebalance · :TransferOrder [Planned]"]
     n9["Operator · Confirm departure for Planned order"]
-    n10["Backend / Rebalance · Recheck eligibility and commit departure if still Planned"]
-    n11{"Backend / Rebalance · Departure commit succeeded?"}
-    n12["Backend / Rebalance · Record confirmed departure; set InTransit Release source slots atomically"]
+    n10["Backend / Rebalance · Recheck eligibility and Planned status"]
+    n11{"Backend / Rebalance · Departure eligible?"}
+    n12["Backend / Rebalance · Commit departure and set InTransit Release source slots atomically"]
     n13["Field / Simulated Telemetry · Transport vehicles to destination Report arrival to Operator"]
     n14["Operator · Reconcile all vehicle IDs and target slots"]
     n15{"Backend / Rebalance · Entire order safely arrived?"}
@@ -503,11 +486,11 @@ flowchart TD
     n0 --> n1
     n1 --> n5
     n5 --> n6
-    n6 -->|"[claimed]"| n7
+    n6 -->|"[eligible]"| n7
     n7 --> n8
     n9 --> n10
     n10 --> n11
-    n11 -->|"[committed against cancellation]"| n12
+    n11 -->|"[eligible]"| n12
     n12 --> n13
     n13 --> n14
     n14 --> n15
@@ -535,34 +518,32 @@ flowchart TD
 start
 |User|
 :Submit incident report;
-| |
+|Incident Service|
 :Validate report or trusted telemetry alert;
-| |
+|Incident Service|
 if (Incident input authorized?) then ([authorized report or trusted alert])
-| |
+|Incident Service|
 :Open incident and block new allocations;
-| |
+|Incident Service|
 if (Electrical hazard?) then ([hazard])
 |Field / IoT / Simulated Telemetry|
 :Request and verify emergency power-off;
-| |
+|Incident Service|
 if (Electrical isolation confirmed?) then ([else])
-| |
+|Incident Service|
 :Keep resource quarantined and incident open;
 stop
 else ([matching power-off or verified local
 isolation])
-| |
-:Notify Operator, keep any active trip open;
-stop
 endif
 else ([else])
 endif
-| |
-:Notify Operator, keep any active trip open;
+|Incident Service|
+:Make incident available to Operator
+Keep any active trip open;
 stop
 else ([else])
-| |
+|Incident Service|
 :Reject invalid incident input;
 stop
 endif
@@ -577,22 +558,24 @@ start
 :Assign recovery after required isolation;
 |Field / IoT / Simulated Telemetry|
 :Recover safely and repair resource Record electrical / mechanical test result;
-| |
+|Incident Service|
 if (Safety test passed?) then ([passed and safe location confirmed])
 |Operator|
 if (Accept repair as authorized Operator?) then ([accepted])
-| |
-:Reconcile resources, close trips only through UC05;
-| |
-:Restore only eligible resources Close resolved incident, keep audit Requeue technical charging interruptions;
+|Incident Service|
+:Reconcile resources; close trips only through UC05;
+|Incident Service|
+:Restore only eligible resources
+Close resolved incident; keep audit
+Requeue technical charging interruptions;
 stop
 else ([else])
-| |
+|Incident Service|
 :Keep isolated until Operator acceptance;
 stop
 endif
 else ([else])
-| |
+|Incident Service|
 :Keep isolated when safety test fails;
 stop
 endif
@@ -603,27 +586,27 @@ endif
 flowchart TD
     n0((Start))
     n1["User · Submit incident report"]
-    n5["  · Validate report or trusted telemetry alert"]
-    n6{"  · Incident input authorized?"}
-    n7["  · Open incident and block new allocations"]
-    n8{"  · Electrical hazard?"}
+    n5["Incident Service · Validate report or trusted telemetry alert"]
+    n6{"Incident Service · Incident input authorized?"}
+    n7["Incident Service · Open incident and block new allocations"]
+    n8{"Incident Service · Electrical hazard?"}
     n9["Field / IoT / Simulated Telemetry · Request and verify emergency power-off"]
-    n10{"  · Electrical isolation confirmed?"}
-    n11["  · Keep resource quarantined and incident open"]
+    n10{"Incident Service · Electrical isolation confirmed?"}
+    n11["Incident Service · Keep resource quarantined and incident open"]
     n12((End))
     n13{"Merge"}
-    n14["  · Notify Operator; keep any active trip open"]
+    n14["Incident Service · Make incident available to Operator<br/>Keep any active trip open"]
     n15["Operator · Assign recovery after required isolation"]
     n16["Field / IoT / Simulated Telemetry · Recover safely and repair resource Record electrical / mechanical test result"]
-    n17{"  · Safety test passed?"}
+    n17{"Incident Service · Safety test passed?"}
     n18{"Operator · Accept repair as authorized Operator?"}
-    n19["  · Reconcile resources; close trips only through UC05"]
-    n20["  · Restore only eligible resources Close resolved incident; keep audit Requeue technical charging interruptions"]
-    n21["  · Keep isolated until Operator acceptance"]
+    n19["Incident Service · Reconcile resources; close trips only through UC05"]
+    n20["Incident Service · Restore only eligible resources<br/>Close resolved incident; keep audit<br/>Requeue technical charging interruptions"]
+    n21["Incident Service · Keep isolated until Operator acceptance"]
     n22((End))
-    n23["  · Keep isolated when safety test fails"]
+    n23["Incident Service · Keep isolated when safety test fails"]
     n24((End))
-    n25["  · Reject invalid incident input"]
+    n25["Incident Service · Reject invalid incident input"]
     n26((End))
     n27((End))
     isolation_final((End))

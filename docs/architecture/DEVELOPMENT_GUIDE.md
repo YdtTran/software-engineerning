@@ -1,5 +1,7 @@
 # Four-module MVP development guide
 
+> **Historical development guide:** This describes the planned workstreams and integration steps. The demo is now composed in `app/src/app.js`; use the [current demo guide](MINH_DEMO_GUIDE.md) and [version 2 traceability](../requirements/VERSION_2_TRACEABILITY.md) for its present interfaces and capabilities.
+
 Build one Express application with SQLite repository adapters. Treat the four modules as independently implementable and testable workstreams in the same deployment. Use the [HTTP contracts](API_CONTRACTS.md) for UI integration and the [Development View](DECISION.md) for layer responsibilities.
 
 | Module | Owner | Owns | Collaborates through |

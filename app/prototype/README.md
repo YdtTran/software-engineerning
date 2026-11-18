@@ -2,7 +2,7 @@
 
 ## Giao diện đã nối API cho phần Mobility and Simulation
 
-Khởi động backend theo [hướng dẫn demo](../../docs/architecture/MINH_DEMO_GUIDE.md), rồi mở `/user-app.html`, `/operator-app.html` hoặc `/operator-web.html` trên server đó. Server chuyển tới `live.html`, dùng `live.js` cho UC01–05, UC13–14 và xem xét khuyến nghị điều chuyển qua Operations. Phiếu, chuyến và kết quả được tải/lưu qua API, có kiểm tra quyền và retry sau mất kết nối. `live.css` tái sử dụng thiết kế hiện có cho mobile/desktop.
+Khởi động backend theo [hướng dẫn demo](../../docs/architecture/MINH_DEMO_GUIDE.md), rồi mở `/operator-app.html` hoặc `/operator-web.html` trên server đó. Server chuyển tới `live.html`, dùng `live.js` cho UC13–14 và xem xét khuyến nghị điều chuyển qua Operations. Phiếu, chuyến và kết quả được tải/lưu qua API, có kiểm tra quyền và retry sau mất kết nối. `live.css` tái sử dụng thiết kế hiện có cho mobile/desktop.
 
 Các phần bên dưới mô tả bộ xem thiết kế offline ban đầu (`index.html`/`app.js`). Mở file trực tiếp hoặc dùng static preview vẫn là mockup; không thay đổi dữ liệu backend.
 
@@ -27,12 +27,12 @@ Mở **index.html** bằng Edge/Chrome, không cần cài thư viện hay khởi
 
 Điểm vào riêng để trình diễn, không có nút đổi vai trò trong giao diện sản phẩm:
 
-- **user-app.html**: bản mẫu app người dùng; chỉ mở các màn hình người dùng.
+- **index.html**: bộ xem thiết kế offline, bao gồm bản mẫu người dùng; ứng dụng người dùng chính là [Android](../../android/README.md).
 - **operator-app.html**: bản mẫu app operator; điều hướng dưới, mục Chức năng, bảng chuyển thành thẻ, cuộn dọc để thao tác tại hiện trường.
 - **operator-web.html**: web điều hành; menu trái, KPI, bản đồ và bảng nhiều cột để phân tích trên PC.
 - **index.html**: công cụ xem toàn bộ mockup cho nhóm thiết kế; chuyển bản thiết kế ở đây không phải tính năng cấp quyền.
 
-Các file app HTML là bản mô phỏng UI ứng dụng mobile để duyệt thiết kế, chưa phải ứng dụng Android/iOS cài đặt được. Mở trên PC chỉ là xem khung điện thoại trong công cụ thiết kế; không bổ sung sản phẩm web cho người dùng.
+Các file HTML trong bộ xem là bản mô phỏng để duyệt thiết kế; ứng dụng Android cài đặt được nằm trong `android/`. Mở trên PC chỉ là xem khung điện thoại trong công cụ thiết kế; không bổ sung sản phẩm web cho người dùng.
 
 Luồng người dùng: mở app → phiên đăng nhập người dùng (giả định) → tìm Hub → chọn xe → giữ xe → nhận xe tại Hub → hành trình → trả xe. Đặt chỗ đỗ và yêu cầu sạc là hai nhánh cho xe cá nhân.
 

@@ -98,7 +98,7 @@ Recommendations are data only: redistribute vehicles, reroute to another Hub, in
 
 ## Integrated UI — Stage 4
 
-The Express server serves `live.html`, `live.js` and `live.css` from the prototype directory. Its User/Operator entry routes select the appropriate layout; access still depends on the authenticated server identity. The original design viewer and offline/static-preview entry files keep mock behavior.
+The Express server serves `live.html`, `live.js` and `live.css` from the prototype directory. Its Operator entry routes select the appropriate layout; access still depends on the authenticated server identity. The Android User app uses the same backend API; the original design viewer retains mock behavior.
 
 The UI supports own reservation/trip history, cancellation, pickup/return, trip incident reporting, all five simulations, saved result retrieval and JSON export. Local storage retains payload-bound idempotency keys and request paths across reload; a visible retry action recovers an unknown outcome. It stores no passwords or session tokens. State conflicts refresh server data. A transfer recommendation opens a review form with live resources and creates a Planned transfer through Operations only after explicit selection/confirmation.
 

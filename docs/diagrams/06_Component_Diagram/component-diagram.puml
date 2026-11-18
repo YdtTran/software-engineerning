@@ -1,0 +1,175 @@
+@startuml Smart_EMobility_Hub_Component_Diagram
+title Smart E-Mobility Hub — UML 2 Component Diagram (Actual Implementation)
+
+skinparam componentStyle uml2
+skinparam shadowing false
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 11
+
+skinparam component {
+  BackgroundColor #F8FAFC
+  BorderColor #334155
+  ArrowColor #334155
+}
+
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #64748B
+}
+
+skinparam interface {
+  BackgroundColor #E0F2FE
+  BorderColor #0284C7
+}
+
+' =========================================================
+' 1. CLIENT APPLICATIONS & EXTERNAL SERVICES
+' =========================================================
+package "Client Applications" {
+  component "Android User App\n<<Kotlin / Jetpack Compose>>" as AndroidApp
+  component "Flutter Mobile App\n<<Dart / Flutter>>" as FlutterApp
+  component "Operator Web / Mobile Console\n<<HTML5 / JS / MapLibre GL>>" as OperatorConsole
+  component "Static Design Viewer\n<<mockup, in-memory>>" as DesignViewer
+}
+
+package "External Geo & Map Services" {
+  component "OpenFreeMap Tiles\n<<tiles.openfreemap.org>>" as OpenFreeMap
+  component "OSRM Routing\n<<router.project-osrm.org>>" as Osrm
+  component "Photon Geocoding\n<<photon.komoot.io>>" as Photon
+}
+
+interface "IOpenFreeMapTiles" as IMapTiles
+interface "IOSRMRouting" as IOsrm
+interface "IPhotonGeocoding" as IPhoton
+
+' Provided interfaces (lollipop) & assembly connectors (socket)
+OpenFreeMap -up- IMapTiles
+Osrm -up- IOsrm
+Photon -up- IPhoton
+
+AndroidApp --( IMapTiles
+AndroidApp --( IOsrm
+AndroidApp --( IPhoton
+OperatorConsole --( IMapTiles
+
+' =========================================================
+' 2. BACKEND SYSTEM BOUNDARY & EXTERNAL INTERFACES
+' =========================================================
+interface "IHubRestAPI (/api/v1)" as IRestApi
+interface "IStaticAssets (/)" as IStatic
+
+component "Smart E-Mobility Hub Backend\n<<Node.js / Express 5 Modular Monolith>>" as BackendSystem {
+  portin "/api/v1" as PortApi
+  portin "/ (static)" as PortStatic
+  portout "SQLite" as PortDb
+
+  component "Express API & Auth Shell\n<<in-memory sessions, CSRF, timers>>" as AuthShell
+  interface "ISessionAuthAPI" as ISession
+
+  AuthShell -up- ISession
+
+  package "Core Modules" {
+    component "Operations Module\n(UC08–UC11A)" as OpsMod
+    component "Mobility & Simulation Module\n(UC01–UC05, UC13–UC14)" as MobMod
+    component "Parking & Charging Module\n(UC06–UC07A, UC12)" as ParkMod
+
+    interface "IOperationsHTTP" as IOpsHttp
+    interface "IMobilitySimulationHTTP" as IMobHttp
+    interface "IParkingChargingHTTP" as IParkHttp
+
+    interface "InventoryInterface" as IInventory
+    interface "IIncidentReporter" as IIncident
+    interface "ITripReader" as ITrip
+    interface "IChargingGuard" as IGuard
+
+    ' Provided HTTP interfaces (lollipop)
+    OpsMod -up- IOpsHttp
+    MobMod -up- IMobHttp
+    ParkMod -up- IParkHttp
+
+    ' Assembly connectors between Core Modules
+    OpsMod -- IInventory
+    OpsMod -- IIncident
+    MobMod --( IInventory
+    ParkMod --( IInventory
+    ParkMod --( IIncident
+
+    MobMod -- ITrip
+    OpsMod --( ITrip
+
+    ParkMod -- IGuard
+    OpsMod --( IGuard
+  }
+
+  package "Infrastructure & Demo Adapters" {
+    component "SQLiteClient\n<<transaction / driver adapter>>" as SqlClient
+    component "SimulatedDock\n<<demo adapter, opt-in>>" as SimDock
+    component "SimulatedDeviceAdapter\n<<demo adapter>>" as SimDev
+
+    interface "ISQLiteClient" as ISql
+    interface "IMobilityDeviceAdapter" as IMobDev
+    interface "IParkingChargingDeviceAdapter" as IParkDev
+
+    ' Provided infrastructure/adapter interfaces (lollipop)
+    SqlClient -up- ISql
+    SimDock -up- IMobDev
+    SimDev -up- IParkDev
+  }
+
+  ' Delegation connectors (solid line + <<delegate>>)
+  PortApi --> ISession : <<delegate>>
+  PortApi --> IOpsHttp : <<delegate>>
+  PortApi --> IMobHttp : <<delegate>>
+  PortApi --> IParkHttp : <<delegate>>
+  PortStatic --> AuthShell : <<delegate>>
+  SqlClient --> PortDb : <<delegate>>
+
+  ' Assembly connectors (Core Modules <-> Infrastructure & Demo Adapters)
+  OpsMod --( ISql
+  MobMod --( ISql
+  ParkMod --( ISql
+
+  MobMod --( IMobDev
+  ParkMod --( IParkDev
+  SimDock --( IInventory
+}
+
+' =========================================================
+' 3. PERSISTENCE & BOUNDARY ASSEMBLY CONNECTORS
+' =========================================================
+database "SQLite Database\n<<WAL mode, schema v12>>" as SqliteDb
+interface "ISQLiteDatabase (DatabaseSync)" as ISqliteDb
+
+' Boundary ports expose provided interfaces (lollipop)
+PortApi -up- IRestApi
+PortStatic -up- IStatic
+
+' Clients consume boundary interfaces (socket -> lollipop assembly)
+AndroidApp --( IRestApi
+FlutterApp --( IRestApi
+OperatorConsole --( IRestApi
+OperatorConsole --( IStatic
+DesignViewer --( IStatic
+
+' Persistence assembly connector (outbound port socket -> DB lollipop)
+SqliteDb -up- ISqliteDb
+PortDb --( ISqliteDb
+
+' =========================================================
+' 4. VERIFIED BOUNDARY NOTES
+' =========================================================
+note right of AuthShell
+  Composition root (app/src/app.js) wires
+  all 3 modules, applies session/CSRF middleware
+  to /api/v1/*, and runs 30s expiry timers (demo-server.js).
+end note
+
+note bottom of ParkMod
+  activateAllocation() & confirmUnplug()
+  exist at service level without HTTP routes.
+  Notification & isolationVerifier ports are unimplemented.
+end note
+
+@enduml
