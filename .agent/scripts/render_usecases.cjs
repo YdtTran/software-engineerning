@@ -90,7 +90,13 @@ assert(!intersect({x:0,y:0},{x:10,y:10},{x:0,y:0},{x:10,y:-10}));
         for(const n of nodes.filter(n=>n.id.startsWith('uc_'))) {
           if(n.x<boundary.x+59||n.y<boundary.y+54||n.x+n.w>boundary.x+boundary.width-59||n.y+n.h>boundary.y+boundary.height-49)throw Error('Boundary padding: '+n.id);
         }
-        for(const n of nodes.filter(n=>n.id.startsWith('actor_')))if(n.x+n.w>=boundary.x)throw Error('Primary actor is not outside on the left');
+        for (const actor of nodes.filter(node => node.id.startsWith('actor_'))) {
+          const primary = ['actor_user', 'actor_operator'].includes(actor.id);
+          const outside = primary
+            ? actor.x + actor.w < boundary.x
+            : actor.x > boundary.x + boundary.width;
+          if (!outside) throw Error('Actor is on the wrong side of the boundary: ' + actor.id);
+        }
         const svg=graph.getSvg('#ffffff',1,24);
         svg.setAttribute('content',xml);
         svg.setAttribute('data-renderer','Draw.io viewer-static');
@@ -104,7 +110,7 @@ assert(!intersect({x:0,y:0},{x:10,y:10},{x:0,y:0},{x:10,y:-10}));
       await imagePage.close();
       results.push({file:path.relative(base,file).replaceAll('\\','/'),nodes:rendered.model.nodes.length,edges:rendered.model.edges.length,labels:rendered.model.labels.length,crossings:0,overlappingSegments:0,edgeThroughNode:0,labelCollisions:0});
       console.log('PASS '+path.basename(file));
-      fs.writeFileSync(path.join(output,'verification.json'),JSON.stringify({renderer:'Installed Draw.io viewer-static in headless Edge',checkedAt:new Date().toISOString(),passed:results.length===files.length,checks:['rendered edge crossings, T junctions and collinear overlaps','edges through unrelated nodes','labels against nodes, other labels and unrelated edges','use-case label clipping','dynamic system boundary padding','primary actors outside on left','all source diagrams rendered'],diagrams:results},null,2)+'\n');
+      fs.writeFileSync(path.join(output,'verification.json'),JSON.stringify({renderer:'Installed Draw.io viewer-static in headless Edge',checkedAt:new Date().toISOString(),passed:results.length===files.length,checks:['rendered edge crossings, T junctions and collinear overlaps','edges through unrelated nodes','labels against nodes, other labels and unrelated edges','use-case label clipping','dynamic system boundary padding','primary actors outside on left and supporting actors outside on right','all source diagrams rendered'],diagrams:results},null,2)+'\n');
     }
   } finally {await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

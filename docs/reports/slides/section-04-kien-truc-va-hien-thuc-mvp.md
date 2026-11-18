@@ -33,9 +33,9 @@ Tiếp nối luồng giữ–nhận–trả xe ở Section 3 bằng câu hỏi: 
 
 > Component Diagram cho thấy trách nhiệm của từng thành phần và quan hệ phụ thuộc. Package Diagram cho thấy mã nguồn được đặt ở đâu. Trong thiết kế mục tiêu, giao diện gửi yêu cầu qua API, tầng Application điều phối ca sử dụng, Domain chứa quy tắc nghiệp vụ, còn Infrastructure cung cấp adapter lưu trữ và thiết bị. Trong demo Version 2, một Express app lắp ghép ba module. Mobility và Parking dùng chung giao diện quản lý tài nguyên do Operations cung cấp. Các module truy cập dữ liệu qua repository và lớp SQLite dùng chung. DV01 có cả client Flutter bổ sung; hai giao diện chính trong bài demo là Android native và Operator trên trình duyệt.
 
-[Chương 7 · Development View, tr. 17–18](../../slides/07_Ch7%20Architectural%20Design_2025.pdf#page=17) · [Kiến trúc phân tầng, tr. 24–25](../../slides/07_Ch7%20Architectural%20Design_2025.pdf#page=24) · [Component Diagram · Nguồn Draw.io chi tiết](../../diagrams/06_Component_Diagram/component-diagram.drawio)
+[Chương 7 · Development View, tr. 17–18](../../slides/07_Ch7%20Architectural%20Design_2025.pdf#page=17) · [Kiến trúc phân tầng, tr. 24–25](../../slides/07_Ch7%20Architectural%20Design_2025.pdf#page=24) · [DV01 · Component của demo](../../diagrams/06_Component_Diagram/DV01-Component_Overview_16x9.drawio)
 
-[DV02 · Package thiết kế mục tiêu](../../diagrams/07_Package_Diagram/DV02-Package_Diagram_New.drawio) · [Mã nguồn các module hiện tại](../../../app/src/modules/)
+[DV02 · Package thiết kế mục tiêu](../../diagrams/07_Package_Diagram/DV02-Package_Diagram_New.drawio) · [DV02 · Package theo mã nguồn hiện tại](../../diagrams/07_Package_Diagram/DV02-Package_Overview_16x9.drawio)
 
 ## Slide 19 · Physical View — Demo chạy ở đâu?
 
@@ -72,7 +72,7 @@ Tiếp nối luồng giữ–nhận–trả xe ở Section 3 bằng câu hỏi: 
 
 ![SQ03: Android gửi yêu cầu trả xe, backend giữ chỗ và chờ dock giả lập xác nhận xe đã đến và khóa an toàn](images/section-04/sq03-tra-xe.png)
 
-[Chương 7 · Logical View và Sequence Diagram, tr. 18](../../slides/07_Ch7%20Architectural%20Design_2025.pdf#page=18) · [Danh mục Sequence Diagram · SQ03](../../diagrams/02_Sequence_Diagram/README.md) · [Hợp đồng HTTP của UC05](../../architecture/API_CONTRACTS.md)
+[Chương 7 · Logical View và Sequence Diagram, tr. 18](../../slides/07_Ch7%20Architectural%20Design_2025.pdf#page=18) · [SQ03 · Trang 3 của Sequence Vehicle Rental](../../diagrams/02_Sequence_Diagram/drawio/workflow_vehicle_rental.drawio) · [Hợp đồng HTTP của UC05](../../architecture/API_CONTRACTS.md)
 
 ## Slide 21 · Tranh chấp chỗ đỗ và xác nhận thiết bị
 

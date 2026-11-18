@@ -1,3 +1,4 @@
+"""Generate local SVG previews of the earlier slide-style sequence model."""
 import os
 import html
 import textwrap
@@ -523,7 +524,7 @@ DIAGRAMS = [
 ]
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Regenerate only SQ01–SQ07.')
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-dir', type=Path, default=Path(__file__).resolve().parents[2] / '.diagram-exports/sequences')
     args = parser.parse_args()
     for d in DIAGRAMS:

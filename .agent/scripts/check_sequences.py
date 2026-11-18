@@ -194,9 +194,24 @@ if __name__ == '__main__':
                 assert all(value==0 for value in balances.values())
     if args.directory == BASE:
         from check_diagram_sources import check as check_sources
-        files = sorted((BASE / 'drawio').glob('SQ*.drawio'))
-        assert len(files) == len(DIAGRAMS)
-        check_sources(files)
+        files = {path.stem: path for path in (BASE / 'drawio').glob('*.drawio')}
+        groups = {
+            'workflow_vehicle_rental': ('SQ01', 'SQ02', 'SQ03'),
+            'workflow_charging': ('SQ04',),
+            'workflow_vehicle_redistribution': ('SQ05',),
+            'workflow_hub_operations': ('SQ06',),
+            'workflow_what_if_simulation': ('SQ07',),
+        }
+        assert files.keys() == groups.keys(), 'Expected five workflow files'
+        check_sources(sorted(files.values()))
+        for workflow, ids in groups.items():
+            pages = ET.parse(files[workflow]).findall('diagram')
+            assert tuple(page.get('id') for page in pages) == ids, workflow
+            for id, page in zip(ids, pages):
+                assert page.get('name').startswith(f'{id} - '), (workflow, id)
+                title = page.find(".//mxCell[@id='title']").get('value')
+                assert title == f'Sequence Diagram: {page.get("name")}', (workflow, id)
+        print('Verified that SQ01–SQ07 appear once in their workflow files')
         raise SystemExit(0)
     files = sorted(args.directory.glob('SQ*.drawio.svg'))
     assert len(files) == 7, f'Expected seven diagrams, found {len(files)}'

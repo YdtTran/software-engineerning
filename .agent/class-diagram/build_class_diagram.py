@@ -69,9 +69,10 @@ def compact_projection(classes, selection):
 
 def check_lifelines(catalog=CATALOG, sequence=None):
     if sequence is None:
-        files = sorted((ROOT / 'docs/diagrams/02_Sequence_Diagram/drawio').glob('SQ*.drawio'))
-        assert len(files) == 7, 'Expected seven editable sequence diagrams'
-        names = {cell.get('value') for file in files for cell in ET.parse(file).iter('mxCell')
+        files = sorted((ROOT / 'docs/diagrams/02_Sequence_Diagram/drawio').glob('workflow_*.drawio'))
+        pages = [page for file in files for page in ET.parse(file).findall('diagram')]
+        assert sorted(page.get('id') for page in pages) == [f'SQ{i:02}' for i in range(1, 8)]
+        names = {cell.get('value') for page in pages for cell in page.iter('mxCell')
                  if re.fullmatch(r'header_\d+', cell.get('id', ''))}
     else:
         names = set(re.findall(r'^(?:actor|participant) "([^"\n]+)"', sequence, re.M))

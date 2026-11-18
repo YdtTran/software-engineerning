@@ -28,7 +28,7 @@ The lecturer's assignment defines four deliverable milestones plus a working dem
 |---|---|---|---|
 | **Project Context & Scope** | Context in VNU-HCM Urban Area, Metro line 1, stakeholders, objectives | Detailed in `PROJECT_SPECIFICATION.md` §1–§2 and `SUBMISSION_1_REPORT.md` §1 | **COMPLIANT** |
 | **Stakeholders Analysis** | Primary actors (User, Operator) & Secondary actors (IoT Telemetry, Notification) | Detailed in `PROJECT_SPECIFICATION.md` §3.1 with roles, goals, expectations | **COMPLIANT** |
-| **System-wide Use Case Diagram** | Whole system use-case diagram enclosed in system boundary | `docs/diagrams/01_Usecase_Diagram/drawio/general_usecase_diagram.drawio` | **COMPLIANT** (Complies with CO3001 Ch3/Ch6 rules) |
+| **System Use Case Coverage** | Whole-system canvas covers all primary use cases inside a system boundary | [System-wide overview](../../diagrams/01_Usecase_Diagram/drawio/system_use_cases.drawio) | **COVERAGE VERIFIED** |
 | **Use Case Specifications** | Detailed scenarios/contracts for all core use cases | Standard 11-field specifications for UC01–UC14 in `PROJECT_SPECIFICATION.md` §3.3–§3.4 | **COMPLIANT** |
 | **Non-Functional Requirements** | General NFRs for performance, concurrency, reliability, scalability, usability | Formally specified in `PROJECT_SPECIFICATION.md` §4 | **COMPLIANT** |
 | **Non-Interactive FRs (Bonus)** | Background automated daemons | Specified in `PROJECT_SPECIFICATION.md` §3.6 (FR-NI01 to FR-NI04) | **COMPLIANT (DOCUMENTED)** |
@@ -40,7 +40,7 @@ The lecturer's assignment defines four deliverable milestones plus a working dem
 | Required Item | Syllabus Requirement | Repository Evidence | Conformance Assessment |
 |---|---|---|---|
 | **UI Design: Mockups** | Screen mockups covering core user journeys | 26 screens across User App, Operator App, and Operator Web in `app/prototype/screens/`, `gallery.html`, and `UI-UX.pdf` | **COMPLIANT** |
-| **Sequence Diagrams** | Sequence diagrams covering key interactions | 7 diagrams (SQ01–SQ07) in `docs/diagrams/02_Sequence_Diagram/drawio/` with PlantUML/Mermaid previews in `README.md` | **COMPLIANT** |
+| **Sequence Diagrams** | Sequence diagrams covering key interactions | 7 pages (SQ01–SQ07) in five workflow files under `docs/diagrams/02_Sequence_Diagram/drawio/` with PlantUML/Mermaid previews in `README.md` | **COMPLIANT** |
 | **Activity Diagrams** | Activity diagrams illustrating business processes | 7 diagrams (AD01–AD07) in `docs/diagrams/03_Activity_Diagram/drawio/` with swimlanes and previews in `ACTIVITY_PREVIEWS.md` | **COMPLIANT** |
 | **State-Chart Diagrams (Bonus)** | State machine models for complex lifecycles | 3 diagrams (SC01 Vehicle, SC02 Charging Point, SC03 Reservation & Trip) in `docs/diagrams/04_Statechart_Diagram/drawio/` | **COMPLIANT (BONUS SATISFIED)** |
 

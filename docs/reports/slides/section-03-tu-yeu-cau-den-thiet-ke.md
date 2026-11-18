@@ -47,7 +47,7 @@ Nhóm làm việc theo hướng Agile, họp và điều chỉnh thiết kế qu
 
 > Sinh viên chọn phiếu rồi quét hoặc nhập mã xe trên Android. Hệ thống kiểm tra chủ phiếu, mã xe, Hub và hạn giữ trước khi yêu cầu dock giả lập mở khóa. Khi dock xác nhận, hệ thống mới bắt đầu chuyến và giải phóng chỗ đỗ ở Hub xuất phát. Nếu kết quả mở khóa chưa rõ, hệ thống giữ quyền nhận xe để đối soát.
 
-[Danh mục Sequence Diagram · SQ02 và SQ03](../../diagrams/02_Sequence_Diagram/README.md)
+[Sequence Vehicle Rental · SQ02 ở trang 2, SQ03 ở trang 3](../../diagrams/02_Sequence_Diagram/drawio/workflow_vehicle_rental.drawio)
 
 ## Slide 15 · State-chart — Xe đổi trạng thái khi nào?
 
@@ -62,7 +62,7 @@ Nhóm làm việc theo hướng Agile, họp và điều chỉnh thiết kế qu
 
 > State-chart nhìn cùng luồng đó từ phía chiếc xe. Giữ xe thành công đưa xe sang Đang giữ. Nếu phiếu bị hủy hoặc hết hạn trước khi bắt đầu nhận, xe có thể trở lại Sẵn sàng. Khi trả xe, hệ thống cần xác nhận đã đỗ và khóa an toàn trước khi đóng chuyến và ghi nhận chỗ đỗ đã có xe. Sau đó mức pin quyết định xe có thể phục vụ lượt tiếp theo hay cần sạc.
 
-[Danh mục State-chart · Vòng đời xe dùng chung](../../diagrams/04_Statechart_Diagram/README.md) · [SC03 · Vòng đời phiếu giữ và chuyến đi](../../diagrams/04_Statechart_Diagram/drawio/SC03-Reservation_and_Trip_State_Machine.drawio)
+[SC00 · Vòng đời xe dùng chung](../../diagrams/04_Statechart_Diagram/drawio/SC00-System_Lifecycle_Overview.drawio) · [SC03 · Vòng đời phiếu giữ và chuyến đi](../../diagrams/04_Statechart_Diagram/drawio/SC03-Reservation_and_Trip_State_Machine.drawio)
 
 ## Slide 16 · Từ mô hình lớp đến màn hình Android
 
@@ -82,4 +82,4 @@ Nhóm làm việc theo hướng Agile, họp và điều chỉnh thiết kế qu
 
 ![Android hiển thị trạng thái chuyến đi sau khi nhận xe](../../assets/demo/android-active-trip.png)
 
-[Danh mục Class Diagram · Mô hình lớp](../../diagrams/05_Class_Diagram/README.md) · [Truy vết luồng Android và UML Version 2](../../requirements/VERSION_2_TRACEABILITY.md)
+[CD00 · Mô hình lớp tổng quan](../../diagrams/05_Class_Diagram/drawio/CD00-Class_Overview_16x9.drawio) · [Truy vết luồng Android và UML Version 2](../../requirements/VERSION_2_TRACEABILITY.md)

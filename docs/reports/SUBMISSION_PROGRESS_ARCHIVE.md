@@ -42,23 +42,23 @@ Hệ thống tập trung vào các bài toán kỹ nghệ phần mềm cốt lõ
 ### Giai đoạn 1: Submission #1 (Đặc tả Yêu cầu & Use Case)
 - [x] **Phân tích Bối cảnh & Phạm vi Dự án:** Xác định bài toán kết nối Metro số 1 và hệ thống Hub ĐHQG.
 - [x] **Phân tích Tác nhân (Stakeholders):** Xác định Primary Actors (User và Operator - bên trái) và Secondary Actors (IoT Sensor Stream, Notification Service - bên phải khi tham gia).
-- [x] **Sơ đồ Use Case Tổng quan Toàn Hệ thống:** Khởi tạo [`general_usecase_diagram.drawio`](../diagrams/01_Usecase_Diagram/drawio/general_usecase_diagram.drawio) bao trọn 14 Use Cases.
-- [x] **Sơ đồ Use Case Chi tiết Nhóm Người dùng (7 UC):**
-  - [x] [`UC01: Search Mobility Hub`](../diagrams/01_Usecase_Diagram/drawio/UC01-Search_Mobility_Hub.drawio)
-  - [x] [`UC02: View Available Vehicles`](../diagrams/01_Usecase_Diagram/drawio/UC02-View_Available_Vehicles.drawio)
-  - [x] [`UC03: Reserve Vehicle`](../diagrams/01_Usecase_Diagram/drawio/UC03-Reserve_Vehicle.drawio)
-  - [x] [`UC04: Pick Up Vehicle`](../diagrams/01_Usecase_Diagram/drawio/UC04-Pick_Up_Vehicle.drawio)
-  - [x] [`UC05: Return Vehicle`](../diagrams/01_Usecase_Diagram/drawio/UC05-Return_Vehicle.drawio)
-  - [x] [`UC06: Manage Parking Reservation`](../diagrams/01_Usecase_Diagram/drawio/UC06-S1-Create_Parking_Reservation.drawio)
-  - [x] [`UC07: Request Charging`](../diagrams/01_Usecase_Diagram/drawio/UC07-Request_Charging.drawio)
-- [x] **Sơ đồ Use Case Chi tiết Nhóm Vận hành (7 UC):**
-  - [x] [`UC08: Monitor Mobility Hub Network`](../diagrams/01_Usecase_Diagram/drawio/UC8-Monitor_Mobility_Hub_Network.drawio)
-  - [x] [`UC09: Manage Mobility Resources`](../diagrams/01_Usecase_Diagram/drawio/UC9-Manage_Mobility_Resources.drawio)
-  - [x] [`UC10: Redistribute Vehicles`](../diagrams/01_Usecase_Diagram/drawio/UC10-Redistribute_Vehicles.drawio)
-  - [x] [`UC11: Handle Operational Incident`](../diagrams/01_Usecase_Diagram/drawio/UC11-Handle_Operational_Incident.drawio)
-  - [x] [`UC12: Manage Charging Schedule`](../diagrams/01_Usecase_Diagram/drawio/UC12-Manage_Charging_Schedule.drawio)
-  - [x] [`UC13: Run What-if Simulation`](../diagrams/01_Usecase_Diagram/drawio/UC13-Run_What-if_Simulation.drawio)
-  - [x] [`UC14: View Simulation Results`](../diagrams/01_Usecase_Diagram/drawio/UC14-View_Simulation_Results.drawio)
+- [x] **Sơ đồ Use Case Tổng quan Toàn Hệ thống:** Khởi tạo sơ đồ bao trọn 14 Use Cases chính. Nguồn hiện tại nằm trong [6 sơ đồ theo vòng đời](../diagrams/01_Usecase_Diagram/README.md#workflow-diagrams).
+- [x] **Kịch bản Use Case Nhóm Người dùng (7 UC):**
+  - [x] [`UC01: Search Mobility Hub`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc01--search-mobility-hub)
+  - [x] [`UC02: View Available Vehicles`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc02--view-available-vehicles)
+  - [x] [`UC03: Reserve Vehicle`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc03--reserve-vehicle)
+  - [x] [`UC04: Pick Up Vehicle`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc04--pick-up-vehicle)
+  - [x] [`UC05: Return Vehicle`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc05--return-vehicle)
+  - [x] [`UC06: Manage Parking Reservation`](../diagrams/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md#uc06--manage-parking-reservation)
+  - [x] [`UC07: Request Charging`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc07--request-charging)
+- [x] **Kịch bản Use Case Nhóm Vận hành (7 UC):**
+  - [x] [`UC08: Monitor Mobility Hub Network`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc08--monitor-mobility-hub-network)
+  - [x] [`UC09: Manage Mobility Resources`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc09--manage-mobility-resources)
+  - [x] [`UC10: Redistribute Vehicles`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc10--redistribute-vehicles)
+  - [x] [`UC11: Handle Operational Incident`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc11--handle-operational-incident)
+  - [x] [`UC12: Manage Charging Schedule`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc12--manage-charging-schedule)
+  - [x] [`UC13: Run What-if Simulation`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc13--run-what-if-simulation)
+  - [x] [`UC14: View Simulation Results`](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc14--view-simulation-results)
 - [x] **Bộ Mã nguồn PlantUML & Mermaid Use Case:** Đóng gói toàn bộ trong [`danh mục sơ đồ`](../diagrams/01_Usecase_Diagram/README.md).
 - [x] **Yêu cầu Phi chức năng (General NFRs):** Thời gian thực, chống double-booking, tính tin cậy.
 - [x] **Yêu cầu Chức năng Phi tương tác (Bonus):** 4 tiến trình nền (Hủy quá hạn 15p, Giả lập hao pin, Watcher ngưỡng tải, Rebalance sạc tự động).
@@ -108,7 +108,7 @@ Hệ thống tập trung vào các bài toán kỹ nghệ phần mềm cốt lõ
 | **Báo cáo Submission #1** | [`SUBMISSION_1_REPORT.md`](SUBMISSION_1_REPORT.md) | Báo cáo hoàn chỉnh Giai đoạn 1 gồm bối cảnh, 14 kịch bản Use Case chi tiết, NFRs và Bonus FRs. |
 | **Thư mục Sơ đồ Hệ thống** | [`docs/diagrams/`](../diagrams) | Thư mục gốc chứa toàn bộ các loại sơ đồ UML chuẩn hóa của hệ thống. |
 | **Sơ đồ Use Case** | [`docs/diagrams/01_Usecase_Diagram/`](../diagrams/01_Usecase_Diagram) | Sơ đồ tổng quan và các sơ đồ chi tiết `.drawio` kèm [`danh mục sơ đồ`](../diagrams/01_Usecase_Diagram/README.md). |
-| **Sơ đồ Tuần tự (Sequence)** | [`docs/diagrams/02_Sequence_Diagram/`](../diagrams/02_Sequence_Diagram) | 7 sơ đồ vector `.drawio` (`SQ01` - `SQ07`) kèm [`danh mục sơ đồ`](../diagrams/02_Sequence_Diagram/README.md). |
+| **Sơ đồ Tuần tự (Sequence)** | [`docs/diagrams/02_Sequence_Diagram/`](../diagrams/02_Sequence_Diagram) | 7 trang (`SQ01` - `SQ07`) trong 5 tệp `.drawio` kèm [`danh mục sơ đồ`](../diagrams/02_Sequence_Diagram/README.md). |
 | **Sơ đồ Hoạt động (Activity)** | [`docs/diagrams/03_Activity_Diagram/`](../diagrams/03_Activity_Diagram) | 7 sơ đồ vector `.drawio` (`AD01` - `AD07`) kèm [`danh mục sơ đồ`](../diagrams/03_Activity_Diagram/README.md). |
 | **Sơ đồ Trạng thái (Statechart)** | [`docs/diagrams/04_Statechart_Diagram/`](../diagrams/04_Statechart_Diagram) | 3 sơ đồ vector `.drawio` (`SC01` - `SC03`) kèm [`danh mục sơ đồ`](../diagrams/04_Statechart_Diagram/README.md). |
 | **Bản mẫu UI/UX** | [`app/prototype/`](../../app/prototype) | Trình duyệt mockup tĩnh (`index.html`) và các giao diện Operator live (`operator-web.html`, `operator-app.html`). |

@@ -19,7 +19,7 @@
 
 > Nhóm chia 14 ca sử dụng chính thành bốn nhóm. Sinh viên có thể thuê xe dùng chung hoặc gửi và đăng ký sạc xe cá nhân. Người vận hành theo dõi tài nguyên, điều phối giữa các Hub và thử kịch bản khi nhu cầu thay đổi. Trong mọi luồng, hệ thống cần kiểm tra quyền trước khi xử lý, chỉ cấp xe hoặc chỗ đỗ cho một yêu cầu hợp lệ tại cùng thời điểm và lưu lại dữ liệu nghiệp vụ.
 
-[Danh mục Use Case và sơ đồ toàn hệ thống](../../diagrams/01_Usecase_Diagram/README.md)
+[Use Case toàn hệ thống](../../diagrams/01_Usecase_Diagram/drawio/system_use_cases.drawio)
 
 ## Slide 8 · Sinh viên làm được gì trên Android?
 
@@ -36,7 +36,7 @@
 
 > Trên Android, sinh viên chọn Hub và xe còn trống rồi nhận phiếu giữ xe. Khi đến Hub, bạn dùng mã xe để nhận xe. Đến nơi, bạn kiểm tra chỗ trống và chọn vị trí trả. Bản demo dùng thiết bị giả lập để xác nhận mở khóa khi nhận xe và khóa xe khi trả. Sinh viên đi xe cá nhân dùng luồng đặt chỗ riêng, xác nhận lúc vào và ra Hub, và có thể gửi yêu cầu sạc.
 
-[Danh mục Use Case · Thuê xe](../../diagrams/01_Usecase_Diagram/README.md)
+[Use Case · Thuê xe](../../diagrams/01_Usecase_Diagram/drawio/workflow_vehicle_rental.drawio)
 
 ## Slide 9 · Đơn vị vận hành làm được gì trên web?
 
@@ -52,7 +52,7 @@
 
 > Bảng điều khiển web cho biết Hub nào thiếu xe hoặc sắp hết chỗ đỗ. Người vận hành có thể xem và quản lý tài nguyên từng Hub, lập lệnh bổ sung xe từ nơi khác hoặc phân công bảo trì khi có thiết bị lỗi. Với yêu cầu sạc, hệ thống dùng mức ưu tiên, độ tương thích của cổng và công suất còn lại để lập lịch phân bổ.
 
-[Danh mục Use Case · Vận hành Hub](../../diagrams/01_Usecase_Diagram/README.md)
+[Use Case · Vận hành Hub](../../diagrams/01_Usecase_Diagram/drawio/workflow_hub_operations.drawio)
 
 ## Slide 10 · What-if hỗ trợ quyết định như thế nào?
 
@@ -72,7 +72,7 @@
 
 *Kết quả của một lượt chạy với dữ liệu demo.*
 
-[Danh mục Use Case · What-if](../../diagrams/01_Usecase_Diagram/README.md)
+[Use Case · What-if](../../diagrams/01_Usecase_Diagram/drawio/workflow_what_if_simulation.drawio)
 
 ## Slide 11 · MVP đã triển khai đến đâu?
 

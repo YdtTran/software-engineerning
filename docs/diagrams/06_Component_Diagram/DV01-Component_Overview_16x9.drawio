@@ -1,0 +1,169 @@
+<mxfile host="drawio" version="26.0.0">
+  <diagram id="DV01" name="DV01 · Component Diagram">
+    <mxGraphModel grid="0" page="1" background="#ffffff" pageScale="1" pageWidth="1600" pageHeight="900">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="accent" value="" style="strokeColor=none;fillColor=#0891b2;" vertex="1" parent="1">
+          <mxGeometry x="50" y="43" width="4" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="Component Diagram" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=43;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="72" y="34" width="1450" height="59" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Smart E-Mobility Hub · Các thành phần của bản demo hiện tại" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=22;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="75" y="94" width="1450" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="clients_label" value="Ứng dụng khách" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=25;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="55" y="174" width="253" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="backend" value="" style="fillColor=#f8fafc;strokeColor=#7890aa;strokeWidth=2;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="409" y="166" width="880" height="573" as="geometry" />
+        </mxCell>
+        <mxCell id="backend_title" value="Backend · Node.js / Express modular monolith" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=26;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="432" y="181" width="829" height="43" as="geometry" />
+        </mxCell>
+        <mxCell id="backend_subtitle" value="Ba module chạy trong cùng một ứng dụng" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=17;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="433" y="225" width="828" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="android" value="" style="fillColor=#e6f2ff;strokeColor=#2b6594;strokeWidth=1.8;" vertex="1" parent="1">
+          <mxGeometry x="55" y="259" width="249" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="android_st" value="«component»" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=14;fontColor=#475569;" vertex="1" parent="android">
+          <mxGeometry x="0" y="8" width="249" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="android_title" value="Android native" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=23;fontStyle=1;" vertex="1" parent="android">
+          <mxGeometry x="0" y="31" width="249" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="android_description" value="Ứng dụng người dùng" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=17;fontColor=#334155;" vertex="1" parent="android">
+          <mxGeometry x="0" y="66" width="249" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="flutter" value="" style="fillColor=#e6f2ff;strokeColor=#2b6594;strokeWidth=1.8;" vertex="1" parent="1">
+          <mxGeometry x="55" y="405" width="249" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="flutter_st" value="«component»" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=14;fontColor=#475569;" vertex="1" parent="flutter">
+          <mxGeometry x="0" y="8" width="249" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="flutter_title" value="Flutter Mobile" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=23;fontStyle=1;" vertex="1" parent="flutter">
+          <mxGeometry x="0" y="31" width="249" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="flutter_description" value="Ứng dụng người dùng" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=17;fontColor=#334155;" vertex="1" parent="flutter">
+          <mxGeometry x="0" y="66" width="249" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="operator" value="" style="fillColor=#e6f2ff;strokeColor=#2b6594;strokeWidth=1.8;" vertex="1" parent="1">
+          <mxGeometry x="55" y="551" width="249" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="operator_st" value="«component»" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=14;fontColor=#475569;" vertex="1" parent="operator">
+          <mxGeometry x="0" y="8" width="249" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="operator_title" value="Operator Console" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=23;fontStyle=1;" vertex="1" parent="operator">
+          <mxGeometry x="0" y="31" width="249" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="operator_description" value="Giao diện web / mobile" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=17;fontColor=#334155;" vertex="1" parent="operator">
+          <mxGeometry x="0" y="66" width="249" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="express" value="" style="fillColor=#e1ecff;strokeColor=#264f9c;strokeWidth=1.8;" vertex="1" parent="1">
+          <mxGeometry x="447" y="405" width="253" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="express_st" value="«component»" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=14;fontColor=#475569;" vertex="1" parent="express">
+          <mxGeometry x="0" y="8" width="253" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="express_title" value="Express API" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=23;fontStyle=1;" vertex="1" parent="express">
+          <mxGeometry x="0" y="31" width="253" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="express_description" value="Định tuyến và phiên đăng nhập" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=17;fontColor=#334155;" vertex="1" parent="express">
+          <mxGeometry x="0" y="66" width="253" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="mobility" value="" style="fillColor=#e9f6eb;strokeColor=#34734c;strokeWidth=1.8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="273" width="255" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="mobility_st" value="«component»" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=14;fontColor=#475569;" vertex="1" parent="mobility">
+          <mxGeometry x="0" y="8" width="255" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="mobility_title" value="Mobility / Simulation" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=23;fontStyle=1;" vertex="1" parent="mobility">
+          <mxGeometry x="0" y="31" width="255" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="mobility_description" value="Đặt xe, chuyến đi và what-if" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=17;fontColor=#334155;" vertex="1" parent="mobility">
+          <mxGeometry x="0" y="66" width="255" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="operations" value="" style="fillColor=#e9f6eb;strokeColor=#34734c;strokeWidth=1.8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="405" width="255" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="operations_st" value="«component»" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=14;fontColor=#475569;" vertex="1" parent="operations">
+          <mxGeometry x="0" y="8" width="255" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="operations_title" value="Operations" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=23;fontStyle=1;" vertex="1" parent="operations">
+          <mxGeometry x="0" y="31" width="255" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="operations_description" value="Tài nguyên, điều chuyển, sự cố" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=17;fontColor=#334155;" vertex="1" parent="operations">
+          <mxGeometry x="0" y="66" width="255" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="parking" value="" style="fillColor=#e9f6eb;strokeColor=#34734c;strokeWidth=1.8;" vertex="1" parent="1">
+          <mxGeometry x="780" y="537" width="255" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="parking_st" value="«component»" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=14;fontColor=#475569;" vertex="1" parent="parking">
+          <mxGeometry x="0" y="8" width="255" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="parking_title" value="Parking / Charging" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=23;fontStyle=1;" vertex="1" parent="parking">
+          <mxGeometry x="0" y="31" width="255" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="parking_description" value="Đỗ xe và sạc điện" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=17;fontColor=#334155;" vertex="1" parent="parking">
+          <mxGeometry x="0" y="66" width="255" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="adapter" value="" style="fillColor=#fff3d2;strokeColor=#8a641b;strokeWidth=1.8;" vertex="1" parent="1">
+          <mxGeometry x="1091" y="405" width="180" height="108" as="geometry" />
+        </mxCell>
+        <mxCell id="adapter_st" value="«component»" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=14;fontColor=#475569;" vertex="1" parent="adapter">
+          <mxGeometry x="0" y="8" width="180" height="23" as="geometry" />
+        </mxCell>
+        <mxCell id="adapter_title" value="SQLiteClient" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=23;fontStyle=1;" vertex="1" parent="adapter">
+          <mxGeometry x="0" y="31" width="180" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="adapter_description" value="Adapter giao dịch" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=center;fontSize=17;fontColor=#334155;" vertex="1" parent="adapter">
+          <mxGeometry x="0" y="66" width="180" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="database" value="SQLite" style="shape=cylinder3;html=0;boundedLbl=1;size=15;fillColor=#f1ebf9;strokeColor=#6d529b;strokeWidth=1.8;fontFamily=Arial;fontSize=23;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1361" y="407" width="180" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="android_api" source="android" target="express" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.5;entryX=0;entryY=0.21;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flutter_api" source="flutter" target="express" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="operator_api" source="operator" target="express" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.5;entryX=0;entryY=0.79;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rest_label" value="HTTP /api/v1" style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=16;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="312" y="421" width="115" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="api_mobility" source="express" target="mobility" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.22;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mobility_adapter" source="mobility" target="adapter" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.5;entryX=0;entryY=0.22;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="api_operations" source="express" target="operations" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="operations_adapter" source="operations" target="adapter" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="api_parking" source="express" target="parking" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.78;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="parking_adapter" source="parking" target="adapter" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.5;entryX=0;entryY=0.78;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="adapter_db" source="adapter" target="database" edge="1" parent="1" style="edgeStyle=none;html=0;rounded=0;strokeColor=#475569;strokeWidth=1.7;dashed=1;dashPattern=6 4;endArrow=open;endSize=9;endFill=0;exitPerimeter=0;entryPerimeter=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="devices_note" value="Adapter mô phỏng phục vụ thao tác khóa xe và cổng sạc trong demo." style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=17;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="436" y="673" width="805" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="footer" value="Các mũi tên biểu thị phụ thuộc giữa thành phần. Truy cập SQLite đi qua adapter dùng chung." style="text;html=0;fontFamily=Arial;fontColor=#0f172a;strokeColor=none;fillColor=none;verticalAlign=middle;spacing=0;align=left;fontSize=19;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="55" y="826" width="1468" height="31" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

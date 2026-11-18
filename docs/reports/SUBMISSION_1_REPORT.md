@@ -211,23 +211,23 @@ flowchart LR
 
 ### 3.2. Bảng Danh mục 14 Use Cases Cốt lõi
 
-| Mã UC | Tên Ca Sử dụng | Phân loại | Tác nhân chính | File Sơ đồ Vector Draw.io |
+| Mã UC | Tên Ca Sử dụng | Phân loại | Tác nhân chính | Sơ đồ / kịch bản |
 | :---: | :--- | :---: | :---: | :--- |
-| **SYS** | **Sơ đồ Tổng quan Toàn hệ thống** | Hệ thống | All Actors | [`general_usecase_diagram.drawio`](../diagrams/01_Usecase_Diagram/drawio/general_usecase_diagram.drawio) |
-| **UC01** | Tìm kiếm Hub di chuyển (`Search Mobility Hub`) | Cốt lõi | User | [`UC01-Search_Mobility_Hub.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC01-Search_Mobility_Hub.drawio) |
-| **UC02** | Xem danh sách xe khả dụng (`View Available Vehicles`) | Hỗ trợ | User | [`UC02-View_Available_Vehicles.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC02-View_Available_Vehicles.drawio) |
-| **UC03** | Đặt trước phương tiện (`Reserve Vehicle`) | Cốt lõi | User | [`UC03-Reserve_Vehicle.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC03-Reserve_Vehicle.drawio) |
-| **UC04** | Nhận phương tiện tại Hub (`Pick Up Vehicle`) | Cốt lõi | User | [`UC04-Pick_Up_Vehicle.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC04-Pick_Up_Vehicle.drawio) |
-| **UC05** | Trả phương tiện tại Hub (`Return Vehicle`) | Cốt lõi | User | [`UC05-Return_Vehicle.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC05-Return_Vehicle.drawio) |
-| **UC06** | Quản lý đặt chỗ đỗ xe (`Manage Parking Reservation`) | Cốt lõi | User | [`UC06-S1-Create_Parking_Reservation.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC06-S1-Create_Parking_Reservation.drawio) |
-| **UC07** | Yêu cầu sạc điện (`Request Charging`) | Cốt lõi | User | [`UC07-Request_Charging.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC07-Request_Charging.drawio) |
-| **UC08** | Giám sát mạng lưới Hub (`Monitor Mobility Hub Network`) | Giám sát | Operator | [`UC8-Monitor_Mobility_Hub_Network.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC8-Monitor_Mobility_Hub_Network.drawio) |
-| **UC09** | Quản lý tài nguyên vận hành (`Manage Mobility Resources`) | Quản trị | Operator | [`UC9-Manage_Mobility_Resources.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC9-Manage_Mobility_Resources.drawio) |
-| **UC10** | Điều phối & Cân bằng xe (`Redistribute Vehicles`) | Điều hành | Operator | [`UC10-Redistribute_Vehicles.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC10-Redistribute_Vehicles.drawio) |
-| **UC11** | Xử lý sự cố vận hành (`Handle Operational Incident`) | Xử lý lỗi | Operator | [`UC11-Handle_Operational_Incident.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC11-Handle_Operational_Incident.drawio) |
-| **UC12** | Quản lý & Lập lịch sạc (`Manage Charging Schedule`) | Tối ưu hóa | Operator | [`UC12-Manage_Charging_Schedule.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC12-Manage_Charging_Schedule.drawio) |
-| **UC13** | Chạy mô phỏng What-if (`Run What-if Simulation`) | Mô phỏng | Operator | [`UC13-Run_What-if_Simulation.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC13-Run_What-if_Simulation.drawio) |
-| **UC14** | Xem kết quả mô phỏng (`View Simulation Results`) | Báo cáo | Operator | [`UC14-View_Simulation_Results.drawio`](../diagrams/01_Usecase_Diagram/drawio/UC14-View_Simulation_Results.drawio) |
+| **SYS** | **Sơ đồ Use Case tổng quan** | Hệ thống | All Actors | [Sơ đồ tổng quan](../diagrams/01_Usecase_Diagram/drawio/system_use_cases.drawio) · [6 sơ đồ theo vòng đời](../diagrams/01_Usecase_Diagram/README.md#workflow-diagrams) |
+| **UC01** | Tìm kiếm Hub di chuyển (`Search Mobility Hub`) | Cốt lõi | User | [Kịch bản UC01](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc01--search-mobility-hub) |
+| **UC02** | Xem danh sách xe khả dụng (`View Available Vehicles`) | Hỗ trợ | User | [Kịch bản UC02](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc02--view-available-vehicles) |
+| **UC03** | Đặt trước phương tiện (`Reserve Vehicle`) | Cốt lõi | User | [Kịch bản UC03](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc03--reserve-vehicle) |
+| **UC04** | Nhận phương tiện tại Hub (`Pick Up Vehicle`) | Cốt lõi | User | [Kịch bản UC04](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc04--pick-up-vehicle) |
+| **UC05** | Trả phương tiện tại Hub (`Return Vehicle`) | Cốt lõi | User | [Kịch bản UC05](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc05--return-vehicle) |
+| **UC06** | Quản lý đặt chỗ đỗ xe (`Manage Parking Reservation`) | Cốt lõi | User | [Kịch bản UC06](../diagrams/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md#uc06--manage-parking-reservation) |
+| **UC07** | Yêu cầu sạc điện (`Request Charging`) | Cốt lõi | User | [Kịch bản UC07](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc07--request-charging) |
+| **UC08** | Giám sát mạng lưới Hub (`Monitor Mobility Hub Network`) | Giám sát | Operator | [Kịch bản UC08](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc08--monitor-mobility-hub-network) |
+| **UC09** | Quản lý tài nguyên vận hành (`Manage Mobility Resources`) | Quản trị | Operator | [Kịch bản UC09](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc09--manage-mobility-resources) |
+| **UC10** | Điều phối & Cân bằng xe (`Redistribute Vehicles`) | Điều hành | Operator | [Kịch bản UC10](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc10--redistribute-vehicles) |
+| **UC11** | Xử lý sự cố vận hành (`Handle Operational Incident`) | Xử lý lỗi | Operator | [Kịch bản UC11](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc11--handle-operational-incident) |
+| **UC12** | Quản lý & Lập lịch sạc (`Manage Charging Schedule`) | Tối ưu hóa | Operator | [Kịch bản UC12](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc12--manage-charging-schedule) |
+| **UC13** | Chạy mô phỏng What-if (`Run What-if Simulation`) | Mô phỏng | Operator | [Kịch bản UC13](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc13--run-what-if-simulation) |
+| **UC14** | Xem kết quả mô phỏng (`View Simulation Results`) | Báo cáo | Operator | [Kịch bản UC14](../diagrams/01_Usecase_Diagram/CORE_SCENARIOS.md#uc14--view-simulation-results) |
 
 ---
 

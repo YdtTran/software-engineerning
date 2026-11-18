@@ -16,6 +16,8 @@ Báo cáo trình bày góc nhìn Development / Implementation View cho Smart E-M
 
 Frontend hiện có là prototype HTML5, CSS3 và Modern JavaScript. Node.js + Express và SQLite là lựa chọn mục tiêu cho MVP. Repository abstraction cùng transaction boundary bảo vệ các thao tác phân bổ tài nguyên và chuyển trạng thái cần tính nguyên tử. Các chi tiết chưa được quyết định — như API contract, schema, driver, giao thức telemetry và nhà cung cấp notification — được giữ mở thay vì tự giả định trong báo cáo.
 
+Hai bản 16:9 mô tả **demo hiện tại**: [Component](../diagrams/06_Component_Diagram/DV01-Component_Overview_16x9.drawio) và [Package](../diagrams/07_Package_Diagram/DV02-Package_Overview_16x9.drawio). Phần thiết kế mục tiêu bên dưới vẫn là cơ sở đối chiếu.
+
 ## 1. Mục đích, phạm vi và căn cứ
 
 Theo mô hình 4+1, Development View mô tả cách phân rã phần mềm thành tầng, module/package và các quan hệ phụ thuộc để hỗ trợ tổ chức, hiện thực và bảo trì mã nguồn. Phạm vi báo cáo này là phần Development / Implementation View thuộc nội dung nhóm của Submission #3: kiến trúc phân tầng, component, package/module và công nghệ mục tiêu.
@@ -57,9 +59,9 @@ Dependency hướng từ client qua API/Application tới các quy tắc Domain.
 
 Sơ đồ DV01 thể hiện các component logic theo trách nhiệm và ranh giới. Bản PlantUML là nguồn UML chi tiết; Mermaid là preview gần đúng, không biểu diễn đầy đủ các glyph interface/realization như ký pháp UML chuyên biệt.
 
-[DV01 — Component Architecture (MVP target)](../diagrams/06_Component_Diagram/DV01-Component_Diagram_New.drawio)
+[DV01 — Component Architecture (bản demo hiện tại)](../diagrams/06_Component_Diagram/component-diagram.drawio)
 
-Nguồn chỉnh sửa và mã UML: [Draw.io](../diagrams/06_Component_Diagram/DV01-Component_Diagram_New.drawio) · [PlantUML](../diagrams/06_Component_Diagram/README.md) · [Mermaid preview](../diagrams/06_Component_Diagram/README.md).
+Nguồn chỉnh sửa và mã UML: [Draw.io](../diagrams/06_Component_Diagram/component-diagram.drawio) · [PlantUML](../diagrams/06_Component_Diagram/README.md) · [Mermaid preview](../diagrams/06_Component_Diagram/README.md).
 
 Các quan hệ chính:
 
@@ -129,6 +131,6 @@ Development / Implementation View xác lập hướng tổ chức backend MVP th
 1. [Đặc tả dự án](../requirements/PROJECT_SPECIFICATION.md), đặc biệt §§2, 3, 5, 6.
 2. [Quyết định kiến trúc Development View](../architecture/DECISION.md).
 3. [Quy tắc Development / Implementation View](../architecture/UML_DIAGRAM_STANDARDS_NOTE.md) và [quy tắc kiến trúc 4+1](../standards/05_Architecture_4plus1_views.md).
-4. [Component Diagram DV01 — PNG](../diagrams/06_Component_Diagram/DV01-Component_Diagram_New.drawio) và [Package Diagram DV02 — PNG](../diagrams/07_Package_Diagram/DV02-Package_Diagram_New.drawio), cùng các file nguồn được liên kết tại §§4–5.
+4. [Component Diagram DV01 — Draw.io](../diagrams/06_Component_Diagram/component-diagram.drawio) và [Package Diagram DV02 — Draw.io](../diagrams/07_Package_Diagram/DV02-Package_Diagram_New.drawio), cùng các file nguồn được liên kết tại §§4–5.
 5. [Catalog lớp miền](../../.agent/class-diagram/CLASS_CATALOG.md) và [README bộ UI/UX prototype](../../app/prototype/README.md).
 6. [Kế hoạch chỉnh sửa và handoff sơ đồ](../architecture/plan.md).
