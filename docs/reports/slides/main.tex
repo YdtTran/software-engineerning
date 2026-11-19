@@ -162,6 +162,239 @@
   \end{minipage}
 \end{frame}
 
+\section{Bài toán và mục tiêu}
+
+\begin{frame}{Sinh viên đi học bằng gì?}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.51\textwidth}
+      \begin{block}{Xe cá nhân}
+        Chủ động đi thẳng đến trường, nhưng không phải sinh viên nào cũng có xe.
+      \end{block}
+      \vspace{0.2cm}
+      \begin{block}{Xe buýt}
+        Phục vụ theo tuyến và điểm dừng. Một số điểm đến vẫn cần đi thêm một đoạn.
+      \end{block}
+      \vspace{0.25cm}
+      \begin{tikzpicture}
+        \node[key, text width=0.89\linewidth, align=left, inner sep=7pt] {%
+          \textbf{Vấn đề đặt ra:} Cần phương tiện dùng chung cho những chặng khó tiếp cận bằng xe buýt tại Khu đô thị ĐHQG-HCM.%
+        };
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{images/section-01/xe-buyt-tuyen-08.jpg}
+      \\[0.15cm]
+      {\scriptsize\color{gray!80!black}
+        Xe buýt tuyến 08 (BX Quận 8 -- ĐHQG).\\
+        Ảnh: Mrnhan16201, Wikimedia Commons\\
+        (CC~BY-SA~4.0).%
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Từ xe đạp công cộng đến xe điện trong khu đô thị}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \begin{block}{Mô hình đã có ở Việt Nam}
+        Xe đạp công cộng nhận và trả theo trạm. Hà Nội và TP.HCM đã bổ sung xe đạp điện.
+      \end{block}
+      \vspace{0.15cm}
+      \begin{block}{Đề xuất cho ĐHQG-HCM}
+        Bố trí Hub xe điện dùng chung gần ký túc xá, trường học và điểm trung chuyển.
+      \end{block}
+      \vspace{0.25cm}
+      \centering
+      \begin{tikzpicture}[node distance=0.35cm]
+        \node[key, font=\scriptsize, text width=2.45cm, minimum height=1.08cm] (s1) {Ký túc xá hoặc\\điểm trung chuyển};
+        \node[key, font=\scriptsize, text width=2.05cm, minimum height=1.08cm, right=of s1] (s2) {Nhận xe\\tại Hub};
+        \node[key, font=\scriptsize, text width=2.25cm, minimum height=1.08cm, right=of s2] (s3) {Trả xe tại Hub\\gần trường};
+        \draw[arr, BKTemplate] (s1) -- (s2);
+        \draw[arr, BKTemplate] (s2) -- (s3);
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.39\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{images/section-01/xe-dap-cong-cong-tngo.jpg}
+      \\[0.15cm]
+      {\scriptsize\color{gray!80!black}
+        Xe đạp công cộng TNGo, Q.1, TP.HCM (2022).\\
+        Ảnh: Phương Huy, Wikimedia Commons\\
+        (CC0~1.0).%
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Mục tiêu của Smart E-Mobility Hub}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.45\textwidth}
+      \begin{block}{Sinh viên}
+        Tìm xe còn trống, xem mức pin, giữ xe và kiểm tra chỗ trả.
+      \end{block}
+      \vspace{0.12cm}
+      \begin{block}{Đơn vị vận hành}
+        Theo dõi xe, chỗ đỗ và cổng sạc để điều chuyển xe và lập lịch sạc.
+      \end{block}
+      \vspace{0.12cm}
+      \begin{block}{Mô phỏng What-if}
+        Đánh giá khả năng phục vụ khi nhu cầu tăng trước khi quyết định điều phối.
+      \end{block}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{../../assets/demo/admin-overview.png}
+      \\[0.18cm]
+      {\scriptsize\color{gray!80!black}
+        Bảng điều khiển mạng lưới Hub trong bản demo.\\
+        Vị trí và số liệu trên màn hình dùng để minh họa.%
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\section{Yêu cầu và phạm vi ứng dụng}
+
+\begin{frame}{Hệ thống cần đáp ứng những gì?}
+  \centering
+  \setlength{\tabcolsep}{6pt}
+  {\small
+  \begin{tabular}{@{}L{4.0cm}L{8.0cm}l@{}}
+    \toprule
+    \textbf{Nhóm yêu cầu} & \textbf{Chức năng} & \textbf{Use Case} \\
+    \midrule
+    \textbf{Thuê xe dùng chung} &
+      Tìm Hub, xem xe và mức pin, giữ--nhận--trả xe &
+      UC01--UC05 \\
+    \addlinespace[6pt]
+    \textbf{Đỗ và sạc xe cá nhân} &
+      Đặt chỗ đỗ, ghi nhận xe vào/ra, gửi yêu cầu sạc &
+      UC06--UC07 \\
+    \addlinespace[6pt]
+    \textbf{Vận hành mạng lưới} &
+      Giám sát Hub, quản lý tài nguyên, điều chuyển xe, xử lý sự cố, lập lịch sạc &
+      UC08--UC12 \\
+    \addlinespace[6pt]
+    \textbf{Mô phỏng What-if} &
+      Chạy kịch bản giả định và xem kết quả &
+      UC13--UC14 \\
+    \bottomrule
+  \end{tabular}
+  }
+  \vspace{0.35cm}
+  \begin{tikzpicture}
+    \node[key, text width=0.92\textwidth, align=left, inner sep=7pt] {%
+      \textbf{Yêu cầu chất lượng:} Phân quyền theo vai trò, tránh cấp trùng xe hoặc chỗ đỗ, lưu dữ liệu nghiệp vụ qua lần khởi động lại.%
+    };
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Sinh viên làm được gì trên Android?}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \begin{block}{Xe dùng chung}
+        Tìm Hub $\rightarrow$ xem xe và mức pin $\rightarrow$ giữ xe $\rightarrow$ nhận xe theo mã $\rightarrow$ chọn chỗ và trả xe.
+      \end{block}
+      \vspace{0.25cm}
+      \begin{block}{Xe cá nhân}
+        Đặt chỗ đỗ, check-in/check-out và gửi yêu cầu sạc.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.48\textwidth}
+          \centering
+          \includegraphics[width=\linewidth,height=0.58\textheight,keepaspectratio]{../../assets/demo/android-ticket.png}
+          \\[0.12cm]
+          {\scriptsize\color{gray!80!black} Phiếu giữ xe}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+          \centering
+          \includegraphics[width=\linewidth,height=0.58\textheight,keepaspectratio]{../../assets/demo/android-parking.png}
+          \\[0.12cm]
+          {\scriptsize\color{gray!80!black} Đặt chỗ đỗ xe cá nhân}
+        \end{column}
+      \end{columns}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Đơn vị vận hành làm được gì trên web?}
+  \centering
+  \includegraphics[width=0.78\textwidth,height=0.38\textheight,keepaspectratio]{images/section-02/workflow-hub-operations.png}
+  \\[0.08cm]
+  {\scriptsize\color{gray!80!black}
+    Use Case vận hành Hub: giám sát mạng lưới, quản lý tài nguyên và xử lý sự cố.%
+  }
+  \vspace{0.18cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\footnotesize Giám sát, tài nguyên \& sự cố}
+        \footnotesize Xem tình trạng Hub, quản lý xe, chỗ đỗ, cổng sạc và phân công bảo trì.
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\footnotesize Điều chuyển xe}
+        \footnotesize Lập lệnh giữa các Hub, xác nhận xe đến hoặc hủy lệnh theo trạng thái.
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{\footnotesize Lập lịch sạc}
+        \footnotesize Xếp hàng theo ưu tiên và phân bổ cổng tương thích trong giới hạn công suất.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{What-if hỗ trợ quyết định như thế nào?}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.53\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.34\textheight,keepaspectratio]{images/section-02/workflow-what-if-simulation.png}
+      \vspace{0.18cm}
+      \begin{block}{Luồng hỗ trợ quyết định}
+        \footnotesize
+        \begin{itemize}
+          \setlength{\itemsep}{3pt}
+          \item \textbf{Chạy kịch bản:} Chọn tình huống giả định, chẳng hạn khách đến ga Metro tăng đột biến.
+          \item \textbf{Đọc kết quả:} So sánh tỷ lệ phục vụ và thời gian chờ giữa cơ sở và kịch bản.
+          \item \textbf{Xem phương án:} Mở khuyến nghị điều chuyển và xác nhận tạo lệnh riêng khi cần.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{../../assets/demo/admin-simulation.png}
+      \\[0.15cm]
+      {\scriptsize\color{gray!80!black}
+        Kết quả của một lượt chạy với dữ liệu demo.%
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{MVP đã triển khai đến đâu?}
+  \centering
+  \setlength{\tabcolsep}{6pt}
+  {\small
+  \begin{tabular}{@{}L{3.6cm}L{10.4cm}@{}}
+    \toprule
+    \textbf{Phạm vi} & \textbf{Trạng thái} \\
+    \midrule
+    \textbf{Đã có trong demo} &
+      Luồng thuê xe, đỗ và gửi yêu cầu sạc trên Android. Giám sát, quản lý tài nguyên, điều chuyển, xử lý sự cố, lập lịch sạc và What-if trên web. Xác nhận thiết bị dùng dữ liệu giả lập. \\
+    \addlinespace[8pt]
+    \textbf{Còn giới hạn} &
+      Kích hoạt phiên sạc, xác nhận tháo kết nối và xác minh cách ly thiết bị có xử lý ở tầng dịch vụ. Tích hợp IoT thật và gửi thông báo qua dịch vụ ngoài chưa được triển khai. \\
+    \addlinespace[8pt]
+    \textbf{Ngoài phạm vi MVP} &
+      Đăng ký tự phục vụ, thanh toán và ứng dụng riêng cho kỹ thuật viên. Tài khoản và xe cá nhân được cấp sẵn để trình diễn. \\
+    \bottomrule
+  \end{tabular}
+  }
+\end{frame}
+
 % \section{[Tên phần]}
 % \ChapterDivider{[Số phần]}{[Tên phần]}{[Mô tả]}
 %
