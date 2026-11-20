@@ -1,0 +1,413 @@
+<mxfile host="65bd71144e">
+    <diagram id="smart-emobility-component-final-demo" name="UML 2 Component Diagram (Final Demo)">
+        <mxGraphModel dx="704" dy="270" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1480" pageHeight="780" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="DiagramTitle" parent="1" style="text;html=0;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#0F172A;fontFamily=Segoe UI;" value="Smart E-Mobility Hub — UML 2 Component Diagram (Final Demo)" vertex="1">
+                    <mxGeometry height="28" width="1400" x="40" y="16" as="geometry"/>
+                </mxCell>
+                <mxCell id="ClientPkg" parent="1" style="shape=folder;tabWidth=135;tabHeight=22;tabPosition=left;html=0;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#000000;align=left;verticalAlign=top;spacingLeft=8;spacingTop=2;fontFamily=Segoe UI;" value="Client Applications" vertex="1">
+                    <mxGeometry height="270" width="270" x="40" y="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="OperatorConsole" parent="ClientPkg" style="rounded=1;absoluteArcSize=1;arcSize=4;html=0;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;fontSize=11;fontColor=#000000;align=center;verticalAlign=middle;spacingRight=14;fontFamily=Segoe UI;" value="Operator Web / Mobile Console&#xa;&lt;&lt;HTML5 / JS / MapLibre GL&gt;&gt;" vertex="1">
+                    <mxGeometry height="74" width="230" x="20" y="46" as="geometry"/>
+                </mxCell>
+                <mxCell id="OperatorConsole_ico1" parent="OperatorConsole" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="OperatorConsole_ico2" parent="OperatorConsole" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="OperatorConsole_ico3" parent="OperatorConsole" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="AndroidApp" parent="ClientPkg" style="rounded=1;absoluteArcSize=1;arcSize=4;html=0;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;fontSize=11;fontColor=#000000;align=center;verticalAlign=middle;spacingRight=14;fontFamily=Segoe UI;" value="Android User App&#xa;&lt;&lt;Kotlin / Jetpack Compose&gt;&gt;" vertex="1">
+                    <mxGeometry height="74" width="230" x="20" y="166" as="geometry"/>
+                </mxCell>
+                <mxCell id="AndroidApp_ico1" parent="AndroidApp" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="AndroidApp_ico2" parent="AndroidApp" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="AndroidApp_ico3" parent="AndroidApp" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="IMapGeo" parent="1" style="ellipse;aspect=fixed;html=0;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=6;" value="IMapGeoServices" vertex="1">
+                    <mxGeometry height="16" width="16" x="167" y="410" as="geometry"/>
+                </mxCell>
+                <mxCell id="GeoPkg" parent="1" style="shape=folder;tabWidth=155;tabHeight=22;tabPosition=left;html=0;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#000000;align=left;verticalAlign=top;spacingLeft=8;spacingTop=2;fontFamily=Segoe UI;" value="External Geo Services" vertex="1">
+                    <mxGeometry height="140" width="270" x="40" y="500" as="geometry"/>
+                </mxCell>
+                <mxCell id="GeoServices" parent="GeoPkg" style="rounded=1;absoluteArcSize=1;arcSize=4;html=0;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;fontSize=11;fontColor=#000000;align=center;verticalAlign=middle;spacingRight=14;fontFamily=Segoe UI;" value="Map, Routing &amp; Geocoding&#xa;&lt;&lt;OpenFreeMap · OSRM · Photon&gt;&gt;" vertex="1">
+                    <mxGeometry height="74" width="230" x="20" y="44" as="geometry"/>
+                </mxCell>
+                <mxCell id="GeoServices_ico1" parent="GeoServices" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="GeoServices_ico2" parent="GeoServices" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="GeoServices_ico3" parent="GeoServices" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="IStatic" parent="1" style="ellipse;aspect=fixed;html=0;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;verticalLabelPosition=top;verticalAlign=bottom;" value="IStaticAssets (/)" vertex="1">
+                    <mxGeometry height="16" width="16" x="366" y="139" as="geometry"/>
+                </mxCell>
+                <mxCell id="IRestApi" parent="1" style="ellipse;aspect=fixed;html=0;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;verticalLabelPosition=top;verticalAlign=bottom;" value="IHubRestAPI (/api/v1)" vertex="1">
+                    <mxGeometry height="16" width="16" x="366" y="259" as="geometry"/>
+                </mxCell>
+                <mxCell id="BackendSystem" parent="1" style="rounded=1;absoluteArcSize=1;arcSize=3;html=0;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#000000;align=center;verticalAlign=top;spacingTop=6;fontFamily=Segoe UI;" value="Smart E-Mobility Hub Backend &lt;&lt;Node.js / Express 5 Modular Monolith&gt;&gt;" vertex="1">
+                    <mxGeometry height="640" width="945" x="445" y="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="BackendSystem_ico1" parent="BackendSystem" style="fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="BackendSystem_ico2" parent="BackendSystem" style="fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="BackendSystem_ico3" parent="BackendSystem" style="fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="PortStatic" parent="BackendSystem" style="rounded=0;html=0;fillColor=#F1F1F1;strokeColor=#181818;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;verticalLabelPosition=bottom;verticalAlign=top;labelBackgroundColor=#FFFFFF;" value="/ (static)" vertex="1">
+                    <mxGeometry height="14" width="17.070967741935483" x="-8.535483870967742" y="76" as="geometry"/>
+                </mxCell>
+                <mxCell id="PortApi" parent="BackendSystem" style="rounded=0;html=0;fillColor=#F1F1F1;strokeColor=#181818;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;verticalLabelPosition=bottom;verticalAlign=top;labelBackgroundColor=#FFFFFF;" value="/api/v1" vertex="1">
+                    <mxGeometry height="14" width="17.070967741935483" x="-8.535483870967742" y="196" as="geometry"/>
+                </mxCell>
+                <mxCell id="AuthShell" parent="BackendSystem" style="rounded=1;absoluteArcSize=1;arcSize=4;html=0;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;fontSize=11;fontColor=#000000;align=center;verticalAlign=middle;spacingRight=14;fontFamily=Segoe UI;" value="Express API &amp; Auth Shell&#xa;&lt;&lt;sessions, CSRF, timers&gt;&gt;" vertex="1">
+                    <mxGeometry height="90" width="149.03" x="60.97" y="98" as="geometry"/>
+                </mxCell>
+                <mxCell id="AuthShell_ico1" parent="AuthShell" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="AuthShell_ico2" parent="AuthShell" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="AuthShell_ico3" parent="AuthShell" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="CorePkg" parent="BackendSystem" style="shape=folder;tabWidth=110;tabHeight=22;tabPosition=left;html=0;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#000000;align=left;verticalAlign=top;spacingLeft=8;spacingTop=2;fontFamily=Segoe UI;" value="Core Modules" vertex="1">
+                    <mxGeometry height="550" width="360" x="270" y="56" as="geometry"/>
+                </mxCell>
+                <mxCell id="OpsMod" parent="CorePkg" style="rounded=1;absoluteArcSize=1;arcSize=4;html=0;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;fontSize=11;fontColor=#000000;align=center;verticalAlign=middle;spacingRight=14;fontFamily=Segoe UI;" value="Operations Module&#xa;(UC08–UC11A)" vertex="1">
+                    <mxGeometry height="74" width="302.4" x="28.8" y="46" as="geometry"/>
+                </mxCell>
+                <mxCell id="OpsMod_ico1" parent="OpsMod" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="OpsMod_ico2" parent="OpsMod" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="OpsMod_ico3" parent="OpsMod" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ITrip" parent="CorePkg" style="ellipse;aspect=fixed;html=0;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;labelPosition=left;verticalLabelPosition=middle;align=right;spacingRight=6;" value="   ITripReader" vertex="1">
+                    <mxGeometry height="16" width="16" x="214.99599999999998" y="162" as="geometry"/>
+                </mxCell>
+                <mxCell id="IInventory" parent="CorePkg" style="ellipse;aspect=fixed;html=0;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;labelPosition=right;verticalLabelPosition=middle;align=left;spacingLeft=6;" value="InventoryInterface" vertex="1">
+                    <mxGeometry height="16" width="16" x="35.000909090909055" y="162" as="geometry"/>
+                </mxCell>
+                <mxCell id="MobMod" parent="CorePkg" style="rounded=1;absoluteArcSize=1;arcSize=4;html=0;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;fontSize=11;fontColor=#000000;align=center;verticalAlign=middle;spacingRight=14;fontFamily=Segoe UI;" value="Mobility &amp; Simulation Module&#xa;(UC01–UC05, UC13–UC14)" vertex="1">
+                    <mxGeometry height="74" width="302.4" x="28.8" y="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="MobMod_ico1" parent="MobMod" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MobMod_ico2" parent="MobMod" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="MobMod_ico3" parent="MobMod" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="IGuard" parent="CorePkg" style="ellipse;aspect=fixed;html=0;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;labelPosition=right;verticalLabelPosition=middle;align=left;spacingLeft=6;" value="IChargingGuard" vertex="1">
+                    <mxGeometry height="16" width="16" x="72" y="346" as="geometry"/>
+                </mxCell>
+                <mxCell id="ParkMod" parent="CorePkg" style="rounded=1;absoluteArcSize=1;arcSize=4;html=0;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;fontSize=11;fontColor=#000000;align=center;verticalAlign=middle;spacingRight=14;fontFamily=Segoe UI;" value="Parking &amp; Charging Module&#xa;(UC06–UC07A, UC12)" vertex="1">
+                    <mxGeometry height="74" width="302.4" x="28.8" y="420" as="geometry"/>
+                </mxCell>
+                <mxCell id="ParkMod_ico1" parent="ParkMod" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ParkMod_ico2" parent="ParkMod" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ParkMod_ico3" parent="ParkMod" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_mob_trip" edge="1" parent="CorePkg" source="MobMod" style="endArrow=none;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0.644;exitY=0.012;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitPerimeter=0;" target="ITrip" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_ops_trip" edge="1" parent="CorePkg" source="OpsMod" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0.642;exitY=0.998;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitPerimeter=0;" target="ITrip" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_ops_inv" edge="1" parent="CorePkg" source="OpsMod" style="endArrow=none;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0.047;exitY=1.022;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitPerimeter=0;" target="IInventory" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_mob_inv" edge="1" parent="CorePkg" source="MobMod" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0.053;exitY=0.028;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitPerimeter=0;" target="IInventory" value="">
+                    <mxGeometry relative="1" x="0.3955" as="geometry">
+                        <Array as="points"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_park_inv" edge="1" parent="CorePkg" source="ParkMod" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" target="IInventory" value="">
+                    <mxGeometry relative="1" x="0.3178" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="5" y="438.5"/>
+                            <mxPoint x="5" y="170"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_park_guard" edge="1" parent="CorePkg" source="ParkMod" style="endArrow=none;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0.172;exitY=0.003;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitPerimeter=0;" target="IGuard" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_ops_guard" edge="1" parent="CorePkg" source="OpsMod" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="IGuard" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="14.4" y="102"/>
+                            <mxPoint x="14.4" y="354"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="InfraPkg" parent="BackendSystem" style="shape=folder;tabWidth=205;tabHeight=22;tabPosition=left;html=0;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#64748B;strokeWidth=1.5;fontSize=11;fontStyle=1;fontColor=#000000;align=left;verticalAlign=top;spacingLeft=8;spacingTop=2;fontFamily=Segoe UI;" value="Infrastructure &amp; Demo Adapters" vertex="1">
+                    <mxGeometry height="470" width="186.71" x="740" y="106" as="geometry"/>
+                </mxCell>
+                <mxCell id="SqlClient" parent="InfraPkg" style="rounded=1;absoluteArcSize=1;arcSize=4;html=0;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;fontSize=11;fontColor=#000000;align=center;verticalAlign=middle;spacingRight=14;fontFamily=Segoe UI;" value="SQLiteClient&#xa;&lt;&lt;transaction adapter&gt;&gt;" vertex="1">
+                    <mxGeometry height="76" width="151.97325581395347" x="17.368372093023257" y="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="SqlClient_ico1" parent="SqlClient" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="SqlClient_ico2" parent="SqlClient" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="SqlClient_ico3" parent="SqlClient" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="SimAdapters" parent="InfraPkg" style="rounded=1;absoluteArcSize=1;arcSize=4;html=0;whiteSpace=wrap;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;fontSize=11;fontColor=#000000;align=center;verticalAlign=middle;spacingRight=14;fontFamily=Segoe UI;" value="Simulated Device Adapters&#xa;&lt;&lt;SimulatedDock &amp;&#xa;SimulatedDeviceAdapter&gt;&gt;" vertex="1">
+                    <mxGeometry height="88" width="151.97325581395347" x="17.368372093023257" y="280" as="geometry"/>
+                </mxCell>
+                <mxCell id="SimAdapters_ico1" parent="SimAdapters" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="10" relative="1" width="15" x="1" as="geometry">
+                        <mxPoint x="-20" y="5" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="SimAdapters_ico2" parent="SimAdapters" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="7" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="SimAdapters_ico3" parent="SimAdapters" style="fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1;part=1;html=0;" value="" vertex="1">
+                    <mxGeometry height="2" relative="1" width="4" x="1" as="geometry">
+                        <mxPoint x="-22" y="11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="ISql" parent="BackendSystem" style="ellipse;aspect=fixed;html=0;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;verticalLabelPosition=top;verticalAlign=bottom;" value="                               ISQLiteClient" vertex="1">
+                    <mxGeometry height="16" width="16" x="685.0045161290323" y="198" as="geometry"/>
+                </mxCell>
+                <mxCell id="IDev" parent="BackendSystem" style="ellipse;aspect=fixed;html=0;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;verticalLabelPosition=top;verticalAlign=bottom;" value="IDeviceAdapter" vertex="1">
+                    <mxGeometry height="16" width="16" x="685.0045161290323" y="422" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_del_static" edge="1" parent="BackendSystem" source="PortStatic" style="endArrow=open;endSize=8;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.2;entryDx=0;entryDy=0;" target="AuthShell" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="34.14193548387097" y="83"/>
+                            <mxPoint x="34.14193548387097" y="116"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_del_static_lbl" connectable="0" parent="e_del_static" style="edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" value="&lt;&lt;delegate&gt;&gt;" vertex="1">
+                    <mxGeometry relative="1" x="-0.1" as="geometry">
+                        <mxPoint x="21" y="-12" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_del_api" edge="1" parent="BackendSystem" source="PortApi" style="endArrow=open;endSize=8;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.8;entryDx=0;entryDy=0;" target="AuthShell" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="34.14193548387097" y="203"/>
+                            <mxPoint x="34.14193548387097" y="170"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_del_api_lbl" connectable="0" parent="e_del_api" style="edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" value="&lt;&lt;delegate&gt;&gt;" vertex="1">
+                    <mxGeometry relative="1" x="-0.1" as="geometry">
+                        <mxPoint x="21" y="12" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_auth_ops" edge="1" parent="BackendSystem" source="AuthShell" style="endArrow=open;endSize=8;dashed=1;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0.001;entryY=0.318;entryDx=0;entryDy=0;entryPerimeter=0;" target="OpsMod" value="">
+                    <mxGeometry relative="1" x="0.0321" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="295.083870967742" y="125"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_auth_mob" edge="1" parent="BackendSystem" source="AuthShell" style="endArrow=open;endSize=8;dashed=1;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.55;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="MobMod" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="245" y="148"/>
+                            <mxPoint x="245" y="313"/>
+                            <mxPoint x="295.083870967742" y="313"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_auth_park" edge="1" parent="BackendSystem" source="AuthShell" style="endArrow=open;endSize=8;dashed=1;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.65;entryDx=0;entryDy=0;" target="ParkMod" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="225" y="170"/>
+                            <mxPoint x="225" y="524.1"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_sql_provide" edge="1" parent="BackendSystem" source="SqlClient" style="endArrow=none;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="ISql" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_ops_sql" edge="1" parent="BackendSystem" source="OpsMod" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="ISql" value="">
+                    <mxGeometry relative="1" x="-0.0417" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="612.1161290322581" y="139"/>
+                            <mxPoint x="693" y="139"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_mob_sql" edge="1" parent="BackendSystem" source="MobMod" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="ISql" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="645" y="298"/>
+                            <mxPoint x="645" y="206"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_park_sql" edge="1" parent="BackendSystem" source="ParkMod" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0.998;exitY=0.298;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitPerimeter=0;" target="ISql" value="">
+                    <mxGeometry relative="1" x="0.1682" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="645" y="498.04999999999995"/>
+                            <mxPoint x="645" y="376"/>
+                            <mxPoint x="693" y="376"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_dev_provide" edge="1" parent="BackendSystem" source="SimAdapters" style="endArrow=none;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="IDev" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_mob_dev" edge="1" parent="BackendSystem" source="MobMod" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0.863;exitY=1.001;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;exitPerimeter=0;" target="IDev" value="">
+                    <mxGeometry relative="1" x="0.2017" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="559.77" y="426.42"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_park_dev" edge="1" parent="BackendSystem" source="ParkMod" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="IDev" value="">
+                    <mxGeometry relative="1" x="0.0197" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="619.4322580645161" y="528"/>
+                            <mxPoint x="693" y="528"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="SqliteDb" parent="1" style="shape=cylinder3;whiteSpace=wrap;boundedLbl=1;backgroundOutline=1;size=14;html=0;fillColor=#F8FAFC;strokeColor=#334155;strokeWidth=1.5;fontSize=11;fontColor=#000000;fontFamily=Segoe UI;" value="SQLite Database&#xa;&lt;&lt;WAL mode, schema v12&gt;&gt;" vertex="1">
+                    <mxGeometry height="100" width="170" x="1470" y="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_geo_provide" edge="1" parent="1" source="GeoServices" style="endArrow=none;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="IMapGeo" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_android_geo" edge="1" parent="1" source="AndroidApp" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="IMapGeo" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_op_geo" edge="1" parent="1" source="OperatorConsole" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="IMapGeo" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="20" y="147"/>
+                            <mxPoint x="20" y="418"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_op_static" edge="1" parent="1" source="OperatorConsole" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="IStatic" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_op_api" edge="1" parent="1" source="OperatorConsole" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.8;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="IRestApi" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="330" y="169"/>
+                            <mxPoint x="330" y="263"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_android_api" edge="1" parent="1" source="AndroidApp" style="endArrow=halfCircle;endSize=10;endFill=0;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1.004;exitY=0.924;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitPerimeter=0;" target="IRestApi" value="">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="374" y="300"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_pstatic_iface" edge="1" parent="1" source="PortStatic" style="endArrow=none;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="IStatic" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_papi_iface" edge="1" parent="1" source="PortApi" style="endArrow=none;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="IRestApi" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_sql_db" edge="1" parent="1" source="SqlClient" style="endArrow=open;endSize=8;dashed=1;html=0;strokeColor=#334155;strokeWidth=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="SqliteDb" value="">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_sql_db_lbl" connectable="0" parent="e_sql_db" style="edgeLabel;html=0;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" value="&lt;&lt;read / write&gt;&gt;" vertex="1">
+                    <mxGeometry relative="1" x="-0.05" as="geometry">
+                        <mxPoint y="-11" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
