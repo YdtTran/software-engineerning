@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1795185704.99095 "d:/Study/CNPM/software-engineerning/docs/reports/slides/main.tex" "main.pdf" "main" 1795185708.69899 0
+["pdflatex"] 1795186623.29135 "d:/Study/CNPM/software-engineerning/docs/reports/slides/main.tex" "main.pdf" "main" 1795186626.6399 0
   "../../assets/demo/admin-overview.png" 1795183541 393114 d6173d8dba0b8598048125b84abfa2e1 ""
   "../../assets/demo/admin-simulation.png" 1795183541 99142 a89f5a7950bd5f3f716e3fb7ebc6ab31 ""
   "../../assets/demo/android-active-trip.png" 1795183541 237643 00c777bc50d2093fafb3c8dc5ac474c2 ""
@@ -41,6 +41,7 @@
   "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/fonts/tfm/public/cm/cmsy9.tfm" 1136765053 1116 25a7bf822c58caf309a702ef79f4afbb ""
   "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/fonts/tfm/vntex/vnr/vnss10.tfm" 1644004041 3860 2fdd484113fc2fde7b8c827421590630 ""
   "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/fonts/tfm/vntex/vnr/vnss12.tfm" 1644004041 3884 6d1211788d2aa72329dde520b5e45148 ""
+  "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/fonts/tfm/vntex/vnr/vnss17.tfm" 1644004041 3884 1cbeee1fab9b7c3d29df5b2d36d88a8a ""
   "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/fonts/tfm/vntex/vnr/vnss8.tfm" 1644004041 3856 4d7a904b471c6370b1ce588976358ccb ""
   "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/fonts/tfm/vntex/vnr/vnss9.tfm" 1644004041 3884 93ef9b728d9ddb8256a418a05a922ff3 ""
   "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/fonts/tfm/vntex/vnr/vnssbx10.tfm" 1644004041 3856 6a55030ccf7e10b39c4bda2f2b38ecae ""
@@ -278,7 +279,7 @@
   "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/tex/latex/vntex/t5enc.def" 1368738347 21986 ccb3b8f7cc27fbd61b3daabbbb82ad3f ""
   "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/tex/latex/vntex/t5enc.dfu" 1368738347 13949 387dd4fa58aea5f873839c93430fffed ""
   "C:/Users/LAPTOP/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
-  "d:/Study/CNPM/software-engineerning/docs/reports/slides/main.tex" 1795185704 27866 000c499338f99b0ebede608f6a284160 ""
+  "d:/Study/CNPM/software-engineerning/docs/reports/slides/main.tex" 1795186582 28119 7c4d08aedbf3925e0e7380ef1af2992c ""
   "images/Background.pdf" 1795183541 79867 6e71531165e7bd195a3929675cc45a8b ""
   "images/FrontBackground.pdf" 1795183541 976484 0a5770f38ca503539281a7bae105fbae ""
   "images/section-01/xe-buyt-tuyen-08.jpg" 1795183541 235223 f15663d4b02c4363fe124c0e61a4ef58 ""
@@ -292,10 +293,10 @@
   "images/section-04/dp01-trien-khai-demo.png" 1795183541 103381 b6a540549ffc1a63ff970cc5dcdede65 ""
   "images/section-04/dv01-component-mvp.png" 1795183541 134610 55ef3b7cc3c236fc3c447aaaee4765ce ""
   "images/section-04/sq03-tra-xe.png" 1795183541 43712 41735edc962ac42cf608b1b1b2a455e8 ""
-  "main.aux" 1795185708 4659 de78e4974699bc7a05b008b70abcf743 "pdflatex"
-  "main.nav" 1795185708 2936 8d74b611325c04de23c303524ab25038 "pdflatex"
-  "main.out" 1795185708 821 fbfc094dd39b7b48979f7ded54c86e18 "pdflatex"
-  "main.tex" 1795185704 27866 000c499338f99b0ebede608f6a284160 ""
+  "main.aux" 1795186626 4787 bd8f2249b5dfbb76d736d79dd6d31b59 "pdflatex"
+  "main.nav" 1795186626 3028 df8592e18f590541d8d75719ca45c34d "pdflatex"
+  "main.out" 1795186626 821 fbfc094dd39b7b48979f7ded54c86e18 "pdflatex"
+  "main.tex" 1795186582 28119 7c4d08aedbf3925e0e7380ef1af2992c ""
   (generated)
   "main.aux"
   "main.log"

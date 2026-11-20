@@ -708,6 +708,11 @@ INPUT .\images\Background.pdf
 INPUT .\images\Background.pdf
 INPUT .\images\Background.pdf
 INPUT .\images\Background.pdf
+INPUT C:\Users\LAPTOP\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnss17.tfm
+INPUT C:\Users\LAPTOP\AppData\Local\Programs\MiKTeX\fonts\tfm\vntex\vnr\vnssbx10.tfm
+INPUT .\images\FrontBackground.pdf
+INPUT .\images\FrontBackground.pdf
+INPUT .\images\FrontBackground.pdf
 OUTPUT main.nav
 OUTPUT main.toc
 OUTPUT main.snm
