@@ -7,15 +7,15 @@
 % ===================================================
 \section{Kiến trúc Hệ thống và Thiết kế Chi tiết}
 
-Chương này trình bày kiến trúc tổng thể và thiết kế chi tiết của hệ thống \textit{Smart E-Mobility Hub} theo mô hình kiến trúc \textbf{4+1 View} của Philippe Kruchten (Slide Ch7, trang 17--18). Nếu Chương~1 thiết lập góc nhìn trung tâm \textit{+1 Scenarios} (Use-Case View) và Chương~2 đặc tả hành vi runtime thuộc \textit{Process View} cùng bản mẫu giao diện, thì Chương~3 hoàn thiện các góc nhìn còn lại: \textbf{Physical/Deployment View} (\texttt{DP01}), \textbf{Development/Implementation View} (\texttt{DV01}, \texttt{DV02}), \textbf{Logical View tĩnh} (Sơ đồ Lớp và Đặc tả Phương thức) và thiết kế lược đồ cơ sở dữ liệu quan hệ SQLite.
+Chương này trình bày kiến trúc tổng thể và thiết kế chi tiết của hệ thống \textit{Smart E-Mobility Hub} theo mô hình kiến trúc \textbf{4+1 View} của Philippe Kruchten (Slide Ch7, trang 17--18). Nếu Chương~1 thiết lập góc nhìn trung tâm \textit{Kịch bản sử dụng} (Use-Case View) và Chương~2 đặc tả hành vi thực thi thuộc \textit{Góc nhìn Tiến trình} cùng bản mẫu giao diện, thì Chương~3 hoàn thiện các góc nhìn còn lại: \textbf{Góc nhìn Triển khai}, \textbf{Góc nhìn Phát triển}, \textbf{Góc nhìn Logic} (Sơ đồ Lớp và Đặc tả Phương thức) và thiết kế lược đồ cơ sở dữ liệu quan hệ SQLite.
 
 % ---------------------------------------------------
-\subsection{Quyết định Kiến trúc và Mẫu Kiến trúc (Architectural Patterns)}
+\subsection{Quyết định Kiến trúc và Mẫu Kiến trúc}
 
-Các quyết định nền tảng của hệ thống được ghi nhận và phê duyệt trong tài liệu kiến trúc \texttt{docs/architecture/DECISION.md} (mã quyết định \texttt{DV-01} đến \texttt{DV-07}). Mục tiêu xuyên suốt là bảo đảm ranh giới nghiệp vụ rõ ràng, kiểm soát chặt chẽ tranh chấp tài nguyên vật lý và giữ chi phí vận hành phù hợp cho quy mô sản phẩm khả dụng tối thiểu (MVP).
+Các quyết định nền tảng của hệ thống được chuẩn hóa theo bảy hạng mục (\texttt{DV-01} đến \texttt{DV-07}) nhằm bảo đảm ranh giới nghiệp vụ rõ ràng, kiểm soát chặt chẽ tranh chấp tài nguyên vật lý và giữ chi phí vận hành phù hợp cho quy mô MVP (\Cref{tab:arch-decisions}).
 
 \begin{longtable}{>{\centering\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{4.1cm} >{\raggedright\arraybackslash}p{8.6cm}}
-\caption{Tổng hợp các quyết định kiến trúc cốt lõi (\texttt{DECISION.md})} \label{tab:arch-decisions} \\
+\caption{Tổng hợp các quyết định kiến trúc cốt lõi} \label{tab:arch-decisions} \\
 \toprule
 \textbf{Mã} & \textbf{Quyết định} & \textbf{Lựa chọn và Lý do kỹ thuật} \\
 \midrule
@@ -65,21 +65,21 @@ Cụ thể hóa quyết định \texttt{DV-02}, \Cref{tab:5-layers} xác định
 \end{table}
 
 % ---------------------------------------------------
-\subsection{Góc nhìn Triển khai (Deployment View -- DP01)}
+\subsection{Góc nhìn Triển khai}
 
-Góc nhìn triển khai (\textit{Physical/Deployment View}) mô tả cấu trúc phần cứng vật lý, môi trường thực thi (\textit{Execution Environment}) và đường truyền mạng giữa các nút trong hệ thống theo tài liệu chuẩn \texttt{docs/diagrams/deployment/README-deployment.md} và tệp sơ đồ nguồn \texttt{DP01-deployment.drawio}.
+Góc nhìn triển khai (\Cref{fig:dp-01}) mô tả cấu trúc phần cứng vật lý, môi trường thực thi và kênh giao tiếp giữa các nút trong hệ thống. Cơ sở dữ liệu SQLite không nằm trên máy chủ CSDL riêng mà vận hành dưới dạng tệp cục bộ gắn trực tiếp bên trong nút máy chủ ứng dụng (\texttt{Application Host}).
 
 \begin{figure}[H]
     \centering
         \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/DP01-deployment.png}
-    \caption{Sơ đồ Triển khai vật lý \texttt{DP01} (\texttt{docs/diagrams/deployment/DP01-deployment.drawio})}
+    \caption{Sơ đồ Triển khai vật lý hệ thống}
     \label{fig:dp-01}
 \end{figure}
 
-\Cref{tab:dp01-nodes} liệt kê các nút thiết bị, môi trường thực thi, hiện vật triển khai (\textit{Artifacts}) và giao thức kết nối được định nghĩa trong \texttt{DP01}. Cơ sở dữ liệu \texttt{SQLite Database} không nằm trên nút máy chủ CSDL riêng biệt mà tồn tại dưới dạng tệp cục bộ (\texttt{app/db/.local/hub.sqlite} hoặc \texttt{dashboard-demo.sqlite} trong bản chạy MVP) gắn trực tiếp bên trong \texttt{Application Host}.
+\Cref{tab:dp01-nodes} liệt kê các nút thiết bị, môi trường thực thi, hiện vật triển khai và giao thức kết nối của hệ thống.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{2.9cm} >{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}p{4.6cm}}
-\caption{Phân rã các nút triển khai và kênh kết nối trong \texttt{DP01}} \label{tab:dp01-nodes} \\
+\caption{Phân rã các nút triển khai và kênh kết nối} \label{tab:dp01-nodes} \\
 \toprule
 \textbf{Nút thiết bị (Node)} & \textbf{Môi trường thực thi} & \textbf{Hiện vật (\textit{Artifact})} & \textbf{Kết nối và Chú giải} \\
 \midrule
@@ -90,17 +90,17 @@ Góc nhìn triển khai (\textit{Physical/Deployment View}) mô tả cấu trúc
 \endhead
 \bottomrule
 \endfoot
-\texttt{User Device} & \texttt{Web Browser} (bản thiết kế); mở rộng thêm \textit{Android Runtime} (PR~\#17) & \texttt{User UI} (tải từ \textit{Frontend Assets}; hoặc ứng dụng Native Android Kotlin/Compose) & Giao tiếp qua kênh \textbf{HTTPS} (hoặc HTTP cục bộ khi trình diễn \texttt{DEMO\_INSECURE\_HTTP=1}) tới Express API trên \texttt{Application Host}. \\
+\texttt{User Device} & \texttt{Web Browser} và \textit{Android Runtime} & \texttt{User UI} (tải từ \textit{Frontend Assets} hoặc ứng dụng Native Android) & Giao tiếp qua \textbf{HTTPS} (hoặc HTTP cục bộ khi trình diễn) tới Express API trên \texttt{Application Host}. \\
 \midrule
 \texttt{Operator Mobile Device} & \texttt{Web Browser} & \texttt{Operator Mobile UI} & Kết nối \textbf{HTTPS} tới Express API phục vụ tác nghiệp hiện trường (\texttt{UC08--UC12}). \\
 \midrule
 \texttt{Operator Workstation} & \texttt{Web Browser} & \texttt{Operator Web UI} & Kết nối \textbf{HTTPS} tới Express API cho giám sát toàn cảnh và phân tích mô phỏng (\texttt{UC08--UC14}). \\
 \midrule
-\texttt{Application Host} & \texttt{Node.js Runtime} & \texttt{Backend Application}, \texttt{Frontend Assets}, \texttt{SQLite Database} & Tiếp nhận lưu lượng HTTPS từ 3 nhóm thiết bị; thực hiện quan hệ \texttt{<<manifest>>} cho cả mã nguồn Backend và tệp giao diện Frontend; truy xuất \texttt{SQLite Database} qua \textit{SQLite API / local file I/O}. \\
+\texttt{Application Host} & \texttt{Node.js Runtime} & \texttt{Backend Application}, \texttt{Frontend Assets}, \texttt{SQLite Database} & Tiếp nhận lưu lượng HTTPS từ 3 nhóm thiết bị; phục vụ mã nguồn Backend và giao diện Frontend; truy xuất SQLite qua I/O tệp cục bộ. \\
 \bottomrule
 \end{longtable}
 
-\noindent\textbf{Hạn chế kiến trúc triển khai (được ghi nhận trong \texttt{README-deployment.md}):}
+\noindent\textbf{Hạn chế kiến trúc triển khai:}
 \begin{enumerate}[leftmargin=*,nosep]
     \item \textit{Điểm lỗi đơn (\textit{Single Point of Failure}):} Toàn bộ máy chủ Express và tệp cơ sở dữ liệu nằm trên một \texttt{Application Host} duy nhất; khi máy chủ này dừng, mọi kênh người dùng và vận hành đều gián đoạn.
     \item \textit{Giới hạn tranh chấp ghi SQLite:} Do truy cập qua I/O tệp cục bộ với cơ chế khóa ghi toàn tệp, khi mở rộng lên nhiều tiến trình Node.js hoặc lưu lượng ghi đồng thời rất cao cần nâng cấp lên PostgreSQL kết hợp bộ nhớ đệm phân tán.
@@ -108,13 +108,9 @@ Góc nhìn triển khai (\textit{Physical/Deployment View}) mô tả cấu trúc
 \end{enumerate}
 
 % ---------------------------------------------------
-\subsection{Góc nhìn Phát triển và Hiện thực (Development View -- DV01, DV02)}
+\subsection{Góc nhìn Phát triển và Hiện thực}
 
-Góc nhìn phát triển (\textit{Development / Implementation View}) gồm hai tầng tài liệu:
-\begin{enumerate}[leftmargin=*,nosep]
-    \item \textbf{Kiến trúc mục tiêu (\texttt{DV01}, \texttt{DV02}):} Mô tả 5 module logic và các port trừu tượng tại \texttt{docs/\allowbreak diagrams/\allowbreak 06\_Component\_Diagram/\allowbreak DV01-Component\_\allowbreak Diagram\_New.drawio} và \texttt{docs/\allowbreak diagrams/\allowbreak 07\_Package\_Diagram/\allowbreak DV02-Package\_\allowbreak Diagram\_New.drawio}.
-    \item \textbf{Sơ đồ Thành phần theo mã nguồn thực tế:} Được dựng trực tiếp từ \texttt{app/src/app.js}, \texttt{android/} và \texttt{app/flutter\_mobile/} tại \texttt{docs/\allowbreak diagrams/\allowbreak component-diagram.drawio} (kèm nguồn PlantUML \texttt{component-diagram.puml} và bản xem trước \texttt{component-diagram.svg}), thể hiện cổng biên \texttt{/api/v1}, \texttt{/ (static)}, \texttt{SQLite}, 3 module lõi, các adapter giả lập và dịch vụ bản đồ ngoài (\textit{OpenFreeMap}, \textit{OSRM}, \textit{Photon}).
-\end{enumerate}
+Góc nhìn phát triển gồm hai tầng tài liệu đồng bộ: (1) kiến trúc mục tiêu (\Cref{fig:dv-02}) mô tả tổ chức gói và các port trừu tượng, và (2) sơ đồ thành phần theo mã nguồn thực tế (\Cref{fig:dv-01}), thể hiện cổng biên \texttt{/api/v1}, tài nguyên tĩnh, cơ sở dữ liệu SQLite, 3 phân hệ lõi, các bộ điều hợp giả lập và dịch vụ bản đồ ngoài (\textit{OpenFreeMap}, \textit{OSRM}, \textit{Photon}).
 
 \begin{figure}[H]
     \centering
@@ -126,60 +122,109 @@ Góc nhìn phát triển (\textit{Development / Implementation View}) gồm hai 
 \begin{figure}[H]
     \centering
         \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/DV02-Package_Diagram_New.png}
-    \caption{Sơ đồ Gói \texttt{DV02} mô tả tổ chức mã nguồn và quan hệ \texttt{<<access>>}}
+    \caption{Sơ đồ Gói mô tả tổ chức mã nguồn và quan hệ \texttt{<<access>>}}
     \label{fig:dv-02}
 \end{figure}
 
-Trong thiết kế mục tiêu \texttt{DV01} và \texttt{DV02}, tầng \textit{Application} định nghĩa ba hợp đồng trừu tượng (\texttt{Persistence Ports}, \texttt{Telemetry Input Contract} và \texttt{Notification Outbound Port}). Tuy nhiên, ở mã nguồn MVP hiện tại, \texttt{Notification Outbound Port} và \texttt{isolationVerifier} chưa có lớp hiện thực, còn \texttt{parking-charging/index.js} nhập trực tiếp \texttt{SQLiteClient} và \texttt{SQLiteInventoryRepository} từ \texttt{operations/infrastructure/}.
+Trong thiết kế mục tiêu, tầng \textit{Application} định nghĩa ba hợp đồng trừu tượng (\texttt{Persistence Ports}, \texttt{Telemetry Input Contract} và \texttt{Notification Outbound Port}). Ở mã nguồn MVP hiện tại, \texttt{Notification Outbound Port} và \texttt{isolationVerifier} chưa có lớp hiện thực, còn phân hệ \texttt{parking-charging} dùng chung \texttt{SQLiteClient} và kho lưu trữ từ \texttt{operations}.
 
-\subsubsection*{Truy vết từ Thiết kế 5 Module Logic (\texttt{DV01/DV02}) sang Hiện thực 3 Module Mã nguồn}
+\subsubsection*{Truy vết từ Thiết kế 5 Module Logic sang Hiện thực 3 Module MVP}
 
-Trong tài liệu kiến trúc đề xuất tại Submission~\#3 (\texttt{DEVELOPMENT\_\allowbreak IMPLEMENTATION\_\allowbreak VIEW\_REPORT.md}), tầng \textit{Application} được phân rã ở mức khái niệm thành \textbf{5 module logic} gắn với \textbf{7 khái niệm dịch vụ} (\textit{VehicleService}, \textit{ReservationHub}, \textit{ChargingScheduler}, \textit{RedistributionService}, \textit{IncidentService}, \texttt{TelemetryService}, \textit{SimulationEngine}). Khi chuyển sang giai đoạn xây dựng sản phẩm MVP trong thư mục \texttt{app/src/modules/} (trình bày chi tiết tại Chương~4), nhóm kỹ thuật hợp nhất thành \textbf{3 module mã nguồn} khớp với phạm vi giao dịch SQLite ACID và phân công phát triển song song. \Cref{tab:module-traceability} minh họa ánh xạ truy vết giữa hồ sơ thiết kế và mã nguồn thực tế.
+Ở giai đoạn thiết kế khái niệm, tầng \textit{Application} được phân rã thành \textbf{5 module logic} gắn với \textbf{7 dịch vụ} (\textit{VehicleService}, \textit{ReservationHub}, \textit{ChargingScheduler}, \textit{RedistributionService}, \textit{IncidentService}, \texttt{TelemetryService}, \textit{SimulationEngine}). Khi chuyển sang hiện thực MVP, nhóm hợp nhất thành \textbf{3 module mã nguồn} khớp với phạm vi giao dịch SQLite ACID và phân công phát triển song song (\Cref{tab:module-traceability}).
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}p{3.8cm} >{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}p{2.6cm}}
-\caption{Ma trận truy vết từ 5 module logic (\texttt{DV01/DV02}) sang 3 module mã nguồn MVP} \label{tab:module-traceability} \\
+\caption{Ma trận truy vết từ 5 module logic sang 3 module mã nguồn MVP} \label{tab:module-traceability} \\
 \toprule
-\textbf{Module thiết kế (\texttt{DV01/DV02})} & \textbf{Khái niệm dịch vụ trong tài liệu thiết kế} & \textbf{Module mã nguồn thực tế (\texttt{app/src/modules/})} & \textbf{Phạm vi UC / Giao diện liên module} \\
+\textbf{Module thiết kế} & \textbf{Khái niệm dịch vụ thiết kế} & \textbf{Module mã nguồn MVP} & \textbf{Phạm vi UC / Giao diện} \\
 \midrule
 \endfirsthead
 \toprule
-\textbf{Module thiết kế (\texttt{DV01/DV02})} & \textbf{Khái niệm dịch vụ trong tài liệu thiết kế} & \textbf{Module mã nguồn thực tế (\texttt{app/src/modules/})} & \textbf{Phạm vi UC / Giao diện liên module} \\
+\textbf{Module thiết kế} & \textbf{Khái niệm dịch vụ thiết kế} & \textbf{Module mã nguồn MVP} & \textbf{Phạm vi UC / Giao diện} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-\textbf{1. Accounts \& Resources} (phần đọc khám phá người dùng) & \texttt{VehicleService} (truy vấn điểm đỗ, xe khả dụng) & \texttt{mobility-simulation} (\texttt{DiscoveryService}, \texttt{RentalService}) & \texttt{UC01--UC02} \\
+\textbf{1. Accounts \& Resources} (phần đọc khám phá) & \texttt{VehicleService} (truy vấn điểm đỗ, xe khả dụng) & \texttt{mobility-simulation} (\texttt{DiscoveryService}, \texttt{RentalService}) & \texttt{UC01--UC02} \\
 \midrule
-\textbf{2. Reservations \& Trips} (luồng thuê xe công cộng) & \texttt{ReservationHub}, \texttt{VehicleService} (giữ xe, nhận/trả xe) & \texttt{mobility-simulation} (\texttt{RentalService}, \texttt{SimulatedDock}) & \texttt{UC03--UC05}, \texttt{FR-NI01}; đọc dữ liệu qua \texttt{InventoryInterface} \\
+\textbf{2. Reservations \& Trips} (thuê xe dùng chung) & \texttt{ReservationHub}, \texttt{VehicleService} (giữ, nhận/trả xe) & \texttt{mobility-simulation} (\texttt{RentalService}, \texttt{SimulatedDock}) & \texttt{UC03--UC05}, \texttt{FR-NI01}; đọc qua \texttt{InventoryInterface} \\
 \midrule
-\textbf{5. Simulation} & \texttt{SimulationEngine} & \texttt{mobility-simulation} (\texttt{SimulationService}, \texttt{simulation-engine.js}) & \texttt{UC13--UC14}; chụp snapshot đọc từ \texttt{operations} \\
+\textbf{5. Simulation} & \texttt{SimulationEngine} & \texttt{mobility-simulation} (\texttt{SimulationService}) & \texttt{UC13--UC14}; chụp snapshot từ \texttt{operations} \\
 \midrule
-\textbf{2. Reservations \& Trips} (phần giữ chỗ đỗ xe cá nhân) & \texttt{ReservationHub} (cam kết đỗ xe cá nhân) & \texttt{parking-charging} (\texttt{ParkingService}) & \texttt{UC06} (\texttt{UC06-S1/S2/S3}), \texttt{FR-NI01} \\
+\textbf{2. Reservations \& Trips} (đỗ xe cá nhân) & \texttt{ReservationHub} (cam kết đỗ xe cá nhân) & \texttt{parking-charging} (\texttt{ParkingService}) & \texttt{UC06} (\texttt{UC06-S1/S2/S3}), \texttt{FR-NI01} \\
 \midrule
-\textbf{3. Charging} & \texttt{ChargingScheduler} & \texttt{parking-charging} (\texttt{ChargingService}, \texttt{SchedulerService}) & \texttt{UC07}, \texttt{UC07A}, \texttt{UC12}, \texttt{FR-NI04}; cung cấp \texttt{ChargingGuard} \\
+\textbf{3. Charging} & \texttt{ChargingScheduler} & \texttt{parking-charging} (\texttt{ChargingService}, \texttt{SchedulerService}) & \texttt{UC07}, \texttt{UC07A}, \texttt{UC12}, \texttt{FR-NI04}; cấp \texttt{ChargingGuard} \\
 \midrule
-\textbf{1. Accounts \& Resources} (quản trị tài nguyên) và \textbf{4. Operations} & \texttt{VehicleService} (admin), \texttt{Redistribution\allowbreak Service}, \texttt{IncidentService}, \texttt{TelemetryService} & \texttt{operations} (\texttt{InventoryService}, \texttt{MonitoringService}, \texttt{TransferService}, \texttt{IncidentService}) & \texttt{UC08--UC11A}, \texttt{FR-NI02/03}; xuất khẩu \texttt{Inventory\allowbreak Interface} và nhận \texttt{verifiedTrip\allowbreak Reader} \\
+\textbf{1. Accounts \& Resources} (quản trị) và \textbf{4. Operations} & \texttt{VehicleService} (admin), \texttt{Redistribution\allowbreak Service}, \texttt{IncidentService}, \texttt{TelemetryService} & \texttt{operations} (\texttt{InventoryService}, \texttt{MonitoringService}, \texttt{TransferService}, \texttt{IncidentService}) & \texttt{UC08--UC11A}, \texttt{FR-NI02/03}; cấp \texttt{Inventory\allowbreak Interface} \\
 \bottomrule
 \end{longtable}
 
-Trong mô hình cài đặt tại \texttt{app/src/app.js}, các module không gọi chéo trực tiếp vào bảng dữ liệu nội bộ của nhau mà giao tiếp qua các giao diện tiêm phụ thuộc (\textit{Dependency Injection}) hẹp: \texttt{operations} cung cấp \texttt{Inventory\allowbreak Interface} cho \texttt{mobility-simulation}; ngược lại \texttt{mobility-simulation} cung cấp \texttt{verifiedTripReader} cho \texttt{operations} để xác thực báo cáo sự cố chuyến đi (\texttt{UC11A}), còn \texttt{parking-charging} cung cấp \texttt{ChargingGuard} giúp \texttt{operations} không vô hiệu hóa nhầm điểm đỗ/trụ sạc đang có phiên sạc hoạt động.
+Trong mô hình cài đặt, các module không truy cập chéo trực tiếp vào bảng nội bộ của nhau mà giao tiếp qua tiêm phụ thuộc hẹp: \texttt{operations} cung cấp \texttt{InventoryInterface} cho \texttt{mobility-simulation}; ngược lại \texttt{mobility-simulation} cung cấp \texttt{verifiedTripReader} để xác thực sự cố chuyến đi (\texttt{UC11A}), còn \texttt{parking-charging} cung cấp \texttt{ChargingGuard} ngăn vô hiệu hóa nhầm điểm đỗ/trụ sạc đang có phiên sạc hoạt động.
 
 % ---------------------------------------------------
-\subsection{Mô hình Cấu trúc: Sơ đồ Lớp (Class Diagram)}
+\subsection{Mô hình Cấu trúc: Sơ đồ Lớp}
 
-Sơ đồ Lớp miền được đặc tả tại \texttt{docs/\allowbreak diagrams/\allowbreak 05\_Class\_Diagram/\allowbreak drawio/\allowbreak smart\_emobility\_\allowbreak class\_diagram.drawio} và chuẩn hóa đầy đủ trong tài liệu danh mục lớp \texttt{.agent/\allowbreak class-diagram/\allowbreak CLASS\_CATALOG.md}. Toàn bộ mô hình gồm \textbf{19 lớp thực thể và dịch vụ miền}, \textbf{16 kiểu liệt kê/kiểu giá trị hỗ trợ}, \textbf{18 chữ ký phương thức được đặc tả hợp đồng} và \textbf{31 liên kết kèm bội số quan hệ}.
+Sơ đồ Lớp miền chuẩn hóa \textbf{19 lớp thực thể và dịch vụ miền}, \textbf{16 kiểu liệt kê/kiểu giá trị hỗ trợ}, \textbf{18 chữ ký phương thức đặc tả hợp đồng} và \textbf{31 liên kết kèm bội số quan hệ}. Để bảo đảm từng ngăn thuộc tính, phương thức và bội số đọc rõ nét trên trang A4, báo cáo trình bày riêng từng góc nhìn trong \textbf{8 sơ đồ thành phần} (\Cref{fig:cd-01}--\Cref{fig:cd-08}).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/smart_emobility_class_diagram.png}
-    \caption{Sơ đồ Lớp miền hệ thống \textit{Smart E-Mobility Hub} (19 lớp, 31 liên kết)}
-    \label{fig:class-diagram}
+    \includegraphics[width=0.78\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/cd_01_vehicle_types.png}
+    \caption{Sơ đồ Lớp (1/8): Phân cấp loại phương tiện}
+    \label{fig:cd-01}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth,height=0.56\textheight,keepaspectratio]{graphics/diagrams/cd_02_location_ownership.png}
+    \caption{Sơ đồ Lớp (2/8): Vị trí Hub, Ô đỗ và Quyền sở hữu}
+    \label{fig:cd-02}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth,height=0.45\textheight,keepaspectratio]{graphics/diagrams/cd_03_reservations.png}
+    \caption{Sơ đồ Lớp (3/8): Đặt giữ phương tiện và Chỗ đỗ}
+    \label{fig:cd-03}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/cd_04_trips_returns.png}
+    \caption{Sơ đồ Lớp (4/8): Chuyến đi và Trả xe}
+    \label{fig:cd-04}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth,height=0.56\textheight,keepaspectratio]{graphics/diagrams/cd_05_charging.png}
+    \caption{Sơ đồ Lớp (5/8): Yêu cầu, Cổng sạc và Phiên sạc}
+    \label{fig:cd-05}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.96\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/cd_06_redistribution.png}
+    \caption{Sơ đồ Lớp (6/8): Lệnh điều chuyển xe liên Hub}
+    \label{fig:cd-06}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.98\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/cd_07_incident_isolation.png}
+    \caption{Sơ đồ Lớp (7/8): Sự cố vận hành và Cách ly tài nguyên}
+    \label{fig:cd-07}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.99\textwidth,height=0.28\textheight,keepaspectratio]{graphics/diagrams/cd_08_what_if_simulation.png}
+    \caption{Sơ đồ Lớp (8/8): Kịch bản, Kết quả và Khuyến nghị What-if}
+    \label{fig:cd-08}
 \end{figure}
 
 \Cref{tab:class-catalog} tổng hợp danh mục 19 lớp trong sơ đồ, phân biệt rõ lớp trừu tượng (\textit{abstract}), lớp kế thừa và các phương thức được khai báo trực tiếp.
 
 \begin{longtable}{>{\centering\arraybackslash}p{0.8cm} >{\raggedright\arraybackslash}p{3.8cm} >{\raggedright\arraybackslash}p{5.5cm} >{\raggedright\arraybackslash}p{4.1cm}}
-\caption{Danh mục 19 lớp trong Sơ đồ Lớp (\texttt{CLASS\_CATALOG.md})} \label{tab:class-catalog} \\
+\caption{Danh mục 19 lớp trong Sơ đồ Lớp} \label{tab:class-catalog} \\
 \toprule
 \textbf{STT} & \textbf{Tên lớp (Phân loại)} & \textbf{Thuộc tính chính} & \textbf{Phương thức / Kế thừa} \\
 \midrule
@@ -229,47 +274,12 @@ Sơ đồ Lớp miền được đặc tả tại \texttt{docs/\allowbreak diagr
 19 & \texttt{Coordination\allowbreak Recommendation} & \texttt{recommendationId}, \texttt{type}, \texttt{details}, \texttt{status} & \textit{(Bản ghi khuyến nghị nằm trong \texttt{SimulationResult})} \\
 \end{longtable}
 
-\subsubsection*{Các Kiểu Liệt kê (Enums) và Kiểu Dữ liệu Giá trị (Value Types)}
+\subsubsection*{Kiểu Liệt kê, Liên kết và Bất biến Hệ thống}
 
-\Cref{tab:supporting-types} chuẩn hóa miền giá trị cho 16 \textit{Enums} và các kiểu giá trị phức hợp đi kèm (\texttt{GeoLocation} thuộc $[-90,90]\times[-180,180]$, \texttt{TimeInterval}, \texttt{ParkingOutcome}, \texttt{NetworkSnapshot}, \texttt{ScenarioParameters}), khớp với các máy trạng thái \texttt{SC01--SC03} tại Chương~2.
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}p{10.0cm}}
-\caption{Hệ thống 16 kiểu liệt kê và kiểu giá trị hỗ trợ trong mô hình lớp} \label{tab:supporting-types} \\
-\toprule
-\textbf{Tên kiểu} & \textbf{Miền giá trị và Ý nghĩa nghiệp vụ} \\
-\midrule
-\endfirsthead
-\toprule
-\textbf{Tên kiểu} & \textbf{Miền giá trị và Ý nghĩa nghiệp vụ} \\
-\midrule
-\endhead
-\bottomrule
-\endfoot
-\texttt{UserRole}, \texttt{VehicleOwnership} & Vai trò: \texttt{User}, \texttt{Operator} (một tài khoản có thể đồng thời giữ cả hai). Sở hữu: \texttt{Shared}, \texttt{Private}. \\
-\midrule
-\texttt{VehicleStatus} (10 giá trị) & \texttt{Available}, \texttt{Reserved}, \texttt{InUse}, \texttt{NeedsCharging}, \texttt{Charging}, \texttt{TransferHeld}, \texttt{InTransit}, \texttt{Faulty}, \texttt{Maintenance}, \texttt{Retired}. \\
-\midrule
-\texttt{ParkingStatus} (4 giá trị) & \texttt{Available}, \texttt{Held}, \texttt{Occupied}, \texttt{Suspended}. \\
-\midrule
-\texttt{ChargingPointStatus} (9 giá trị) & \texttt{Idle}, \texttt{Reserved}, \texttt{Starting}, \texttt{Charging}, \texttt{Stopping}, \texttt{Complete} (đã ngắt điện chờ rút phích), \texttt{Fault}, \texttt{Repair}, \texttt{Retired}. \\
-\midrule
-\texttt{ReservationStatus}, \texttt{TripStatus} & Đặt chỗ: \texttt{Pending}, \texttt{Reserved} (đang giữ hiệu lực), \texttt{Fulfilled}, \texttt{Cancelled}, \texttt{Expired}. Chuyến đi: \texttt{Active}, \texttt{Completed}. \\
-\midrule
-\texttt{ChargingRequestStatus}, \texttt{ChargingSessionStatus}, \texttt{ChargingStopReason} & Yêu cầu: \texttt{Queued}, \texttt{Charging}, \texttt{Completed}, \texttt{Cancelled}. Phiên sạc: \texttt{Active}, \texttt{Completed}, \texttt{Interrupted}. Lý do dừng: \texttt{UserStop}, \texttt{TargetReached}, \texttt{PriorityYield}, \texttt{TechnicalFault}. \\
-\midrule
-\texttt{TransferStatus}, \texttt{IncidentStatus} & Điều chuyển: \texttt{Planned}, \texttt{InTransit}, \texttt{Completed}, \texttt{Cancelled}. Sự cố: \texttt{Open}, \texttt{Investigating}, \texttt{Resolved}. \\
-\midrule
-\texttt{ScenarioType} (5 kịch bản), \texttt{SimulationRunStatus}, \texttt{RecommendationType}, \texttt{RecommendationStatus} & Kịch bản (\texttt{UC13}): \texttt{MetroSurge} (\texttt{arrivalsPerHour} $\ge 0$), \texttt{FullParking} (\texttt{occupancyPercent} $=100$), \texttt{ChargingDemandSurge} (\texttt{chargingRequestsPerHour} $\ge 0$), \texttt{PartialChargerFailure} (\texttt{failedPointIds} khác rỗng và nhỏ hơn tổng số trụ Hub), \texttt{VehicleClustering} (\texttt{clusteredVehicleCount} $\in [0, \text{số xe}]$). Trạng thái chạy: \texttt{Pending}, \texttt{Running}, \texttt{Completed}, \texttt{Failed}. Khuyến nghị: \texttt{TransferVehicles}, \texttt{AdjustChargingSchedule}, \texttt{RedirectHub}; Trạng thái duyệt: \texttt{Proposed}, \texttt{Accepted}, \texttt{Rejected}. \\
-\end{longtable}
-
-\subsubsection*{Phân tích 31 Liên kết và 10 Bất biến Hệ thống}
-
-Toàn bộ mô hình cấu trúc liên kết 19 lớp thông qua \textbf{31 mối quan hệ (Associations)}. Trong đó, 30 mối quan hệ là liên kết thường (\textit{ordinary association}) vì hạ tầng Hub, chỗ đỗ, trụ sạc và lịch sử chuyến đi có vòng đời độc lập, không tự động xóa dây chuyền. Duy nhất liên kết giữa \texttt{SimulationResult} (\texttt{1}) và \texttt{CoordinationRecommendation} (\texttt{0..*}) là quan hệ hợp thành (\textit{composition}), bởi các bản ghi khuyến nghị không tồn tại độc lập ngoài kết quả mô phỏng sinh ra chúng (tuy nhiên khi chấp nhận khuyến nghị để tạo \texttt{TransferOrder}, lệnh điều chuyển thực tế có vòng đời độc lập sau khi tạo).
-
-\Cref{tab:associations-invariants} tóm tắt các nhóm liên kết chính cùng 10 bất biến vòng đời và cấp phát trọng yếu dùng để kiểm chứng mã nguồn.
+Miền giá trị của 16 kiểu liệt kê (\textit{Enums}) và 5 kiểu giá trị hỗ trợ (\texttt{GeoLocation}, \texttt{TimeInterval}, \texttt{ParkingOutcome}, \texttt{NetworkSnapshot}, \texttt{ScenarioParameters}) được được đồng bộ trực tiếp với các máy trạng thái ở Chương~2. Toàn bộ mô hình liên kết 19 lớp qua \textbf{31 mối quan hệ}: 30 liên kết thường bảo đảm độc lập vòng đời và 1 quan hệ hợp thành (\textit{composition}) giữa \texttt{SimulationResult} (\texttt{1}) và \texttt{CoordinationRecommendation} (\texttt{0..*}). \Cref{tab:associations-invariants} tổng hợp các nhóm liên kết và 10 bất biến cốt lõi.
 
 \begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}p{4.8cm} >{\raggedright\arraybackslash}p{6.0cm}}
-\caption{Nhóm 31 liên kết quan hệ và 10 bất biến vòng đời cốt lõi (\texttt{CLASS\_CATALOG.md})} \label{tab:associations-invariants} \\
+\caption{Nhóm 31 liên kết quan hệ và 10 bất biến vòng đời cốt lõi} \label{tab:associations-invariants} \\
 \toprule
 \textbf{Nhóm nghiệp vụ} & \textbf{Các liên kết và Bội số tiêu biểu} & \textbf{Bất biến ràng buộc (\textit{Invariants})} \\
 \midrule
@@ -292,150 +302,43 @@ Mô phỏng What-if & \texttt{SimulationScenario} \texttt{1}--\texttt{0..*} \tex
 \end{longtable}
 
 % ---------------------------------------------------
-\subsection{Đặc tả Lớp và Phương thức (Method Descriptions)}
+\subsection{Đặc tả Lớp và Phương thức}
 
-Tuân thủ nguyên tắc thiết kế hướng hợp đồng (\textit{Design by Contract}) và cấu trúc đặc tả phương thức trong \texttt{.agent/class-diagram/CLASS\_CATALOG.md}, mọi phương thức đọc (\textit{Query predicates}) đều thuần túy, không tự khóa tài nguyên; mọi phương thức chuyển trạng thái (\textit{Mutating operations}) đều phải được tầng dịch vụ (\textit{Application Services}) bọc trong giao dịch nguyên tử, kiểm tra lại quyền hạn, bất biến chéo và chỉ đẩy thông báo sau khi \texttt{COMMIT} thành công.
+Mọi phương thức đọc (\textit{Query predicates}) đều thuần túy, không tự khóa tài nguyên; mọi phương thức chuyển trạng thái (\textit{Mutating operations}) được tầng dịch vụ bọc trong giao dịch nguyên tử, kiểm tra bất biến chéo và chỉ thông báo sau khi \texttt{COMMIT} thành công. \Cref{tab:method-contracts} tóm tắt hợp đồng của \textbf{18 phương thức} và \Cref{tab:inherited-methods} tổng hợp kế thừa/ghi đè.
 
-\Cref{tab:method-contracts} trình bày chi tiết hợp đồng cho toàn bộ \textbf{18 phương thức} (bao gồm cả phương thức trừu tượng và 2 lớp ghi đè).
-
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.6cm} >{\raggedright\arraybackslash}p{10.7cm}}
-\caption{Đặc tả chi tiết hợp đồng 18 phương thức trong Sơ đồ Lớp (\texttt{CLASS\_CATALOG.md})} \label{tab:method-contracts} \\
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}p{10.0cm}}
+\caption{Tóm tắt hợp đồng 18 phương thức trong Sơ đồ Lớp} \label{tab:method-contracts} \\
 \toprule
-\textbf{Lớp và Chữ ký} & \textbf{Hợp đồng: Mục đích, Đầu vào/Ra, Tiền--Hậu điều kiện, Thuật toán và Ngoại lệ} \\
+\textbf{Lớp \& Chữ ký} & \textbf{Mục đích, Tiền/Hậu điều kiện cốt lõi \& Ngoại lệ chính} \\
 \midrule
 \endfirsthead
 \toprule
-\textbf{Lớp và Chữ ký} & \textbf{Hợp đồng: Mục đích, Đầu vào/Ra, Tiền--Hậu điều kiện, Thuật toán và Ngoại lệ} \\
+\textbf{Lớp \& Chữ ký} & \textbf{Mục đích, Tiền/Hậu điều kiện cốt lõi \& Ngoại lệ chính} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-\textbf{1.} \texttt{UserAccount} \newline \texttt{+hasRole(role: UserRole): Boolean} &
-\textbf{Mục đích:} Kiểm tra tư cách vai trò tác nghiệp (\texttt{UC01--UC14}). \newline
-\textbf{Vào/Ra:} Một giá trị \texttt{UserRole} / \texttt{Boolean} (\texttt{User} và \texttt{Operator} cùng trả về \texttt{true} nếu thuộc tập vai trò). \newline
-\textbf{Tiền ĐK:} Tài khoản tồn tại với tập \texttt{roles} khác rỗng hợp lệ. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Kiểm tra thành viên \texttt{role} $\in$ \texttt{roles}; không biến đổi trạng thái. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidRole} nếu truyền giá trị ngoài enum; việc phân quyền HTTP thực hiện tại ranh giới dịch vụ. \\
-\midrule
-\textbf{2.} \texttt{ElectricVehicle} \newline \texttt{+updateBattery(percent: Integer): void} &
-\textbf{Mục đích:} Cập nhật quan trắc phần trăm pin hợp lệ (\texttt{UC08/UC09}, \texttt{FR-NI02}). \newline
-\textbf{Vào/Ra:} Số nguyên \texttt{percent} $\in [0, 100]$ / \texttt{void}. \newline
-\textbf{Tiền ĐK:} Xe tồn tại; \texttt{TelemetryService} đã xác thực danh tính thiết bị và tính mới của dấu thời gian. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Từ chối giá trị không nguyên hoặc ngoài $[0,100]$; gán \texttt{batteryPercent = percent}; phát sự kiện cảnh báo/lập lịch lại nếu vượt ngưỡng (\texttt{<20\%} hoặc \texttt{<10\%}). Không tự ý thay đổi \texttt{ownership}, liên kết giữ chỗ hay \texttt{status}. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidBattery}; ngoại lệ \texttt{StaleObservation} được chặn ở \texttt{TelemetryService} trước khi gọi. \\
-\midrule
-\textbf{3.} \texttt{ElectricVehicle} \newline \texttt{+isRentable(): Boolean} &
-\textbf{Mục đích:} Kiểm tra ứng viên xe đủ điều kiện cho thuê (\texttt{UC02/UC03}). \newline
-\textbf{Vào/Ra:} Không tham số tường minh (đọc trạng thái xe, giữ chỗ, sự cố) / \texttt{Boolean}. \newline
-\textbf{Tiền ĐK:} Khung nhìn phân bổ và tài nguyên hiện hành nhất quán. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Trả về \texttt{true} chỉ khi xe thuộc nhóm \texttt{Shared}, \texttt{status=Available}, \texttt{batteryPercent >= 20}, tại Hub khả dụng, không có hold/trip/charging/transfer hoặc sự cố chưa xử lý. Xe \texttt{Private} trả về \texttt{false} kể cả khi 100\% pin; quy tắc \texttt{UC10} ($\ge 80\%$) tách riêng; giao dịch giữ chỗ thật phải kiểm tra lại nguyên tử; không tạo hold khi gọi hàm đọc này. \newline
-\textbf{Ngoại lệ:} \texttt{InconsistentState} nếu thiếu ngữ cảnh tài nguyên; không đủ điều kiện trả về \texttt{false}. \\
-\midrule
-\textbf{4.} \texttt{MobilityHub} \newline \texttt{+availableParking\allowbreak Count(): Integer} &
-\textbf{Mục đích:} Trả về số chỗ đỗ hiện có thể cấp phát tại Hub (\texttt{UC01/UC08/UC10}). \newline
-\textbf{Vào/Ra:} Không tham số tường minh / Số nguyên không âm. \newline
-\textbf{Tiền ĐK:} Khung nhìn danh sách chỗ đỗ và các phiếu giữ đang hiệu lực nhất quán. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Đếm các \texttt{ParkingSlot} ở trạng thái \texttt{Available}, chưa có xe chiếm dụng, không bị giữ bởi đặt chỗ hay giữ chỗ đích của \texttt{TransferOrder}, và không bị treo (\texttt{Suspended}). Không cấp quyền giữ chỗ. \newline
-\textbf{Ngoại lệ:} \texttt{InconsistentState}; dịch vụ ghi phải tái kiểm tra trong giao dịch nguyên tử. \\
-\midrule
-\textbf{5.} \texttt{ParkingSlot} \newline \texttt{+canAccept(vehicle: ElectricVehicle): Boolean} &
-\textbf{Mục đích:} Kiểm tra một chỗ đỗ chưa giữ làm ứng viên tiếp nhận xe (\texttt{UC05/UC06/UC09}). \newline
-\textbf{Vào/Ra:} Một thực thể \texttt{ElectricVehicle} (\texttt{Shared} hoặc \texttt{Private}) / \texttt{Boolean}. \newline
-\textbf{Tiền ĐK:} Xe, chỗ đỗ và trạng thái Hub hợp lệ. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Với đỗ tức thời, trả về \texttt{true} nếu chỗ đỗ an toàn, trống, không trùng lịch cam kết và xe chưa chiếm slot khác; đặt trước dùng kiểm tra khoảng thời gian \texttt{BR08} và tái kiểm tra vật lý lúc check-in. Nếu người dùng đã giữ sẵn phiếu đỗ, dịch vụ xác thực phiếu đó thay vì dùng hàm ứng viên này. Không biến đổi trạng thái. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidVehicle}, \texttt{InconsistentState}. \\
-\midrule
-\textbf{6.} \texttt{ChargingPoint} \newline \texttt{+canServe(vehicle: ElectricVehicle): Boolean} &
-\textbf{Mục đích:} Kiểm tra khả năng phục vụ sạc cấp độ từng trụ (\texttt{UC07/UC12}). \newline
-\textbf{Vào/Ra:} Một thực thể \texttt{ElectricVehicle} và vị trí hiện tại / \texttt{Boolean}. \newline
-\textbf{Tiền ĐK:} Dữ liệu phân bổ trụ, công suất và sự cố cập nhật. Cho phép cả xe \texttt{Private}. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Trả về \texttt{true} khi trụ ở trạng thái \texttt{Idle}, không có \texttt{allocationOwner}, chuẩn \texttt{connector} khớp với xe; xe đang ở cùng Hub, không đang di chuyển/lỗi/bảo trì và không có phân bổ xung đột hay sự cố. Ngân sách công suất toàn Hub (85\%) do \texttt{ChargingScheduler} kiểm tra bổ sung. Không tạo phiên sạc. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidVehicle}, \texttt{InconsistentState}; trụ \texttt{Fault} dù cùng cổng vẫn trả về \texttt{false}. \\
-\midrule
-\textbf{7.} \texttt{Reservation} \newline \texttt{+cancel(): void} &
-\textbf{Mục đích:} Hủy phiếu giữ xe hoặc giữ chỗ đỗ đang còn hiệu lực (\texttt{UC03/UC06}). \newline
-\textbf{Vào/Ra:} Ngữ cảnh người đặt/vận hành đã xác thực từ dịch vụ / \texttt{void}. \newline
-\textbf{Tiền ĐK:} Quyền hủy hợp lệ; trạng thái \texttt{Pending}/\texttt{Reserved} hoặc đã \texttt{Cancelled}; với \texttt{VehicleReservation} đòi hỏi \texttt{pickupClaimed=false} (hoặc đã đối soát khóa xong). \newline
-\textbf{Thuật toán \& Hậu ĐK:} Lũy đẳng nếu đã \texttt{Cancelled}; ngược lại kiểm tra nguyên tử quyền sở hữu hold, chuyển sang \texttt{Cancelled}, chỉ giải phóng đúng hold thuộc phiếu này và thông báo sau \texttt{COMMIT}. Không bao giờ giải phóng xe/slot đã chuyển sang chuyến đi hoặc đỗ xe thực tế. \newline
-\textbf{Ngoại lệ:} \texttt{Unauthorized}, \texttt{InvalidTransition} (đã \texttt{Fulfilled}/\texttt{Expired}), \texttt{AllocationConflict}. \\
-\midrule
-\textbf{8.} \texttt{Reservation} \newline \texttt{+expire(now: DateTime): Boolean} &
-\textbf{Mục đích:} Thực thi chuyển trạng thái quá hạn \texttt{FR-NI01}, tách biệt với bước tính mốc hết hạn. \newline
-\textbf{Vào/Ra:} Thời điểm \texttt{now: DateTime} / \texttt{Boolean} (\texttt{true} khi chuyển trạng thái thành công trong lượt gọi). \newline
-\textbf{Tiền ĐK:} \texttt{expiresAt} được gán từ \texttt{calculateExpiry()}; tác vụ nền quét mỗi 30 giây. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Trả về \texttt{false} nếu \texttt{now < expiresAt}, trạng thái khác \texttt{Pending}/\texttt{Reserved}, hoặc \texttt{pickupClaimed=true}. Nếu quá hạn, kiểm tra nguyên tử chủ sở hữu hold, chuyển sang \texttt{Expired}, giải phóng đúng hold đó (giữ nguyên trạng thái lỗi/chiếm dụng nếu có sự cố xen vào) và thông báo sau \texttt{COMMIT}. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidTime}, \texttt{AllocationConflict}, \texttt{InconsistentState} (rollback nếu giải phóng thất bại). \\
-\midrule
-\textbf{9.} \texttt{Reservation} \newline \texttt{+calculateExpiry(): DateTime} (\textit{abstract}) &
-\textbf{Mục đích:} Định nghĩa hợp đồng thuần túy tính hạn chót giữ tài nguyên (\texttt{UC03/UC06}, \texttt{FR-NI01}). \newline
-\textbf{Vào/Ra:} Thuộc tính thời gian bất biến của lớp con / \texttt{DateTime}. \newline
-\textbf{Tiền ĐK:} Thực thể cụ thể có dữ liệu thời gian hợp lệ. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Điều phối đa hình xuống lớp con; hàm thuần túy, kết quả được dịch vụ lưu một lần vào \texttt{expiresAt} lúc khởi tạo phiếu. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidTime}, \texttt{TimeOverflow}; cấm khởi tạo trực tiếp lớp trừu tượng. \\
-\midrule
-\textbf{10.} \texttt{VehicleReservation} \newline \texttt{+calculateExpiry(): DateTime} (\textit{override}) &
-\textbf{Mục đích:} Hiện thực quy tắc hết hạn 15 phút cho giữ xe (\texttt{UC03}, \texttt{BR04}). \newline
-\textbf{Vào/Ra:} Thuộc tính bất biến \texttt{reservedAt: DateTime} / \texttt{reservedAt + 15 phút}. \newline
-\textbf{Tiền ĐK:} Hợp đồng lớp cha và \texttt{reservedAt} hợp lệ. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Cộng chính xác 15 phút vào \texttt{reservedAt} (ví dụ 10:00 $\to$ 10:15); không biến đổi trạng thái. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidTime}, \texttt{TimeOverflow}. \\
-\midrule
-\textbf{11.} \texttt{ParkingReservation} \newline \texttt{+calculateExpiry(): DateTime} (\textit{override}) &
-\textbf{Mục đích:} Hiện thực quy tắc hết hạn cho giữ chỗ đỗ tức thời và đặt trước (\texttt{UC06}, \texttt{BR08}). \newline
-\textbf{Vào/Ra:} Loại đặt chỗ kèm \texttt{holdExpiresAt} hoặc giờ dự kiến đến + thời gian ân hạn đến muộn / \texttt{DateTime}. \newline
-\textbf{Tiền ĐK:} Đầu vào thời gian theo loại đặt chỗ hợp lệ. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Trả về \texttt{holdExpiresAt} (đặt tức thời) hoặc giờ dự kiến đến cộng độ trễ cho phép (mặc định cấu hình 15--30 phút theo Hub/quy tắc \texttt{BR08a}, ví dụ đến 10:00 với 30 phút $\to$ 10:30); tuyệt đối không dùng công thức 15 phút của thuê xe cho đặt trước. Không biến đổi trạng thái. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidTime}, \texttt{TimeOverflow}. \\
-\midrule
-\textbf{12.} \texttt{Trip} \newline \texttt{+complete(at: DateTime): void} &
-\textbf{Mục đích:} Xác nhận kết thúc chuyến đi và trả xe công cộng (\texttt{UC05}). \newline
-\textbf{Vào/Ra:} Thời điểm trả \texttt{at: DateTime}, \texttt{returnHub} và phân bổ chỗ đỗ đã xác thực / \texttt{void}. \newline
-\textbf{Tiền ĐK:} Chuyến đang \texttt{Active}, \texttt{at >= pickedUpAt}; thiết bị trạm/giả lập đã xác nhận trả xe vật lý và chỗ đỗ đích đã sẵn sàng/được giữ cho lượt trả này. \newline
-\textbf{Thuật toán \& Hậu ĐK:} \texttt{VehicleService} cập nhật nguyên tử \texttt{returnHub}, \texttt{returnedAt=at}, \texttt{status=Completed}, gán xe chiếm chỗ đỗ đích và chuyển trạng thái xe theo mức pin/sự cố hiện hữu. Lưu 1 bản ghi lịch sử chuyến hoàn tất, không còn chuyến đang chạy trên xe. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidTime}, \texttt{InvalidTransition}, \texttt{ReturnNotConfirmed}, \texttt{CapacityConflict} (bảo toàn chuyến đang chạy khi lỗi). \\
-\midrule
-\textbf{13.} \texttt{ChargingRequest} \newline \texttt{+isUrgent(): Boolean} &
-\textbf{Mục đích:} Nhận diện ngưỡng khẩn cấp \texttt{FR-NI04} cho lập lịch sạc (\texttt{UC07/UC12}). \newline
-\textbf{Vào/Ra:} Thuộc tính \texttt{batteryAtRequest} $\in [0,100]$ / \texttt{Boolean} (\texttt{true} nếu $<10\%$). \newline
-\textbf{Tiền ĐK:} \texttt{batteryAtRequest} là số nguyên trong $[0,100]$. \newline
-\textbf{Thuật toán \& Hậu ĐK:} So sánh chặt $<10$ ($9 \to \text{true}$, $10 \to \text{false}$). Lưu ý \texttt{ChargingScheduler} xếp hạng thêm dựa trên \texttt{neededBy} và dữ liệu telemetry hiện thời; hàm này chỉ là vị từ nhận diện, không biến đổi hàng đợi. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidBattery}. \\
-\midrule
-\textbf{14.} \texttt{ChargingSession} \newline \texttt{+stop(at: DateTime, reason: ChargingStopReason): void} &
-\textbf{Mục đích:} Ngắt phiên sạc an toàn và bảo toàn lịch sử phiên (\texttt{UC07/UC11/UC12}). \newline
-\textbf{Vào/Ra:} Thời điểm dừng \texttt{at: DateTime} và lý do tường minh thuộc \texttt{ChargingStopReason} / \texttt{void}. \newline
-\textbf{Tiền ĐK:} Phiên đang \texttt{Active}, \texttt{at >= startedAt}; thiết bị xác nhận đã ngắt điện; dịch vụ đối chiếu pin thực với \texttt{targetBatteryPercent}. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Cập nhật nguyên tử \texttt{stoppedAt=at}, \texttt{stopReason=reason}; chỉ gán phiên \texttt{Completed} nếu pin thực $\ge$ mục tiêu, ngược lại gán \texttt{Interrupted}; giải phóng ngân sách công suất trên trụ đúng một lần. Yêu cầu sạc chuyển \texttt{Completed} (đủ mục tiêu), \texttt{Cancelled} (nếu \texttt{UserStop} — không tự xếp hàng lại), hoặc quay về \texttt{Queued} (nếu \texttt{PriorityYield}/\texttt{TechnicalFault}). Giữ đầu nối trụ đến khi rút phích vật lý và giữ slot \texttt{Occupied} đến khi xe rời đi; bảo toàn trạng thái cô lập nếu trụ lỗi. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidTime}, \texttt{InvalidTransition}, \texttt{StopNotConfirmed}. \\
-\midrule
-\textbf{15.} \texttt{TransferOrder} \newline \texttt{+complete(at: DateTime): void} &
-\textbf{Mục đích:} Hoàn tất lệnh điều chuyển khi xe đến Hub đích (\texttt{UC10/UC10A}). \newline
-\textbf{Vào/Ra:} Thời điểm đến \texttt{at: DateTime} và xác nhận đến đủ các xe vào \texttt{heldDestinationSlots} / \texttt{void}. \newline
-\textbf{Tiền ĐK:} Lệnh đang \texttt{InTransit}, \texttt{at >= dispatchedAt}; hai Hub khác nhau, tập xe khác rỗng và số slot đích giữ sẵn còn hiệu lực (ngưỡng pin 80\% kiểm tra lúc lập/xuất phát, không chặn việc ghi nhận xe đã chạy tới đích). \newline
-\textbf{Thuật toán \& Hậu ĐK:} \texttt{RedistributionService} cập nhật nguyên tử vị trí từng xe về Hub/slot đích, xóa \texttt{transferHold} trên xe và giải phóng phần giữ lệnh, đặt \texttt{status=Completed} và \texttt{completedAt=at}. Xe vẫn bị chặn cho thuê nếu đang có sự cố chưa đóng. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidTime}, \texttt{InvalidTransition}, \texttt{ArrivalNotConfirmed}, \texttt{CapacityConflict} (không hoàn tất từng phần). \\
-\midrule
-\textbf{16.} \texttt{OperationalIncident} \newline \texttt{+resolve(at: DateTime): void} &
-\textbf{Mục đích:} Đóng hồ sơ sự cố sau khi hoàn tất sửa chữa và kiểm tra an toàn (\texttt{UC11}). \newline
-\textbf{Vào/Ra:} Thời điểm xử lý xong \texttt{at: DateTime} và bằng chứng bảo trì từ \texttt{IncidentService} / \texttt{void}. \newline
-\textbf{Tiền ĐK:} Trạng thái \texttt{Open}/\texttt{Investigating}, \texttt{at >= reportedAt}; ràng buộc XOR mục tiêu hợp lệ; cô lập và kiểm định an toàn đã được vận hành viên xác nhận. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Gán \texttt{status=Resolved}, \texttt{resolvedAt=at}; lưu vĩnh viễn lịch sử sự cố. Bản thân hàm \texttt{resolve()} không tự ý đưa xe/trụ quay lại \texttt{Available} nếu vẫn còn sự cố mở khác hoặc điều kiện kích hoạt chưa đạt. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidTime}, \texttt{InvalidTransition}, \texttt{RecoveryNotVerified}, \texttt{InvalidTarget}. \\
-\midrule
-\textbf{17.} \texttt{SimulationScenario} \newline \texttt{+validate(): Boolean} &
-\textbf{Mục đích:} Kiểm định cấu trúc và tham chiếu đầu vào của 5 kịch bản \texttt{UC13}. \newline
-\textbf{Vào/Ra:} Ngữ cảnh \texttt{NetworkSnapshot} do \texttt{SimulationEngine} cung cấp / \texttt{Boolean}. \newline
-\textbf{Tiền ĐK:} Có \texttt{NetworkSnapshot} để tra cứu ID Hub, danh sách trụ sạc và quy mô đội xe. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Xác minh \texttt{type} thuộc 5 loại khai báo, \texttt{targetHubId} tồn tại, \texttt{durationMinutes > 0} và tham số đặc thù nằm trong cận hợp lệ (ví dụ \texttt{PartialChargerFailure} phải chọn tập trụ khác rỗng, phân biệt và ít hơn tổng số trụ tại Hub đó). Không thay đổi trạng thái hệ thống thực. \newline
-\textbf{Ngoại lệ:} Trả về \texttt{false} kèm chẩn đoán nếu tham số sai; \texttt{MissingSnapshotContext} ở tầng dịch vụ nếu thiếu ảnh chụp mạng. \\
-\midrule
-\textbf{18.} \texttt{SimulationRun} \newline \texttt{+complete(result: SimulationResult): void} &
-\textbf{Mục đích:} Gắn kết quả và khuyến nghị vào lượt chạy mô phỏng thành công (\texttt{UC13/UC14}). \newline
-\textbf{Vào/Ra:} Một thực thể \texttt{SimulationResult} chứa các chỉ số hợp lệ và danh sách khuyến nghị sở hữu độc quyền / \texttt{void}. \newline
-\textbf{Tiền ĐK:} Lượt chạy ở trạng thái \texttt{Running} với kịch bản hợp lệ và snapshot bất biến; chưa có kết quả gắn trước đó. \newline
-\textbf{Thuật toán \& Hậu ĐK:} Kiểm tra cận giá trị (\texttt{serviceSuccessRate} $\in [0,1]$, thời gian chờ và số lượt từ chối $\ge 0$; quy ước bằng 0 khi không có lượt thử); gắn nguyên tử \texttt{result} và chuyển sang \texttt{Completed}. Nếu mô phỏng lỗi phải đi theo nhánh thất bại sang \texttt{Failed} mà không dựng kết quả 0 giả tạo. \newline
-\textbf{Ngoại lệ:} \texttt{InvalidResult}, \texttt{ResultAlreadyOwned}, \texttt{InvalidTransition}. \\
+\textbf{1.} \texttt{UserAccount} \newline \texttt{+hasRole(role): Boolean} & Kiểm tra tư cách \texttt{User}/\texttt{Operator} trong tập \texttt{roles}; không đổi trạng thái (\texttt{InvalidRole}). \\
+\textbf{2.} \texttt{ElectricVehicle} \newline \texttt{+updateBattery(percent): void} & Cập nhật pin $\in [0,100]$ hợp lệ từ telemetry; phát cảnh báo ngưỡng $<20\%$ / $<10\%$ (\texttt{InvalidBattery}). \\
+\textbf{3.} \texttt{ElectricVehicle} \newline \texttt{+isRentable(): Boolean} & Đọc thuần túy: \texttt{true} chỉ khi xe \texttt{Shared}, \texttt{Available}, pin $\ge 20\%$, không dính hold/trip/transfer/sự cố (\texttt{InconsistentState}). \\
+\textbf{4.} \texttt{MobilityHub} \newline \texttt{+availableParking\allowbreak Count(): Integer} & Đếm số \texttt{ParkingSlot} đang \texttt{Available}, trống vật lý và không bị giữ/treo (\texttt{InconsistentState}). \\
+\textbf{5.} \texttt{ParkingSlot} \newline \texttt{+canAccept(vehicle): Boolean} & Kiểm tra ô đỗ tức thời trống, an toàn và không trùng lịch; đặt trước dùng kiểm tra khoảng \texttt{BR08} (\texttt{InvalidVehicle}). \\
+\textbf{6.} \texttt{ChargingPoint} \newline \texttt{+canServe(vehicle): Boolean} & Trụ \texttt{Idle}, khớp chuẩn \texttt{connector}, cùng Hub, không sự cố (ngân sách 85\% Hub kiểm tra ở scheduler) (\texttt{InvalidVehicle}). \\
+\textbf{7.} \texttt{Reservation} \newline \texttt{+cancel(): void} & Hủy lũy đẳng phiếu \texttt{Pending}/\texttt{Reserved} (khi \texttt{pickupClaimed=false}), giải phóng đúng hold sở hữu (\texttt{InvalidTransition}, \texttt{AllocationConflict}). \\
+\textbf{8.} \texttt{Reservation} \newline \texttt{+expire(now): Boolean} & Quét nền mỗi 30s theo \texttt{FR-NI01}; chỉ chuyển \texttt{Expired} khi \texttt{now >= expiresAt} và chưa claim (\texttt{InvalidTime}, \texttt{AllocationConflict}). \\
+\textbf{9.} \texttt{Reservation} \newline \texttt{+calculateExpiry(): DateTime} & Hàm trừu tượng thuần túy tính hạn chót \texttt{expiresAt} lúc khởi tạo phiếu (\texttt{InvalidTime}, \texttt{TimeOverflow}). \\
+\textbf{10.} \texttt{VehicleReservation} \newline \texttt{+calculateExpiry(): DateTime} & Ghi đè: cộng chính xác 15 phút vào \texttt{reservedAt} (\texttt{UC03}, \texttt{BR04}). \\
+\textbf{11.} \texttt{ParkingReservation} \newline \texttt{+calculateExpiry(): DateTime} & Ghi đè: trả \texttt{holdExpiresAt} (đặt ngay) hoặc giờ đến + ân hạn \texttt{BR08a} (đặt trước). \\
+\textbf{12.} \texttt{Trip} \newline \texttt{+complete(at): void} & Đóng chuyến \texttt{Active} sau xác nhận dock (\texttt{at >= pickedUpAt}), chiếm ô đích và phân loại xe theo pin/sự cố (\texttt{ReturnNotConfirmed}). \\
+\textbf{13.} \texttt{ChargingRequest} \newline \texttt{+isUrgent(): Boolean} & Vị từ \texttt{FR-NI04}: trả \texttt{true} khi \texttt{batteryAtRequest < 10\%} (\texttt{InvalidBattery}). \\
+\textbf{14.} \texttt{ChargingSession} \newline \texttt{+stop(at, reason): void} & Ngắt phiên \texttt{Active} sau ACK điện, trả công suất Hub; cập nhật yêu cầu theo \texttt{ChargingStopReason} (\texttt{StopNotConfirmed}). \\
+\textbf{15.} \texttt{TransferOrder} \newline \texttt{+complete(at): void} & Đóng lệnh \texttt{InTransit} nguyên lô khi đủ xe tới đích, chuyển vị trí xe vào \texttt{heldDestinationSlots} (\texttt{ArrivalNotConfirmed}, \texttt{CapacityConflict}). \\
+\textbf{16.} \texttt{OperationalIncident} \newline \texttt{+resolve(at): void} & Chốt \texttt{Resolved} sau bảo trì và xác nhận cách ly/an toàn; giữ khóa nếu còn sự cố khác (\texttt{RecoveryNotVerified}). \\
+\textbf{17.} \texttt{SimulationScenario} \newline \texttt{+validate(): Boolean} & Kiểm định cấu trúc và cận tham số của 5 kịch bản \texttt{UC13} trên \texttt{NetworkSnapshot} (\texttt{MissingSnapshotContext}). \\
+\textbf{18.} \texttt{SimulationRun} \newline \texttt{+complete(result): void} & Gắn nguyên tử \texttt{SimulationResult} hợp lệ (tỷ lệ $\in [0,1]$, chờ $\ge 0$) và chuyển \texttt{Completed} (\texttt{InvalidResult}). \\
 \end{longtable}
+}
 
 \Cref{tab:inherited-methods} tóm tắt bốn lớp cụ thể thừa hưởng hoặc ghi đè hành vi từ hai lớp trừu tượng \texttt{ElectricVehicle} và \texttt{Reservation}, bảo đảm các thành phần trên sơ đồ lớp đều có truy vết hợp đồng tường minh.
 
@@ -456,50 +359,9 @@ Tuân thủ nguyên tắc thiết kế hướng hợp đồng (\textit{Design by
 \end{table}
 
 % ---------------------------------------------------
-\subsection{Thiết kế Cơ sở dữ liệu (SQLite Schema và Migrations)}
+\subsection{Thiết kế Cơ sở dữ liệu SQLite}
 
-Lược đồ cơ sở dữ liệu được quản trị bằng cơ chế di trú phiên bản tuần tự tại thư mục \texttt{app/db/migrations/} thông qua bộ khởi tạo \texttt{app/db/initialize.js}. Công cụ kiểm tra tính liên tục của các tệp SQL, bật bắt buộc ràng buộc khóa ngoại (\texttt{PRAGMA foreign\_keys = ON}), thiết lập thời gian chờ khóa (\texttt{PRAGMA busy\_timeout = 5000}) và cập nhật số phiên bản lược đồ qua \texttt{PRAGMA user\_version} (hiện tại đạt phiên bản \textbf{12}, bao gồm cả logic nâng cấp bảo toàn dữ liệu từ các nhánh phát triển v8/v9 trước khi hợp nhất).
-
-\begin{longtable}{>{\centering\arraybackslash}p{1.2cm} >{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}p{8.8cm}}
-\caption{Chuỗi 12 tệp migration cấu thành cơ sở dữ liệu SQLite} \label{tab:migrations} \\
-\toprule
-\textbf{Phiên bản} & \textbf{Tệp migration} & \textbf{Các bảng và mở rộng lược đồ chính} \\
-\midrule
-\endfirsthead
-\toprule
-\textbf{Phiên bản} & \textbf{Tệp migration} & \textbf{Các bảng và mở rộng lược đồ chính} \\
-\midrule
-\endhead
-\bottomrule
-\endfoot
-\texttt{0001} & \texttt{0001\_hub\_inventory.sql} & Khởi tạo 4 bảng lõi: \texttt{mobility\_hubs}, \texttt{electric\_vehicles}, \texttt{parking\_slots}, \texttt{charging\_points} cùng ràng buộc pin $\in [0,100]$ và khóa duy nhất \texttt{(hub\_id, code)}. \\
-\midrule
-\texttt{0002} & \texttt{0002\_operations\_\allowbreak schema.sql} & Bổ sung cột \texttt{status} và \texttt{owner\_id} vào tài nguyên; tạo các bảng vận hành \texttt{transfers}, \texttt{transfer\_vehicles}, \texttt{transfer\_destination\_slots}, \texttt{incidents}, \texttt{maintenance\_assignments}. \\
-\midrule
-\texttt{0003} & \texttt{0003\_idempotency.sql} & Tạo bảng \texttt{idempotency\_outcomes} lưu cặp khóa người dùng, mã \textit{Idempotency-Key}, băm SHA-256 tải trọng và kết quả JSON để phát lại an toàn (\textit{RFC/HTTP replay guard}). \\
-\midrule
-\texttt{0004} & \texttt{0004\_inventory\_\allowbreak ownership.sql} & Thêm các cột khóa sở hữu hiện thời (\texttt{reservation\_id}, \texttt{trip\_id}, \texttt{transfer\_hold\_id}, \texttt{occupancy\_id}) lên \texttt{electric\_vehicles} và \texttt{parking\_slots} để chống chiếm dụng chéo. \\
-\midrule
-\texttt{0005} & \texttt{0005\_parked\_vehicle.sql} & Thêm \texttt{parked\_vehicle\_id} tham chiếu \texttt{electric\_vehicles(id)} vào \texttt{parking\_slots} để theo dõi xe vật lý đang chiếm chỗ. \\
-\midrule
-\texttt{0006} & \texttt{0006\_parking\_\allowbreak commitments.sql} & Phân nhóm \texttt{pool} (\texttt{immediate}/\texttt{advance}) trên \texttt{parking\_slots} và tạo bảng \texttt{parking\_commitments}. \\
-\midrule
-\texttt{0007} & \texttt{0007\_vehicle\_\allowbreak pickup\_claim.sql} & Bổ sung \texttt{reservation\_expires\_at} và cờ nguyên tử \texttt{pickup\_claimed} ($0/1$) vào \texttt{electric\_vehicles} nhằm loại trừ xung đột hết hạn khi đang mở khóa. \\
-\midrule
-\texttt{0008} & \texttt{0008\_incident\_\allowbreak isolation.sql} & Thêm dấu thời gian \texttt{isolation\_verified\_at} vào \texttt{incidents} để khóa không cho phục hồi khi chưa xác nhận cách ly an toàn. \\
-\midrule
-\texttt{0009} & \texttt{0009\_transfer\_\allowbreak slot\_assignment.sql} & Thêm \texttt{vehicle\_order}, \texttt{slot\_order} và ánh xạ \texttt{assigned\_vehicle\_id} vào \texttt{transfer\_destination\_slots} (đánh dấu chính xác từng xe vào từng slot đích). \\
-\midrule
-\texttt{0010} & \texttt{0010\_mobility\_\allowbreak lifecycle.sql} & Tạo 5 bảng vòng đời thuê-trả xe: \texttt{vehicle\_reservations}, \texttt{mobility\_trips}, \texttt{mobility\_outcomes}, \texttt{mobility\_commands}, \texttt{mobility\_events}. \\
-\midrule
-\texttt{0011} & \texttt{0011\_simulation\_\allowbreak results.sql} & Tạo bảng \texttt{simulation\_results} lưu snapshot mạng, cấu hình kịch bản, chỉ số kết quả và khuyến nghị \texttt{UC13/UC14}. \\
-\midrule
-\texttt{0012} & \texttt{0012\_parking\_\allowbreak charging\_schema.sql} & Bổ sung năng lực và chính sách Hub (\texttt{power\_limit\_kw}, \texttt{immediate\_hold\_ttl\_minutes}, \texttt{late\_arrival\_grace\_minutes}, \texttt{overstay\_*}), chuẩn kết nối \texttt{connector\_type}, công suất \texttt{rated\_power\_kw} và 7 bảng mới: \texttt{parking\_reservations}, \texttt{parking\_occupancies}, \texttt{parking\_conflicts}, \texttt{charging\_requests}, \texttt{charging\_allocations}, \texttt{charging\_sessions}, \texttt{device\_commands}. \\
-\end{longtable}
-
-\subsubsection*{Cấu trúc Các Bảng Dữ liệu Lõi trong SQLite}
-
-\Cref{tab:sqlite-core-tables} tóm tắt cấu trúc khóa chính, khóa ngoại và các ràng buộc toàn vẹn mức cơ sở dữ liệu của 8 bảng quan hệ trung tâm sau khi áp dụng đầy đủ 12 lượt migration.
+Lược đồ SQLite được quản trị qua \textbf{12 lượt migration tuần tự} (\texttt{0001\_hub\_inventory.sql} đến \texttt{0012\_parking\_charging\_schema.sql}) tại \texttt{app/db/migrations/} bởi \texttt{app/db/initialize.js}, bật bắt buộc \texttt{PRAGMA foreign\_keys = ON} và \texttt{busy\_timeout = 5000}. Chuỗi migration khởi tạo đồng bộ các bảng hạ tầng Hub, khóa sở hữu chống chiếm dụng chéo, dấu mốc \texttt{pickup\_claimed}, bảng vòng đời thuê/đỗ/sạc, chống trùng lặp \textit{Idempotency-Key}, bảng sự cố/điều chuyển và kết quả mô phỏng What-if. \Cref{tab:sqlite-core-tables} tóm tắt 8 bảng quan hệ lõi.
 
 \begin{longtable}{>{\raggedright\arraybackslash\small}p{3.6cm} >{\raggedright\arraybackslash\small}p{4.3cm} >{\raggedright\arraybackslash}p{6.4cm}}
 \caption{Lược đồ khóa và ràng buộc toàn vẹn các bảng SQLite lõi} \label{tab:sqlite-core-tables} \\

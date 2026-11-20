@@ -12,13 +12,13 @@ Chương này trình bày quá trình hiện thực hóa thiết kế thành s�
 % ---------------------------------------------------
 \subsection{Cấu trúc Backend và Ứng dụng Client}
 
-\subsubsection*{Tổng hợp Công nghệ Sử dụng (Technology Stack)}
+\subsubsection*{Tổng hợp Công nghệ Sử dụng}
 
 \Cref{tab:tech-stack} tổng hợp các công nghệ được sử dụng để hiện thực máy chủ, cơ sở dữ liệu, các ứng dụng khách và bộ kiểm thử tự động.
 
 \begin{table}[H]
 \centering
-\caption{Tổng hợp ngăn xếp công nghệ (Technology Stack) của sản phẩm MVP}
+\caption{Tổng hợp ngăn xếp công nghệ của sản phẩm MVP}
 \label{tab:tech-stack}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}p{4.8cm} >{\raggedright\arraybackslash}X}
 \toprule
@@ -35,71 +35,62 @@ Kiểm thử tự động & \texttt{node:test}, JUnit, Playwright & Kiểm thử
 \end{tabularx}
 \end{table}
 
-\subsubsection*{Khối Máy chủ Modular Monolith (\texttt{app/src/})}
+\subsubsection*{Khối Máy chủ Modular Monolith}
 
-Toàn bộ phần backend được lắp ghép tại \texttt{app/src/app.js} theo mô hình \textit{Composition Root}, khởi tạo một ứng dụng Express~5 duy nhất và nối kết ba module nghiệp vụ qua các giao diện hẹp:
+Toàn bộ khối backend được lắp ghép tại một điểm khởi tạo trung tâm (\textit{Composition Root}) trên nền Express~5, kết nối ba phân hệ nghiệp vụ thông qua các giao diện tiêm phụ thuộc hẹp:
 \begin{itemize}[leftmargin=*,nosep]
-    \item \textbf{Bảo mật phiên và Bảo vệ giao dịch ở tầng HTTP (\texttt{app.js}):} Giới hạn tải trọng JSON (\texttt{64kb}), xác thực mật khẩu băm \texttt{scrypt}, cấp phát cookie phiên \texttt{demo\_session} gắn cờ \texttt{HttpOnly} và \texttt{SameSite=Strict}, đồng thời kiểm tra header \texttt{Origin} chống tấn công CSRF trên các endpoint \texttt{/api/v1/session}. Các tác vụ ghi bắt buộc đi kèm \texttt{Idempotency-Key} và trả về cấu trúc lỗi JSON thống nhất.
-    \item \textbf{Tác vụ nền định kỳ (\texttt{app/src/demo-server.js}):} Khi khởi động, máy chủ xác minh \texttt{PRAGMA user\_version === 12} và kích hoạt song song hai bộ đếm chu kỳ 30~giây (\texttt{FR-NI01}): \texttt{mobilityExpiryTimer} gọi \texttt{rentalService.\allowbreak expireReservations()} cho giữ xe công cộng và \texttt{parkingExpiryTimer} gọi \texttt{parkingService.\allowbreak runExpiryScan()} cho giữ chỗ đỗ cá nhân.
+    \item \textbf{Bảo mật phiên và bảo vệ giao dịch HTTP:} Máy chủ giới hạn tải trọng JSON ở mức \texttt{64kb}, băm mật khẩu bằng \texttt{scrypt}, cấp phát cookie phiên \texttt{HttpOnly} và \texttt{SameSite=Strict}, đồng thời kiểm tra header \texttt{Origin} để chống CSRF trên các yêu cầu phiên. Mọi tác vụ ghi yêu cầu mã \textit{Idempotency-Key} và trả về cấu trúc lỗi JSON thống nhất.
+    \item \textbf{Tác vụ nền định kỳ:} Khi khởi động, máy chủ kiểm tra phiên bản lược đồ cơ sở dữ liệu (\texttt{v12}) và kích hoạt song song hai bộ đếm chu kỳ 30~giây (\texttt{FR-NI01}) để tự động giải phóng các phiếu giữ xe dùng chung và giữ chỗ đỗ cá nhân đã quá hạn.
 \end{itemize}
 
 \begin{enumerate}[leftmargin=*,nosep]
-    \item \textbf{Module \texttt{mobility-simulation} (\texttt{UC01--UC05, UC13--UC14}):} Tổ chức đúng 4 lớp (\texttt{api/}, \texttt{application/}, \texttt{domain/}, \texttt{infrastructure/}). Tầng API phơi bày các router \texttt{discovery-router.js} (\texttt{GET /hubs}, \texttt{GET /hubs/\allowbreak :hubId/\allowbreak vehicles}), \texttt{rental-router.js} (\texttt{POST/GET /\allowbreak vehicle-reservations}, \texttt{cancel}, \texttt{pickup}, \texttt{trips}, \texttt{return-slots}, \texttt{return}) và \texttt{simulation-router.js} (\texttt{POST/GET /\allowbreak simulations}). Tầng \texttt{infrastructure} sử dụng \texttt{SimulatedDock} và \texttt{sqlite-rental-\allowbreak repository.js}, bảo đảm mọi thao tác mở khóa/khóa thiết bị diễn ra ngoài phạm vi giữ khóa ghi SQLite và dùng cờ \texttt{pickup\_claimed} chống xung đột hết hạn. Động cơ \texttt{simulation-engine.js} thực thi 5 kịch bản \textit{What-if} trên bản chụp \texttt{NetworkSnapshot} bất biến mà không làm thay đổi kho thực tế.
-    \item \textbf{Module \texttt{parking-charging} (\texttt{UC06, UC07, UC07A, UC12}):} Hiện thực nghiệp vụ xe cá nhân gắn với Migration~\texttt{0012}. Router \texttt{parking-charging-\allowbreak router.js} cung cấp API cho giữ chỗ đỗ và check-in/out (\texttt{/private-vehicles}, \texttt{/hubs/\allowbreak :hubId/\allowbreak parking-availability}, \texttt{/parking-\allowbreak reservations}, \texttt{/parking-\allowbreak occupancies}), yêu cầu và dừng phiên sạc (\texttt{/charging-\allowbreak requests}, \texttt{/charging-\allowbreak sessions/\allowbreak :id/stop}), cùng điều phối lịch sạc (\texttt{/hubs/\allowbreak :hubId/\allowbreak charging-schedule}, \texttt{/allocate}, \texttt{/override}). Hai thao tác \texttt{activateAllocation} và \texttt{confirmUnplug} được hiện thực và kiểm thử ở mức \texttt{ChargingService}, chưa mở route HTTP công khai. Tầng \textit{Application} tách \texttt{ParkingService}, \texttt{ChargingService}, \texttt{SchedulerService} và \texttt{DeviceCommandRunner} kết nối \texttt{SimulatedDeviceAdapter}; đồng thời cung cấp \texttt{createChargingGuard} sang \texttt{operations}.
-    \item \textbf{Module \texttt{operations} (\texttt{UC08--UC11A}):} Gồm \texttt{MonitoringService} (\texttt{GET /operations/hubs}), \texttt{InventoryService} (\texttt{CRUD /operations/\allowbreak resources}), \texttt{TransferService} (\texttt{/transfers/\allowbreak :id/\allowbreak depart|\allowbreak arrive|\allowbreak cancel}) và \texttt{IncidentService} (\texttt{POST /trips/\allowbreak :id/incidents}, \texttt{/incidents/\allowbreak :id/\allowbreak handle|\allowbreak resolve}). Module này sở hữu \texttt{SQLiteClient} dùng chung cho toàn bộ backend và cung cấp \texttt{InventoryInterface} cho các module ngang hàng (\Cref{fig:ops-arch}).
+    \item \textbf{Phân hệ \texttt{mobility-simulation} (\texttt{UC01--UC05, UC13--UC14}):} Tổ chức theo bốn lớp chuẩn (\textit{API}, \textit{Application}, \textit{Domain}, \textit{Infrastructure}). Tầng API cung cấp các nhóm tuyến \texttt{/hubs}, \texttt{/vehicle-reservations}, \texttt{/trips} và \texttt{/simulations}. Tầng hạ tầng dùng \texttt{SimulatedDock} để mô phỏng mở/khóa chốt bên ngoài ranh giới khóa ghi SQLite và dùng cờ \texttt{pickup\_claimed} chống xung đột hết hạn. Động cơ mô phỏng thực thi 5 kịch bản \textit{What-if} trên bản chụp \texttt{NetworkSnapshot} bất biến mà không tác động tới dữ liệu vận hành thực tế.
+    \item \textbf{Phân hệ \texttt{parking-charging} (\texttt{UC06, UC07, UC07A, UC12}):} Hiện thực nghiệp vụ đỗ xe và sạc điện qua các nhóm tuyến \texttt{/private-vehicles}, \texttt{/parking-reservations}, \texttt{/parking-occupancies}, \texttt{/charging-requests}, \texttt{/charging-sessions} và \texttt{/charging-schedule}. Hai thao tác \texttt{activateAllocation} và \texttt{confirmUnplug} đã được hiện thực và kiểm thử ở mức dịch vụ (\texttt{ChargingService}), chưa mở tuyến HTTP công khai. Tầng ứng dụng tách riêng dịch vụ đỗ xe, dịch vụ sạc, bộ lập lịch và trình điều phối lệnh thiết bị nối với \texttt{SimulatedDeviceAdapter}.
+    \item \textbf{Phân hệ \texttt{operations} (\texttt{UC08--UC11A}):} Điều phối giám sát Hub (\texttt{MonitoringService}), quản trị tài nguyên (\texttt{InventoryService}), điều chuyển xe (\texttt{TransferService}) và xử lý sự cố (\texttt{IncidentService}) thông qua các nhóm tuyến \texttt{/operations/*}, \texttt{/transfers/*}, \texttt{/trips/:id/incidents} và \texttt{/incidents/*}. Phân hệ này quản lý kết nối \texttt{SQLiteClient} dùng chung và cung cấp giao diện truy xuất tài nguyên cho hai phân hệ còn lại.
 \end{enumerate}
-
-\begin{figure}[H]
-    \centering
-    \fbox{\parbox{0.94\textwidth}{\centering\vspace{0.4cm}
-        \textbf{[Sơ đồ Kiến trúc Nội bộ Module Operations (UC08--UC11A)]}\\[4pt]
-        Nguồn tương tác HTML/SVG trực quan: \texttt{docs/architecture/operations-architecture.html}\\[2pt]
-        \small{(Thể hiện luồng từ Operator Portal / Driver App / Peer Modules $\to$ Idempotency Guard SHA-256 $\to$ Operations Router $\to$ 4 Services $\to$ SQLiteClient \texttt{BEGIN IMMEDIATE})}\vspace{0.4cm}}}
-    \caption[Kiến trúc chi tiết phân hệ Operations (\texttt{UC08--UC11A})]{Kiến trúc chi tiết phân hệ Operations (\texttt{docs/architecture/operations-architecture.html})}
-    \label{fig:ops-arch}
-\end{figure}
 
 \subsubsection*{Ứng dụng Khách: Native Android App và Operator Live Dashboard}
 
-Ở tầng \textit{Presentation}, sản phẩm MVP vận hành đồng thời trên hai kênh client thật kết nối trực tiếp tới Express API:
+Ở tầng trình diễn, sản phẩm MVP vận hành đồng thời trên hai kênh ứng dụng khách kết nối trực tiếp tới REST API:
 \begin{itemize}[leftmargin=*,nosep]
-    \item \textbf{Ứng dụng Di động Người dùng Native Android (\texttt{android/} -- PR~\#17):} Phát triển bằng ngôn ngữ \textbf{Kotlin} với \textbf{Jetpack Compose} và \textbf{Material~3}. Ứng dụng tích hợp bản đồ mã nguồn mở \textbf{MapLibre \texttt{13.7.1}} (hiển thị lớp nền OpenFreeMap), \textbf{PhotonGeocodingService} tìm kiếm địa điểm, \textbf{OsrmRoutingService} vẽ tuyến đường di chuyển giữa các Hub, và bộ quét mã QR trực tiếp qua \textbf{CameraX kết hợp ZXing} (\texttt{QrScannerDialog.kt}). Tầng mạng (\texttt{HubApiClient.kt}, \texttt{SessionCookieJar.kt}, \texttt{Idempotency\allowbreak Store.kt}) duy trì phiên cookie và mã chống trùng lặp yêu cầu cho bốn tab điều hướng (\textit{Trang chủ}, \textit{Bản đồ}, \textit{Thông báo}, \textit{Tài khoản}) cùng các màn hình \texttt{RentalScreen.kt}, \texttt{ParkingScreen.kt}, \texttt{ChargingScreen.kt}, \texttt{HistoryScreen.kt}, đáp ứng trọn vẹn \texttt{UC01--UC07A} và \texttt{UC11A}.
-    \item \textbf{Giao diện Web Vận hành và Trình xem Trực tiếp (\texttt{app/prototype/live.html} và \texttt{live.js} -- PR~\#18):} Ngoài bộ xem thiết kế tĩnh (\texttt{index.html}), mọi đường dẫn người dùng và vận hành viên khi mở qua máy chủ backend đều được định tuyến về \texttt{live.html?experience=...}. Đặc biệt, bảng điều khiển Vận hành viên (\textit{Operator Web} và \textit{Operator Mobile}) đã nối đủ API cho 6 khu vực tác nghiệp: Giám sát Hub (\texttt{UC08}), Quản trị tài nguyên kèm bộ lọc đa chiều (\texttt{UC09}), Điều chuyển xe theo từng bước (\texttt{UC10/10A/10B}), Tiếp nhận/Xử lý sự cố (\texttt{UC11}), Quản lý hàng đợi và ghi đè lịch sạc (\texttt{UC12}), cùng Thực thi và phân tích khuyến nghị mô phỏng \textit{What-if} (\texttt{UC13--UC14}).
+    \item \textbf{Ứng dụng Di động Người dùng Native Android:} Phát triển bằng \textbf{Kotlin}, \textbf{Jetpack Compose} và \textbf{Material~3}, tích hợp bản đồ \textbf{MapLibre} (nền OpenFreeMap), tìm địa điểm \textit{Photon}, dẫn đường \textit{OSRM} và quét mã QR qua \textbf{CameraX kết hợp ZXing}. Lớp mạng duy trì phiên cookie và mã \textit{Idempotency-Key} cho bốn khu vực điều hướng (\textit{Trang chủ}, \textit{Bản đồ}, \textit{Thông báo}, \textit{Tài khoản}) cùng các màn hình thuê xe, đỗ xe, sạc và lịch sử chuyến đi (\texttt{UC01--UC07A, UC11A}).
+    \item \textbf{Bảng điều khiển Web và Mobile Vận hành:} Bên cạnh chế độ duyệt 26 màn hình bản mẫu, khi chạy qua máy chủ backend, giao diện vận hành định tuyến về chế độ trực tiếp kết nối API đầy đủ cho 6 khu vực tác nghiệp: Giám sát Hub (\texttt{UC08}), Quản trị tài nguyên (\texttt{UC09}), Điều chuyển xe (\texttt{UC10/10A/10B}), Xử lý sự cố (\texttt{UC11}), Quản lý lịch sạc (\texttt{UC12}) và Mô phỏng \textit{What-if} (\texttt{UC13--UC14}).
 \end{itemize}
 
 % ---------------------------------------------------
-\subsection{Kiểm thử Phần mềm và Kịch bản Kiểm thử (Test Cases -- Bonus)}
+\subsection{Kiểm thử Phần mềm và Kịch bản Kiểm thử}
 
-Quá trình kiểm chứng chất lượng được tổ chức theo mô hình kim tự tháp kiểm thử trong Slide Ch9 (\textit{Unit Testing $\to$ Component/Integration Testing $\to$ Concurrency/System Testing $\to$ E2E Browser Testing}), sử dụng trình chạy chuẩn \texttt{node:test} cho backend, JUnit cho Android và Playwright cho giao diện trình duyệt.
+Quá trình kiểm chứng chất lượng áp dụng mô hình kim tự tháp kiểm thử (\textit{Unit $\to$ Integration $\to$ Concurrency/System $\to$ E2E Browser}), sử dụng \texttt{node:test} cho backend, JUnit cho Android và Playwright cho giao diện trình duyệt. \Cref{tab:test-inventory} thống kê quy mô bộ kiểm thử tự động của hệ thống.
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm} >{\centering\arraybackslash}p{1.6cm} >{\centering\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{7.6cm}}
-\caption{Thống kê bộ kiểm thử tự động trong kho mã nguồn hiện tại (\texttt{16d4dc0})} \label{tab:test-inventory} \\
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.6cm} >{\centering\arraybackslash}p{1.6cm} >{\centering\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{7.4cm}}
+\caption{Thống kê bộ kiểm thử tự động của hệ thống} \label{tab:test-inventory} \\
 \toprule
-\textbf{Phân hệ / Phạm vi} & \textbf{Số tệp} & \textbf{Số test} & \textbf{Danh sách tệp kiểm thử và Trọng tâm xác minh} \\
+\textbf{Phân hệ / Phạm vi} & \textbf{Số bộ} & \textbf{Số ca} & \textbf{Trọng tâm xác minh chính} \\
 \midrule
 \endfirsthead
 \toprule
-\textbf{Phân hệ / Phạm vi} & \textbf{Số tệp} & \textbf{Số test} & \textbf{Danh sách tệp kiểm thử và Trọng tâm xác minh} \\
+\textbf{Phân hệ / Phạm vi} & \textbf{Số bộ} & \textbf{Số ca} & \textbf{Trọng tâm xác minh chính} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
-\textbf{Core Backend} (\texttt{app/src/tests/}) & 6 & 12 & \texttt{dashboard-demo} (1), \texttt{database-initializer} (2), \texttt{demo-auth} (4), \texttt{demo-server} (3), \texttt{live-browser} (1), \texttt{reconnect-http} (1). Kiểm tra khởi tạo CSDL v12, xác thực cookie/CSRF, timer 30s và luồng E2E trình duyệt. \\
+\textbf{Hạ tầng \& Phiên máy chủ} & 6 & 12 & Khởi tạo lược đồ SQLite v12, xác thực cookie/CSRF, tác vụ quét hết hạn 30~giây và luồng E2E trình duyệt. \\
 \midrule
-\textbf{Mobility \& Simulation} & 8 & 27 & \texttt{capacity-integration} (2), \texttt{discovery-http} (2), \texttt{discovery-integration} (1), \texttt{discovery-service} (3), \texttt{rental-http} (1), \texttt{rental-lifecycle} (11), \texttt{simulation-http} (1), \texttt{simulation} (6). Kiểm tra tìm Hub, giữ-nhận-trả xe, tái lập mô phỏng theo seed và tranh chấp sức chứa. \\
+\textbf{Mobility \& Simulation} & 8 & 27 & Tìm Hub, vòng đời thuê--nhận--trả xe, tính xác định của mô phỏng theo hạt giống và tranh chấp sức chứa. \\
 \midrule
-\textbf{Operations} & 12 & 121 & \texttt{concurrency-regression} (2), \texttt{http-regression} (3), \texttt{idempotency-regression} (4), \texttt{incident-regression} (14), \texttt{inventory-regression} (26), \texttt{migration-regression} (5), \texttt{monitoring-regression} (3), \texttt{operations} (14), \texttt{parking-commitment} (14), \texttt{security-regression} (10), \texttt{transaction-regression} (10), \texttt{transfer-regression} (16). Kiểm chứng các ràng buộc ACID, bảo mật, chuyển trạng thái và điều chuyển. \\
+\textbf{Operations} & 12 & 121 & Giao dịch ACID, chống lặp \textit{Idempotency-Key}, bảo mật phân quyền, cách ly sự cố và điều chuyển xe. \\
 \midrule
-\textbf{Parking \& Charging} (PR~\#16) & 6 & 25 & \texttt{charging-scheduling} (4), \texttt{charging-sessions} (5), \texttt{concurrency-integration} (3), \texttt{device-adapter} (3), \texttt{http-integration} (3), \texttt{parking-reservations} (7). Kiểm tra giữ chỗ đỗ, xung đột WAL đa luồng, công suất 85\%, pin $<10\%$ và lỗi adapter. \\
+\textbf{Parking \& Charging} & 6 & 25 & Đặt chỗ đỗ, xung đột đa luồng WAL, trần công suất 85\%, ưu tiên pin $<10\%$ và lỗi bộ điều hợp sạc. \\
 \midrule
-\textbf{Tổng Backend (\texttt{node:test})} & \textbf{32} & \textbf{185} & Toàn bộ test định nghĩa trong \texttt{app/package.json} (\texttt{npm test}). \\
+\textbf{Tổng Backend (\texttt{node:test})} & \textbf{32} & \textbf{185} & Toàn bộ bộ kiểm thử tự động của máy chủ Node.js. \\
 \midrule
-\textbf{Android Client (\texttt{android/})} & 1 & 9 & \texttt{HubClientUnitTest.kt} (9 \texttt{@Test}): kiểm tra ánh xạ lỗi API (\texttt{ApiErrorMapper}), phân giải QR (\texttt{QrCodeParser}), giữ \textit{Idempotency-Key} và mô hình dữ liệu qua \texttt{./gradlew testDebugUnitTest}. \\
+\textbf{Android Client (JUnit)} & 1 & 9 & Ánh xạ lỗi API, phân giải mã QR, bảo toàn \textit{Idempotency-Key} và mô hình dữ liệu Kotlin. \\
 \midrule
-\textbf{Prototype UI Verification} & 1 & 26 màn hình & \texttt{app/prototype/verify.cjs} chạy Playwright xác nhận 26 tệp PNG (\texttt{verification.json: passed=true}) không lỗi JS và không tràn khung ở \texttt{390px} và \texttt{1280px}. \\
+\textbf{Kiểm định UI (Playwright)} & 1 & 26 màn hình & Xác nhận 26/26 màn hình bản mẫu không lỗi JavaScript và không tràn khung ở độ phân giải \texttt{390px} và \texttt{1280px}. \\
+\bottomrule
 \end{longtable}
 
-\noindent\textbf{Ghi chú minh bạch về trạng thái thực thi kiểm thử:} Báo cáo kiểm toán tại commit nền \texttt{ac21515} (\texttt{docs/audits/post-merge/EXECUTIVE\_SUMMARY.md}, trước khi sáp nhập PR~\#16, \#17 và \#18) ghi nhận \textbf{144/144 test pass} trên 25 bộ kiểm thử trong khoảng 4,5~giây; tài liệu \texttt{app/README.md} ghi nhận lượt chạy kèm Playwright đạt 169 pass, 0 fail (bỏ qua 2 test driver tùy chọn). Ở phiên bản hiện tại (\texttt{16d4dc0}), kho mã nguồn có \textbf{32 tệp / 185 test case backend} (\Cref{tab:test-inventory}) và \textbf{9 unit test Android}. Do môi trường biên dịch LaTeX hiện tại chưa cài đặt \texttt{app/node\_modules} (\texttt{express}), nhóm chưa chạy lại \texttt{npm test --prefix app} trong phiên này; cần thực thi \texttt{npm ci --prefix app \&\& npm test --prefix app} và \texttt{./gradlew testDebugUnitTest} để xác nhận kết quả pass mới nhất trước khi nộp.
+\noindent\textbf{Trạng thái thực thi kiểm thử:} Ở mốc kiểm toán trước khi hợp nhất các phân hệ giao diện mới, toàn bộ 25 bộ kiểm thử backend nền tảng đạt \textbf{144/144 ca thành công} trong khoảng 4,5~giây. Ở phiên bản hợp nhất hoàn chỉnh hiện tại gồm \textbf{32 bộ / 185 ca kiểm thử backend} (\Cref{tab:test-inventory}) và \textbf{9 unit test Android}, việc chạy lại trọn bộ kiểm thử sau hợp nhất trên môi trường cài đặt đầy đủ phụ thuộc cần được thực thi và ghi nhận kết quả xác nhận cuối cùng trước khi nghiệm thu.
 
 \Cref{tab:key-test-cases} mô tả chi tiết 10 ca kiểm thử đại diện cho các rủi ro kỹ thuật trọng yếu của hệ thống.
 
@@ -138,11 +129,11 @@ Quá trình kiểm chứng chất lượng được tổ chức theo mô hình k
 \end{longtable}
 
 % ---------------------------------------------------
-\subsection{Trình diễn Sản phẩm Mẫu (Working Demonstration)}
+\subsection{Trình diễn Sản phẩm Mẫu}
 
-Đáp ứng yêu cầu của đề bài CO3001 về trình diễn chuỗi màn hình chạy thực tế (\textit{``A working demonstration by sequence of screens''}, trang~5), mục này sử dụng \textbf{13 ảnh chụp trực tiếp từ ứng dụng Android và trình duyệt} trong \texttt{docs/assets/demo/} (tách biệt hoàn toàn với 26 ảnh mockup tĩnh tại \texttt{app/prototype/screens/}). Hướng dẫn khởi tạo cơ sở dữ liệu mẫu (\texttt{npm run db:init --prefix app \&\& npm run db:dashboard-demo --prefix app}) và tài khoản trình diễn (\texttt{provision-demo.ps1}) được lưu tại \texttt{docs/architecture/MINH\_DEMO\_GUIDE.md}.
+Đáp ứng yêu cầu trình diễn chuỗi màn hình chạy thực tế của học phần CO3001, mục này sử dụng \textbf{13 ảnh chụp trực tiếp từ ứng dụng Android và trình duyệt} (tách biệt với 26 màn hình bản mẫu tĩnh ở Chương~2) để minh họa các kịch bản hoạt động khép kín trên hệ thống MVP.
 
-\subsubsection*{Chuỗi Trình diễn 1: Ứng dụng Native Android cho Người dùng (\texttt{UC01--UC07A, UC11A})}
+\subsubsection*{Chuỗi Trình diễn 1: Ứng dụng Native Android cho Người dùng}
 
 \begin{enumerate}[leftmargin=*,nosep]
     \item \textbf{Khám phá Hub, Bản đồ và Đặt giữ xe (\Cref{fig:demo-user-1}):} Sau khi đăng nhập (\texttt{POST /api/v1/session}), màn hình chính tải danh sách Hub từ \texttt{GET /api/v1/hubs}; màn hình bản đồ hiển thị trạm qua MapLibre/OpenFreeMap kết hợp tìm địa điểm Photon và dẫn đường OSRM; màn hình thuê xe cho phép chọn loại xe và phát hành giữ chỗ 15~phút (\texttt{POST /api/v1/vehicle-reservations}).
@@ -167,7 +158,7 @@ Quá trình kiểm chứng chất lượng được tổ chức theo mô hình k
         \includegraphics[width=\textwidth]{../../../docs/assets/demo/android-rental.png}
         \caption*{c) Chọn Hub và đặt giữ xe (\texttt{UC03})}
     \end{minipage}
-    \caption{Trình diễn Android -- Khám phá Hub, bản đồ và đặt giữ xe dùng chung (\texttt{docs/assets/demo/})}
+    \caption{Trình diễn Android -- Khám phá Hub, bản đồ và đặt giữ xe dùng chung}
     \label{fig:demo-user-1}
 \end{figure}
 
@@ -183,7 +174,7 @@ Quá trình kiểm chứng chất lượng được tổ chức theo mô hình k
         \includegraphics[width=\textwidth]{../../../docs/assets/demo/android-active-trip.png}
         \caption*{b) Hành trình đang chạy \& Báo sự cố (\texttt{UC05/11A})}
     \end{minipage}
-    \caption{Trình diễn Android -- Nhận xe qua QR, theo dõi chuyến đi và báo sự cố (\texttt{docs/assets/demo/})}
+    \caption{Trình diễn Android -- Nhận xe qua QR, theo dõi chuyến đi và báo sự cố}
     \label{fig:demo-user-2}
 \end{figure}
 
@@ -199,17 +190,17 @@ Quá trình kiểm chứng chất lượng được tổ chức theo mô hình k
         \includegraphics[width=\textwidth]{../../../docs/assets/demo/android-charging.png}
         \caption*{b) Gửi yêu cầu sạc xe cá nhân (\texttt{UC07})}
     \end{minipage}
-    \caption{Trình diễn Android -- Nghiệp vụ đỗ và sạc phương tiện cá nhân (\texttt{docs/assets/demo/})}
+    \caption{Trình diễn Android -- Nghiệp vụ đỗ và sạc phương tiện cá nhân}
     \label{fig:demo-user-3}
 \end{figure}
 
-\subsubsection*{Chuỗi Trình diễn 2: Operator Live Web và Mobile Console (\texttt{UC08--UC14})}
+\subsubsection*{Chuỗi Trình diễn 2: Giao diện Quản trị Web và Di động cho Nhân viên Vận hành}
 
-Kịch bản trình diễn được khởi tạo bằng \texttt{create-dashboard-demo.js}, dựng bối cảnh Ký túc xá khu A đầy bãi, trụ \texttt{metro-C03} gặp sự cố \texttt{INC-DEMO-METRO-C03} và 4 yêu cầu sạc đang chờ:
+Kịch bản trình diễn được dựng sẵn bối cảnh Ký túc xá khu A đầy bãi, trụ \texttt{metro-C03} gặp sự cố \texttt{INC-DEMO-METRO-C03} và 4 yêu cầu sạc đang chờ:
 \begin{enumerate}[leftmargin=*,nosep]
-    \item \textbf{Giám sát mạng lưới và Quản trị tài nguyên (\Cref{fig:demo-op-1}):} \texttt{Operator} truy cập \texttt{/operator-web.html} (\texttt{live.js}), quan sát thẻ cảnh báo ngưỡng tại Hub Ký túc xá khu A (\texttt{UC08}) và lọc/cập nhật trạng thái phương tiện, chỗ đỗ, cổng sạc (\texttt{UC09}).
+    \item \textbf{Giám sát mạng lưới và Quản trị tài nguyên (\Cref{fig:demo-op-1}):} \texttt{Operator} truy cập bảng điều khiển web, quan sát thẻ cảnh báo ngưỡng tại Hub Ký túc xá khu A (\texttt{UC08}) và lọc/cập nhật trạng thái phương tiện, chỗ đỗ, cổng sạc (\texttt{UC09}).
     \item \textbf{Xử lý sự cố và Điều phối lịch sạc (\Cref{fig:demo-op-2}):} Tại tab \textit{Sự cố}, nhân viên tiếp nhận \texttt{INC-DEMO-METRO-C03}, xác nhận cách ly và hoàn tất xử lý (\texttt{UC11}). Tại tab \textit{Lịch sạc}, hệ thống hiển thị tổng công suất phân bổ so với ngưỡng \texttt{power\_limit\_kw} và cho phép cấp trụ hoặc ghi đè ưu tiên (\texttt{UC12}).
-    \item \textbf{Mô phỏng What-if và Giao diện Mobile hiện trường (\Cref{fig:demo-op-3}):} Tab \textit{Mô phỏng What-if} thực thi kịch bản trên bản chụp bất biến (\texttt{UC13--14}) và chuyển phương án điều chuyển xe sang quy trình \texttt{Operations} (\texttt{UC10}). Giao diện \texttt{/operator-app.html} dùng chung API cho thao tác hiện trường trên thiết bị di động.
+    \item \textbf{Mô phỏng What-if và Giao diện Mobile hiện trường (\Cref{fig:demo-op-3}):} Tab \textit{Mô phỏng What-if} thực thi kịch bản trên bản chụp bất biến (\texttt{UC13--14}) và chuyển phương án điều chuyển xe sang quy trình vận hành (\texttt{UC10}). Giao diện di động dùng chung API cho thao tác hiện trường.
 \end{enumerate}
 
 \begin{figure}[H]
@@ -224,7 +215,7 @@ Kịch bản trình diễn được khởi tạo bằng \texttt{create-dashboard
         \includegraphics[width=\textwidth]{../../../docs/assets/demo/admin-resources.png}
         \caption*{b) Quản trị và lọc tài nguyên Hub (\texttt{UC09})}
     \end{minipage}
-    \caption{Operator Live Dashboard -- Giám sát mạng lưới và quản trị tài nguyên (\texttt{docs/assets/demo/})}
+    \caption{Operator Live Dashboard -- Giám sát mạng lưới và quản trị tài nguyên}
     \label{fig:demo-op-1}
 \end{figure}
 
@@ -240,7 +231,7 @@ Kịch bản trình diễn được khởi tạo bằng \texttt{create-dashboard
         \includegraphics[width=\textwidth]{../../../docs/assets/demo/admin-charging.png}
         \caption*{b) Điều phối hàng đợi và lịch sạc (\texttt{UC12})}
     \end{minipage}
-    \caption{Operator Live Dashboard -- Xử lý sự cố kỹ thuật và phân bổ lịch sạc (\texttt{docs/assets/demo/})}
+    \caption{Operator Live Dashboard -- Xử lý sự cố kỹ thuật và phân bổ lịch sạc}
     \label{fig:demo-op-2}
 \end{figure}
 
@@ -254,16 +245,16 @@ Kịch bản trình diễn được khởi tạo bằng \texttt{create-dashboard
     \begin{minipage}[t]{0.36\textwidth}
         \centering
         \includegraphics[width=\textwidth]{../../../docs/assets/demo/operator-mobile.png}
-        \caption*{b) Operator Mobile (\texttt{/operator-app.html})}
+        \caption*{b) Giao diện Operator Mobile}
     \end{minipage}
-    \caption{Operator Live Dashboard -- Mô phỏng What-if và giao diện di động hiện trường (\texttt{docs/assets/demo/})}
+    \caption{Operator Live Dashboard -- Mô phỏng What-if và giao diện di động hiện trường}
     \label{fig:demo-op-3}
 \end{figure}
 
 % ---------------------------------------------------
 \subsection{Hướng dẫn Cài đặt và Khởi chạy Demo}
 
-Quy trình cài đặt và chạy thử cục bộ (chi tiết tại \texttt{app/README.md}, \texttt{docs/architecture/MINH\_DEMO\_GUIDE.md} và \texttt{android/README.md}) gồm bốn bước:
+Quy trình cài đặt và chạy thử cục bộ gồm bốn bước cơ bản:
 
 \begin{enumerate}[leftmargin=*,nosep]
     \item \textbf{Yêu cầu môi trường:} Cài đặt \textbf{Node.js} (phiên bản 22 hoặc 24) và \textbf{npm}; dùng Android Studio hoặc JDK để biên dịch ứng dụng \texttt{android/}.

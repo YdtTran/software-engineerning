@@ -3,76 +3,142 @@
 % Nguồn: app/prototype/, docs/diagrams/02_Sequence_Diagram/, 03_Activity_Diagram/, 04_Statechart_Diagram/
 % Slide tham chiếu: 06_Ch6 System Modeling_2025.pdf (Interaction & Behavioral Models)
 % ===================================================
-\section{Mô hình Động và Thiết kế Giao diện (Dynamic Models and UI Design)}
+\section{Mô hình Động và Thiết kế Giao diện}
 
-\subsection{Thiết kế Giao diện UI (UI Design: Mockup -- 26 Màn hình)}
+\subsection{Thiết kế Giao diện Người dùng}
 
-\subsubsection*{Triết lý Thiết kế: Hai Luồng Nghiệp vụ và Ba Giao diện Độc lập}
-Bản mẫu giao diện (\textit{UI Mockup}) được xây dựng bằng HTML5, CSS3 và JavaScript thuần tại \texttt{app/prototype/} (\texttt{index.html}, \texttt{app.js}, \texttt{styles.css}), sử dụng bảng màu Primary Navy \texttt{\#152584}, Accent Cyan \texttt{\#00B8D6} và nền \texttt{\#F2F5F9}. Hệ thống tách biệt ba giao diện theo thẩm quyền tác nghiệp (nút chuyển trên thanh công cụ của \texttt{index.html} chỉ phục vụ duyệt thiết kế ngoại tuyến, không phải cơ chế đổi quyền trên máy chủ):
+\subsubsection*{Kiến trúc Hai Luồng Nghiệp vụ và Ba Giao diện Độc lập}
+Bản mẫu giao diện (\textit{UI Mockup}) được thiết kế bằng HTML5, CSS3 và JavaScript thuần với bảng màu nhất quán (Primary Navy \texttt{\#152584}, Accent Cyan \texttt{\#00B8D6} và nền \texttt{\#F2F5F9}). Hệ thống tách biệt ba giao diện theo thẩm quyền tác nghiệp:
 \begin{enumerate}[leftmargin=*,nosep]
-    \item \textbf{Mobile User App (bản mẫu trong \texttt{index.html}):} Trình bày luồng người dùng cuối thực hiện \texttt{UC01--UC07} trên thiết bị di động (không cung cấp giao diện Web PC đặt xe cho \texttt{User}). Ở sản phẩm chạy thật, luồng này được hiện thực bằng ứng dụng Native Android (\texttt{android/}) và client Flutter (\texttt{app/flutter\_mobile/}).
-    \item \textbf{Mobile Operator App (\texttt{/operator-app.html}):} Giao diện thẻ di động tối ưu thao tác một tay cho \texttt{Operator} hiện trường qua thanh điều hướng dưới và menu \texttt{\#op-menu}; khi chạy qua máy chủ Express sẽ chuyển hướng tới \texttt{live.html?\allowbreak experience=operator-app}.
-    \item \textbf{Desktop Operator Web Dashboard (\texttt{/operator-web.html}):} Bảng điều khiển trên máy tính với thanh bên, thẻ KPI, bản đồ MapLibre và bảng dữ liệu phân tích \textit{What-if}; chuyển hướng tới \texttt{live.html?\allowbreak experience=operator-web}.
+    \item \textbf{Ứng dụng Di động Người dùng (User Mobile App):} Phục vụ người dùng cuối thực hiện các tác vụ tìm trạm, đặt/nhận/trả xe dùng chung và đặt chỗ đỗ/sạc xe cá nhân (\texttt{UC01--UC07A, UC11A}); không cung cấp cổng web máy tính đặt xe cho \texttt{User}. Khi triển khai thực tế, luồng này được hiện thực bằng ứng dụng Native Android và Flutter.
+    \item \textbf{Ứng dụng Di động Vận hành (Operator Mobile App):} Giao diện thẻ di động tối ưu thao tác một tay cho nhân viên hiện trường thông qua thanh điều hướng dưới và menu tác nghiệp.
+    \item \textbf{Bảng điều khiển Web Vận hành (Operator Web Dashboard):} Giao diện máy tính với thanh điều hướng bên, thẻ KPI, bản đồ mạng Hub và bảng phân tích mô phỏng \textit{What-if}.
 \end{enumerate}
 
-\Cref{fig:ui-user-board} trình bày chuỗi màn hình thiết kế của phân hệ Người dùng (từ tìm Hub, xem xe, đặt giữ đến đỗ và sạc xe cá nhân), còn \Cref{fig:ui-operator-board} tổng hợp các màn hình của phân hệ Vận hành trên cả giao diện di động và desktop (bản xuất đầy đủ gồm 14 trang A4 Landscape trong \texttt{app/prototype/UI-UX.pdf}).
+\Cref{fig:ui-user-board} và \Cref{fig:ui-operator-board} minh họa phong cách thị giác tổng thể của hai phân hệ, còn \textbf{đầy đủ 26/26 màn hình bản mẫu} được nhúng trực tiếp trong báo cáo từ \Cref{fig:ui-user-rental} đến \Cref{fig:ui-op-web-2} để người đọc theo dõi trọn vẹn không cần truy cập kho mã nguồn. Ảnh chụp giao diện thực tế khi chạy sản phẩm được trình bày riêng ở Chương~4 (\Cref{fig:demo-user-1}--\Cref{fig:demo-op-3}).
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{../../../app/prototype/design-board.png}
-    % Nguồn ảnh: app/prototype/design-board.png
-    \caption{Tổng quan giao diện Mobile Người dùng (\texttt{app/prototype/design-board.png})}
+    \includegraphics[width=0.92\textwidth]{../../../app/prototype/design-board.png}
+    \caption{Bảng mẫu thiết kế giao diện Mobile Người dùng}
     \label{fig:ui-user-board}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{../../../app/prototype/operator-app-board.png}
-    % Nguồn ảnh: app/prototype/operator-app-board.png
-    \caption[Tổng quan giao diện Mobile và Web Vận hành]{Tổng quan giao diện Mobile và Web Vận hành (\texttt{app/prototype/operator-app-board.png})}
+    \includegraphics[width=0.92\textwidth]{../../../app/prototype/operator-app-board.png}
+    \caption{Bảng mẫu thiết kế giao diện Mobile và Web Vận hành}
     \label{fig:ui-operator-board}
 \end{figure}
 
-\subsubsection*{Ánh xạ 14 Use Cases sang 26 Màn hình và Kiểm định Playwright}
-\Cref{tab:ui-26-screens} đối chiếu toàn bộ 26 tệp ảnh giao diện tại \texttt{app/prototype/screens/} với mã Use Case tương ứng. Bộ kiểm thử tự động \texttt{app/prototype/verify.cjs} chạy trên Playwright xác nhận 26/26 màn hình hiển thị không lỗi JavaScript (\textit{console error}) và không tràn bố cục ngang trên cả Mobile (\texttt{390px}) và Desktop (\texttt{1280px}), kết quả lưu tại \texttt{app/prototype/verification.json} (\texttt{passed: true}).
+\subsubsection*{Ánh xạ 14 Use Cases sang 26 Màn hình và Kiểm định Bố cục}
+\Cref{tab:ui-26-screens} đối chiếu toàn bộ 26 màn hình bản mẫu với mã Use Case và hình minh họa trực tiếp trong tài liệu. Kiểm thử tự động bằng Playwright trên hai độ phân giải chuẩn Mobile (\texttt{390px}) và Desktop (\texttt{1280px}) xác nhận cả 26 màn hình hiển thị không lỗi JavaScript và không tràn bố cục ngang.
 
-\begin{longtable}{>{\centering\arraybackslash}p{1.4cm} >{\raggedright\arraybackslash}p{3.9cm} >{\centering\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}p{6.8cm}}
-\caption{Bảng ánh xạ 14 Use Cases sang 26 màn hình giao diện (\texttt{app/prototype/screens/})} \label{tab:ui-26-screens} \\
+\begin{longtable}{>{\centering\arraybackslash}p{1.3cm} >{\raggedright\arraybackslash}p{3.8cm} >{\centering\arraybackslash}p{2.0cm} >{\raggedright\arraybackslash}p{7.0cm}}
+\caption{Bảng ánh xạ 14 Use Case sang 26 màn hình giao diện} \label{tab:ui-26-screens} \\
 \toprule
-\textbf{Mã UC} & \textbf{Nhóm nghiệp vụ} & \textbf{Nền tảng} & \textbf{Màn hình và tệp ảnh (\texttt{screens/})} \\
+\textbf{Mã UC} & \textbf{Nhóm nghiệp vụ} & \textbf{Nền tảng} & \textbf{Màn hình \& Vị trí xem trong báo cáo} \\
 \midrule
 \endfirsthead
 \toprule
-\textbf{Mã UC} & \textbf{Nhóm nghiệp vụ} & \textbf{Nền tảng} & \textbf{Màn hình và tệp ảnh (\texttt{screens/})} \\
+\textbf{Mã UC} & \textbf{Nhóm nghiệp vụ} & \textbf{Nền tảng} & \textbf{Màn hình \& Vị trí xem trong báo cáo} \\
 \midrule
 \endhead
 \bottomrule
 \endfoot
--- & Trang chủ, Thông báo, Tài khoản & Mobile User & \texttt{home.png}, \texttt{notifications.png}, \texttt{account.png} \\
-\texttt{UC01} & Tìm kiếm Hub di chuyển & Mobile User & \texttt{map.png} (\texttt{\#map}) \\
-\texttt{UC02} & Xem xe khả dụng & Mobile User & \texttt{vehicles.png} (\texttt{\#vehicles}) \\
-\texttt{UC03} & Đặt giữ xe và Phiếu giữ & Mobile User & \texttt{reserve.png}, \texttt{ticket.png} \\
-\texttt{UC04} & Nhận xe tại Hub & Mobile User & \texttt{pickup.png} (\texttt{\#pickup}) \\
-\texttt{UC05} & Hành trình và Trả xe & Mobile User & \texttt{trip.png} (\texttt{\#trip}) \\
-\texttt{UC06} & Đặt chỗ đỗ xe cá nhân & Mobile User & \texttt{parking.png} (\texttt{\#parking}) \\
-\texttt{UC07} & Yêu cầu sạc điện & Mobile User & \texttt{charging.png} (\texttt{\#charging}) \\
-\texttt{UC08} & Giám sát mạng lưới Hub & Web \& Mob Op & \texttt{overview.png}, \texttt{op-mobile-overview.png} \\
-\texttt{UC09} & Quản lý tài nguyên & Web \& Mob Op & \texttt{resources.png}, \texttt{op-mobile-resources.png} \\
-\texttt{UC10} & Điều phối cân bằng xe & Web \& Mob Op & \texttt{redistribute.png}, \texttt{op-mobile-redistribute.png} \\
-\texttt{UC11} & Xử lý sự cố vận hành & Web \& Mob Op & \texttt{incidents.png}, \texttt{op-mobile-incidents.png} \\
-\texttt{UC12} & Quản lý lịch sạc & Web \& Mob Op & \texttt{schedule.png}, \texttt{op-mobile-schedule.png} \\
-\texttt{UC13} & Chạy mô phỏng What-if & Web \& Mob Op & \texttt{simulation.png}, \texttt{op-mobile-simulation.png} \\
-\texttt{UC14} & Xem kết quả mô phỏng & Web \& Mob Op & \texttt{results.png}, \texttt{op-mobile-results.png} \\
--- & Menu điều hướng Operator & Mobile Op & \texttt{op-mobile-op-menu.png} (\texttt{\#op-menu}) \\
+-- & Trang chủ, Thông báo, Tài khoản & Mobile User & \texttt{home}, \texttt{notifications}, \texttt{account} (\Cref{fig:ui-user-rental}, \Cref{fig:ui-user-parking}) \\
+\texttt{UC01} & Tìm kiếm Hub di chuyển & Mobile User & \texttt{map} (\texttt{\#map}, \Cref{fig:ui-user-rental}) \\
+\texttt{UC02} & Xem xe khả dụng & Mobile User & \texttt{vehicles} (\texttt{\#vehicles}, \Cref{fig:ui-user-rental}) \\
+\texttt{UC03} & Đặt giữ xe và Phiếu giữ & Mobile User & \texttt{reserve}, \texttt{ticket} (\Cref{fig:ui-user-rental}) \\
+\texttt{UC04} & Nhận xe tại Hub & Mobile User & \texttt{pickup} (\texttt{\#pickup}, \Cref{fig:ui-user-rental}) \\
+\texttt{UC05} & Hành trình và Trả xe & Mobile User & \texttt{trip} (\texttt{\#trip}, \Cref{fig:ui-user-parking}) \\
+\texttt{UC06} & Đặt chỗ đỗ xe cá nhân & Mobile User & \texttt{parking} (\texttt{\#parking}, \Cref{fig:ui-user-parking}) \\
+\texttt{UC07} & Yêu cầu sạc điện & Mobile User & \texttt{charging} (\texttt{\#charging}, \Cref{fig:ui-user-parking}) \\
+\texttt{UC08} & Giám sát mạng lưới Hub & Web \& Mob Op & \texttt{overview}, \texttt{op-mobile-overview} (\Cref{fig:ui-op-mobile}, \Cref{fig:ui-op-web-1}) \\
+\texttt{UC09} & Quản lý tài nguyên & Web \& Mob Op & \texttt{resources}, \texttt{op-mobile-resources} (\Cref{fig:ui-op-mobile}, \Cref{fig:ui-op-web-1}) \\
+\texttt{UC10} & Điều phối cân bằng xe & Web \& Mob Op & \texttt{redistribute}, \texttt{op-mobile-redistribute} (\Cref{fig:ui-op-mobile}, \Cref{fig:ui-op-web-1}) \\
+\texttt{UC11} & Xử lý sự cố vận hành & Web \& Mob Op & \texttt{incidents}, \texttt{op-mobile-incidents} (\Cref{fig:ui-op-mobile}, \Cref{fig:ui-op-web-1}) \\
+\texttt{UC12} & Quản lý lịch sạc & Web \& Mob Op & \texttt{schedule}, \texttt{op-mobile-schedule} (\Cref{fig:ui-op-mobile}, \Cref{fig:ui-op-web-2}) \\
+\texttt{UC13} & Chạy mô phỏng What-if & Web \& Mob Op & \texttt{simulation}, \texttt{op-mobile-simulation} (\Cref{fig:ui-op-mobile}, \Cref{fig:ui-op-web-2}) \\
+\texttt{UC14} & Xem kết quả mô phỏng & Web \& Mob Op & \texttt{results}, \texttt{op-mobile-results} (\Cref{fig:ui-op-mobile}, \Cref{fig:ui-op-web-2}) \\
+-- & Menu điều hướng Operator & Mobile Op & \texttt{op-mobile-op-menu} (\texttt{\#op-menu}, \Cref{fig:ui-op-mobile}) \\
 \end{longtable}
 
-\subsubsection*{Luồng Chuyển màn hình (Screen Flow) và Thành phần Tương tác Cốt lõi}
+\begin{figure}[H]
+    \centering
+    {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/home.png}}\par\scriptsize Trang chủ (\texttt{home})\end{minipage}\hfill
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/map.png}}\par\scriptsize \texttt{UC01}: Tìm Hub (\texttt{map})\end{minipage}\hfill
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/vehicles.png}}\par\scriptsize \texttt{UC02}: Xe khả dụng (\texttt{vehicles})\end{minipage}\par\medskip
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/reserve.png}}\par\scriptsize \texttt{UC03}: Đặt giữ (\texttt{reserve})\end{minipage}\hfill
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/ticket.png}}\par\scriptsize \texttt{UC03}: Phiếu giữ (\texttt{ticket})\end{minipage}\hfill
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/pickup.png}}\par\scriptsize \texttt{UC04}: Nhận xe (\texttt{pickup})\end{minipage}
+    }
+    \caption{Giao diện Ứng dụng Người dùng (1/2): Khám phá Hub, đặt giữ và nhận xe}
+    \label{fig:ui-user-rental}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/trip.png}}\par\scriptsize \texttt{UC05/11A}: Trả xe (\texttt{trip})\end{minipage}\hfill
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/parking.png}}\par\scriptsize \texttt{UC06}: Đỗ xe cá nhân\end{minipage}\hfill
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/charging.png}}\par\scriptsize \texttt{UC07}: Yêu cầu sạc\end{minipage}\par\medskip
+    \hspace*{\fill}
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/notifications.png}}\par\scriptsize Thông báo (\texttt{notifications})\end{minipage}\hspace{0.05\textwidth}
+    \begin{minipage}[t]{0.29\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/account.png}}\par\scriptsize Tài khoản (\texttt{account})\end{minipage}
+    \hspace*{\fill}
+    }
+    \caption{Giao diện Ứng dụng Người dùng (2/2): Hành trình, trả xe và dịch vụ phương tiện cá nhân}
+    \label{fig:ui-user-parking}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}
+    \begin{minipage}[t]{0.23\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.28\textheight,keepaspectratio]{../../../app/prototype/screens/op-mobile-op-menu.png}}\par\scriptsize Menu Operator\end{minipage}\hfill
+    \begin{minipage}[t]{0.23\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.28\textheight,keepaspectratio]{../../../app/prototype/screens/op-mobile-overview.png}}\par\scriptsize \texttt{UC08}: Tổng quan\end{minipage}\hfill
+    \begin{minipage}[t]{0.23\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.28\textheight,keepaspectratio]{../../../app/prototype/screens/op-mobile-resources.png}}\par\scriptsize \texttt{UC09}: Tài nguyên\end{minipage}\hfill
+    \begin{minipage}[t]{0.23\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.28\textheight,keepaspectratio]{../../../app/prototype/screens/op-mobile-redistribute.png}}\par\scriptsize \texttt{UC10}: Điều chuyển\end{minipage}\par\medskip
+    \begin{minipage}[t]{0.23\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.28\textheight,keepaspectratio]{../../../app/prototype/screens/op-mobile-incidents.png}}\par\scriptsize \texttt{UC11}: Sự cố\end{minipage}\hfill
+    \begin{minipage}[t]{0.23\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.28\textheight,keepaspectratio]{../../../app/prototype/screens/op-mobile-schedule.png}}\par\scriptsize \texttt{UC12}: Lịch sạc\end{minipage}\hfill
+    \begin{minipage}[t]{0.23\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.28\textheight,keepaspectratio]{../../../app/prototype/screens/op-mobile-simulation.png}}\par\scriptsize \texttt{UC13}: Mô phỏng\end{minipage}\hfill
+    \begin{minipage}[t]{0.23\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.28\textheight,keepaspectratio]{../../../app/prototype/screens/op-mobile-results.png}}\par\scriptsize \texttt{UC14}: Kết quả\end{minipage}
+    }
+    \caption{Bộ 8 màn hình Ứng dụng Di động Nhân viên Vận hành}
+    \label{fig:ui-op-mobile}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}
+    \begin{minipage}[b]{0.48\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/overview.png}}\par\scriptsize \texttt{UC08}: Tổng quan mạng Hub (\texttt{overview})\end{minipage}\hfill
+    \begin{minipage}[b]{0.48\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/resources.png}}\par\scriptsize \texttt{UC09}: Quản trị tài nguyên (\texttt{resources})\end{minipage}\par\medskip
+    \begin{minipage}[b]{0.48\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/redistribute.png}}\par\scriptsize \texttt{UC10}: Điều chuyển xe (\texttt{redistribute})\end{minipage}\hfill
+    \begin{minipage}[b]{0.48\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/incidents.png}}\par\scriptsize \texttt{UC11}: Xử lý sự cố (\texttt{incidents})\end{minipage}
+    }
+    \caption{Bảng điều khiển Web Vận hành (1/2): Giám sát, tài nguyên, điều chuyển và sự cố}
+    \label{fig:ui-op-web-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    {\setlength{\fboxsep}{0pt}\setlength{\fboxrule}{0.4pt}
+    \begin{minipage}[b]{0.48\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/schedule.png}}\par\scriptsize \texttt{UC12}: Điều phối lịch sạc (\texttt{schedule})\end{minipage}\hfill
+    \begin{minipage}[b]{0.48\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/simulation.png}}\par\scriptsize \texttt{UC13}: Cấu hình What-if (\texttt{simulation})\end{minipage}\par\medskip
+    \begin{minipage}[b]{0.56\textwidth}\centering\fbox{\includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{../../../app/prototype/screens/results.png}}\par\scriptsize \texttt{UC14}: Kết quả và Khuyến nghị What-if (\texttt{results})\end{minipage}
+    }
+    \caption{Bảng điều khiển Web Vận hành (2/2): Lịch sạc và mô phỏng kịch bản}
+    \label{fig:ui-op-web-2}
+\end{figure}
+
+\subsubsection*{Luồng Chuyển màn hình và Thành phần Tương tác Cốt lõi}
 
 Để liên kết 26 màn hình rời rạc thành chuỗi tác nghiệp khép kín, \Cref{tab:screen-flow} tóm tắt các tuyến điều hướng chính và \Cref{tab:ui-components} chú thích các thành phần điều khiển trọng tâm trên những màn hình tiêu biểu.
 
 \begin{table}[H]
 \centering
-\caption{Tổng hợp luồng chuyển màn hình (Screen Flow) trên hai phân hệ}
+\caption{Tổng hợp luồng chuyển màn hình trên hai phân hệ}
 \label{tab:screen-flow}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}p{4.8cm} >{\raggedright\arraybackslash}X}
 \toprule
@@ -105,25 +171,27 @@ Phân tích What-if (\texttt{UC13--14}) & \texttt{\#simulation} $\to$ \texttt{\#
 \end{tabularx}
 \end{table}
 
-\subsection{Mô hình Tương tác: Sơ đồ Tuần tự (Sequence Diagrams -- SQ01--SQ07)}
+\subsection{Mô hình Tương tác: Sơ đồ Tuần tự}
 
-Theo bài giảng CO3001 (Ch6 tr.~21--26), nhóm xây dựng 7 sơ đồ tuần tự chuẩn UML (\texttt{SQ01--SQ07}) đặt tác nhân bên trái, phân tách lớp biên giao diện (\texttt{:MobileApp}, \texttt{:Operator\allowbreak Dashboard}), lớp điều phối nghiệp vụ (\texttt{:Reservation}, \texttt{:Pickup}, \texttt{:Return}, \texttt{:Charging}, \texttt{:Transfer}, \texttt{:Incident}, \texttt{:Simulation}) và bộ điều hợp thiết bị (\texttt{:Simulated\allowbreak Dock}, \texttt{:Simulated\allowbreak Charger}). Toàn bộ thao tác I/O với phần cứng hoặc bộ giả lập khóa chốt được đặt \textbf{bên ngoài ranh giới khóa giao dịch cơ sở dữ liệu}, tránh treo khóa ghi \texttt{BEGIN IMMEDIATE} khi thiết bị chậm phản hồi. Tổng hợp phạm vi và truy vết 7 sơ đồ tuần tự được trình bày tại \Cref{tab:sq-overview} và minh họa tại \Cref{fig:sq-01-02}--\Cref{fig:sq-05-07}.
+Theo quy chuẩn UML của học phần, hệ thống xây dựng \textbf{7 sơ đồ tuần tự} tương ứng với năm luồng nghiệp vụ chính (\textit{Thuê và Trả xe}, \textit{Sạc điện}, \textit{Điều chuyển xe}, \textit{Vận hành Hub} và \textit{Mô phỏng What-if}). Mỗi sơ đồ đặt tác nhân ngoài bên trái (\texttt{User} hoặc \texttt{Operator}), phân tách lớp biên giao diện (\texttt{:MobileApp}, \texttt{:OperatorDashboard}, \texttt{:SimulationUI}), lớp điều phối nghiệp vụ và bộ điều hợp thiết bị hiện trường (\texttt{:SimulatedDock} ở hai sơ đồ nhận và trả xe).
+
+Riêng luồng Đặt chỗ đỗ xe cá nhân (\texttt{UC06-S1/S2/S3}) cùng các nhánh ngoại lệ và vòng đời mở rộng (\texttt{UC07A}, \texttt{UC10A/B}, \texttt{UC11A}, \texttt{UC12}) được trình bày chi tiết qua bộ sơ đồ hoạt động ở mục tiếp theo. \Cref{tab:sq-overview} tổng hợp phạm vi và vị trí minh họa của 7 sơ đồ tuần tự (\Cref{fig:sq-01-02}--\Cref{fig:sq-06-07}).
 
 \begin{table}[H]
 \centering
-\caption[Phạm vi và truy vết 7 Sơ đồ Tuần tự (\texttt{SQ01--SQ07})]{Phạm vi và truy vết 7 Sơ đồ Tuần tự (\texttt{docs/diagrams/02\_Sequence\_Diagram/drawio/})}
+\caption{Phạm vi và truy vết 7 Sơ đồ Tuần tự}
 \label{tab:sq-overview}
-\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{1.1cm} >{\centering\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash\footnotesize}p{5.5cm}}
+\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{1.0cm} >{\centering\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash\small}p{3.6cm}}
 \toprule
-\textbf{Mã} & \textbf{Use Case} & \textbf{Tương tác và kết quả minh họa} & \textbf{Tệp nguồn Draw.io} \\
+\textbf{Mã} & \textbf{Use Case} & \textbf{Tương tác chính và điểm kết thúc minh họa} & \textbf{Luồng \& Hình minh họa} \\
 \midrule
-\texttt{SQ01} & \texttt{UC03} & Kiểm tra điều kiện, giữ xe 15 phút và trả mã phiếu. & \texttt{SQ01-Reserve\_\allowbreak Vehicle.drawio} \\
-\texttt{SQ02} & \texttt{UC04} & Đánh dấu nhận chỗ, mở khóa qua \texttt{SimulatedDock}, bắt đầu chuyến và nhả slot nguồn. & \texttt{SQ02-Pick\_Up\_\allowbreak Vehicle.drawio} \\
-\texttt{SQ03} & \texttt{UC05} & Xác nhận khóa và pin tại dock, đóng chuyến và chiếm dụng slot đích. & \texttt{SQ03-Return\_\allowbreak Vehicle.drawio} \\
-\texttt{SQ04} & \texttt{UC07} & Kiểm tra đầu nối và ghi yêu cầu sạc vào hàng đợi; tách biệt khỏi bước cấp điện của \texttt{UC12}. & \texttt{SQ04-Request\_\allowbreak Charging.drawio} \\
-\texttt{SQ05} & \texttt{UC10} & Lập lệnh điều chuyển \texttt{Planned}, khóa xe nguồn và giữ sức chứa đích. & \texttt{SQ05-Redistribute\_\allowbreak Vehicles.drawio} \\
-\texttt{SQ06} & \texttt{UC11} & Đánh giá ảnh hưởng, cô lập tài nguyên lỗi và lập lịch bảo trì lần đầu. & \texttt{SQ06-Handle\_Operational\_\allowbreak Incident.drawio} \\
-\texttt{SQ07} & \texttt{UC13, UC14} & Thực thi mô phỏng trên bản chụp cô lập và hiển thị chỉ số/khuyến nghị. & \texttt{SQ07-Run\_What\_if\_\allowbreak Simulation.drawio} \\
+\texttt{SQ01} & \texttt{UC03} & Kiểm tra điều kiện xe (\texttt{Available}, pin $\ge 20\%$), giữ xe 15 phút và trả mã phiếu. & Thuê và Trả xe (\Cref{fig:sq-01-02}) \\
+\texttt{SQ02} & \texttt{UC04} & Xác thực và khóa nhận chỗ, mở khóa qua \texttt{:SimulatedDock}, mở chuyến và nhả slot nguồn. & Thuê và Trả xe (\Cref{fig:sq-01-02}) \\
+\texttt{SQ03} & \texttt{UC05} & Xác nhận đỗ và giữ ô đích, nhận xác nhận khóa/pin từ \texttt{:SimulatedDock}, đóng chuyến và chiếm slot. & Thuê và Trả xe (\Cref{fig:sq-03-04}) \\
+\texttt{SQ04} & \texttt{UC07} & Kiểm tra lượt đỗ, quyền, xe và mục tiêu pin để ghi yêu cầu vào hàng đợi (\textit{Queued}); phân bổ cổng và cấp điện thuộc \texttt{UC12}. & Sạc điện (\Cref{fig:sq-03-04}) \\
+\texttt{SQ05} & \texttt{UC10} & Kiểm tra điều kiện/sức chứa, lập lệnh \texttt{Planned}, giữ xe nguồn và slot đích. & Điều chuyển xe (\Cref{fig:sq-05}) \\
+\texttt{SQ06} & \texttt{UC11} & Kiểm tra sự cố mở, phân công kỹ thuật viên/lịch bảo trì và chuyển trạng thái \texttt{Investigating}. & Vận hành Hub (\Cref{fig:sq-06-07}) \\
+\texttt{SQ07} & \texttt{UC13, UC14} & Thực thi mô phỏng trên bản chụp cô lập (không đổi tài nguyên thực) và truy xuất chỉ số/khuyến nghị kết quả. & Mô phỏng What-if (\Cref{fig:sq-06-07}) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -132,7 +200,7 @@ Theo bài giảng CO3001 (Ch6 tr.~21--26), nhóm xây dựng 7 sơ đồ tuần 
     \centering
         \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ01-Reserve_Vehicle.png}
     \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ02-Pick_Up_Vehicle.png}
-    \caption{Sơ đồ tuần tự đặt giữ xe (\texttt{SQ01}) và nhận xe tại Hub (\texttt{SQ02})}
+    \caption{Sơ đồ tuần tự luồng Thuê và Trả xe: Đặt giữ xe và nhận xe}
     \label{fig:sq-01-02}
 \end{figure}
 
@@ -140,38 +208,44 @@ Theo bài giảng CO3001 (Ch6 tr.~21--26), nhóm xây dựng 7 sơ đồ tuần 
     \centering
         \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ03-Return_Vehicle.png}
     \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ04-Request_Charging.png}
-    \caption{Sơ đồ tuần tự trả xe (\texttt{SQ03}) và tiếp nhận yêu cầu sạc (\texttt{SQ04})}
+    \caption{Sơ đồ tuần tự trả xe dùng chung và đăng ký sạc điện}
     \label{fig:sq-03-04}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.92\textwidth,height=0.25\textheight,keepaspectratio]{graphics/diagrams/SQ05-Redistribute_Vehicles.png}\par\medskip
-    \includegraphics[width=0.92\textwidth,height=0.25\textheight,keepaspectratio]{graphics/diagrams/SQ06-Handle_Operational_Incident.png}\par\medskip
-    \includegraphics[width=0.92\textwidth,height=0.25\textheight,keepaspectratio]{graphics/diagrams/SQ07-Run_What_if_Simulation.png}
-    \caption{Sơ đồ tuần tự điều chuyển xe (\texttt{SQ05}), xử lý sự cố (\texttt{SQ06}) và mô phỏng What-if (\texttt{SQ07})}
-    \label{fig:sq-05-07}
+    \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ05-Redistribute_Vehicles.png}
+    \caption{Sơ đồ tuần tự luồng Điều chuyển xe liên Hub}
+    \label{fig:sq-05}
 \end{figure}
 
-\subsection{Mô hình Hành vi: Sơ đồ Hoạt động (Activity Diagrams -- AD01--AD07)}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ06-Handle_Operational_Incident.png}\par\medskip
+    \includegraphics[width=0.92\textwidth,height=0.38\textheight,keepaspectratio]{graphics/diagrams/SQ07-Run_What_if_Simulation.png}
+    \caption{Sơ đồ tuần tự xử lý sự cố vận hành Hub và mô phỏng kịch bản}
+    \label{fig:sq-06-07}
+\end{figure}
 
-Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\textit{Swimlanes}) phân định trách nhiệm giữa \texttt{User / App} (hoặc \texttt{Operator / App}), \texttt{Backend} và \texttt{IoT / Simulated Station}. Mọi nút rẽ nhánh đều gắn điều kiện bảo vệ (\textit{guard condition}) như \texttt{[Available, battery >=20\%, no hold]}, bảo đảm mọi nhánh xung đột hoặc ngoại lệ đều dẫn về nút kết thúc hợp lệ (\Cref{tab:ad-overview} và \Cref{fig:ad-01}--\Cref{fig:ad-07}). Đặc biệt, \texttt{AD04} tách biệt điểm bắt đầu check-in/checkout chỗ đỗ với thao tác gửi yêu cầu và dừng sạc an toàn.
+\subsection{Mô hình Hành vi: Sơ đồ Hoạt động}
+
+Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\textit{Swimlanes}) phân định trách nhiệm giữa giao diện ứng dụng, máy chủ xử lý và thiết bị trạm mô phỏng. Mọi nút rẽ nhánh đều gắn điều kiện bảo vệ cụ thể, bảo đảm các nhánh xung đột hoặc ngoại lệ đều dẫn về nút kết thúc hợp lệ (\Cref{tab:ad-overview} và \Cref{fig:ad-01}--\Cref{fig:ad-07}). Đặc biệt, sơ đồ luồng đỗ và sạc xe cá nhân tách biệt quy trình check-in/checkout chỗ đỗ với thao tác gửi yêu cầu và dừng sạc an toàn.
 
 \begin{table}[H]
 \centering
-\caption[Tổng hợp 7 Sơ đồ Hoạt động (\texttt{AD01--AD07})]{Tổng hợp 7 Sơ đồ Hoạt động và liên kết truy vết (\texttt{docs/diagrams/03\_Activity\_Diagram/drawio/})}
+\caption{Tổng hợp 7 Sơ đồ Hoạt động}
 \label{tab:ad-overview}
-\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{1.1cm} >{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash\footnotesize}p{5.5cm}}
+\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}p{1.1cm} >{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash\small}p{2.6cm}}
 \toprule
-\textbf{Mã} & \textbf{Use Cases} & \textbf{Trọng tâm luồng điều khiển và ngoại lệ} & \textbf{Tệp nguồn Draw.io} \\
+\textbf{Mã} & \textbf{Use Cases} & \textbf{Trọng tâm luồng điều khiển và ngoại lệ} & \textbf{Hình minh họa} \\
 \midrule
-\texttt{AD01} & \texttt{UC03} & Kiểm tra khả dụng, giữ xe nguyên tử 15 phút; rẽ nhánh xung đột đặt chỗ. & \texttt{AD01-Reserve\_\allowbreak Vehicle.drawio} \\
-\texttt{AD02} & \texttt{UC04} & Báo hỏng trước khi lấy xe, tuần tự hóa \textit{pickupClaimed} và xử lý lỗi mở khóa. & \texttt{AD02-Pick\_Up\_\allowbreak Vehicle.drawio} \\
-\texttt{AD03} & \texttt{UC05} & Kiểm tra chỗ trống Hub đích, xác minh khóa chốt và phân loại pin khi trả. & \texttt{AD03-Return\_\allowbreak Vehicle.drawio} \\
-\texttt{AD04} & \texttt{UC06, UC07, UC12} & Tách biệt đặt chỗ, check-in/out xe cá nhân, quá giờ \texttt{LIM-01} và dừng sạc \texttt{UC07A}. & \texttt{AD04-Reserve\_Parking\_\allowbreak and\_Charging.drawio} \\
-\texttt{AD05} & \texttt{UC10, UC10A/B} & Lập lệnh giữ xe và slot đích; cạnh tranh \textit{Depart/Cancel}; xác nhận đến đủ lô. & \texttt{AD05-Redistribute\_\allowbreak Vehicles.drawio} \\
-\texttt{AD06} & \texttt{UC11, UC11A} & Cô lập trước khi bảo trì; giữ chuyến đi mở khi nhận báo cáo giữa chuyến. & \texttt{AD06-Handle\_Operational\_\allowbreak Incident.drawio} \\
-\texttt{AD07} & \texttt{UC13, UC14} & Thực thi mô phỏng bản chụp cô lập; chỉ áp dụng khuyến nghị sau kiểm tra thực. & \texttt{AD07-Run\_What\_if\_\allowbreak Simulation.drawio} \\
+\texttt{AD01} & \texttt{UC03} & Kiểm tra khả dụng, giữ xe nguyên tử 15 phút; rẽ nhánh xung đột đặt chỗ. & \Cref{fig:ad-01} \\
+\texttt{AD02} & \texttt{UC04} & Báo hỏng trước khi lấy xe, tuần tự hóa \textit{pickupClaimed} và xử lý lỗi mở khóa. & \Cref{fig:ad-02} \\
+\texttt{AD03} & \texttt{UC05} & Kiểm tra chỗ trống Hub đích, xác minh khóa chốt và phân loại pin khi trả. & \Cref{fig:ad-03} \\
+\texttt{AD04} & \texttt{UC06, UC07, UC12} & Tách biệt đặt chỗ, check-in/out xe cá nhân, quá giờ \texttt{LIM-01} và dừng sạc \texttt{UC07A}. & \Cref{fig:ad-04} \\
+\texttt{AD05} & \texttt{UC10, UC10A/B} & Lập lệnh giữ xe và slot đích; cạnh tranh \textit{Depart/Cancel}; xác nhận đến đủ lô. & \Cref{fig:ad-05} \\
+\texttt{AD06} & \texttt{UC11, UC11A} & Cô lập trước khi bảo trì; giữ chuyến đi mở khi nhận báo cáo giữa chuyến. & \Cref{fig:ad-06} \\
+\texttt{AD07} & \texttt{UC13, UC14} & Thực thi mô phỏng bản chụp cô lập; chỉ áp dụng khuyến nghị sau kiểm tra thực. & \Cref{fig:ad-07} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -180,7 +254,7 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD01-Reserve_Vehicle.png}
-    \caption{Sơ đồ hoạt động đặt giữ xe dùng chung (\texttt{AD01 -- UC03})}
+    \caption{Sơ đồ hoạt động đặt giữ xe dùng chung}
     \label{fig:ad-01}
 \end{figure}
 
@@ -188,7 +262,7 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD02-Pick_Up_Vehicle.png}
-    \caption{Sơ đồ hoạt động nhận xe tại Hub (\texttt{AD02 -- UC04})}
+    \caption{Sơ đồ hoạt động nhận xe tại Hub}
     \label{fig:ad-02}
 \end{figure}
 
@@ -196,7 +270,7 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD03-Return_Vehicle.png}
-    \caption{Sơ đồ hoạt động trả xe tại Hub đích (\texttt{AD03 -- UC05})}
+    \caption{Sơ đồ hoạt động trả xe tại Hub đích}
     \label{fig:ad-03}
 \end{figure}
 
@@ -204,7 +278,7 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD04-Reserve_Parking_and_Charging.png}
-    \caption{Sơ đồ hoạt động đặt chỗ đỗ, sạc và dừng sạc xe cá nhân (\texttt{AD04 -- UC06, UC07, UC12})}
+    \caption{Sơ đồ hoạt động đặt chỗ đỗ, sạc và dừng sạc xe cá nhân}
     \label{fig:ad-04}
 \end{figure}
 
@@ -212,7 +286,7 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD05-Redistribute_Vehicles.png}
-    \caption{Sơ đồ hoạt động điều chuyển xe liên Hub (\texttt{AD05 -- UC10, UC10A/B})}
+    \caption{Sơ đồ hoạt động điều chuyển xe liên Hub}
     \label{fig:ad-05}
 \end{figure}
 
@@ -220,7 +294,7 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD06-Handle_Operational_Incident.png}
-    \caption{Sơ đồ hoạt động xử lý sự cố vận hành (\texttt{AD06 -- UC11, UC11A})}
+    \caption{Sơ đồ hoạt động xử lý sự cố vận hành}
     \label{fig:ad-06}
 \end{figure}
 
@@ -228,25 +302,25 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/AD07-Run_What_if_Simulation.png}
-    \caption{Sơ đồ hoạt động mô phỏng What-if (\texttt{AD07 -- UC13, UC14})}
+    \caption{Sơ đồ hoạt động mô phỏng What-if}
     \label{fig:ad-07}
 \end{figure}
 \clearpage
 
-\subsection{Mô hình Hành vi: Sơ đồ Trạng thái (State-chart Diagrams -- Bonus: SC01--SC03)}
+\subsection{Mô hình Hành vi: Sơ đồ Trạng thái}
 
-Để đáp ứng tiêu chí điểm cộng của Submission \#2 và kiểm soát chuyển đổi trạng thái khi thực thi đồng thời, nhóm thiết kế 3 máy trạng thái hữu hạn cho các thực thể lõi (\Cref{fig:sc-01}--\Cref{fig:sc-03}):
+Để đáp ứng tiêu chí điểm cộng của giai đoạn thiết kế mô hình động và kiểm soát chuyển đổi trạng thái khi thực thi đồng thời, nhóm thiết kế 3 máy trạng thái hữu hạn cho các thực thể lõi (\Cref{fig:sc-01}--\Cref{fig:sc-03}):
 \begin{enumerate}[leftmargin=*,nosep]
-    \item \textbf{\texttt{SC01} -- Vòng đời Phương tiện Điện (\texttt{Vehicle State Machine}):} Mô hình hóa 10 trạng thái chuẩn (\texttt{Available}, \texttt{Reserved}, \texttt{InUse}, \texttt{Needs\allowbreak Charging}, \texttt{Charging}, \texttt{Transfer\allowbreak Held}, \texttt{InTransit}, \texttt{Faulty}, \texttt{Maintenance}, \texttt{Retired}). Điều kiện chuyển đổi phân biệt xe dùng chung (cho thuê và điều chuyển) với xe cá nhân (chỉ tham gia đỗ/sạc), đồng thời chặn chuyển về \texttt{Available} khi chưa nghiệm thu sự cố hoặc pin $< 20\%$.
-    \item \textbf{\texttt{SC02} -- Vòng đời Cổng sạc (\texttt{Charging Point State Machine}):} Bao gồm 9 trạng thái (\texttt{Idle}, \texttt{Reserved}, \texttt{Starting}, \texttt{Charging}, \texttt{Stopping}, \texttt{Complete}, \texttt{Fault}, \texttt{Repair}, \texttt{Retired}), phân tách trạng thái \texttt{Complete} (đã ngắt điện, giữ đầu nối chờ rút) và duy trì khóa cô lập cổng \texttt{Fault/Repair}. Trong mã nguồn hiện tại, phần chuyển đổi từ \texttt{Reserved} sang \texttt{Active} (\texttt{activateAllocation}) và rút phích (\texttt{confirmUnplug}) được hiện thực ở tầng \texttt{ChargingService} kèm unit test, chưa mở route HTTP công khai.
-    \item \textbf{\texttt{SC03} -- Vòng đời Đặt giữ và Chuyến đi (\texttt{Reservation and Trip State Machine}):} Quản lý song hành vòng đời phiếu giữ xe (\texttt{Pending}, \texttt{Reserved}, \texttt{Fulfilled}, \texttt{Cancelled}, \texttt{Expired}) với cờ \texttt{pickupClaimed} và vòng đời chuyến đi (\texttt{Active}, \texttt{Completed}). Sự cố báo giữa chuyến (\texttt{UC11A}) không tự động đóng chuyến đang \texttt{Active}.
+    \item \textbf{Vòng đời Phương tiện Điện:} Mô hình hóa 10 trạng thái chuẩn (\texttt{Available}, \texttt{Reserved}, \texttt{InUse}, \texttt{Needs\allowbreak Charging}, \texttt{Charging}, \texttt{Transfer\allowbreak Held}, \texttt{InTransit}, \texttt{Faulty}, \texttt{Maintenance}, \texttt{Retired}). Điều kiện chuyển đổi phân biệt xe dùng chung (cho thuê và điều chuyển) với xe cá nhân (chỉ tham gia đỗ/sạc), đồng thời chặn chuyển về \texttt{Available} khi chưa nghiệm thu sự cố hoặc pin $< 20\%$.
+    \item \textbf{Vòng đời Cổng sạc:} Bao gồm 9 trạng thái (\texttt{Idle}, \texttt{Reserved}, \texttt{Starting}, \texttt{Charging}, \texttt{Stopping}, \texttt{Complete}, \texttt{Fault}, \texttt{Repair}, \texttt{Retired}), phân tách trạng thái \texttt{Complete} (đã ngắt điện, giữ đầu nối chờ rút) và duy trì khóa cô lập cổng \texttt{Fault/Repair}. Trong mã nguồn hiện tại, phần chuyển đổi từ \texttt{Reserved} sang \texttt{Active} (\texttt{activateAllocation}) và rút phích (\texttt{confirmUnplug}) được hiện thực ở tầng \texttt{ChargingService} kèm unit test, chưa mở route HTTP công khai.
+    \item \textbf{Vòng đời Đặt giữ và Chuyến đi:} Quản lý song hành vòng đời phiếu giữ xe (\texttt{Pending}, \texttt{Reserved}, \texttt{Fulfilled}, \texttt{Cancelled}, \texttt{Expired}) với cờ \texttt{pickupClaimed} và vòng đời chuyến đi (\texttt{Active}, \texttt{Completed}). Sự cố báo giữa chuyến (\texttt{UC11A}) không tự động đóng chuyến đang \texttt{Active}.
 \end{enumerate}
 
 \clearpage
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/SC01-Vehicle_State_Machine.png}
-    \caption{Sơ đồ máy trạng thái vòng đời phương tiện điện (\texttt{SC01})}
+    \caption{Sơ đồ máy trạng thái vòng đời phương tiện điện}
     \label{fig:sc-01}
 \end{figure}
 
@@ -254,7 +328,7 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/SC02-Charging_Point_State_Machine.png}
-    \caption{Sơ đồ máy trạng thái vòng đời cổng sạc (\texttt{SC02})}
+    \caption{Sơ đồ máy trạng thái vòng đời cổng sạc}
     \label{fig:sc-02}
 \end{figure}
 
@@ -262,6 +336,6 @@ Bộ 7 sơ đồ hoạt động được tổ chức theo các đường bơi (\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth,height=0.82\textheight,keepaspectratio]{graphics/diagrams/SC03-Reservation_and_Trip_State_Machine.png}
-    \caption{Sơ đồ máy trạng thái đặt giữ và chuyến đi (\texttt{SC03})}
+    \caption{Sơ đồ máy trạng thái đặt giữ và chuyến đi}
     \label{fig:sc-03}
 \end{figure}
