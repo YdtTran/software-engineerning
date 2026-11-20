@@ -163,8 +163,9 @@
 \end{frame}
 
 \section{Bài toán và mục tiêu}
+\ChapterDivider{Phần 1}{Bài toán và mục tiêu}{Bối cảnh di chuyển tại ĐHQG-HCM và mục tiêu của Smart E-Mobility Hub}
 
-\begin{frame}{Sinh viên đi học bằng gì?}
+\begin{frame}{Thực trạng di chuyển của sinh viên}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.51\textwidth}
       \begin{block}{Xe cá nhân}
@@ -255,8 +256,9 @@
 \end{frame}
 
 \section{Yêu cầu và phạm vi ứng dụng}
+\ChapterDivider{Phần 2}{Yêu cầu và phạm vi ứng dụng}{Tổng quan Use Case, 6 luồng nghiệp vụ chính và phạm vi MVP}
 
-\begin{frame}{Hệ thống cần đáp ứng những gì?}
+\begin{frame}{Phạm vi chức năng và yêu cầu hệ thống}
   \centering
   \setlength{\tabcolsep}{6pt}
   {\small
@@ -290,7 +292,16 @@
   \end{tikzpicture}
 \end{frame}
 
-\begin{frame}{Sinh viên làm được gì trên Android?}
+\begin{frame}{Tổng quan Use Case toàn hệ thống}
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.66\textheight,keepaspectratio]{images/section-02/system_use_cases.png}
+  \\[0.12cm]
+  {\scriptsize\color{gray!80!black}
+    Mô hình 25 Use Cases thuộc 6 luồng nghiệp vụ chính với 4 tác nhân: Sinh viên, Nhân viên vận hành, Dịch vụ thông báo và IoT / Thiết bị giả lập.%
+  }
+\end{frame}
+
+\begin{frame}{Chức năng cho sinh viên trên ứng dụng Android}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.49\textwidth}
       \begin{block}{Xe dùng chung}
@@ -320,34 +331,142 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Đơn vị vận hành làm được gì trên web?}
-  \centering
-  \includegraphics[width=0.78\textwidth,height=0.38\textheight,keepaspectratio]{images/section-02/workflow-hub-operations.png}
-  \\[0.08cm]
-  {\scriptsize\color{gray!80!black}
-    Use Case vận hành Hub: giám sát mạng lưới, quản lý tài nguyên và xử lý sự cố.%
-  }
-  \vspace{0.18cm}
+\begin{frame}{Thuê và trả xe dùng chung}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.32\textwidth}
-      \begin{block}{\footnotesize Giám sát, tài nguyên \& sự cố}
-        \footnotesize Xem tình trạng Hub, quản lý xe, chỗ đỗ, cổng sạc và phân công bảo trì.
+    \begin{column}{0.53\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{images/section-02/workflow_vehicle_rental.png}
+      \vspace{0.14cm}
+      \begin{block}{\footnotesize Luồng thuê và trả xe}
+        \scriptsize
+        \begin{itemize}
+          \setlength{\itemsep}{2pt}
+          \item \textbf{Tìm \& giữ xe:} Chọn Hub, kiểm tra pin $\ge 20\%$ và giữ chỗ trong 15 phút.
+          \item \textbf{Nhận xe qua mã:} Dock giả lập xác nhận mở khóa, mở chuyến đi và nhả chỗ nguồn.
+          \item \textbf{Trả xe tại Hub đích:} Giữ ô trống, xác nhận khóa chốt và báo sự cố nếu phát sinh.
+        \end{itemize}
       \end{block}
     \end{column}
-    \begin{column}{0.32\textwidth}
-      \begin{block}{\footnotesize Điều chuyển xe}
-        \footnotesize Lập lệnh giữa các Hub, xác nhận xe đến hoặc hủy lệnh theo trạng thái.
-      \end{block}
-    \end{column}
-    \begin{column}{0.32\textwidth}
-      \begin{block}{\footnotesize Lập lịch sạc}
-        \footnotesize Xếp hàng theo ưu tiên và phân bổ cổng tương thích trong giới hạn công suất.
-      \end{block}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{../../assets/demo/android-rental.png}
+      \\[0.12cm]
+      {\scriptsize\color{gray!80!black}
+        Màn hình chọn và đặt giữ xe trên ứng dụng Android.%
+      }
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{What-if hỗ trợ quyết định như thế nào?}
+\begin{frame}{Đặt chỗ đỗ xe cá nhân}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.53\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{images/section-02/workflow_parking_reservation.png}
+      \vspace{0.14cm}
+      \begin{block}{\footnotesize Luồng đặt chỗ đỗ xe cá nhân}
+        \scriptsize
+        \begin{itemize}
+          \setlength{\itemsep}{2pt}
+          \item \textbf{Đặt chỗ trước:} Cam kết ô đỗ cá nhân tại Hub mục tiêu theo khung giờ.
+          \item \textbf{Check-in bãi đỗ:} Tách biệt trạng thái đặt trước với chiếm dụng vật lý tại chỗ.
+          \item \textbf{Check-out / Hủy:} Giải phóng ô đỗ khi rời Hub hoặc hủy giữ chỗ trước giờ nhận.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{../../assets/demo/android-parking.png}
+      \\[0.12cm]
+      {\scriptsize\color{gray!80!black}
+        Giao diện đặt chỗ và theo dõi đỗ xe cá nhân trên Android.%
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Yêu cầu và điều phối sạc điện}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.53\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{images/section-02/workflow_charging.png}
+      \vspace{0.14cm}
+      \begin{block}{\footnotesize Luồng yêu cầu và lập lịch sạc}
+        \scriptsize
+        \begin{itemize}
+          \setlength{\itemsep}{2pt}
+          \item \textbf{Gửi yêu cầu sạc:} Sinh viên chọn mức pin mục tiêu và thời điểm cần nhận xe.
+          \item \textbf{Lập lịch \& phân bổ:} Vận hành viên xếp hàng đợi theo ưu tiên và giới hạn công suất.
+          \item \textbf{Dừng sạc / Ghi đè:} Ngắt điện an toàn theo yêu cầu hoặc điều chỉnh lịch khẩn cấp.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{../../assets/demo/android-charging.png}
+      \\[0.12cm]
+      {\scriptsize\color{gray!80!black}
+        Giao diện gửi yêu cầu và theo dõi sạc xe cá nhân trên Android.%
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Điều chuyển xe liên Hub}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.53\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{images/section-02/workflow_vehicle_redistribution.png}
+      \vspace{0.14cm}
+      \begin{block}{\footnotesize Luồng điều chuyển xe liên Hub}
+        \scriptsize
+        \begin{itemize}
+          \setlength{\itemsep}{2pt}
+          \item \textbf{Lập lệnh điều chuyển:} Chọn xe tại Hub thừa, giữ ô đỗ ở Hub thiếu từ khuyến nghị What-if.
+          \item \textbf{Theo dõi / Hủy lệnh:} Cập nhật trạng thái đang vận chuyển hoặc hủy theo điều kiện.
+          \item \textbf{Xác nhận xe đến:} Kiểm đếm lô xe tại Hub đích và mở lại trạng thái sẵn sàng.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{../../assets/demo/admin-resources.png}
+      \\[0.12cm]
+      {\scriptsize\color{gray!80!black}
+        Màn hình quản lý tài nguyên và điều phối xe trên Web.%
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Vận hành Hub và xử lý sự cố}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.53\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.36\textheight,keepaspectratio]{images/section-02/workflow-hub-operations.png}
+      \vspace{0.14cm}
+      \begin{block}{\footnotesize Luồng giám sát và xử lý sự cố}
+        \scriptsize
+        \begin{itemize}
+          \setlength{\itemsep}{2pt}
+          \item \textbf{Giám sát mạng lưới:} Theo dõi số lượng xe, chỗ đỗ trống và cổng sạc theo thời gian thực.
+          \item \textbf{Quản trị tài nguyên:} Cập nhật trạng thái xe, ô đỗ và cổng sạc tại từng Hub.
+          \item \textbf{Xử lý sự cố:} Tiếp nhận cảnh báo, cách ly thiết bị lỗi và phân công bảo trì.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.60\textheight,keepaspectratio]{../../assets/demo/admin-incidents.png}
+      \\[0.12cm]
+      {\scriptsize\color{gray!80!black}
+        Màn hình tiếp nhận và xử lý sự cố vận hành trên Web.%
+      }
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Mô phỏng What-if hỗ trợ quyết định}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.53\textwidth}
       \centering
@@ -374,7 +493,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{MVP đã triển khai đến đâu?}
+\begin{frame}{Phạm vi triển khai của sản phẩm MVP}
   \centering
   \setlength{\tabcolsep}{6pt}
   {\small
@@ -396,6 +515,7 @@
 \end{frame}
 
 \section{Thiết kế nghiệp vụ và giao diện}
+\ChapterDivider{Phần 3}{Thiết kế nghiệp vụ và giao diện}{Mô hình hóa UML và ánh xạ sang giao diện ứng dụng}
 
 \begin{frame}{Thiết kế qua hai phiên bản}
   \centering
@@ -424,7 +544,7 @@
   \end{tikzpicture}
 \end{frame}
 
-\begin{frame}{Activity Diagram - Khi nào giữ xe thành công?}
+\begin{frame}{Activity Diagram - Điều kiện giữ xe thành công}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.37\textwidth}
       \centering
@@ -449,7 +569,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Sequence Diagram - Ai xác nhận việc nhận xe?}
+\begin{frame}{Sequence Diagram - Luồng xác nhận nhận xe}
   \centering
   \includegraphics[width=0.91\textwidth,height=0.45\textheight,keepaspectratio]{images/section-03/sq02-nhan-xe.png}
   \vspace{0.12cm}
@@ -461,7 +581,7 @@
   \end{tikzpicture}
 \end{frame}
 
-\begin{frame}{State-chart - Xe đổi trạng thái khi nào?}
+\begin{frame}{State-chart - Vòng đời chuyển trạng thái xe}
   \centering
   \includegraphics[width=0.90\textwidth,height=0.58\textheight,keepaspectratio]{images/section-03/sc00-vong-doi-xe.png}
   \vspace{0.12cm}
@@ -513,6 +633,7 @@
 \end{frame}
 
 \section{Kiến trúc và hiện thực MVP}
+\ChapterDivider{Phần 4}{Kiến trúc và hiện thực MVP}{Modular monolith Node.js/Express, SQLite và xử lý đồng thời}
 
 \begin{frame}{Một backend, ba module nghiệp vụ}
   \centering
@@ -548,7 +669,7 @@
       {\textbf{SQLite} \enspace · \enspace Dùng chung giao dịch khi cập nhật tài nguyên};
 
     \node[font=\small,text=BKTemplate,align=center] at (7.25,0.43)
-      {\textbf{Vì sao chọn?} Dễ triển khai demo, rõ trách nhiệm, giữ dữ liệu nhất quán.};
+      {\textbf{Lý do lựa chọn:} Dễ triển khai demo, rõ trách nhiệm, giữ dữ liệu nhất quán.};
   \end{tikzpicture}
 \end{frame}
 

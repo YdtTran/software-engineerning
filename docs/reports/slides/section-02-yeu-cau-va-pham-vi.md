@@ -6,12 +6,12 @@
 
 **Trên slide**
 
-| Nhóm yêu cầu | Chức năng | Use Case |
-| --- | --- | --- |
-| Thuê xe dùng chung | Tìm Hub, xem xe và mức pin, giữ–nhận–trả xe | UC01–UC05 |
-| Đỗ và sạc xe cá nhân | Đặt chỗ đỗ, ghi nhận xe vào/ra, gửi yêu cầu sạc | UC06–UC07 |
-| Vận hành mạng lưới | Giám sát Hub, quản lý tài nguyên, điều chuyển xe, xử lý sự cố, lập lịch sạc | UC08–UC12 |
-| Mô phỏng What-if | Chạy kịch bản giả định và xem kết quả | UC13–UC14 |
+| Nhóm yêu cầu | Chức năng |
+| --- | --- |
+| Thuê xe dùng chung | Tìm Hub, xem xe và mức pin, giữ–nhận–trả xe | 
+| Đỗ và sạc xe cá nhân | Đặt chỗ đỗ, ghi nhận xe vào/ra, gửi yêu cầu sạc | 
+| Vận hành mạng lưới | Giám sát Hub, quản lý tài nguyên, điều chuyển xe, xử lý sự cố, lập lịch sạc | 
+| Mô phỏng What-if | Chạy kịch bản giả định và xem kết quả | 
 
 **Yêu cầu chất lượng** — Phân quyền theo vai trò, tránh cấp trùng xe hoặc chỗ đỗ, lưu dữ liệu nghiệp vụ qua lần khởi động lại.
 
