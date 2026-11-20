@@ -395,13 +395,242 @@
   }
 \end{frame}
 
-% \section{[Tên phần]}
-% \ChapterDivider{[Số phần]}{[Tên phần]}{[Mô tả]}
-%
-% \begin{frame}{[Tiêu đề slide]}
-%   \begin{block}{[Tiêu đề khối]}
-%     [Nội dung]
-%   \end{block}
-% \end{frame}
+\section{Thiết kế nghiệp vụ và giao diện}
+
+\begin{frame}{Thiết kế qua hai phiên bản}
+  \centering
+  \setlength{\tabcolsep}{6pt}
+  {\small
+  \begin{tabular}{@{}L{3.35cm}L{10.35cm}@{}}
+    \toprule
+    \textbf{Giai đoạn} & \textbf{Nội dung} \\
+    \midrule
+    \textbf{Version 1} &
+      Đặc tả ban đầu, Use Case và prototype để thống nhất phạm vi và luồng thao tác. \\
+    \addlinespace[8pt]
+    \textbf{Qua các buổi họp} &
+      Rà soát tiến độ, thảo luận thay đổi về luồng và ngoại lệ, rồi cập nhật đặc tả, UML và giao diện. \\
+    \addlinespace[8pt]
+    \textbf{Version 2 · Bản trình bày} &
+      Làm rõ quy tắc giữ, nhận và trả xe; đối chiếu lại yêu cầu và UML với các luồng chạy trên Android và web. \\
+    \bottomrule
+  \end{tabular}
+  }
+  \vspace{0.42cm}
+  \begin{tikzpicture}
+    \node[key, text width=0.91\textwidth, align=left, inner sep=7pt] {%
+      \textbf{Ví dụ xuyên suốt:} Giữ xe tạo một phiếu có hạn; chuyến đi chỉ bắt đầu sau khi dock xác nhận mở khóa.%
+    };
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{Activity Diagram — Khi nào giữ xe thành công?}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.37\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.64\textheight,keepaspectratio]{images/section-03/ad01-giu-xe.png}
+      \\[0.08cm]
+      {\scriptsize\color{gray!80!black} AD01 · Đặt giữ xe}
+    \end{column}
+    \begin{column}{0.60\textwidth}
+      \small
+      \begin{block}{UC03 · Luồng chính}
+        Chọn xe $\rightarrow$ kiểm tra khả dụng $\rightarrow$ giữ xe và tạo phiếu 15 phút.
+      \end{block}
+      \vspace{0.08cm}
+      \begin{block}{Xe đủ điều kiện}
+        Hệ thống giữ xe và lưu phiếu trong \textbf{cùng một giao dịch}; thời hạn được tính tại máy chủ.
+      \end{block}
+      \vspace{0.08cm}
+      \begin{alertblock}{Xe không còn khả dụng}
+        Ứng dụng báo xung đột và quay lại danh sách để sinh viên chọn xe khác.
+      \end{alertblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Sequence Diagram — Ai xác nhận việc nhận xe?}
+  \centering
+  \includegraphics[width=0.91\textwidth,height=0.45\textheight,keepaspectratio]{images/section-03/sq02-nhan-xe.png}
+  \vspace{0.12cm}
+  \begin{tikzpicture}
+    \node[key, text width=0.91\textwidth, align=left, inner sep=6pt] {%
+      \textbf{UC04:} Sinh viên gửi mã xe $\rightarrow$ Mobile App chuyển yêu cầu $\rightarrow$ backend kiểm tra phiếu $\rightarrow$ dock giả lập xác nhận mở khóa $\rightarrow$ hệ thống bắt đầu chuyến và giải phóng chỗ đỗ.\\[3pt]
+      \textbf{Ngoại lệ:} Nếu kết quả mở khóa chưa rõ, hệ thống giữ quyền nhận xe để đối soát thay vì tự giải phóng tài nguyên.%
+    };
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}{State-chart — Xe đổi trạng thái khi nào?}
+  \centering
+  \includegraphics[width=0.90\textwidth,height=0.58\textheight,keepaspectratio]{images/section-03/sc00-vong-doi-xe.png}
+  \vspace{0.12cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\footnotesize Trước chuyến đi}
+        \footnotesize \textbf{Sẵn sàng $\rightarrow$ Đang giữ $\rightarrow$ Đang sử dụng} khi giữ xe thành công và dock xác nhận mở khóa.
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{\footnotesize Sau khi trả xe}
+        \footnotesize Xe về \textbf{Sẵn sàng} nếu pin $\geq 20\%$, hoặc chuyển sang \textbf{Cần sạc} nếu pin $<20\%$.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Từ mô hình lớp đến màn hình Android}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.67\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.54\textheight,keepaspectratio]{images/section-03/cd00-mo-hinh-lop.png}
+      \\[0.06cm]
+      {\scriptsize\color{gray!80!black}
+        VehicleReservation liên kết người dùng, xe và tối đa một Trip.%
+      }
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \begin{block}{\footnotesize Phiếu giữ xe}
+        \scriptsize \textbf{VehicleReservation}: mã xe, hạn nhận và trạng thái xác nhận.
+      \end{block}
+      \begin{block}{\footnotesize Chuyến đi}
+        \scriptsize \textbf{Trip}: trạng thái sau khi nhận xe và thao tác trả xe.
+      \end{block}
+      \begin{block}{\footnotesize Tài nguyên Hub}
+        \scriptsize \textbf{ElectricVehicle, ParkingSlot}: mức pin, xe khả dụng và chỗ có thể trả.
+      \end{block}
+      \centering
+      \includegraphics[width=0.52\linewidth,height=0.17\textheight,keepaspectratio]{../../assets/demo/android-active-trip.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\section{Kiến trúc và hiện thực MVP}
+
+\begin{frame}{Một backend, ba module nghiệp vụ}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.43\textwidth}
+      \begin{block}{Kiến trúc MVP}
+        Một ứng dụng \textbf{Node.js/Express} tổ chức theo \textbf{modular monolith}.
+      \end{block}
+      \vspace{0.2cm}
+      \begin{block}{Lý do lựa chọn}
+        Một backend dễ lắp ghép cho demo. Các luồng liên quan có thể dùng chung giao dịch khi cập nhật tài nguyên vật lý.
+      \end{block}
+      \vspace{0.25cm}
+      \begin{tikzpicture}
+        \node[key, text width=0.88\linewidth, align=left, inner sep=7pt] {%
+          \textbf{Nguyên tắc:} module tách trách nhiệm nghiệp vụ, nhưng cùng được triển khai như một ứng dụng.%
+        };
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.54\textwidth}
+      \begin{block}{Mobility / Simulation}
+        Giữ–nhận–trả xe, quản lý chuyến đi và mô phỏng What-if.
+      \end{block}
+      \begin{block}{Operations}
+        Quản lý tài nguyên, giám sát Hub, điều chuyển và xử lý sự cố.
+      \end{block}
+      \begin{block}{Parking / Charging}
+        Đặt chỗ đỗ, ghi nhận xe vào/ra, yêu cầu và lập lịch sạc.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Development View — Mã nguồn được chia thế nào?}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.68\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.62\textheight,keepaspectratio]{images/section-04/dv01-component-mvp.png}
+    \end{column}
+    \begin{column}{0.29\textwidth}
+      \begin{block}{\footnotesize Thiết kế mục tiêu}
+        \scriptsize Năm tầng: Presentation, API / Interface, Application, Domain và Infrastructure.
+      \end{block}
+      \vspace{0.06cm}
+      \begin{block}{\footnotesize Version 2 đang chạy}
+        \scriptsize Một Express app lắp ghép ba module. Các module truy cập dữ liệu qua repository và SQLiteClient dùng chung.
+      \end{block}
+      \vspace{0.06cm}
+      \begin{block}{\footnotesize Ranh giới tích hợp}
+        \scriptsize Mobility và Parking gọi giao diện quản lý tài nguyên do Operations cung cấp; thiết bị thật được thay bằng adapter mô phỏng.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Physical View — Demo chạy ở đâu?}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.60\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.63\textheight,keepaspectratio]{images/section-04/dp01-trien-khai-demo.png}
+    \end{column}
+    \begin{column}{0.37\textwidth}
+      \begin{block}{\footnotesize Thiết bị Android}
+        \footnotesize Ứng dụng sinh viên chạy trên thiết bị hoặc emulator.
+      \end{block}
+      \begin{block}{\footnotesize Trình duyệt}
+        \footnotesize Giao diện Operator chạy trên web desktop hoặc mobile.
+      \end{block}
+      \begin{block}{\footnotesize Máy chạy demo}
+        \footnotesize Node.js/Express phục vụ API và web assets; tệp SQLite nằm trên cùng máy.
+      \end{block}
+      {\scriptsize\textbf{Kết nối:} cùng một host HTTP trong cấu hình demo cục bộ.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{UC05 — Theo dấu một yêu cầu trả xe}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.57\textheight,keepaspectratio]{images/section-04/sq03-tra-xe.png}
+      \\[0.12cm]
+      {\scriptsize\color{gray!80!black} SQ03 · Trả xe dùng chung}
+    \end{column}
+    \begin{column}{0.39\textwidth}
+      \small
+      \begin{enumerate}
+        \setlength{\itemsep}{6pt}
+        \item \textbf{Android:} Chọn Hub, chỗ trả và xác nhận đã đỗ an toàn.
+        \item \textbf{Express API:} Nhận \texttt{POST /trips/\{id\}/return}; kiểm tra chủ chuyến và giữ chỗ qua Operations.
+        \item \textbf{Dock giả lập:} Xác nhận xe đã đến, đã khóa và trả mức pin.
+        \item \textbf{SQLite:} Đóng chuyến, cập nhật xe và ghi nhận chỗ đỗ đã có xe.
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Tranh chấp chỗ đỗ và xác nhận thiết bị}
+  \begin{block}{Một chỗ đỗ, nhiều yêu cầu}
+    Trả xe dùng chung, đặt chỗ xe cá nhân và điều chuyển xe có thể cùng cần một chỗ tại Hub đích.
+  \end{block}
+  \vspace{0.12cm}
+  \centering
+  \setlength{\tabcolsep}{5pt}
+  {\small
+  \begin{tabular}{@{}L{3.55cm}L{10.15cm}@{}}
+    \toprule
+    \textbf{Giai đoạn} & \textbf{Cách demo xử lý} \\
+    \midrule
+    \textbf{Giao dịch 1 · Giữ chỗ} &
+      SQLite kiểm tra và giữ chỗ trong cùng giao dịch ghi. Yêu cầu đến sau phải dùng trạng thái mới. \\
+    \addlinespace[3pt]
+    \textbf{Ngoài giao dịch · Thiết bị} &
+      Backend gọi dock qua adapter giả lập. Lệnh trả đã được lưu và chỗ vẫn được giữ trong lúc chờ. \\
+    \addlinespace[3pt]
+    \textbf{Giao dịch 2 · Hoàn tất} &
+      Khi có xác nhận hợp lệ, backend cập nhật xe, chỗ đỗ và đóng chuyến. Nếu phản hồi chưa rõ, chuyến còn mở để đối soát. \\
+    \bottomrule
+  \end{tabular}
+  }
+  \vspace{0.12cm}
+  \begin{tikzpicture}
+    \node[key, text width=0.91\textwidth, align=left, inner sep=6pt] {%
+      \textbf{Mục tiêu nhất quán:} không giữ khóa SQLite trong lúc chờ thiết bị, nhưng cũng không giải phóng chỗ đã cam kết khi kết quả xác nhận chưa rõ.%
+    };
+  \end{tikzpicture}
+\end{frame}
 
 \end{document}
