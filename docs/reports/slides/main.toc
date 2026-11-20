@@ -1,0 +1,5 @@
+\babel@toc {vietnamese}{}\relax 
+\beamer@sectionintoc {1}{Bài toán và mục tiêu}{4}{0}{1}
+\beamer@sectionintoc {2}{Yêu cầu và phạm vi ứng dụng}{7}{0}{2}
+\beamer@sectionintoc {3}{Thiết kế nghiệp vụ và giao diện}{12}{0}{3}
+\beamer@sectionintoc {4}{Kiến trúc và hiện thực MVP}{17}{0}{4}
