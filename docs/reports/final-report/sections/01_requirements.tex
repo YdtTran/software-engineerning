@@ -1,0 +1,814 @@
+% ===================================================
+% CHƯƠNG 1: ĐẶC TẢ YÊU CẦU HỆ THỐNG VÀ MÔ HÌNH HÓA USE CASE (SUBMISSION #1)
+% Nguồn: docs/reports/SUBMISSION_1_REPORT.md, docs/requirements/PROJECT_SPECIFICATION.md,
+%        docs/diagrams/01_Usecase_Diagram/LIFECYCLE_SCENARIOS.md
+% Slide tham chiếu: 03_Ch3_4 Requirements Engineering.pdf, 06_Ch6 System Modeling_2025.pdf
+% ===================================================
+\section{Đặc tả Yêu cầu Hệ thống và Mô hình hóa Use Case}
+
+\subsection{Bối cảnh và Phạm vi Dự án (Project Details Specification)}
+
+\subsubsection*{Bối cảnh Thực tiễn}
+Khu đô thị Đại học Quốc gia TP. Hồ Chí Minh (ĐHQG-HCM) tập trung nhiều trường đại học thành viên (ĐH Bách Khoa, ĐH Khoa học Tự nhiên, ĐH KHXH\&NV, ĐH Quốc tế, ĐH Công nghệ Thông tin, ĐH Kinh tế -- Luật), hệ thống Ký túc xá Khu A và Khu B, Thư viện Trung tâm cùng các khu dịch vụ. Khi \textbf{Tuyến Metro số 1 (Bến Thành -- Suối Tiên)} vận hành qua \textbf{Ga ĐHQG}, nhu cầu di chuyển chặng cuối (\textit{last-mile transit}) kết nối từ nhà ga đến từng giảng đường và khu nội trú bằng phương tiện điện (xe đạp điện, xe máy điện dùng chung và phương tiện điện cá nhân) đòi hỏi một hệ thống điều phối tập trung.
+
+Bài toán vận hành đặt ra bốn thách thức kỹ nghệ phần mềm cốt lõi về \textbf{điều phối đa tài nguyên phân tán} (\textit{Distributed Multi-Resource Coordination}):
+\begin{enumerate}[leftmargin=*,nosep]
+    \item \textbf{Lệch pha cung -- cầu theo khung giờ:} Buổi sáng phương tiện tập trung tại các giảng đường trong khi Ga Metro thiếu xe; buổi chiều phương tiện dồn về khu Ký túc xá.
+    \item \textbf{Xung đột tranh chấp tài nguyên đồng thời:} Nhiều \texttt{User} cùng tra cứu và đặt giữ một phương tiện hoặc một chỗ đỗ vào giờ cao điểm dễ gây \textit{double-booking}.
+    \item \textbf{Giới hạn năng lực bãi đỗ và hạ tầng sạc:} Công suất trạm biến áp và số cổng sạc tại mỗi Hub là hữu hạn; cần cơ chế ưu tiên xe pin yếu và xe có lịch trình kế tiếp.
+    \item \textbf{Rủi ro sự cố vận hành:} Xe hỏng giữa hành trình, mất kết nối thiết bị hoặc sự cố cổng sạc đòi hỏi quy trình cách ly an toàn và đánh giá kịch bản trước khi can thiệp.
+\end{enumerate}
+
+\subsubsection*{User Stories theo Vai trò}
+\begin{itemize}[leftmargin=*,nosep]
+    \item \textbf{Với vai trò \texttt{User} (bao gồm \textit{Student}):} Tôi muốn tìm Hub gần nhất (\texttt{UC01}), xem xe khả dụng có pin $\ge 20\%$ (\texttt{UC02}), đặt giữ xe trong 15 phút (\texttt{UC03}), quét QR nhận xe (\texttt{UC04}), trả xe vào slot trống (\texttt{UC05}) và báo sự cố khi đang di chuyển (\texttt{UC11A}). Với xe cá nhân, tôi muốn đặt chỗ đỗ (\texttt{UC06-S1..S3}), gửi yêu cầu sạc (\texttt{UC07}) và dừng phiên sạc chủ động (\texttt{UC07A}).
+    \item \textbf{Với vai trò \texttt{Operator}:} Tôi muốn theo dõi trạng thái toàn mạng lưới Hub (\texttt{UC08}), quản trị phương tiện/chỗ đỗ/cổng sạc (\texttt{UC09}), lập và xác nhận lệnh điều chuyển xe liên Hub (\texttt{UC10/10A/10B}), tiếp nhận và xử lý sự cố (\texttt{UC11}), điều phối hàng đợi sạc (\texttt{UC12}) và chạy mô phỏng \textit{What-if} (\texttt{UC13--UC14}) trên bản chụp cô lập trước khi áp dụng phương án điều chuyển.
+\end{itemize}
+
+\subsubsection*{Mục tiêu Kỹ thuật và Ranh giới Hệ thống}
+Hệ thống \textbf{Smart E-Mobility Hub} hướng tới năm mục tiêu kỹ thuật: (i) quản lý vòng đời đa thực thể (phương tiện, chỗ đỗ, cổng sạc) gần thời gian thực; (ii) phân bổ tài nguyên nguyên tử chống \textit{double-booking}; (iii) lập lịch sạc ưu tiên theo ngưỡng công suất Hub; (iv) điều phối tái cân bằng phương tiện giữa các Hub; và (v) mô phỏng \textit{What-if Simulation} với 5 kịch bản giả định. Ranh giới hệ thống được xác lập tại \Cref{tab:system-scope}.
+
+\begin{table}[H]
+\centering
+\caption{Ranh giới phạm vi hệ thống (In-Scope và Out-of-Scope)}
+\label{tab:system-scope}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.4cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Phân loại} & \textbf{Thành phần và phạm vi xử lý} \\
+\midrule
+\textbf{Trong phạm vi (In-Scope)} & Quản lý trạng thái nghiệp vụ và bất biến miền; thuật toán phân bổ tài nguyên, khóa giữ chỗ (\textit{Reservation \& Locking}) và kiểm soát đồng thời; lập lịch hàng đợi sạc thông minh; giám sát mạng lưới, xử lý sự cố và điều chuyển xe liên Hub; bộ máy mô phỏng sự kiện rời rạc (\textit{Discrete-Event Simulation}); ứng dụng di động cho User và giao diện vận hành Web/Mobile cho Operator. \\
+\addlinespace[4pt]
+\textbf{Ngoài phạm vi (Out-of-Scope)} & Không chế tạo phần cứng IoT vật lý (sử dụng bộ mô phỏng thiết bị \texttt{SimulatedDock} / dữ liệu giả lập theo đúng cho phép của đề bài); không dựng bản đồ đồ họa 3D phức tạp (sử dụng tọa độ 2D/OpenFreeMap); không tích hợp cổng thanh toán thương mại, hệ thống nợ phí, điểm uy tín hay đăng ký tài khoản tự do trong phạm vi MVP. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Phân tích Bên liên quan và Tác nhân Hệ thống (Stakeholders and Actors)}
+
+\subsubsection*{Phân tích Các bên Liên quan (Stakeholders)}
+Nhóm xác định năm nhóm bên liên quan chính tác động và thụ hưởng từ hệ thống như tổng hợp tại \Cref{tab:stakeholders}.
+
+\begin{table}[H]
+\centering
+\caption{Phân tích các bên liên quan (Stakeholders)}
+\label{tab:stakeholders}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.7cm} >{\raggedright\arraybackslash}p{4.3cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Bên liên quan} & \textbf{Vai trò} & \textbf{Kỳ vọng và mục tiêu chính} \\
+\midrule
+Người dùng và Sinh viên ĐHQG-HCM & Người thụ hưởng dịch vụ di chuyển, gửi xe và sạc điện. & Tìm xe nhanh, đặt giữ chỗ tin cậy không bị xung đột, xem rõ \% pin, nhận/trả xe thuận tiện và đặt chỗ sạc cho xe cá nhân. \\
+\addlinespace[3pt]
+Đơn vị Vận hành (Operator) & Quản trị viên và điều phối viên mạng lưới Hub. & Bảng điều khiển giám sát toàn cảnh, cảnh báo sớm cạn xe/đầy bãi, lập lệnh điều chuyển nhanh và mô phỏng kịch bản rủi ro. \\
+\addlinespace[3pt]
+Đội ngũ Kỹ thuật và Logistics & Thực thi bảo trì thiết bị và vận chuyển tái cân bằng. & Tiếp nhận nhiệm vụ sửa chữa đúng SLA, thực hiện thu hồi/bảo trì xe và bàn giao lô xe điều chuyển (ghi nhận qua Operator trong MVP). \\
+\addlinespace[3pt]
+Ban Quản lý Đô thị và KTX ĐHQG & Đơn vị chủ quản hạ tầng giao thông nội khu. & Giảm ùn tắc nội khu, bảo đảm an toàn điện tại trạm sạc và minh bạch tỷ lệ khai thác phương tiện xanh. \\
+\addlinespace[3pt]
+Đơn vị Vận hành Metro Tuyến số 1 & Đối tác hạ tầng giao thông công cộng. & Bảo đảm năng lực phương tiện sẵn sàng tại Hub Ga Metro đồng bộ với lưu lượng hành khách giờ cao điểm. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection*{Phân loại Tác nhân Tương tác (System Actors)}
+Tuân thủ quy chuẩn UML trong bài giảng CO3001 (Ch3 và Ch6), các tác nhân được đặt bên ngoài đường biên hệ thống (\textit{System Boundary}):
+\begin{itemize}[leftmargin=*,nosep]
+    \item \textbf{Tác nhân chính (Primary Actors -- đặt bên trái):} \textbf{\texttt{User}} (người dùng tìm Hub, đặt/nhận/trả xe dùng chung, đặt chỗ đỗ và yêu cầu sạc xe cá nhân, báo sự cố chuyến đi) và \textbf{\texttt{Operator}} (đơn vị vận hành giám sát mạng lưới, quản trị tài nguyên, điều chuyển xe, xử lý sự cố, lập lịch sạc và điều hành mô phỏng \textit{What-if}).
+    \item \textbf{Tác nhân phụ (Secondary / External Actors -- đặt bên phải):} \textbf{\texttt{IoT Sensor Stream / Simulated Telemetry}} (cung cấp tín hiệu trạng thái khóa chốt, mức pin và cảm biến cổng sạc) và \textbf{\texttt{Notification Service}} (dịch vụ đẩy thông báo xác nhận đặt chỗ, hết hạn và cảnh báo sự cố).
+    \item \textbf{Nguyên tắc ranh giới với bộ máy mô phỏng:} \textit{What-if Simulation Engine} là \textbf{phân hệ nghiệp vụ nội tại} nằm bên trong biên hệ thống do \texttt{Operator} kích hoạt thông qua \texttt{UC13} và \texttt{UC14}, tuyệt đối không mô hình hóa thành một Actor độc lập.
+\end{itemize}
+
+\subsection{Mô hình Tương tác: Sơ đồ Use Case Toàn hệ thống (System-wide Use Case Diagram)}
+
+Toàn bộ hệ thống bao gồm \textbf{14 Use Cases cốt lõi} chia thành hai phân hệ (Phân hệ Người dùng: \texttt{UC01--UC07}; Phân hệ Vận hành: \texttt{UC08--UC14}) cùng \textbf{7 tương tác/kịch bản vòng đời bổ sung} (\texttt{UC06-S1/S2/S3}, \texttt{UC07A}, \texttt{UC10A}, \texttt{UC10B}, \texttt{UC11A}). Các sơ đồ tổng quan và phân rã từng phân hệ được đối chiếu từ \Cref{fig:uc-general} đến \Cref{fig:uc-operator}.
+
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/general_usecase_diagram.png}
+    \caption{Sơ đồ Use Case tổng quan hệ thống Smart E-Mobility Hub}
+    \label{fig:uc-general}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/user_usecases.png}
+    \caption{Sơ đồ Use Case phân hệ Người dùng (\texttt{UC01--UC07})}
+    \label{fig:uc-user}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/operator_usecases.png}
+    \caption{Sơ đồ Use Case phân hệ Vận hành (\texttt{UC08--UC14})}
+    \label{fig:uc-operator}
+\end{figure}
+
+Danh mục đầy đủ 14 Use Cases cốt lõi và các kịch bản vòng đời bổ sung kèm đường dẫn tệp sơ đồ chi tiết được tổng hợp tại \Cref{tab:uc-catalog}.
+
+\begin{longtable}{>{\centering\arraybackslash}p{1.5cm} >{\raggedright\arraybackslash}p{3.9cm} >{\centering\arraybackslash}p{1.3cm} >{\raggedright\arraybackslash\small}p{6.8cm}}
+\caption{Danh mục 14 Use Cases cốt lõi và các kịch bản vòng đời bổ sung} \label{tab:uc-catalog} \\
+\toprule
+\textbf{Mã UC} & \textbf{Tên Use Case} & \textbf{Tác nhân} & \textbf{Tệp sơ đồ Draw.io chi tiết (\texttt{01\_Usecase\_Diagram/drawio/})} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Mã UC} & \textbf{Tên Use Case} & \textbf{Tác nhân} & \textbf{Tệp sơ đồ Draw.io chi tiết} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\texttt{UC01} & Search Mobility Hub & User & \texttt{UC01-Search\_Mobility\_Hub.drawio} \\
+\texttt{UC02} & View Available Vehicles & User & \texttt{UC02-View\_Available\_\allowbreak Vehicles.drawio} \\
+\texttt{UC03} & Reserve Vehicle & User & \texttt{UC03-Reserve\_Vehicle.drawio} \\
+\texttt{UC04} & Pick Up Vehicle & User & \texttt{UC04-Pick\_Up\_Vehicle.drawio} \\
+\texttt{UC05} & Return Vehicle & User & \texttt{UC05-Return\_Vehicle.drawio} \\
+\texttt{UC06-S1} & Create Parking Reservation & User & \texttt{UC06-S1-Create\_\allowbreak Parking\_\allowbreak Reservation.drawio} \\
+\texttt{UC06-S2} & Check In Private Vehicle & User/Op & \texttt{UC06-S2-Check\_In\_\allowbreak Private\_\allowbreak Vehicle.drawio} \\
+\texttt{UC06-S3} & Check Out Private Vehicle & User/Op & \texttt{UC06-S3-Check\_Out\_\allowbreak Private\_\allowbreak Vehicle.drawio} \\
+\texttt{UC07} & Request Charging & User & \texttt{UC07-Request\_Charging.drawio} \\
+\texttt{UC07A} & Stop Charging Session & User & \texttt{UC07A-Stop\_\allowbreak Charging\_\allowbreak Session.drawio} \\
+\texttt{UC08} & Monitor Mobility Hub Network & Operator & \texttt{UC8-Monitor\_\allowbreak Mobility\_\allowbreak Hub\_Network.drawio} \\
+\texttt{UC09} & Manage Mobility Resources & Operator & \texttt{UC9-Manage\_\allowbreak Mobility\_\allowbreak Resources.drawio} \\
+\texttt{UC10} & Redistribute Vehicles & Operator & \texttt{UC10-Redistribute\_\allowbreak Vehicles.drawio} \\
+\texttt{UC10A} & Confirm Transfer Arrival & Operator & \texttt{UC10A-Confirm\_\allowbreak Transfer\_\allowbreak Arrival.drawio} \\
+\texttt{UC10B} & Cancel Transfer Order & Operator & \texttt{UC10B-Cancel\_\allowbreak Transfer\_\allowbreak Order.drawio} \\
+\texttt{UC11} & Handle Operational Incident & Operator & \texttt{UC11-Handle\_\allowbreak Operational\_\allowbreak Incident.drawio} \\
+\texttt{UC11A} & Report Trip Incident & User/Op & \texttt{UC11A-Report\_Trip\_\allowbreak Incident.drawio} \\
+\texttt{UC12} & Manage Charging Schedule & Operator & \texttt{UC12-Manage\_\allowbreak Charging\_\allowbreak Schedule.drawio} \\
+\texttt{UC13} & Run What-if Simulation & Operator & \texttt{UC13-Run\_What-if\_\allowbreak Simulation.drawio} \\
+\texttt{UC14} & View Simulation Results & Operator & \texttt{UC14-View\_\allowbreak Simulation\_\allowbreak Results.drawio} \\
+\end{longtable}
+
+\subsection{Đặc tả Chi tiết Use Case (Use-Case Specifications)}
+
+Tất cả 14 Use Cases cốt lõi và 7 kịch bản vòng đời bổ sung được đặc tả theo cấu trúc bảng \textbf{11 trường chuẩn hóa} trong bài giảng CO3001 (Slide Ch3 tr.~56 và Ch6 tr.~19--20): \textit{Mã UC, Tên UC, Mô tả tóm tắt, Tác nhân, Tác nhân kích hoạt (Trigger), Tiền điều kiện, Hậu điều kiện, Luồng sự kiện chính, Luồng rẽ nhánh, Luồng ngoại lệ} và \textit{Quy tắc nghiệp vụ bổ trợ}. Để người đọc dễ đối chiếu trực quan giữa mô hình đồ họa và kịch bản văn bản, sơ đồ Use Case chi tiết của từng chức năng được đặt ngay phía trên bảng đặc tả tương ứng.
+
+\subsubsection*{Phân hệ Người dùng (UC01 đến UC07A)}
+
+% --- UC01 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC01-Search_Mobility_Hub.png}
+    \caption{Sơ đồ Use Case \texttt{UC01 -- Search Mobility Hub}}
+    \label{fig:uc01}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC01 -- Search Mobility Hub}} \label{tab:uc01}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC01} \\
+Tên Use Case & Search Mobility Hub (Tìm kiếm Hub di chuyển) \\
+Mô tả tóm tắt & Cho phép người dùng tìm kiếm các Hub gần vị trí hiện tại hoặc theo từ khóa, kèm thông tin khả dụng thời gian thực. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} GPS / Bản đồ nội khu. \\
+Kích hoạt (Trigger) & User mở chức năng ``Tìm Hub'' hoặc chuyển sang tab bản đồ (\texttt{\#map}). \\
+Tiền điều kiện & Ứng dụng đã khởi chạy. \\
+Hậu điều kiện & Danh sách các Hub thỏa điều kiện tìm kiếm được hiển thị kèm chỉ số khả dụng gần thời gian thực. \\
+Luồng sự kiện chính & 1. Mở màn hình bản đồ; \newline 2. Xác định vị trí hiện tại (mặc định Ga Metro ĐHQG); \newline 3. Truy vấn Hub trong bán kính mặc định 1.000m; \newline 4. Hiển thị cự ly, số xe, chỗ đỗ, cổng sạc; \newline 5. Chọn Hub để xem chi tiết. \\
+Luồng rẽ nhánh & Xem tuyến đường tới Hub (\textit{View Route to Hub} -- extend) hoặc lọc theo khoảng cách (\textit{Filter by Distance} -- extend). \\
+Luồng ngoại lệ & Không có Hub phù hợp (gợi ý mở rộng bán kính); mất kết nối mạng (nạp cache kèm cảnh báo). \\
+Quy tắc nghiệp vụ & \texttt{BR01} (bán kính mặc định 1.000m), \texttt{BR02} (ẩn/xám hóa Hub bảo trì toàn phần). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC02 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC02-View_Available_Vehicles.png}
+    \caption{Sơ đồ Use Case \texttt{UC02 -- View Available Vehicles}}
+    \label{fig:uc02}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC02 -- View Available Vehicles}} \label{tab:uc02}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC02} \\
+Tên Use Case & View Available Vehicles (Xem danh sách xe khả dụng) \\
+Mô tả tóm tắt & Hiển thị danh sách xe đạp điện, xe máy điện dùng chung đủ điều kiện thuê tại Hub đã chọn. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} IoT Sensor Stream. \\
+Kích hoạt (Trigger) & User chọn xem danh sách xe tại một Hub từ \texttt{UC01}. \\
+Tiền điều kiện & Đã chọn Hub hợp lệ. \\
+Hậu điều kiện & Danh sách phương tiện ở trạng thái \texttt{Available} và thông số chi tiết được hiển thị. \\
+Luồng sự kiện chính & 1. Mở danh sách xe; \newline 2. Lọc xe \texttt{Available} có pin $\ge 20\%$; \newline 3. Trả về mã xe, loại xe, \% pin, cự ly ước tính; \newline 4. Xem chi tiết model và thời điểm cập nhật telemetry; \newline 5. Chuyển sang đặt xe (\texttt{UC03}). \\
+Luồng rẽ nhánh & Lọc theo loại phương tiện (\textit{Filter by Vehicle Type} -- extend: xe đạp điện / xe máy điện) hoặc xem chi tiết thông số xe (\textit{View Vehicle Details} -- extend). \\
+Luồng ngoại lệ & Hub hết xe khả dụng (gợi ý Hub lân cận gần nhất). \\
+Quy tắc nghiệp vụ & \texttt{BR03} (xe pin $<20\%$ chuyển hàng đợi sạc, không cho thuê). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC03 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC03-Reserve_Vehicle.png}
+    \caption{Sơ đồ Use Case \texttt{UC03 -- Reserve Vehicle}}
+    \label{fig:uc03}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC03 -- Reserve Vehicle}} \label{tab:uc03}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC03} \\
+Tên Use Case & Reserve Vehicle (Đặt trước phương tiện) \\
+Mô tả tóm tắt & Khóa giữ nguyên tử một phương tiện dùng chung trong vòng 15 phút và cấp mã phiếu đặt chỗ cho người dùng. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} Notification Service. \\
+Kích hoạt (Trigger) & User bấm ``Đặt giữ xe này'' tại màn hình chi tiết xe. \\
+Tiền điều kiện & Tài khoản User hợp lệ, không có phiếu giữ xe hay chuyến đi \texttt{Active}. \\
+Hậu điều kiện & Xe chuyển sang \texttt{Reserved}, phát hành phiếu giữ chỗ (\texttt{\#ticket}) với hạn 15 phút. \\
+Luồng sự kiện chính & 1. Gửi yêu cầu đặt xe; \newline 2. Thực hiện \textit{Verify Vehicle Availability} (include): xác minh \texttt{Available} và pin $\ge 20\%$; \newline 3. Khóa nguyên tử bản ghi xe sang \texttt{Reserved}; \newline 4. Tạo \texttt{VehicleReservation} với \texttt{expiresAt = reservedAt + 15 phút}; \newline 5. Hiển thị QR/mã phiếu, vị trí slot và đồng hồ đếm ngược; \newline 6. Gửi thông báo. \\
+Luồng rẽ nhánh & Người dùng chủ động hủy phiếu trước khi nhận xe (\textit{Cancel Vehicle Reservation} -- extend, mở khóa xe về \texttt{Available}). \\
+Luồng ngoại lệ & Tranh chấp đồng thời (\textit{Race condition} -- từ chối và làm mới danh sách); User đang giữ một phiếu/chuyến khác. \\
+Quy tắc nghiệp vụ & \texttt{BR04} (tối đa 1 xe/User), \texttt{BR05} (giữ 15 phút, quá hạn \texttt{FR-NI01} thu hồi). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC04 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC04-Pick_Up_Vehicle.png}
+    \caption{Sơ đồ Use Case \texttt{UC04 -- Pick Up Vehicle}}
+    \label{fig:uc04}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC04 -- Pick Up Vehicle}} \label{tab:uc04}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC04} \\
+Tên Use Case & Pick Up Vehicle (Nhận phương tiện tại Hub) \\
+Mô tả tóm tắt & Xác thực chủ phiếu đặt chỗ, gửi lệnh mở khóa chốt trạm và khởi tạo chuyến đi đang hoạt động. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} Trạm khóa chốt điện tử / Simulated Unlock. \\
+Kích hoạt (Trigger) & User đến Hub và quét mã QR hoặc nhập mã xe trên \texttt{\#pickup}. \\
+Tiền điều kiện & Có phiếu \texttt{VehicleReservation} hợp lệ còn hạn của chính User. \\
+Hậu điều kiện & Phiếu chuyển \texttt{Fulfilled}, xe sang \texttt{InUse}, slot nguồn chuyển \texttt{Available}, chuyến đi \texttt{Trip [Active]} bắt đầu. \\
+Luồng sự kiện chính & 1. Mở màn hình nhận xe; \newline 2. Quét QR/nhập mã xe; \newline 3. \textit{Validate Reservation Status} (include): khớp chủ sở hữu, xe và hạn 15 phút; \newline 4. Đánh dấu \texttt{pickupClaimed} và gọi \textit{Unlock Vehicle} (include); \newline 5. Chốt khóa nhả xe; \newline 6. Cập nhật \texttt{InUse}, giải phóng slot; \newline 7. Chuyển màn hình hành trình (\texttt{\#trip}). \\
+Luồng rẽ nhánh & Báo hư hỏng trước khi nhận (\textit{Report Vehicle Damage} -- extend): kích hoạt \texttt{UC11}, cô lập xe và hỗ trợ đổi xe khác. \\
+Luồng ngoại lệ & Sai mã xe; phiếu quá hạn 15 phút; thiết bị chưa xác nhận mở khóa (giữ trạng thái đối soát, trả mã \texttt{503 DEVICE\_UNCONFIRMED} nếu retry cần đồng bộ). \\
+Quy tắc nghiệp vụ & \texttt{BR06} (không mở khóa khi mã xác thực không khớp chủ phiếu). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC05 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC05-Return_Vehicle.png}
+    \caption{Sơ đồ Use Case \texttt{UC05 -- Return Vehicle}}
+    \label{fig:uc05}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC05 -- Return Vehicle}} \label{tab:uc05}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC05} \\
+Tên Use Case & Return Vehicle (Trả phương tiện tại Hub) \\
+Mô tả tóm tắt & Xác nhận chỗ đỗ trống tại Hub đích, khóa chốt vật lý và đóng chuyến đi kèm phân loại trạng thái pin. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} Trạm khóa chốt điện tử. \\
+Kích hoạt (Trigger) & User đưa xe vào Hub đích và yêu cầu trả xe trên \texttt{\#trip}. \\
+Tiền điều kiện & Đang có chuyến \texttt{Trip [Active]}. \\
+Hậu điều kiện & Chuyến chuyển \texttt{Completed}, slot đích sang \texttt{Occupied}, cập nhật pin và phân loại xe về \texttt{Available} (pin $\ge 20\%$) hoặc \texttt{NeedsCharging} (pin $<20\%$). \\
+Luồng sự kiện chính & 1. Chọn Hub trả xe; \newline 2. \textit{Check Hub Space Availability} (include): xác minh slot đỗ tương thích còn trống; \newline 3. Đưa xe vào slot và khóa chốt; \newline 4. \textit{Verify Vehicle \& Battery Status} (include): cảm biến xác nhận khóa và đọc \% pin; \newline 5. User xác nhận trả; \newline 6. \textit{Confirm Vehicle Return} (include): đóng chuyến, chiếm dụng slot và phân loại trạng thái xe nguyên tử; \newline 7. Hiển thị tóm tắt hành trình. \\
+Luồng rẽ nhánh & Pin trả $<20\%$ tự động đưa vào hàng đợi sạc (\texttt{UC12}). \\
+Luồng ngoại lệ & Hub đích đầy chỗ (điều hướng sang Hub lân cận); cảm biến chưa nhận khóa chốt. \\
+Quy tắc nghiệp vụ & \texttt{BR07} (chuyến chỉ kết thúc khi khóa vật lý được xác nhận đóng). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC06-S1 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC06-S1-Create_Parking_Reservation.png}
+    \caption{Sơ đồ Use Case \texttt{UC06-S1 -- Create Parking Reservation}}
+    \label{fig:uc06s1}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC06-S1 -- Create Parking Reservation}} \label{tab:uc06s1}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC06-S1} \\
+Tên Use Case & Create Parking Reservation (Tạo đặt chỗ đỗ xe cá nhân) \\
+Mô tả tóm tắt & Tạo cam kết giữ chỗ đỗ cho xe cá nhân theo chế độ đặt ngay hoặc đặt trước theo khoảng thời gian. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} Notification Service. \\
+Kích hoạt (Trigger) & User chọn tạo đặt chỗ đỗ ngay hoặc đặt trước cho xe cá nhân. \\
+Tiền điều kiện & Tài khoản và xe cá nhân đã cấp sẵn với biển số, loại xe. \\
+Hậu điều kiện & Tạo phiếu \texttt{Reserved} kèm QR, lưu \texttt{holdExpiresAt} hoặc \texttt{[plannedArrival, plannedCheckout)}; chưa tạo chiếm dụng vật lý. \\
+Luồng sự kiện chính & 1. Chọn Hub, xe cá nhân và pool (đặt ngay/đặt trước); \newline 2. Nhập khoảng thời gian nếu đặt trước; \newline 3. Hiển thị ô tương thích; \newline 4. Chọn ô và xác nhận; \newline 5. Kiểm tra xung đột nửa mở và ghi cam kết nguyên tử theo \texttt{BR08}; \newline 6. Cấp mã và gửi thông báo. \\
+Luồng rẽ nhánh & Hủy phiếu \texttt{Reserved} chưa check-in (đặt trước cần hủy trước giờ hẹn tối thiểu 10 phút). \\
+Luồng ngoại lệ & Sai xe, sai khoảng, hết chỗ hoặc trùng khoảng \texttt{existingStart < requestedEnd} \texttt{AND} \texttt{requestedStart < existingEnd}. \\
+Quy tắc nghiệp vụ & \texttt{BR08}, \texttt{BR08a}, \texttt{LIM-01}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC06-S2 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC06-S2-Check_In_Private_Vehicle.png}
+    \caption{Sơ đồ Use Case \texttt{UC06-S2 -- Check In Private Vehicle}}
+    \label{fig:uc06s2}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC06-S2 -- Check In Private Vehicle}} \label{tab:uc06s2}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC06-S2} (ánh xạ lịch sử từ \texttt{UC06A}) \\
+Tên Use Case & Check In Private Vehicle (Xác nhận xe cá nhân vào bãi) \\
+Mô tả tóm tắt & Xác thực phiếu đặt chỗ khi xe cá nhân đến bãi và chuyển sang trạng thái chiếm dụng vật lý thực tế. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} Operator (hỗ trợ nếu cần), thiết bị/giả lập. \\
+Kích hoạt (Trigger) & User chọn phiếu đặt chỗ và xác nhận đến Hub. \\
+Tiền điều kiện & Phiếu \texttt{Reserved} thuộc User, trong cửa sổ đến \texttt{BR08a}, đúng Hub/ô tương thích, không cách ly và không có xe hiện diện. \\
+Hậu điều kiện & Phiếu $\rightarrow$ \texttt{Fulfilled}, lưu \texttt{actualCheckInTime}, bắt đầu chiếm dụng vật lý tại ô; chưa kích hoạt sạc. \\
+Luồng sự kiện chính & 1. Quét QR/mã phiếu; \newline 2. Kiểm tra chủ phiếu, xe và cửa sổ thời gian; \newline 3. Kiểm tra khả dụng vật lý của ô; \newline 4. Xác nhận xe hiện diện; \newline 5. Ghi giờ vào, chuyển \texttt{Fulfilled} và chiếm dụng ô trong một giao dịch; \newline 6. Cập nhật sức chứa. \\
+Luồng rẽ nhánh & Nhập mã thủ công; Operator xác nhận thay có lưu vết. \\
+Luồng ngoại lệ & Sai chủ/hết hạn/đến sớm; ô còn xe trước do quá giờ (kích hoạt \texttt{LIM-01}: giữ vết cả hai phiếu, gợi ý ô/Hub thay thế hoặc chuyển Operator). \\
+Quy tắc nghiệp vụ & \texttt{BR08a}, \texttt{LIM-01}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC06-S3 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC06-S3-Check_Out_Private_Vehicle.png}
+    \caption{Sơ đồ Use Case \texttt{UC06-S3 -- Check Out Private Vehicle}}
+    \label{fig:uc06s3}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC06-S3 -- Check Out Private Vehicle}} \label{tab:uc06s3}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC06-S3} (ánh xạ lịch sử từ \texttt{UC06B}) \\
+Tên Use Case & Check Out Private Vehicle (Xác nhận xe cá nhân ra bãi) \\
+Mô tả tóm tắt & Xác nhận xe cá nhân rời khỏi chỗ đỗ, đảm bảo đã ngắt sạc/rút phích và tính phí quá giờ nếu có. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} Operator (hỗ trợ), thiết bị/giả lập. \\
+Kích hoạt (Trigger) & User chọn xe đang gửi và yêu cầu rời bãi. \\
+Tiền điều kiện & User là chủ xe; xe đang chiếm đúng ô. \\
+Hậu điều kiện & Lưu \texttt{actualCheckoutTime} và phí quá giờ (\texttt{BR08b} nếu có), kết thúc chiếm dụng, giữ lịch sử \texttt{Fulfilled} và các cam kết tương lai. \\
+Luồng sự kiện chính & 1. Yêu cầu checkout; \newline 2. Kiểm tra chủ xe và chiếm dụng; \newline 3. Xác minh sạc đã dừng và đầu nối đã tháo (nếu đang sạc phải chạy \texttt{UC07A}); \newline 4. Xác nhận xe rời bãi; \newline 5. Tính phí, đóng chiếm dụng và cập nhật khả dụng nguyên tử; \newline 6. Trả xác nhận. \\
+Luồng rẽ nhánh & Hủy yêu cầu sạc đang chờ (\texttt{409 CHARGING\_REQUEST\_QUEUED} cần xác nhận hủy); Operator xác nhận thay. \\
+Luồng ngoại lệ & Chưa ngắt điện/chưa rời bãi (giữ \texttt{Occupied}); gửi lặp theo mã giao dịch trả kết quả cũ. \\
+Quy tắc nghiệp vụ & \texttt{BR08b} (công thức tính phí đỗ quá giờ). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC07 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC07-Request_Charging.png}
+    \caption{Sơ đồ Use Case \texttt{UC07 -- Request Charging}}
+    \label{fig:uc07}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC07 -- Request Charging}} \label{tab:uc07}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC07} \\
+Tên Use Case & Request Charging (Yêu cầu sạc điện) \\
+Mô tả tóm tắt & Ghi nhận yêu cầu sạc pin của xe cá nhân hoặc xe tại Hub vào hàng đợi ưu tiên chờ cấp cổng và công suất. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} Hệ thống lập lịch (\textit{Scheduler}). \\
+Kích hoạt (Trigger) & User gửi yêu cầu sạc tại màn hình \texttt{\#charging}. \\
+Tiền điều kiện & Đã đăng nhập và sở hữu quyền sạc xe đang đỗ hợp lệ tại Hub. \\
+Hậu điều kiện & Ghi nhận bản ghi \texttt{ChargingRequest [Queued]} chờ \texttt{UC12} phân bổ cổng/công suất. \\
+Luồng sự kiện chính & 1. Chọn xe cần sạc tại Hub; \newline 2. Kiểm tra đầu nối tương thích (\texttt{connector\_type}) và mức pin hiện tại; \newline 3. Nhập mức pin mục tiêu (\texttt{targetBatteryPercent}) và thời điểm cần xe (\texttt{neededBy}); \newline 4. Xác thực \texttt{target > current} và ghi vào hàng đợi ưu tiên. \\
+Luồng rẽ nhánh & Nếu pin $<10\%$, hệ thống kích hoạt tái lập lịch khẩn cấp (\texttt{FR-NI04}). \\
+Luồng ngoại lệ & Sai chuẩn đầu nối, mục tiêu không hợp lệ, hoặc không tìm thấy chiếm dụng hợp lệ tại Hub. \\
+Quy tắc nghiệp vụ & \texttt{BR09}, \texttt{BR15}, \texttt{FR-NI04}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC07A ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC07A-Stop_Charging_Session.png}
+    \caption{Sơ đồ Use Case \texttt{UC07A -- Stop Charging Session}}
+    \label{fig:uc07a}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC07A -- Stop Charging Session}} \label{tab:uc07a}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC07A} \\
+Tên Use Case & Stop Charging Session (Kết thúc phiên sạc) \\
+Mô tả tóm tắt & Ngắt nguồn cấp điện an toàn cho phiên sạc đang chạy, giải phóng công suất và giữ nguyên chỗ đỗ cho tới khi xe rời bãi. \\
+Tác nhân (Actors) & \textbf{Chính:} User; \textbf{Phụ:} Thiết bị sạc giả lập / Scheduler. \\
+Kích hoạt (Trigger) & User bấm dừng phiên sạc đang chạy trên \texttt{\#charging}. \\
+Tiền điều kiện & Đã đăng nhập, sở hữu phiên sạc đang ở trạng thái \texttt{Active}. \\
+Hậu điều kiện & Ngắt nguồn an toàn, đóng phiên (\texttt{Completed} hoặc \texttt{Interrupted}), giải phóng công suất trụ sạc và giữ nguyên chiếm dụng chỗ đỗ. \\
+Luồng sự kiện chính & 1. Kiểm tra quyền sở hữu phiên sạc; \newline 2. Gửi lệnh ngắt nguồn tới thiết bị (tối đa 3 lần thử lại với cùng \texttt{commandId}); \newline 3. Nhận xác nhận ngắt điện an toàn; \newline 4. Cập nhật trạng thái phiên/yêu cầu và giải phóng công suất; \newline 5. Gọi bộ lập lịch phục vụ yêu cầu kế tiếp trong hàng đợi. \\
+Luồng rẽ nhánh & Dừng do đạt mục tiêu (\texttt{TargetReached}) hoặc nhường cổng $\ge 80\%$ (\texttt{PriorityYield}) -- khác với dừng chủ động của User (\texttt{UserStop}, không tự xếp hàng lại). \\
+Luồng ngoại lệ & Chưa xác nhận ngắt điện (giữ cổng ở trạng thái không khả dụng để đối soát và tạo sự cố \texttt{UC11}). \\
+Quy tắc nghiệp vụ & \texttt{BR09}, \texttt{BR15}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection*{Phân hệ Vận hành (UC08 đến UC14)}
+
+% --- UC08 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC8-Monitor_Mobility_Hub_Network.png}
+    \caption{Sơ đồ Use Case \texttt{UC08 -- Monitor Mobility Hub Network}}
+    \label{fig:uc08}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC08 -- Monitor Mobility Hub Network}} \label{tab:uc08}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC08} \\
+Tên Use Case & Monitor Mobility Hub Network (Giám sát mạng lưới Hub) \\
+Mô tả tóm tắt & Tổng hợp chỉ số vận hành toàn mạng lưới theo thời gian thực và phát cảnh báo mật độ theo ngưỡng quy định. \\
+Tác nhân (Actors) & \textbf{Chính:} Operator; \textbf{Phụ:} IoT Sensor Stream. \\
+Kích hoạt (Trigger) & Operator mở bảng điều khiển tổng quan (\texttt{\#overview}). \\
+Tiền điều kiện & Tài khoản có quyền \texttt{Operator}. \\
+Hậu điều kiện & Hiển thị KPI mạng lưới: khả dụng xe, phân bố pin, lấp đầy bãi đỗ, trạng thái trụ sạc và mức cảnh báo. \\
+Luồng sự kiện chính & 1. Truy cập Dashboard; \newline 2. Kích hoạt đồng thời 3 tác vụ include (\textit{View Vehicle Availability \& Battery, View Parking Occupancy, View Charger Status}); \newline 3. Tổng hợp KPI và đánh giá ngưỡng cảnh báo; \newline 4. Làm mới định kỳ (5 giây) và theo dõi \texttt{LIM-01} riêng biệt. \\
+Luồng rẽ nhánh & Xem sâu chi tiết một Hub (\textit{Inspect Selected Hub} -- extend). \\
+Luồng ngoại lệ & Mất kết nối telemetry từ Hub (hiển thị cảnh báo và kích hoạt \texttt{UC11}). \\
+Quy tắc nghiệp vụ & \texttt{BR10} / \texttt{FR-NI03} (Đỏ: lấp đầy $\ge 95\%$ hoặc 0 xe; Vàng: lấp đầy $\ge 85\%$ hoặc xe $\le 10\%$). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC09 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC9-Manage_Mobility_Resources.png}
+    \caption{Sơ đồ Use Case \texttt{UC09 -- Manage Mobility Resources}}
+    \label{fig:uc09}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC09 -- Manage Mobility Resources}} \label{tab:uc09}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC09} \\
+Tên Use Case & Manage Mobility Resources (Quản lý tài nguyên vận hành) \\
+Mô tả tóm tắt & Cho phép vận hành viên đăng ký mới, cập nhật thông số, tạm ngưng hoặc tái kích hoạt xe, chỗ đỗ và trụ sạc. \\
+Tác nhân (Actors) & \textbf{Chính:} Operator; \textbf{Phụ:} Cơ sở dữ liệu tài nguyên. \\
+Kích hoạt (Trigger) & Operator mở phân hệ Quản lý tài nguyên (\texttt{\#resources}). \\
+Tiền điều kiện & Tài khoản có quyền \texttt{Operator}. \\
+Hậu điều kiện & Tài nguyên được đăng ký, cập nhật, tạm ngưng hoặc tái kích hoạt đồng bộ và ghi nhận kiểm toán. \\
+Luồng sự kiện chính & 1. Mở danh mục tài nguyên (EV, Slot, Charging Point); \newline 2. Chọn nghiệp vụ kế thừa (\textit{Register, Update, Suspend, Reactivate Resource}); \newline 3. Kiểm tra dữ liệu đầu vào (\textit{Validate Resource Data}); \newline 4. Lưu nguyên tử và ghi nhận thay đổi. \\
+Luồng rẽ nhánh & Tạm ngưng xe hỏng để loại ngay khỏi danh sách tìm kiếm. \\
+Luồng ngoại lệ & Trùng mã định danh; cố gắng xóa hoặc ghi đè tài nguyên đang có giao dịch hoạt động. \\
+Quy tắc nghiệp vụ & \texttt{BR11} (cấm hard delete hoặc ghi đè trạng thái khi xe đang \texttt{InUse}, \texttt{Reserved}, \texttt{TransferHeld} hoặc đang có sự cố mở). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC10 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC10-Redistribute_Vehicles.png}
+    \caption{Sơ đồ Use Case \texttt{UC10 -- Redistribute Vehicles}}
+    \label{fig:uc10}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC10 -- Redistribute Vehicles}} \label{tab:uc10}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC10} \\
+Tên Use Case & Redistribute Vehicles (Điều phối cân bằng xe liên Hub) \\
+Mô tả tóm tắt & Lập lệnh điều chuyển lô xe từ Hub dư thừa sang Hub thiếu hụt và xác nhận xuất phát trung chuyển. \\
+Tác nhân (Actors) & \textbf{Chính:} Operator (phối hợp đội trung chuyển hiện trường). \\
+Kích hoạt (Trigger) & Operator mở phân hệ Điều chuyển (\texttt{\#redistribute}) và tạo lệnh mới. \\
+Tiền điều kiện & Hub nguồn $\ne$ Hub đích (\texttt{BR12}); xe dùng chung \texttt{Available} có pin $\ge 80\%$ (\texttt{BR13}); đủ slot trống tại Hub đích. \\
+Hậu điều kiện & Tạo lệnh \texttt{Planned}, khóa xe nguồn (\texttt{TransferHeld}) và giữ slot đích ánh xạ 1--1 (\textit{Migration 0009}); khi xuất phát chuyển sang \texttt{InTransit} và giải phóng slot nguồn. \\
+Luồng sự kiện chính & 1. Chọn Hub nguồn, Hub đích và số lượng xe cần chuyển; \newline 2. Lọc các xe đủ điều kiện ($\ge 80\%$ pin) và kiểm tra sức chứa đích; \newline 3. Khóa xe nguồn và giữ slot đích tạo lệnh \texttt{Planned}; \newline 4. Xác nhận xuất phát chuyển lệnh sang \texttt{InTransit} và nhả slot nguồn. \\
+Luồng rẽ nhánh & Chuyển sang \texttt{UC10A} khi đến đích hoặc \texttt{UC10B} để hủy khi lệnh còn \texttt{Planned}. \\
+Luồng ngoại lệ & Tranh chấp đồng thời giữa \textit{Depart} và \textit{Cancel} trên trạng thái \texttt{Planned} (chỉ một thao tác commit); không đủ slot đích khả dụng. \\
+Quy tắc nghiệp vụ & \texttt{BR12}, \texttt{BR13}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC10A ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC10A-Confirm_Transfer_Arrival.png}
+    \caption{Sơ đồ Use Case \texttt{UC10A -- Confirm Transfer Arrival}}
+    \label{fig:uc10a}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC10A -- Confirm Transfer Arrival}} \label{tab:uc10a}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC10A} \\
+Tên Use Case & Confirm Transfer Arrival (Xác nhận xe điều chuyển đến Hub đích) \\
+Mô tả tóm tắt & Đối chiếu đủ lô xe trung chuyển tới Hub đích, gán vào các slot đích giữ sẵn và hoàn tất lệnh điều chuyển. \\
+Tác nhân (Actors) & \textbf{Chính:} Operator. \\
+Kích hoạt (Trigger) & Operator xác nhận lô xe của lệnh \texttt{InTransit} đã tới Hub đích. \\
+Tiền điều kiện & Lệnh đang ở trạng thái \texttt{InTransit}, có đủ slot giữ sẵn tại Hub đích. \\
+Hậu điều kiện & Từng xe cập nhật vị trí về Hub/slot đích (\texttt{Occupied}/\texttt{Available}) và lệnh chuyển sang \texttt{Completed}. \\
+Luồng sự kiện chính & 1. Mở chi tiết lệnh \texttt{InTransit}; \newline 2. Đối chiếu đủ số lượng và mã xe trong lô điều chuyển; \newline 3. Gán từng xe vào đúng slot vật lý theo bảng ánh xạ \texttt{assigned\_vehicle\_id}; \newline 4. Chốt lệnh \texttt{Completed} nguyên tử và giải phóng phần giữ điều chuyển. \\
+Luồng rẽ nhánh & Đổi Hub/slot đích thay thế nếu slot giữ ban đầu gặp sự cố ngoài ý muốn. \\
+Luồng ngoại lệ & Thiếu hoặc sai xe khi đối chiếu tại đích (giữ nguyên \texttt{InTransit}, kích hoạt \texttt{UC11}). \\
+Quy tắc nghiệp vụ & \texttt{BR12}, Migration~\texttt{0009}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC10B ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC10B-Cancel_Transfer_Order.png}
+    \caption{Sơ đồ Use Case \texttt{UC10B -- Cancel Transfer Order}}
+    \label{fig:uc10b}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC10B -- Cancel Transfer Order}} \label{tab:uc10b}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC10B} \\
+Tên Use Case & Cancel Transfer Order (Hủy lệnh điều chuyển) \\
+Mô tả tóm tắt & Hủy lệnh điều chuyển khi chưa xuất phát và giải phóng đúng các xe nguồn cùng slot đích thuộc sở hữu của lệnh đó. \\
+Tác nhân (Actors) & \textbf{Chính:} Operator. \\
+Kích hoạt (Trigger) & Operator bấm hủy một lệnh điều chuyển đang ở trạng thái \texttt{Planned}. \\
+Tiền điều kiện & Lệnh điều chuyển tồn tại ở trạng thái \texttt{Planned}. \\
+Hậu điều kiện & Lệnh chuyển sang \texttt{Cancelled}; các xe nguồn trở lại \texttt{Available} và slot đích hết bị giữ bởi lệnh này. \\
+Luồng sự kiện chính & 1. Chọn lệnh \texttt{Planned} cần hủy; \newline 2. Kiểm tra nguyên tử trạng thái hiện hành và quyền sở hữu các hold; \newline 3. Giải phóng đúng tập xe và slot đích do lệnh nắm giữ; \newline 4. Ghi nhận trạng thái \texttt{Cancelled}. \\
+Luồng rẽ nhánh & Lệnh đã bị hủy trước đó trả về kết quả lũy đẳng theo giao dịch an toàn. \\
+Luồng ngoại lệ & Lệnh đã chuyển sang \texttt{InTransit} hoặc \texttt{Completed} (từ chối hủy bằng lỗi chuyển trạng thái). \\
+Quy tắc nghiệp vụ & Bất biến sở hữu hold: không bao giờ giải phóng nhầm hold của lệnh khác. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC11 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC11-Handle_Operational_Incident.png}
+    \caption{Sơ đồ Use Case \texttt{UC11 -- Handle Operational Incident}}
+    \label{fig:uc11}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC11 -- Handle Operational Incident}} \label{tab:uc11}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC11} \\
+Tên Use Case & Handle Operational Incident (Xử lý sự cố vận hành) \\
+Mô tả tóm tắt & Tiếp nhận, cô lập an toàn xe/trụ sạc lỗi, phân công kỹ thuật viên bảo trì và nghiệm thu đóng hồ sơ sự cố. \\
+Tác nhân (Actors) & \textbf{Chính:} Operator (phối hợp kỹ thuật viên bảo trì). \\
+Kích hoạt (Trigger) & Operator mở tab Sự cố (\texttt{\#incidents}) khi có cảnh báo thiết bị hoặc báo cáo từ người dùng. \\
+Tiền điều kiện & Có sự cố đang mở (\texttt{Open} hoặc \texttt{Investigating}) trong hệ thống. \\
+Hậu điều kiện & Tài nguyên bị cô lập, phân công sửa chữa (\texttt{Investigating}) và chỉ khôi phục khi nghiệm thu an toàn (\texttt{Resolved}). \\
+Luồng sự kiện chính & 1. Xem chi tiết sự cố và đánh giá mức độ (Khẩn cấp / Nghiêm trọng / Thông thường); \newline 2. Bắt buộc kích hoạt \textit{Isolate Faulty Resource} (ghi nhận \texttt{isolation\_verified\_at}); \newline 3. Kích hoạt \textit{Schedule Maintenance} giao kỹ thuật viên; \newline 4. Xác nhận nghiệm thu an toàn và chuyển sự cố sang \texttt{Resolved}. \\
+Luồng rẽ nhánh & Chuyến đi bị sự cố chỉ đóng sau khi thu hồi xe an toàn theo quy trình \texttt{UC05}. \\
+Luồng ngoại lệ & Mất kết nối trụ sạc không thể ngắt từ xa (kích hoạt cảnh báo tại chỗ và liên hệ bảo vệ). \\
+Quy tắc nghiệp vụ & \texttt{BR14} (sự cố Khẩn cấp phải cô lập $\le 60$ giây), ràng buộc XOR mục tiêu sự cố. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC11A ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC11A-Report_Trip_Incident.png}
+    \caption{Sơ đồ Use Case \texttt{UC11A -- Report Trip Incident}}
+    \label{fig:uc11a}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC11A -- Report Trip Incident}} \label{tab:uc11a}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC11A} \\
+Tên Use Case & Report Trip Incident (Báo cáo sự cố giữa chuyến đi) \\
+Mô tả tóm tắt & Cho phép người dùng gửi báo cáo hư hỏng/sự cố gắn với chuyến đi hiện tại tới trung tâm vận hành. \\
+Tác nhân (Actors) & \textbf{Chính:} User (hoặc Operator ghi nhận hộ). \\
+Kích hoạt (Trigger) & User nhấn nút ``Báo sự cố'' ngay trên màn hình chuyến đi (\texttt{\#trip}). \\
+Tiền điều kiện & User sở hữu chuyến đi đang ở trạng thái \texttt{Active}. \\
+Hậu điều kiện & Tạo phiếu sự cố \texttt{Open} gắn \texttt{reportedTrip}, \texttt{reporter}, \texttt{affectedVehicle}, lưu mô tả và tọa độ báo cáo; giữ nguyên chuyến \texttt{Active}. \\
+Luồng sự kiện chính & 1. User chọn báo sự cố trong chuyến; \newline 2. Nhập mô tả tình trạng và vị trí hiện tại; \newline 3. Hệ thống xác thực chủ chuyến qua \texttt{verifiedTripReader}; \newline 4. Lưu hồ sơ sự cố \texttt{Open} và gửi cảnh báo cho Operator (\texttt{UC11}). \\
+Luồng rẽ nhánh & Operator tiếp nhận xử lý song song mà không tự động đóng chuyến hay khóa vật lý xe đang di chuyển. \\
+Luồng ngoại lệ & Chuyến đi không thuộc User hoặc đã kết thúc trước đó. \\
+Quy tắc nghiệp vụ & Lưu bất biến dấu vết chuyến đi gốc tại thời điểm báo cáo. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC12 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC12-Manage_Charging_Schedule.png}
+    \caption{Sơ đồ Use Case \texttt{UC12 -- Manage Charging Schedule}}
+    \label{fig:uc12}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC12 -- Manage Charging Schedule}} \label{tab:uc12}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC12} \\
+Tên Use Case & Manage Charging Schedule (Quản lý và lập lịch sạc thông minh) \\
+Mô tả tóm tắt & Xếp hạng ưu tiên hàng đợi sạc, phân bổ cổng tương thích và kiểm soát trần công suất vận hành tại từng Hub. \\
+Tác nhân (Actors) & \textbf{Chính:} Operator; \textbf{Phụ:} Hệ thống điều khiển trạm biến áp Hub. \\
+Kích hoạt (Trigger) & Operator mở phân hệ Lịch sạc thông minh (\texttt{\#schedule}). \\
+Tiền điều kiện & Có yêu cầu sạc từ \texttt{UC07} hoặc xe dùng chung cần sạc sau \texttt{UC05}. \\
+Hậu điều kiện & Hàng đợi sạc được sắp xếp ưu tiên; cổng tương thích và công suất được phân bổ trong giới hạn Hub. \\
+Luồng sự kiện chính & 1. Giám sát hàng đợi (\textit{Monitor Charging Queue}); \newline 2. Chạy thuật toán ưu tiên (\textit{Prioritize Charging Order}: khẩn cấp $<10\%$--$20\%$, giờ lấy xe \texttt{neededBy} gần); \newline 3. Phân bổ cổng (\textit{Allocate Charging Points}); \newline 4. Xác nhận áp dụng và gửi lệnh cấp nguồn tạo phiên \texttt{Active}. \\
+Luồng rẽ nhánh & Cổng hỏng giữa chừng chuyển sang \texttt{UC11} và phân bổ lại khi an toàn; Operator can thiệp thứ tự khẩn cấp (\textit{Override}). \\
+Luồng ngoại lệ & Vượt ngân sách công suất (giảm tải các xe $>70\%$ pin hoặc nhường cổng $\ge 80\%$). \\
+Quy tắc nghiệp vụ & \texttt{BR15} (\texttt{powerLimitKW} = 85\% công suất định mức Hub), \texttt{BR09}, \texttt{FR-NI04}. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC13 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC13-Run_What-if_Simulation.png}
+    \caption{Sơ đồ Use Case \texttt{UC13 -- Run What-if Simulation}}
+    \label{fig:uc13}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC13 -- Run What-if Simulation}} \label{tab:uc13}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC13} \\
+Tên Use Case & Run What-if Simulation (Chạy mô phỏng kịch bản What-if) \\
+Mô tả tóm tắt & Khởi chạy mô phỏng sự kiện rời rạc trên bản chụp mạng lưới bất biến theo 5 kịch bản giả định. \\
+Tác nhân (Actors) & \textbf{Chính:} Operator (không có tác nhân ngoài -- \textit{Simulation Engine} nằm nội tại trong hệ thống). \\
+Kích hoạt (Trigger) & Operator truy cập màn hình Mô phỏng (\texttt{\#simulation}). \\
+Tiền điều kiện & Có dữ liệu trạng thái mạng lưới hiện tại để chụp \textit{NetworkSnapshot}. \\
+Hậu điều kiện & Hoàn tất mô phỏng trên \textit{immutable snapshot}, lưu kết quả và chuyển sang \texttt{UC14}. \\
+Luồng sự kiện chính & 1. Chọn 1 trong 5 kịch bản giả định (\textit{MetroSurge, FullParking, ChargingDemandSurge, PartialChargerFailure, VehicleClustering}); \newline 2. Cấu hình tham số động và Hub mục tiêu; \newline 3. Chạy mô phỏng rời rạc trên bản chụp cô lập; \newline 4. Chuyển kết quả sang \texttt{UC14}. \\
+Luồng rẽ nhánh & Chuyển khuyến nghị sang thực thi (\texttt{UC10}/\texttt{UC12}) có kiểm tra lại điều kiện thực; xuất báo cáo JSON. \\
+Luồng ngoại lệ & Tham số ngoài miền hợp lệ (từ chối lưu và báo lỗi kiểm định). \\
+Quy tắc nghiệp vụ & \texttt{BR16} (tuyệt đối không làm biến đổi dữ liệu vận hành thật). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% --- UC14 ---
+\begin{figure}[H]
+    \centering
+        \includegraphics[width=0.92\textwidth,height=0.78\textheight,keepaspectratio]{graphics/diagrams/UC14-View_Simulation_Results.png}
+    \caption{Sơ đồ Use Case \texttt{UC14 -- View Simulation Results}}
+    \label{fig:uc14}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{Đặc tả Use Case \texttt{UC14 -- View Simulation Results}} \label{tab:uc14}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash\bfseries}p{3.6cm} >{\raggedright\arraybackslash}X}
+\toprule
+Thuộc tính & \textbf{Nội dung đặc tả} \\
+\midrule
+Mã Use Case & \texttt{UC14} \\
+Tên Use Case & View Simulation Results (Xem kết quả mô phỏng và đề xuất) \\
+Mô tả tóm tắt & Trình bày các chỉ số hiệu năng mô phỏng, so sánh với trạng thái cơ sở và hiển thị các khuyến nghị điều phối. \\
+Tác nhân (Actors) & \textbf{Chính:} Operator (không có tác nhân ngoài). \\
+Kích hoạt (Trigger) & Tự động mở sau \texttt{UC13} hoặc mở lại kết quả đã lưu trên \texttt{\#results}. \\
+Tiền điều kiện & Tồn tại bản ghi \texttt{SimulationRun [Completed]}. \\
+Hậu điều kiện & Operator nắm bắt chỉ số tác động dịch vụ và phương án điều phối tối ưu. \\
+Luồng sự kiện chính & 1. Truy xuất kết quả (\textit{Retrieve Simulation Results}); \newline 2. Hiển thị chỉ số (\textit{Display Metrics}: tỷ lệ phục vụ, thời gian chờ trung bình, số lượt từ chối); \newline 3. Hiển thị khuyến nghị (\textit{Display Recommendations}: điều chuyển xe, đổi lịch sạc, chuyển hướng Hub); \newline 4. Xem xét áp dụng hoặc mô phỏng lại. \\
+Luồng rẽ nhánh & So sánh hai kịch bản, lọc theo Hub, xuất dữ liệu kết quả JSON. \\
+Luồng ngoại lệ & Kết quả không tồn tại hoặc lỗi cấu hình. \\
+Quy tắc nghiệp vụ & \texttt{BR17} (khuyến nghị phải kèm mức độ cải thiện dự kiến). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Yêu cầu Phi chức năng (Non-Functional Requirements) và Quy tắc Nghiệp vụ}
+
+Hệ thống đối chiếu khung chất lượng \textbf{ISO/IEC 25010} với 6 nhóm Yêu cầu Phi chức năng mục tiêu (\Cref{tab:nfrs}) và hệ thống Quy tắc Nghiệp vụ \texttt{BR01--BR17} kèm giới hạn mô hình \texttt{LIM-01} (\Cref{tab:business-rules}). Trong phạm vi MVP, các tiêu chí về đồng thời (\texttt{NFR-CD01..02}) và bảo mật phiên (\texttt{NFR-SE01..02}) đã được kiểm chứng bằng mã nguồn và bộ kiểm thử tự động; các ngưỡng hiệu năng/độ sẵn sàng (\texttt{<= 1.5s}, \texttt{<= 5.0s}, \texttt{>= 99.5\%}) là chỉ tiêu thiết kế và chưa thực hiện đo tải (\textit{load test}) trên hạ tầng thực tế.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.8cm} >{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{8.5cm}}
+\caption{Đặc tả Yêu cầu Phi chức năng mục tiêu (NFRs) theo ISO/IEC 25010} \label{tab:nfrs} \\
+\toprule
+\textbf{Nhóm NFR} & \textbf{Mã định danh} & \textbf{Tiêu chí định lượng mục tiêu và tình trạng kiểm chứng} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Nhóm NFR} & \textbf{Mã định danh} & \textbf{Tiêu chí định lượng mục tiêu và tình trạng kiểm chứng} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Hiệu năng và Thời gian thực & \texttt{NFR-PE01..03} & Mục tiêu: truy vấn Hub, xem xe và đặt chỗ phản hồi $\le 1{,}5\,\text{s}$; cập nhật telemetry $\le 2{,}0\,\text{s}$; mô phỏng What-if 10 Hub / 1.000 xe trong 24 giờ hoàn tất $\le 5{,}0\,\text{s}$ \textit{(chỉ tiêu thiết kế, chưa benchmark)}. \\
+\addlinespace[3pt]
+Kiểm soát Đồng thời và Toàn vẹn & \texttt{NFR-CD01..02} & Chống \textit{double-booking} bằng giao dịch cô lập (\textit{single-winner semantics}, \texttt{BEGIN IMMEDIATE}); đảm bảo tính chất ACID và tái thực thi lũy đẳng qua \texttt{Idempotency-Key} \textit{(đã hiện thực trong \texttt{SQLiteClient})}. \\
+\addlinespace[3pt]
+Độ tin cậy và Sẵn sàng & \texttt{NFR-RA01..02} & Mục tiêu độ sẵn sàng $\ge 99{,}5\%$ trong khung giờ 05:00--23:30 \textit{(chưa đo thực tế)}; cô lập cục bộ cổng sạc/xe lỗi không làm gián đoạn dịch vụ khác của Hub \textit{(đã hiện thực qua \texttt{IncidentService})}. \\
+\addlinespace[3pt]
+Khả năng Sử dụng (Usability) & \texttt{NFR-UA01..02} & Giao diện di động dạng thẻ (vùng chạm $\ge 44\times 44\,\text{px}$), hoàn tất đặt/nhận xe trong $\le 3$ thao tác; kết hợp nhãn chữ và màu tương phản hỗ trợ truy cập. \\
+\addlinespace[3pt]
+Mở rộng và Bảo trì & \texttt{NFR-SM01..02} & Kiến trúc modular monolith tách biệt 3 module trong \texttt{app/src/modules/}; tương thích trình duyệt hiện đại và ứng dụng Android (\texttt{android/}). \\
+\addlinespace[3pt]
+An toàn và Bảo mật & \texttt{NFR-SE01..02} & Phân quyền RBAC giữa \texttt{User} và \texttt{Operator} ở tầng router; xác thực phiên phía máy chủ (Cookie \texttt{HttpOnly}, \texttt{SameSite=Strict}, kiểm tra \texttt{Origin}, băm \texttt{scrypt} trong \texttt{app/src/app.js}). \\
+\end{longtable}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}p{12.2cm}}
+\caption{Tổng hợp Quy tắc Nghiệp vụ (\texttt{BR01--BR17}) và Giới hạn mô hình (\texttt{LIM-01})} \label{tab:business-rules} \\
+\toprule
+\textbf{Mã quy tắc} & \textbf{Nội dung quy tắc và ràng buộc thực thi} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Mã quy tắc} & \textbf{Nội dung quy tắc và ràng buộc thực thi} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\texttt{BR01--BR02} & Bán kính tìm Hub mặc định 1.000m; Hub đang bảo trì toàn phần không cho phép đặt mới. \\
+\texttt{BR03} & Phương tiện dùng chung có mức pin $< 20\%$ không hiển thị khả dụng cho thuê (tự động đưa vào hàng đợi sạc). \\
+\texttt{BR04--BR06} & Tối đa 1 lượt đặt/chuyến đi đồng thời trên mỗi User; thời hạn giữ xe tối đa 15 phút; tuyệt đối không mở chốt khóa khi mã xác thực không khớp chủ phiếu. \\
+\texttt{BR07} & Thời gian chuyến đi tính liên tục đến khi chốt khóa vật lý tại Hub trả xác nhận đóng thành công. \\
+\texttt{BR08} & Mỗi Hub có 2 pool tách biệt (đặt ngay và đặt trước), không tự hoán đổi pool; kiểm tra xung đột khoảng nửa mở \texttt{existingStart < requestedEnd AND requestedStart < existingEnd} nguyên tử. \\
+\texttt{BR08a--08b} & Hết hạn phiếu \texttt{Reserved} tại \texttt{holdExpiresAt} hoặc \texttt{plannedArrival + grace}; check-in chuyển \texttt{Fulfilled} và tạo chiếm dụng; tính phí đỗ quá giờ tại checkout theo công thức $\lceil \max(0, t_{\text{out}} - t_{\text{sched}} - g) / 60 \rceil \times r$. \\
+\texttt{LIM-01} & Xe đỗ quá giờ chặn lượt kế tiếp: ghi nhận xung đột, giữ nguyên chiếm dụng và cả hai phiếu, gợi ý chuyển ô/Hub hoặc giao Operator đối soát qua \texttt{UC08/UC11}; không tự ý hủy phiếu. \\
+\texttt{BR09} & Hỗ trợ nhường cổng sạc tại ngưỡng pin $\ge 80\%$ khi xuất hiện yêu cầu khẩn cấp hơn, bảo toàn phần nhu cầu chưa hoàn tất trong hàng đợi. \\
+\texttt{BR10} & Ngưỡng cảnh báo mạng lưới Hub (\texttt{FR-NI03}): Đỏ khi lấp đầy $\ge 95\%$ hoặc 0 xe khả dụng; Vàng khi lấp đầy $\ge 85\%$ hoặc xe khả dụng $\le 10\%$. \\
+\texttt{BR11} & Cấm xóa cứng (\textit{Hard Delete}) hoặc ghi đè trạng thái phương tiện đang \texttt{InUse}, \texttt{Reserved}, \texttt{TransferHeld} hoặc đang có sự cố mở. \\
+\texttt{BR12--BR13} & Lệnh điều chuyển bắt buộc Hub nguồn $\ne$ Hub đích; mọi xe tham gia điều chuyển phải đạt pin $\ge 80\%$ và ở trạng thái sẵn sàng. \\
+\texttt{BR14} & Sự cố mức độ Khẩn cấp phải được cô lập trong vòng $\le 60$ giây kể từ thời điểm tiếp nhận báo cáo. \\
+\texttt{BR15} & Ngân sách công suất vận hành \texttt{powerLimitKW} bằng 85\% công suất định mức Hub; tổng công suất phân bổ không vượt ngưỡng này. \\
+\texttt{BR16--BR17} & Mô phỏng What-if chạy trên bản chụp bất biến (\textit{Sandbox}), không tác động dữ liệu thật; khuyến nghị phải đi kèm chỉ số cải thiện dự kiến. \\
+\end{longtable}
+
+\subsection{Yêu cầu Chức năng Phi tương tác (Bonus)}
+
+Hệ thống thiết kế 4 cơ chế tự động không phụ thuộc thao tác trực tiếp của tác nhân (\textit{Non-Interactive Functional Requirements}). Tình trạng hiện thực cụ thể trong mã nguồn MVP như sau:
+\begin{enumerate}[leftmargin=*,nosep]
+    \item \textbf{\texttt{FR-NI01} -- Tiến trình Hủy Đặt chỗ Quá hạn:} Đã hiện thực bằng hai bộ đếm chu kỳ 30 giây trong \texttt{app/src/demo-server.js} gọi \texttt{rentalService.\allowbreak expireReservations()} và \texttt{parkingService.\allowbreak runExpiryScan()}, chuyển các phiếu quá hạn chưa nhận xe/chưa check-in sang \texttt{Expired} mà không tác động tới chiếm dụng vật lý hay phiếu có \texttt{pickup\_claimed=1}.
+    \item \textbf{\texttt{FR-NI02} -- Cập nhật Pin và Telemetry:} Trong bản MVP, cập nhật mức pin được thực hiện qua \texttt{PATCH /api/v1/\allowbreak operations/\allowbreak resources/:id} và đầu ra của \texttt{SimulatedDock} / \texttt{Simulated\allowbreak Device\allowbreak Adapter} thay vì chạy tiến trình nền suy giảm pin liên tục.
+    \item \textbf{\texttt{FR-NI03} -- Bộ Đánh giá Cảnh báo Sức chứa Hub:} \texttt{Monitoring\allowbreak Service} (\texttt{GET /api/v1/\allowbreak operations/\allowbreak hubs}) tự động tính toán tỷ lệ lấp đầy và gắn nhãn cảnh báo Vàng/Đỏ theo ngưỡng \texttt{BR10} khi đọc trạng thái mạng lưới.
+    \item \textbf{\texttt{FR-NI04} -- Tự động Tái lập lịch Hàng đợi Sạc:} Đã hiện thực qua hook \texttt{chargingService.\allowbreak setRebalanceHook(...)} trong \texttt{app/src/\allowbreak modules/\allowbreak parking-charging/\allowbreak index.js}, kích hoạt \texttt{SchedulerService.\allowbreak rebalanceHubQueue()} khi có yêu cầu sạc khẩn cấp ($<10\%$ pin) hoặc thay đổi trạng thái trụ.
+\end{enumerate}

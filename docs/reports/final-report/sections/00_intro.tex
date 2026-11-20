@@ -1,0 +1,67 @@
+% ===================================================
+% MỞ ĐẦU: THÔNG TIN NHÓM, PHÂN CÔNG VÀ THUẬT NGỮ
+% Nguồn: GLOSSARY.md, docs/architecture/DEVELOPMENT_GUIDE.md,
+%        docs/architecture/API_CONTRACTS.md, app/src/app.js
+% ===================================================
+\section*{Mở đầu: Phân công Thành viên và Thuật ngữ Hệ thống}
+\addcontentsline{toc}{section}{Mở đầu: Phân công Thành viên và Thuật ngữ Hệ thống}
+
+Báo cáo này tổng hợp quá trình phân tích yêu cầu, thiết kế kiến trúc, hiện thực sản phẩm khả dụng tối thiểu (MVP) và kiểm thử hệ thống \textbf{Smart E-Mobility Hub -- Hệ thống Điều phối Phương tiện Điện ĐHQG-HCM} trong khuôn khổ học phần \textit{Công nghệ Phần mềm (CO3001 -- HK261)}. Nội dung báo cáo bao phủ các cột mốc của môn học gồm: đặc tả yêu cầu và Use Case (Submission~\#1), mô hình động và thiết kế giao diện UI/UX (Submission~\#2), thiết kế kiến trúc 4+1 View và mô hình lớp (Submission~\#3), cùng hiện thực hệ thống, kết quả kiểm thử và khai báo sử dụng Generative AI.
+
+Ở phiên bản MVP hiện tại (\texttt{app/src/app.js}, cơ sở dữ liệu SQLite lược đồ \texttt{v12}), máy chủ backend chạy theo mô hình modular monolith với ba module \texttt{operations}, \texttt{mobility-simulation} và \texttt{parking-charging}. Để phục vụ trình diễn trong phạm vi đồ án, hệ thống sử dụng tài khoản cấu hình cục bộ (\texttt{demo-accounts.json}), phiên đăng nhập lưu trong bộ nhớ máy chủ, cùng các bộ giả lập phần cứng \texttt{SimulatedDock} và \texttt{Simulated\allowbreak Device\allowbreak Adapter}; đồng thời hai thao tác \texttt{activateAllocation} và \texttt{confirmUnplug} trong \texttt{ChargingService} hiện chỉ tồn tại ở mức dịch vụ và chưa mở route HTTP công khai.
+
+\subsection*{Phân công Trách nhiệm Thành viên và Module}
+
+Nhóm triển khai song song theo bốn luồng công việc độc lập (dựa trên \texttt{DEVELOPMENT\_\allowbreak GUIDE.md}), tách biệt quyền sở hữu dữ liệu và giao tiếp qua hợp đồng REST API (\texttt{API\_\allowbreak CONTRACTS.md}) cùng giao diện nội bộ \texttt{Inventory\allowbreak Interface}. \Cref{tab:team-ownership} tóm tắt phạm vi phụ trách của từng thành viên.
+
+\begin{table}[H]
+\centering\small
+\caption{Bảng phân công trách nhiệm và tỷ lệ đóng góp theo thành viên}
+\label{tab:team-ownership}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{2.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.3cm} >{\centering\arraybackslash}p{1.2cm}}
+\toprule
+\textbf{Phân hệ} & \textbf{Phụ trách (MSSV)} & \textbf{Phạm vi mã nguồn và tài liệu chính} & \textbf{Giao diện phối hợp} & \textbf{Đóng góp (\%)} \\
+\midrule
+UX/UI và Client Prototype & Trần Đình Ý (2414100) & Thiết kế bản mẫu User Mobile, Operator Mobile và Operator Web Dashboard (26 màn hình tại \texttt{app/\allowbreak prototype/}, tài liệu \texttt{UI-UX.pdf}). & Hợp đồng HTTP REST (\texttt{API\_\allowbreak CONTRACTS.md}) và bản mẫu \texttt{index.html}. & \textit{[Chờ XN]} \\
+\addlinespace[4pt]
+Mobility và Simulation & Nguyễn Đình Minh (2412079) & Module \texttt{app/src/\allowbreak modules/\allowbreak mobility-\allowbreak simulation/} (\texttt{UC01--UC05}, \texttt{UC13--UC14}), giao diện trực tiếp (\texttt{live.js}) và ứng dụng khách (\texttt{android/}, \texttt{app/\allowbreak flutter\_mobile/}). & Đọc/giữ xe qua \texttt{Inventory\allowbreak Interface}; cấp \texttt{verified\allowbreak Trip\allowbreak Reader} cho \texttt{operations}. & \textit{[Chờ XN]} \\
+\addlinespace[4pt]
+Parking và Charging & Trần Văn Minh Triết (2413603) & Module \texttt{app/src/\allowbreak modules/\allowbreak parking-\allowbreak charging/} (\texttt{UC06-S1/S2/S3}, \texttt{UC07}, \texttt{UC07A}, \texttt{UC12}) và migration \texttt{0012}. & Dùng \texttt{Inventory\allowbreak Interface}, \texttt{incident\allowbreak Reporter}; cấp \texttt{create\allowbreak ChargingGuard}. & \textit{[Chờ XN]} \\
+\addlinespace[4pt]
+Operations & Nguyễn Thanh Duy (2410536) & Module \texttt{app/src/\allowbreak modules/\allowbreak operations/} (\texttt{UC08--UC11A}), bộ kết nối \texttt{SQLiteClient} và kho \texttt{SQLite\allowbreak Inventory\allowbreak Repository}. & Cung cấp \texttt{Inventory\allowbreak Interface} và \texttt{IncidentService} cho các module khác. & \textit{[Chờ XN]} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{Bảng Thuật ngữ và Ký hiệu Chuyên ngành}
+
+\Cref{tab:glossary} chuẩn hóa các thuật ngữ và khái niệm miền nghiệp vụ theo \texttt{GLOSSARY.md} và đặc tả hệ thống để dùng nhất quán trong toàn bộ báo cáo.
+
+\begin{table}[H]
+\centering\small
+\caption{Thuật ngữ chuyên ngành và khái niệm miền nghiệp vụ cốt lõi}
+\label{tab:glossary}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.0cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Thuật ngữ / Ký hiệu} & \textbf{Định nghĩa chuẩn hóa trong hệ thống} \\
+\midrule
+\textbf{User / Student} & Vai trò người dùng cuối tìm kiếm Hub, đặt, nhận/trả xe dùng chung, đặt chỗ đỗ và gửi yêu cầu sạc xe cá nhân. Sinh viên (\textit{Student}) là một đối tượng điển hình sử dụng chung vai trò và quyền hạn của \texttt{User}. \\
+\addlinespace[3pt]
+\textbf{Operator} & Vai trò người vận hành theo dõi mạng lưới Hub, quản trị tài nguyên, điều chuyển xe, xử lý sự cố, điều phối lịch sạc và chạy mô phỏng. \\
+\addlinespace[3pt]
+\textbf{Mobility Hub} & Trạm trung chuyển tại ĐHQG-HCM (Ga Metro, KTX khu A, ĐH Bách khoa, Thư viện Trung tâm), quản lý phương tiện điện, chỗ đỗ và cổng sạc. \\
+\addlinespace[3pt]
+\textbf{Shared vs. Private EV} & Phân loại quyền sở hữu: xe dùng chung (\textit{Shared}) thuộc đội xe hệ thống cho thuê và điều chuyển; xe cá nhân (\textit{Private}) chỉ sử dụng dịch vụ đỗ và sạc. \\
+\addlinespace[3pt]
+\textbf{Parking Commitment vs. Physical Occupancy} & Phân biệt \textit{cam kết đặt chỗ} (phiếu \texttt{Reserved} theo hạn giữ hoặc khung giờ dự kiến) với \textit{chiếm dụng vật lý} (bản ghi \texttt{parking\_occupancies} sau khi check-in). \\
+\addlinespace[3pt]
+\textbf{Charging Allocation vs. Charging Session} & Phân biệt \textit{phân bổ cổng và công suất} (\texttt{charging\_allocations}, trạng thái \texttt{Reserved}) với \textit{phiên sạc thực tế} (\texttt{charging\_sessions}, trạng thái \texttt{Active}) chỉ tạo sau khi xác nhận cấp điện. \\
+\addlinespace[3pt]
+\textbf{Single-Winner Semantics} & Cơ chế bảo đảm chỉ một giao dịch thành công khi nhiều yêu cầu tranh chấp cùng tài nguyên thông qua khóa ghi SQLite \texttt{BEGIN IMMEDIATE} trong \texttt{SQLiteClient}. \\
+\addlinespace[3pt]
+\textbf{Idempotency-Key} & Khóa chống trùng lặp gửi kèm các yêu cầu HTTP ghi; kết quả và mã băm SHA-256 tải trọng được lưu tại bảng \texttt{idempotency\_outcomes} để phát lại an toàn khi mất kết nối. \\
+\addlinespace[3pt]
+\textbf{Immutable Snapshot} & Bản chụp trạng thái mạng lưới tại một thời điểm (thu thập qua \texttt{captureNetworkSnapshot()}) dùng riêng cho \texttt{SimulationService} nhằm tránh thay đổi dữ liệu vận hành thực tế. \\
+\bottomrule
+\end{tabularx}
+\end{table}

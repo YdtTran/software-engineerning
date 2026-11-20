@@ -1,0 +1,84 @@
+% Speed-up compilation
+% cd docs/reports/final-report
+% # Chạy 2 lần để cập nhật đầy đủ Mục lục (TOC), Danh sách hình/bảng và tham chiếu chéo (\Cref)
+% pdflatex -interaction=nonstopmode report.tex
+% pdflatex -interaction=nonstopmode report.tex
+% Đổi sang {hcmut-report} nếu viết hoàn toàn bằng tiếng Anh
+\documentclass[twoside,final]{hcmut-report-vi}
+\usepackage{codespace}
+
+% Encodings & Symbols
+\usepackage{gensymb,textcomp}
+
+% Better tables
+\usepackage{array,longtable,multicol,multirow,siunitx,tabularx}
+
+% Better enum
+\usepackage{enumitem}
+
+% Graphics
+\usepackage{caption,float}
+\usepackage[export]{adjustbox}
+
+% References
+% Use \Cref{} instead of \ref{}
+\usepackage[nameinlink]{cleveref}
+
+% ===================================================
+% THÔNG TIN TRANG BÌA (COVER CONFIGURATION)
+% ===================================================
+\coursename{Công nghệ Phần mềm (CO3001) -- HK261}
+\reporttype{Báo cáo Tổng kết Bài tập lớn}
+\title{Smart E-Mobility Hub -- Hệ thống Điều phối Phương tiện Điện ĐHQG-HCM}
+\advisor{Nguyễn Thành Công &}
+\stuname{%
+  Trần Đình Ý --  2414100 \\
+  & Nguyễn Đình Minh --  2412079 \\
+  & Trần Văn Minh Triết -- 2413603 \\
+  & Nguyễn Thanh Duy --  2410536 \\
+}
+
+% ===================================================
+% NỘI DUNG CHÍNH
+% ===================================================
+\begin{document}
+
+\coverpage
+
+% Tạo mục lục và các danh sách
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings
+\pagestyle{empty}
+\clearpage
+
+% Nội dung các chương (chia theo từng file trong sections/)
+\pagestyle{fancy}
+\setcounter{page}{1}
+
+\input{sections/00_intro}
+\clearpage
+
+\input{sections/01_requirements}
+\clearpage
+
+\input{sections/02_dynamic_ui}
+\clearpage
+
+\input{sections/03_architecture_design}
+\clearpage
+
+\input{sections/04_mvp_testing_demo}
+\clearpage
+
+\input{sections/05_evaluation_lessons}
+\clearpage
+
+\input{sections/06_genai_teamwork}
+
+% Tài liệu tham khảo (nếu dùng BibTeX)
+% \bibliographystyle{plain}
+% \bibliography{refs/example}
+
+\end{document}

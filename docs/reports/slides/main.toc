@@ -1,0 +1,3 @@
+\babel@toc {vietnamese}{}\relax 
+\beamer@sectionintoc {1}{Bài toán và mục tiêu}{4}{0}{1}
+\beamer@sectionintoc {2}{Yêu cầu và phạm vi ứng dụng}{7}{0}{2}
