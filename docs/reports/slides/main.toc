@@ -1,5 +1,7 @@
 \babel@toc {vietnamese}{}\relax 
 \beamer@sectionintoc {1}{Bài toán và mục tiêu}{4}{0}{1}
 \beamer@sectionintoc {2}{Yêu cầu và phạm vi ứng dụng}{8}{0}{2}
-\beamer@sectionintoc {3}{Thiết kế nghiệp vụ và giao diện}{19}{0}{3}
-\beamer@sectionintoc {4}{Kiến trúc và hiện thực MVP}{25}{0}{4}
+\beamer@sectionintoc {3}{Thiết kế nghiệp vụ và giao diện}{20}{0}{3}
+\beamer@sectionintoc {4}{Kiến trúc và hiện thực MVP}{26}{0}{4}
+\beamer@sectionintoc {5}{Demo sản phẩm}{32}{0}{5}
+\beamer@sectionintoc {6}{Kiểm thử, giới hạn và bài học}{33}{0}{6}

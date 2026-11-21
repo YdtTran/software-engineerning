@@ -129,19 +129,19 @@
   \setlength{\tabcolsep}{5pt}
   \begin{tabular}{@{}L{3.45cm}lL{0.60\linewidth}@{}}
     \toprule
-    \textbf{Họ và tên} & \textbf{MSSV} & \textbf{Công việc chính} \\
+    \textbf{Họ và tên}  & \textbf{MSSV} & \textbf{Công việc chính}                                                 \\
     \midrule
-    Trần Đình Ý & 2414100 &
-      \textbf{Project Owner · UX/UI.} Thiết kế giao diện người dùng và giao diện vận hành trên điện thoại, web. \\
+    Trần Đình Ý         & 2414100       &
+    \textbf{Project Owner · UX/UI.} Thiết kế giao diện người dùng và giao diện vận hành trên điện thoại, web.      \\
     \addlinespace[6pt]
-    Trần Văn Minh Triết & 2413603 &
-      \textbf{Bãi đỗ và sạc.} Đặt chỗ, ghi nhận xe vào/ra, lập lịch sạc và phát triển ứng dụng Android. \\
+    Trần Văn Minh Triết & 2413603       &
+    \textbf{Bãi đỗ và sạc.} Đặt chỗ, ghi nhận xe vào/ra, lập lịch sạc và phát triển ứng dụng Android.              \\
     \addlinespace[6pt]
-    Nguyễn Thanh Duy & 2410536 &
-      \textbf{Vận hành.} Giám sát mạng lưới Hub, quản lý tài nguyên, điều chuyển xe và xử lý sự cố. \\
+    Nguyễn Thanh Duy    & 2410536       &
+    \textbf{Vận hành.} Giám sát mạng lưới Hub, quản lý tài nguyên, điều chuyển xe và xử lý sự cố.                  \\
     \addlinespace[6pt]
-    Nguyễn Đình Minh & 2412079 &
-      \textbf{Thuê xe và mô phỏng.} Tìm Hub, giữ–nhận–trả xe, mô phỏng What-if và tích hợp bảng điều khiển vận hành. \\
+    Nguyễn Đình Minh    & 2412079       &
+    \textbf{Thuê xe và mô phỏng.} Tìm Hub, giữ–nhận–trả xe, mô phỏng What-if và tích hợp bảng điều khiển vận hành. \\
     \bottomrule
   \end{tabular}
 \end{frame}
@@ -262,30 +262,53 @@
   \centering
   \setlength{\tabcolsep}{6pt}
   {\small
-  \begin{tabular}{@{}L{4.4cm}L{9.2cm}@{}}
-    \toprule
-    \textbf{Nhóm yêu cầu} & \textbf{Chức năng} \\
-    \midrule
-    \textbf{Thuê xe dùng chung} &
-      Tìm Hub, xem xe và mức pin, giữ--nhận--trả xe \\
-    \addlinespace[6pt]
-    \textbf{Đỗ và sạc xe cá nhân} &
-      Đặt chỗ đỗ, ghi nhận xe vào/ra, gửi yêu cầu sạc \\
-    \addlinespace[6pt]
-    \textbf{Vận hành mạng lưới} &
+    \begin{tabular}{@{}L{4.4cm}L{9.2cm}@{}}
+      \toprule
+      \textbf{Nhóm yêu cầu}         & \textbf{Chức năng}                          \\
+      \midrule
+      \textbf{Thuê xe dùng chung}   &
+      Tìm Hub, xem xe và mức pin, giữ--nhận--trả xe                               \\
+      \addlinespace[6pt]
+      \textbf{Đỗ và sạc xe cá nhân} &
+      Đặt chỗ đỗ, ghi nhận xe vào/ra, gửi yêu cầu sạc                             \\
+      \addlinespace[6pt]
+      \textbf{Vận hành mạng lưới}   &
       Giám sát Hub, quản lý tài nguyên, điều chuyển xe, xử lý sự cố, lập lịch sạc \\
+      \addlinespace[6pt]
+      \textbf{Mô phỏng What-if}     &
+      Chạy kịch bản giả định và xem kết quả                                       \\
+      \bottomrule
+    \end{tabular}
+  }
+\end{frame}
+
+\begin{frame}{Yêu cầu phi chức năng (NFRs)}
+  \small
+  \centering
+  \begin{tabular}{@{}L{3.45cm}L{10.35cm}@{}}
+    \toprule
+    \textbf{Thuộc tính}          & \textbf{Mục tiêu theo đặc tả}                                            \\
+    \midrule
+    \textbf{Hiệu năng}           &
+    Phản hồi trạng thái xe, chỗ đỗ và cổng sạc trong $\leq 2$ giây.
+    Chạy mô phỏng What-if cho 1.000 xe trên 10 Hub trong $\leq 5$ giây.                                     \\
     \addlinespace[6pt]
-    \textbf{Mô phỏng What-if} &
-      Chạy kịch bản giả định và xem kết quả \\
+    \textbf{Nhất quán dữ liệu}   &
+    Ngăn cấp trùng xe hoặc chỗ đỗ khi nhiều yêu cầu đến đồng thời.                                          \\
+    \addlinespace[6pt]
+    \textbf{Tin cậy và phục hồi} &
+    Giữ dữ liệu lượt đặt và lịch sạc qua lần khởi động lại. Loại ngay xe gặp sự cố khỏi danh sách cho thuê. \\
+    \addlinespace[6pt]
+    \textbf{Khả năng mở rộng}    &
+    Kiến trúc module hóa để mở rộng từ 5 Hub lên hàng chục Hub và hàng nghìn phương tiện.                   \\
+    \addlinespace[6pt]
+    \textbf{Dễ sử dụng}          &
+    Thao tác nhanh trên điện thoại. Bảng điều khiển dùng màu để phân biệt trạng thái.                       \\
+    \addlinespace[6pt]
+    \textbf{Phân quyền}          &
+    Giới hạn quyền thao tác theo vai trò sinh viên hoặc nhân viên vận hành.                                 \\
     \bottomrule
   \end{tabular}
-  }
-  \vspace{0.35cm}
-  \begin{tikzpicture}
-    \node[key, text width=0.92\textwidth, align=left, inner sep=7pt] {%
-      \textbf{Yêu cầu chất lượng:} Phân quyền theo vai trò, tránh cấp trùng xe hoặc chỗ đỗ, lưu dữ liệu nghiệp vụ qua lần khởi động lại.%
-    };
-  \end{tikzpicture}
 \end{frame}
 
 \begin{frame}{Tổng quan Use Case toàn hệ thống}
@@ -408,7 +431,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Điều chuyển xe liên Hub}
+\begin{frame}{Điều chuyển xe liên Hub - Web dashboard}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.53\textwidth}
       \centering
@@ -493,20 +516,20 @@
   \centering
   \setlength{\tabcolsep}{6pt}
   {\small
-  \begin{tabular}{@{}L{3.6cm}L{10.4cm}@{}}
-    \toprule
-    \textbf{Phạm vi} & \textbf{Trạng thái} \\
-    \midrule
-    \textbf{Đã có trong demo} &
+    \begin{tabular}{@{}L{3.6cm}L{10.4cm}@{}}
+      \toprule
+      \textbf{Phạm vi}           & \textbf{Trạng thái}                                                                                                                                     \\
+      \midrule
+      \textbf{Đã có trong demo}  &
       Luồng thuê xe, đỗ và gửi yêu cầu sạc trên Android. Giám sát, quản lý tài nguyên, điều chuyển, xử lý sự cố, lập lịch sạc và What-if trên web. Xác nhận thiết bị dùng dữ liệu giả lập. \\
-    \addlinespace[8pt]
-    \textbf{Còn giới hạn} &
-      Kích hoạt phiên sạc, xác nhận tháo kết nối và xác minh cách ly thiết bị có xử lý ở tầng dịch vụ. Tích hợp IoT thật và gửi thông báo qua dịch vụ ngoài chưa được triển khai. \\
-    \addlinespace[8pt]
-    \textbf{Ngoài phạm vi MVP} &
-      Đăng ký tự phục vụ, thanh toán và ứng dụng riêng cho kỹ thuật viên. Tài khoản và xe cá nhân được cấp sẵn để trình diễn. \\
-    \bottomrule
-  \end{tabular}
+      \addlinespace[8pt]
+      \textbf{Còn giới hạn}      &
+      Kích hoạt phiên sạc, xác nhận tháo kết nối và xác minh cách ly thiết bị có xử lý ở tầng dịch vụ. Tích hợp IoT thật và gửi thông báo qua dịch vụ ngoài chưa được triển khai.          \\
+      \addlinespace[8pt]
+      \textbf{Ngoài phạm vi MVP} &
+      Đăng ký tự phục vụ, thanh toán và ứng dụng riêng cho kỹ thuật viên. Tài khoản và xe cá nhân được cấp sẵn để trình diễn.                                                              \\
+      \bottomrule
+    \end{tabular}
   }
 \end{frame}
 
@@ -517,20 +540,20 @@
   \centering
   \setlength{\tabcolsep}{6pt}
   {\small
-  \begin{tabular}{@{}L{3.35cm}L{10.35cm}@{}}
-    \toprule
-    \textbf{Giai đoạn} & \textbf{Nội dung} \\
-    \midrule
-    \textbf{Version 1} &
-      Đặc tả ban đầu, Use Case và prototype để thống nhất phạm vi và luồng thao tác. \\
-    \addlinespace[8pt]
-    \textbf{Qua các buổi họp} &
-      Rà soát tiến độ, thảo luận thay đổi về luồng và ngoại lệ, rồi cập nhật đặc tả, UML và giao diện. \\
-    \addlinespace[8pt]
-    \textbf{Version 2 · Bản trình bày} &
+    \begin{tabular}{@{}L{3.35cm}L{10.35cm}@{}}
+      \toprule
+      \textbf{Giai đoạn}                 & \textbf{Nội dung}                                                   \\
+      \midrule
+      \textbf{Version 1}                 &
+      Đặc tả ban đầu, Use Case và prototype để thống nhất phạm vi và luồng thao tác.                           \\
+      \addlinespace[8pt]
+      \textbf{Qua các buổi họp}          &
+      Rà soát tiến độ, thảo luận thay đổi về luồng và ngoại lệ, rồi cập nhật đặc tả, UML và giao diện.         \\
+      \addlinespace[8pt]
+      \textbf{Version 2 · Bản trình bày} &
       Làm rõ quy tắc giữ, nhận và trả xe; đối chiếu lại yêu cầu và UML với các luồng chạy trên Android và web. \\
-    \bottomrule
-  \end{tabular}
+      \bottomrule
+    \end{tabular}
   }
   \vspace{0.42cm}
   \begin{tikzpicture}
@@ -599,15 +622,15 @@
   \centering
   % Annotations belong to the slide; both source screenshots remain unchanged.
   \begin{tikzpicture}[
-    map ring/.style={line width=1.25pt},
-    map arrow/.style={->,>=stealth,line width=1.15pt,rounded corners=4pt},
-    map label/.style={font=\fontsize{7.2}{8.4}\selectfont\bfseries,fill=white,inner sep=2pt,align=center}
-  ]
+      map ring/.style={line width=1.25pt},
+      map arrow/.style={->,>=stealth,line width=1.15pt,rounded corners=4pt},
+      map label/.style={font=\fontsize{7.2}{8.4}\selectfont\bfseries,fill=white,inner sep=2pt,align=center}
+    ]
     \path[use as bounding box] (0,0) rectangle (14.55,6.4);
     \node[anchor=south west,inner sep=0] at (0,0.55)
-      {\includegraphics[width=9.8cm]{images/section-03/cd00-mo-hinh-lop.png}};
+    {\includegraphics[width=9.8cm]{images/section-03/cd00-mo-hinh-lop.png}};
     \node[anchor=south west,inner sep=0] at (11.65,0)
-      {\includegraphics[height=6.4cm]{../../assets/demo/android-active-trip.png}};
+    {\includegraphics[height=6.4cm]{../../assets/demo/android-active-trip.png}};
 
     % Circle class headers, leaving attributes and associations readable.
     \draw[map ring,blue!75!black] (6.10,4.98) ellipse (0.94cm and 0.18cm);
@@ -616,14 +639,14 @@
 
     % Route through whitespace to the corresponding Android UI region.
     \draw[map arrow,blue!75!black]
-      (6.10,5.16) -- (6.10,6.25) -- (10.85,6.25)
-      -- (10.85,4.13) -- (11.78,4.13);
+    (6.10,5.16) -- (6.10,6.25) -- (10.85,6.25)
+    -- (10.85,4.13) -- (11.78,4.13);
     \node[map label,text=blue!75!black] at (9.85,6.25) {Phiếu giữ xe};
     \draw[map arrow,green!45!black]
-      (9.41,4.98) -- (10.15,4.98) -- (10.15,3.33) -- (11.78,3.33);
+    (9.41,4.98) -- (10.15,4.98) -- (10.15,3.33) -- (11.78,3.33);
     \node[map label,text=green!45!black,anchor=south] at (10.90,3.38) {Chuyến đi};
     \draw[map arrow,orange!85!black]
-      (7.03,3.61) -- (9.65,3.61) -- (9.65,2.43) -- (11.78,2.43);
+    (7.03,3.61) -- (9.65,3.61) -- (9.65,2.43) -- (11.78,2.43);
     \node[map label,text=orange!85!black,anchor=south] at (10.80,2.48) {Tài nguyên Hub};
   \end{tikzpicture}
 \end{frame}
@@ -635,16 +658,16 @@
   \centering
   % Presentation overview, not an additional UML component diagram.
   \begin{tikzpicture}[
-    module number/.style={circle,minimum size=0.65cm,inner sep=0pt,font=\small\bfseries},
-    module title/.style={font=\small\bfseries,align=center},
-    module copy/.style={font=\footnotesize,align=center,text width=3.8cm,text=black!75}
-  ]
+      module number/.style={circle,minimum size=0.65cm,inner sep=0pt,font=\small\bfseries},
+      module title/.style={font=\small\bfseries,align=center},
+      module copy/.style={font=\footnotesize,align=center,text width=3.8cm,text=black!75}
+    ]
     \path[use as bounding box] (0,0) rectangle (14.5,6.25);
     \filldraw[rounded corners=9pt,fill=BKTemplate!3,draw=BKTemplate!25,line width=0.8pt]
-      (0.15,1.05) rectangle (14.35,6.10);
+    (0.15,1.05) rectangle (14.35,6.10);
     \node[font=\large\bfseries,text=BKTemplate] at (7.25,5.65) {Node.js / Express};
     \node[font=\footnotesize,text=black!60] at (7.25,5.20)
-      {Modular monolith \enspace · \enspace Cùng chạy trong một ứng dụng};
+    {Modular monolith \enspace · \enspace Cùng chạy trong một ứng dụng};
 
     \node[module number,fill=BKTemplate!12,text=BKTemplate] at (2.55,4.35) {01};
     \node[module number,fill=teal!12,text=teal!70!black] at (7.25,4.35) {02};
@@ -658,14 +681,14 @@
     \node[module copy] at (11.95,2.98) {Đặt chỗ và xe vào/ra\\Yêu cầu và lập lịch sạc};
 
     \draw[BKTemplate!40,line width=0.8pt] (2.55,2.38) -- (2.55,2.10)
-      -- (11.95,2.10) -- (11.95,2.38);
+    -- (11.95,2.10) -- (11.95,2.38);
     \draw[BKTemplate!40,line width=0.8pt] (7.25,2.38) -- (7.25,1.95);
     \node[rounded corners=5pt,draw=BKTemplate!35,fill=white,inner xsep=16pt,
       inner ysep=7pt,font=\footnotesize,text=BKTemplate] at (7.25,1.62)
-      {\textbf{SQLite} \enspace · \enspace Dùng chung giao dịch khi cập nhật tài nguyên};
+    {\textbf{SQLite} \enspace · \enspace Dùng chung giao dịch khi cập nhật tài nguyên};
 
     \node[font=\small,text=BKTemplate,align=center] at (7.25,0.43)
-      {\textbf{Lý do lựa chọn:} Dễ triển khai demo, rõ trách nhiệm, giữ dữ liệu nhất quán.};
+    {\textbf{Lý do lựa chọn:} Dễ triển khai demo, rõ trách nhiệm, giữ dữ liệu nhất quán.};
   \end{tikzpicture}
 \end{frame}
 
@@ -741,20 +764,20 @@
   \centering
   \setlength{\tabcolsep}{5pt}
   {\small
-  \begin{tabular}{@{}L{3.55cm}L{10.15cm}@{}}
-    \toprule
-    \textbf{Giai đoạn} & \textbf{Cách xử lý} \\
-    \midrule
-    \textbf{Giao dịch 1 · Giữ chỗ} &
-      SQLite kiểm tra và giữ chỗ trong cùng giao dịch ghi. Yêu cầu đến sau phải dùng trạng thái mới. \\
-    \addlinespace[3pt]
-    \textbf{Ngoài giao dịch · Thiết bị} &
-      Backend gọi dock qua adapter giả lập. Lệnh trả đã được lưu và chỗ vẫn được giữ trong lúc chờ. \\
-    \addlinespace[3pt]
-    \textbf{Giao dịch 2 · Hoàn tất} &
+    \begin{tabular}{@{}L{3.55cm}L{10.15cm}@{}}
+      \toprule
+      \textbf{Giai đoạn}                  & \textbf{Cách xử lý}                                                            \\
+      \midrule
+      \textbf{Giao dịch 1 · Giữ chỗ}      &
+      SQLite kiểm tra và giữ chỗ trong cùng giao dịch ghi. Yêu cầu đến sau phải dùng trạng thái mới.                       \\
+      \addlinespace[3pt]
+      \textbf{Ngoài giao dịch · Thiết bị} &
+      Backend gọi dock qua adapter giả lập. Lệnh trả đã được lưu và chỗ vẫn được giữ trong lúc chờ.                        \\
+      \addlinespace[3pt]
+      \textbf{Giao dịch 2 · Hoàn tất}     &
       Khi có xác nhận hợp lệ, backend cập nhật xe, chỗ đỗ và đóng chuyến. Nếu phản hồi chưa rõ, chuyến còn mở để đối soát. \\
-    \bottomrule
-  \end{tabular}
+      \bottomrule
+    \end{tabular}
   }
   \vspace{0.12cm}
   \begin{tikzpicture}
@@ -764,14 +787,59 @@
   \end{tikzpicture}
 \end{frame}
 
-{
-\setHCMUTFrontBackground
-\begin{frame}[plain]
-  \centering
-  \vspace*{1.6cm}
-  {\Huge\bfseries\textcolor{BKTemplate}{END}}\\[0.35cm]
-  {\Large\bfseries\textcolor{BKTemplate}{Cảm ơn Thầy và các bạn đã lắng nghe!}}
+\section{Demo sản phẩm}
+\ChapterDivider{Phần 5}{Demo sản phẩm}{Ứng dụng android và webapp}
+
+
+\section{Kiểm thử, giới hạn và bài học}
+\ChapterDivider{Phần 6}{Kiểm thử, giới hạn và bài học}{Cách kiểm thử hệ thống và bài học rút ra được trong quá trình làm}
+
+\begin{frame}{Kiểm thử bản demo}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Kiểm thử thủ công}
+        {\LARGE\bfseries Khoảng 2 giờ}\par\medskip
+        Nhóm thao tác lặp lại các chức năng trên Android và web theo góc nhìn của sinh viên và nhân viên vận hành để tìm lỗi người dùng có thể gặp.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Triển khai lại}
+        {\LARGE\bfseries Khoảng 5 phút}\par\medskip
+        Thời gian ghi nhận khi đưa bản demo lên một máy khác.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \medskip
+  \textbf{Ví dụ luồng thao tác} \enspace Giữ, nhận và trả xe trên Android. Gửi yêu cầu sạc trên Android và phân bổ cổng sạc trên web.
 \end{frame}
+
+\begin{frame}{Giới hạn của bản demo}
+  \begin{itemize}
+    \setlength{\itemsep}{1em}
+    \item \textbf{Phạm vi trình diễn.} MVP minh họa các luồng chính. Bản demo dùng thiết bị giả lập để xác nhận thao tác ở Hub.
+    \item \textbf{Dữ liệu giả lập.} Nhóm chưa có dữ liệu vận hành thực tế để đối chiếu nhu cầu thuê xe, công suất sạc và kết quả mô phỏng What-if.
+    \item \textbf{Độ phủ kiểm thử.} Một số lỗi người dùng có thể chưa được phát hiện. Các tình huống cần kiểm tra thêm gồm mất kết nối giữa chừng và nhiều người cùng đặt một tài nguyên.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Bài học làm việc nhóm}
+  \begin{itemize}
+    \setlength{\itemsep}{1em}
+    \item \textbf{Phân chia công việc.} Với mỗi module, thống nhất người phụ trách, đầu ra cần bàn giao và tiêu chí hoàn thành dựa trên yêu cầu.
+    \item \textbf{Thống nhất điểm nối.} Chốt sớm dữ liệu vào, kết quả trả về và cách xử lý lỗi ở các điểm giao giữa module, đặc biệt khi nhiều module cập nhật cùng một tài nguyên.
+    \item \textbf{Tích hợp theo từng đợt nhỏ.} Ghép sớm từng luồng từ giao diện đến backend, rồi đối chiếu với kịch bản nghiệp vụ để phát hiện lệch yêu cầu trước buổi demo.
+    \item \textbf{Mất kết nối.} Các thành viên trong nhóm nhiều khi không chủ động tham gia thảo luận để chỉ ra vấn đề mà chỉ làm theo yêu cầu.
+  \end{itemize}
+\end{frame}
+
+{
+  \setHCMUTFrontBackground
+  \begin{frame}[plain]
+    \centering
+    \vspace*{1.6cm}
+    {\Huge\bfseries\textcolor{BKTemplate}{END}}\\[0.35cm]
+    {\Large\bfseries\textcolor{BKTemplate}{Cảm ơn Thầy và các bạn đã lắng nghe!}}
+  \end{frame}
 }
 
 \end{document}
