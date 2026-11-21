@@ -95,6 +95,14 @@ cd android
 
 Configure the backend URL inside the app settings (`10.0.2.2:3000` for Android Emulator, or `adb reverse tcp:3000 tcp:3000` with `http://127.0.0.1:3000` over USB). See [android/README.md](android/README.md) for details.
 
+### 3. Deploy to Cloud (Render / Railway / Docker)
+
+- **Render (1-click Blueprint)**: Open [Deploy to Render](https://render.com/deploy?repo=https://github.com/YdtTran/software-engineerning) (reads `render.yaml` + `Dockerfile`), enter `DEMO_OPERATOR_PASSWORD` and `DEMO_USER_PASSWORD`, and apply.
+- **Railway**: Create a new project from this GitHub repository (`railway.json` builds `Dockerfile` with `/healthz` healthcheck) and set `DEMO_OPERATOR_PASSWORD`, `DEMO_USER_PASSWORD`, and `DEMO_SIMULATED_DEVICES=1`.
+- **Docker Compose / VPS**: Copy `.env.example` to `.env`, set strong passwords, and run `docker compose up -d --build`.
+
+See [docs/PRODUCTION_GUIDE.md](docs/PRODUCTION_GUIDE.md) for persistent `/data` volumes, TLS reverse proxy (`TRUST_PROXY=1`), and WAL backup instructions.
+
 ---
 
 ## Verification & Quality Checks

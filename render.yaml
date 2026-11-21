@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: smart-emobility-hub
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DEMO_HOST
+        value: 0.0.0.0
+      - key: DEMO_DB_PATH
+        value: /data/hub.sqlite
+      - key: DEMO_ACCOUNTS_FILE
+        value: /data/accounts.json
+      - key: DEMO_SEED_MODE
+        value: dashboard
+      - key: DEMO_SIMULATED_DEVICES
+        value: "1"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DEMO_OPERATOR_USERNAME
+        value: operator
+      - key: DEMO_OPERATOR_PASSWORD
+        sync: false
+      - key: DEMO_USER_USERNAME
+        value: user
+      - key: DEMO_USER_PASSWORD
+        sync: false
+    # Optional: on paid Render plans (Starter+), attach a persistent disk so SQLite survives redeploys:
+    # disk:
+    #   name: emobility-data
+    #   mountPath: /data
+    #   sizeGB: 1

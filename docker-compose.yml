@@ -1,0 +1,27 @@
+services:
+  emobility-hub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${DEMO_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DEMO_HOST: "0.0.0.0"
+      PORT: "3000"
+      DEMO_DB_PATH: /data/hub.sqlite
+      DEMO_ACCOUNTS_FILE: /data/accounts.json
+      DEMO_SEED_MODE: ${DEMO_SEED_MODE:-dashboard}
+      DEMO_SIMULATED_DEVICES: ${DEMO_SIMULATED_DEVICES:-1}
+      DEMO_INSECURE_HTTP: ${DEMO_INSECURE_HTTP:-0}
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      DEMO_OPERATOR_USERNAME: ${DEMO_OPERATOR_USERNAME:-operator}
+      DEMO_OPERATOR_PASSWORD: ${DEMO_OPERATOR_PASSWORD:?Set DEMO_OPERATOR_PASSWORD in .env}
+      DEMO_USER_USERNAME: ${DEMO_USER_USERNAME:-user}
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:?Set DEMO_USER_PASSWORD in .env}
+    volumes:
+      - emobility_data:/data
+    restart: unless-stopped
+
+volumes:
+  emobility_data:
