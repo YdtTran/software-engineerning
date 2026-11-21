@@ -9,6 +9,7 @@
     "db:init": "node db/initialize.js",
     "db:dashboard-demo": "node db/create-dashboard-demo.js",
     "start": "node src/demo-server.js",
+    "start:cloud": "node src/cloud-start.js",
     "test": "node --test src/tests/*.test.js src/modules/operations/tests/*.test.js src/modules/mobility-simulation/tests/*.test.js src/modules/parking-charging/tests/*.test.js",
     "test:mobility": "node --test src/modules/mobility-simulation/tests/*.test.js"
   },

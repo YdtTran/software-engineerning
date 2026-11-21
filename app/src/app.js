@@ -22,6 +22,7 @@ function createApp({
   parkingDeviceAdapter = null,
   simulateDevices = false,
   simulationSnapshotProvider = null,
+  trustProxy = false,
   clock = () => new Date()
 } = {}) {
   if (!Array.isArray(demoAccounts) || demoAccounts.length === 0) throw new Error('Provision at least one demo account.');
@@ -39,11 +40,15 @@ function createApp({
   const sessionLifetimeMs = 8 * 60 * 60 * 1000;
   const cookieOptions = { httpOnly: true, sameSite: 'strict', secure: secureCookies, path: '/', maxAge: sessionLifetimeMs };
   const app = express();
+  if (trustProxy) app.set('trust proxy', trustProxy);
   app.use(express.json({ limit: '64kb' }));
+  app.get('/healthz', (req, res) => res.status(200).json({ data: { status: 'ok' } }));
   app.use((req, res, next) => {
     res.set('Cache-Control', 'no-store');
     const origin = req.get('Origin');
-    if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && origin && origin !== `${req.protocol}://${req.get('host')}`) {
+    const forwardedHost = trustProxy ? req.get('x-forwarded-host')?.split(',')[0].trim() : null;
+    const expectedOrigin = `${req.protocol}://${forwardedHost || req.get('host')}`;
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && origin && origin !== expectedOrigin) {
       return res.status(403).json({ error: { code: 'FORBIDDEN_OPERATION', message: 'Origin is not allowed.', details: {} } });
     }
     const cookies = (req.headers.cookie || '').split(';').map(part => part.trim()).filter(part => part.startsWith('demo_session='));
